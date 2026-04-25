@@ -1,0 +1,1 @@
+"""Stone abstractions and registry."""

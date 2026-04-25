@@ -1,0 +1,13 @@
+# Optional: file-based cloudflared config for users who prefer it over the
+# dashboard "public hostnames" UI. Save to %ProgramData%\Cloudflare\cloudflared\config.yml
+# (the path the Windows service reads). Replace <tunnel-id> and credentials path.
+
+tunnel: <tunnel-id>
+credentials-file: C:\ProgramData\Cloudflare\cloudflared\<tunnel-id>.json
+
+ingress:
+  - hostname: finance.<your-domain>
+    service: http://localhost:8787
+  - hostname: fantasy.<your-domain>
+    service: http://localhost:8787
+  - service: http_status:404

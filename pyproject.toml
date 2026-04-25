@@ -1,0 +1,46 @@
+[project]
+name = "keystone"
+version = "0.1.0"
+description = "Keystone: a local-first MCP runtime hosting swappable stones."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "sqlite-vec>=0.1.6",
+    "openai>=1.50.0",
+    "keyring>=25.0.0",
+    "httpx>=0.27.0",
+    "authlib>=1.3.0",
+    "pypdf>=5.0.0",
+    "pdfplumber>=0.11.0",
+    "pyjwt[crypto]>=2.9.0",
+    "uvicorn>=0.30.0",
+    "starlette>=0.40.0",
+    "pydantic>=2.8.0",
+    "anyio>=4.4.0",
+]
+
+[project.scripts]
+keystone = "keystone.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/keystone"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.6.0",
+]
+
+[tool.pytest.ini_options]
+# Stones drop in under stones_pkg/<name>/tests/ and are collected automatically
+# when present. Add additional test paths here if you want pytest to pick up
+# tests outside those locations.
+testpaths = ["tests", "stones_pkg"]
+asyncio_mode = "auto"
+pythonpath = ["src", "stones_pkg"]

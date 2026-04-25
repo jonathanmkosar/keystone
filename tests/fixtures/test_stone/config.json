@@ -1,0 +1,8 @@
+{
+  "name": "test_stone",
+  "http_subdomain_aliases": ["legacy_test"],
+  "description": "Fixture stone used by the core Keystone test suite. Not intended for runtime use.",
+  "schema_description": "Minimal schema covering the tables the generic-tools tests exercise (accounts, transactions, budgets, documents, document_chunks, semantic_index).",
+  "system_prompt_hints": [],
+  "tools": []
+}
