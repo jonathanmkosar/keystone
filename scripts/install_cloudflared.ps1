@@ -6,14 +6,13 @@
     1. Add your domain (<your-domain>) to your Cloudflare account.
     2. Zero Trust > Access > Tunnels > Create a tunnel. Copy the install token.
     3. Zero Trust > Access > Applications > Add an application:
-         - Self-hosted, hostname: finance.<your-domain>
+         - Self-hosted, hostname: <stone>.<your-domain>
          - Identity provider: One-time PIN (or Google/GitHub)
          - Policy: include emails: <your email>
          - Note the Application Audience (AUD) tag.
-       Repeat for fantasy.<your-domain>.
+       Repeat for each stone hostname you expose.
     4. Tunnels > your tunnel > Public hostnames:
-         finance.<your-domain> -> http://localhost:8787
-         fantasy.<your-domain> -> http://localhost:8787
+         <stone>.<your-domain> -> http://localhost:8787
 
   Usage:
     .\scripts\install_cloudflared.ps1 -Token "eyJhIjoi..."

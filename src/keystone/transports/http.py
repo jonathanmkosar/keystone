@@ -163,7 +163,7 @@ def build_app() -> Starlette:
                 {
                     "service": "keystone",
                     "stones": stone_names,
-                    "hint": "Connect via subdomain (e.g. finance.<your-domain>/mcp).",
+                    "hint": "Connect via subdomain (e.g. <stone>.<your-domain>/mcp).",
                 }
             )
         return JSONResponse({"service": "keystone"})

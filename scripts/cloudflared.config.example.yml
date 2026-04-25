@@ -6,8 +6,7 @@ tunnel: <tunnel-id>
 credentials-file: C:\ProgramData\Cloudflare\cloudflared\<tunnel-id>.json
 
 ingress:
-  - hostname: finance.<your-domain>
-    service: http://localhost:8787
-  - hostname: fantasy.<your-domain>
+  # Add one block per stone or stone alias you expose.
+  - hostname: <stone>.<your-domain>
     service: http://localhost:8787
   - service: http_status:404

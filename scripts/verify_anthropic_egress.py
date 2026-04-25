@@ -19,8 +19,8 @@ from __future__ import annotations
 CHECKLIST = """\
 Pre-flight checklist before enabling Cloudflare geo-block (US-only):
 
-1. In the Cloudflare dashboard, open Analytics & Logs > Traffic for finance.<your-domain>
-   and fantasy.<your-domain>. Look at the last 7 days of requests.
+1. In the Cloudflare dashboard, open Analytics & Logs > Traffic for each
+   <stone>.<your-domain> hostname. Look at the last 7 days of requests.
 
 2. Confirm every successful request originates from:
      - United States (Anthropic-controlled egress)

@@ -19,7 +19,7 @@ def _transport_security_for(stone: Stone) -> TransportSecuritySettings:
 
     The MCP SDK's DNS-rebinding protection rejects unknown Host headers with
     421. When the server runs behind Cloudflare Tunnel, requests arrive with
-    the public hostname (e.g. finance.<your-domain>) which must be on the
+    the public hostname (e.g. <stone>.<your-domain>) which must be on the
     allowlist. The list is built from:
 
     * any explicit hosts in ``KEYSTONE_PUBLIC_HOSTS`` (comma-separated),

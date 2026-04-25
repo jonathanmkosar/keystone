@@ -10,9 +10,11 @@ it ensures that anyone who happens to reach the local origin (e.g. via a
 misconfigured tunnel) still has to present a valid token.
 
 Configure via env vars:
-  CF_ACCESS_TEAM           = your team name (the bit before .cloudflareaccess.com)
-  CF_ACCESS_AUD_FINANCE    = the Access app AUD tag for the finance app
-  CF_ACCESS_AUD_FANTASY    = the Access app AUD tag for the fantasy app
+  CF_ACCESS_TEAM              = your team name (the bit before .cloudflareaccess.com)
+  CF_ACCESS_AUD_<STONE_NAME>  = the Access app AUD tag for the stone subdomain
+
+The audience variable suffix is lowercased before matching the request
+subdomain, so CF_ACCESS_AUD_MY_STONE protects my_stone.<your-domain>.
 
 If CF_ACCESS_TEAM is unset, the middleware is disabled (useful during local
 development before the tunnel is set up).

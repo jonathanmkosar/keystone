@@ -130,8 +130,12 @@ Copy `.env.example` to `.env` and edit. Key knobs:
 - `KEYSTONE_STONES_DIR` — where per-user data lives (default `./stones`, gitignored).
 - `KEYSTONE_STONES_PKG_DIR` — where stone packages live (default `./stones_pkg`).
 - `KEYSTONE_HTTP_HOST` / `KEYSTONE_HTTP_PORT` — HTTP transport bind.
-- `KEYSTONE_BASE_DOMAIN` — your domain when running behind Cloudflare Tunnel.
-- `CF_ACCESS_TEAM` + `CF_ACCESS_AUD_<STONE_NAME>` — Cloudflare Access JWT validation for remote auth (e.g. `CF_ACCESS_AUD_YAHOO_FANTASY_BASEBALL_STONE`).
+
+### Remote access via Cloudflare Tunnel
+
+For remote HTTP access, keep Keystone bound to `127.0.0.1` and put Cloudflare Tunnel in front of it. Each stone is reachable at `<stone>.<your-domain>` and protected by Cloudflare Access; Keystone also verifies the forwarded Access JWT before dispatching to the stone.
+
+Set `KEYSTONE_BASE_DOMAIN`, `CF_ACCESS_TEAM`, and one `CF_ACCESS_AUD_<STONE_NAME>` per exposed stone or alias. See [docs/REMOTE_ACCESS.md](docs/REMOTE_ACCESS.md) for the full tunnel, Access, health check, and optional geo-block setup.
 
 Secrets (OpenAI key, SimpleFIN token, Yahoo OAuth refresh token) live in the OS keychain, never in `.env`.
 
