@@ -1,0 +1,19 @@
+{
+  "lane": "core",
+  "settings": [
+    {
+      "key": "server.address",
+      "type": "string",
+      "default": "127.0.0.1:7900",
+      "scope": "install",
+      "description": "The address and port Keystone listens on. The default is reachable from this machine only."
+    },
+    {
+      "key": "data.dir",
+      "type": "string",
+      "default": "data",
+      "scope": "install",
+      "description": "The folder that holds keystone.json and one folder for each tenant."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "lane": "interface",
+  "settings": [
+    {
+      "key": "appearance.theme",
+      "type": "string",
+      "default": "dark",
+      "options": ["dark", "light", "system"],
+      "scope": "tenant",
+      "description": "The colour theme. Dark is copper and ivory on basalt, light is copper on limestone, and system follows the device."
+    }
+  ]
+}
