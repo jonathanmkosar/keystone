@@ -1,0 +1,214 @@
+// Command verify runs the standing checks. Every check must pass before a
+// merge to main. It needs no network and no keys.
+//
+//	go run ./tools/verify
+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
+
+	"github.com/jonathanmkosar/keystone/internal/project"
+	"github.com/jonathanmkosar/keystone/settings"
+)
+
+type check struct {
+	name string
+	run  func(root string) error
+}
+
+// componentDocs maps each part of the code to the doc that describes it.
+// Adding a part without adding its doc fails the docs check.
+var componentDocs = map[string]string{
+	"cmd/keystone":     "docs/architecture/cli.md",
+	"settings":         "docs/architecture/settings.md",
+	"internal/project": "docs/architecture/project.md",
+	"tools/verify":     "docs/architecture/tools.md",
+	"tools/doctor":     "docs/architecture/tools.md",
+	"tools/snapshot":   "docs/architecture/tools.md",
+	"tools/rebuild":    "docs/architecture/tools.md",
+}
+
+var checks = []check{
+	{"build", goCmd("build", "./...")},
+	{"vet", goCmd("vet", "./...")},
+	{"tests", goCmd("test", "./...")},
+	{"settings registry", checkSettings},
+	{"plan items", checkItems},
+	{"state", checkState},
+	{"docs", checkDocs},
+	{"no secrets", checkSecrets},
+}
+
+func main() {
+	root, err := project.Root()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	failed := 0
+	start := time.Now()
+	for _, c := range checks {
+		if err := c.run(root); err != nil {
+			failed++
+			fmt.Printf("FAIL  %s\n      %s\n", c.name, strings.ReplaceAll(err.Error(), "\n", "\n      "))
+			continue
+		}
+		fmt.Printf("ok    %s\n", c.name)
+	}
+	fmt.Printf("\n%d of %d checks passed in %s\n", len(checks)-failed, len(checks), time.Since(start).Round(time.Millisecond))
+	if failed > 0 {
+		os.Exit(1)
+	}
+}
+
+func goCmd(args ...string) func(string) error {
+	return func(root string) error {
+		out, err := project.Run(root, "go", args...)
+		if err != nil {
+			return fmt.Errorf("go %s failed:\n%s", strings.Join(args, " "), out)
+		}
+		return nil
+	}
+}
+
+func checkSettings(string) error {
+	reg, err := settings.Registry()
+	if err != nil {
+		return err
+	}
+	if len(reg) == 0 {
+		return fmt.Errorf("the registry is empty")
+	}
+	return nil
+}
+
+func checkItems(root string) error {
+	items, err := project.Items(root)
+	if err != nil {
+		return err
+	}
+	if len(items) == 0 {
+		return fmt.Errorf("docs/plan/items holds no work items")
+	}
+	if p := project.CheckItems(items); len(p) > 0 {
+		return fmt.Errorf("%s", strings.Join(p, "\n"))
+	}
+	return nil
+}
+
+func checkState(root string) error {
+	raw, err := os.ReadFile(filepath.Join(root, "docs", "plan", "STATE.md"))
+	if err != nil {
+		return err
+	}
+	var missing []string
+	for _, key := range []string{"Phase:", "Next:", "Blocked:"} {
+		if strings.Contains(project.StateLine(string(raw), key), "(missing") {
+			missing = append(missing, key)
+		}
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("STATE.md has no line starting %s", strings.Join(missing, ", "))
+	}
+	return nil
+}
+
+func checkDocs(root string) error {
+	var problems []string
+	for part, doc := range componentDocs {
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(part))); err != nil {
+			problems = append(problems, part+" is listed in verify and does not exist")
+		}
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(doc))); err != nil {
+			problems = append(problems, part+" has no doc at "+doc)
+		}
+	}
+	// Every folder that holds Go code must be listed above.
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if project.Skip(d.Name()) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if !strings.HasSuffix(p, ".go") || strings.HasSuffix(p, "_test.go") {
+			return nil
+		}
+		rel, _ := filepath.Rel(root, filepath.Dir(p))
+		rel = filepath.ToSlash(rel)
+		if _, ok := componentDocs[rel]; !ok {
+			problems = append(problems, rel+" holds Go code and is not listed with a doc in tools/verify")
+			componentDocs[rel] = ""
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	for _, f := range []string{"docs/plan/PLAN.md", "docs/plan/LOOP.md", "docs/plan/PARALLEL.md", "docs/architecture/overview.md", "README.md"} {
+		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(f))); err != nil {
+			problems = append(problems, f+" is missing")
+		}
+	}
+	if len(problems) > 0 {
+		return fmt.Errorf("%s", strings.Join(problems, "\n"))
+	}
+	return nil
+}
+
+// secretShapes are the shapes of real keys. A match anywhere in the repo fails verify.
+var secretShapes = []*regexp.Regexp{
+	regexp.MustCompile(`sk-ant-[A-Za-z0-9_-]{20,}`),
+	regexp.MustCompile(`sk-(proj-|or-v1-)?[A-Za-z0-9]{32,}`),
+	regexp.MustCompile(`AKIA[0-9A-Z]{16}`),
+	regexp.MustCompile(`gh[pousr]_[A-Za-z0-9]{30,}`),
+	regexp.MustCompile(`tvly-[A-Za-z0-9]{20,}`),
+	regexp.MustCompile(`-----BEGIN [A-Z ]*PRIVATE KEY-----`),
+}
+
+func checkSecrets(root string) error {
+	var found []string
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			if project.Skip(d.Name()) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		info, err := d.Info()
+		if err != nil || info.Size() > 2<<20 {
+			return err
+		}
+		raw, err := os.ReadFile(p)
+		if err != nil {
+			return err
+		}
+		for _, re := range secretShapes {
+			if re.Match(raw) {
+				rel, _ := filepath.Rel(root, p)
+				found = append(found, filepath.ToSlash(rel)+" holds something shaped like a key")
+				break
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	if len(found) > 0 {
+		return fmt.Errorf("%s", strings.Join(found, "\n"))
+	}
+	return nil
+}
