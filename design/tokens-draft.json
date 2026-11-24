@@ -1,0 +1,45 @@
+{
+ "name": "Keystone",
+ "themes": {
+  "dark": {
+   "page": "#15191a",
+   "raised": "#1d2324",
+   "sunk": "#0f1213",
+   "line": "#2e3637",
+   "strong": "#737e7f",
+   "ink": "#f1ece0",
+   "muted": "#a8aba3",
+   "c1": "#6b3a1c",
+   "c2": "#b0683a",
+   "c3": "#e8a878",
+   "key": "#f1ece0",
+   "accent": "#e0915a",
+   "on": "#2a1305",
+   "soft": "#3b2412",
+   "softink": "#e8a878",
+   "ok": "#8fc7a1",
+   "link": "#86bfe6",
+   "err": "#f0907f"
+  },
+  "light": {
+   "page": "#f4f2ec",
+   "raised": "#fcfbf8",
+   "sunk": "#e9e6dd",
+   "line": "#d5d0c3",
+   "strong": "#857f70",
+   "ink": "#1e2422",
+   "muted": "#565d58",
+   "c1": "#e6b998",
+   "c2": "#c98253",
+   "c3": "#9a4f22",
+   "key": "#2f3a3d",
+   "accent": "#a85a28",
+   "on": "#ffffff",
+   "soft": "#f6e3d3",
+   "softink": "#8a4318",
+   "ok": "#39664b",
+   "link": "#22587f",
+   "err": "#9c3527"
+  }
+ }
+}
