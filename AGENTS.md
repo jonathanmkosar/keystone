@@ -1,0 +1,51 @@
+# For any agent working on Keystone
+
+This file is where you start, whatever tool you are: Codex, Claude Code, Cursor or another. It points to the real instructions and does not repeat them.
+
+## Start here, in this order
+
+1. `docs/plan/STATE.md`: where the work stands, what each lane does next, and what is waiting on the owner.
+2. `docs/plan/LOOP.md`: the loop you repeat. One pass finishes one work item.
+3. `docs/plan/PARALLEL.md`: the lanes, the owner gates, and what to do when a question comes up. The short version: never wait. Write the question in `STATE.md` with a recommended answer, build what does not rest on it, and move on.
+4. `docs/plan/PLAN.md`: the intent. When code and the plan disagree, the plan wins until a decision record changes it.
+
+Then run:
+
+    go run ./tools/doctor
+
+It prints the state, whether the build is healthy, and the next item each lane can pick up. The item files are in `docs/plan/items/`.
+
+## The branch
+
+This is the `reboot` branch of `jonathanmkosar/keystone`. It shares no history with `main`, which holds the earlier Python Keystone. Where the plan and the loop say `main`, read `reboot`, until the owner says otherwise. Do not merge into `main` and do not open a pull request unless he asks.
+
+## Rules that are easy to break
+
+- Put no agent or AI attribution in a commit message or author. Commits are authored as the owner.
+- The repo is public. Invented data only: no real names, addresses, accounts, emails or documents in code, fixtures, tests or the journal. No keys or tokens anywhere. `verify` scans for both.
+- A value someone might change is a setting in `settings/<lane>.json`, not a constant in code.
+- Nothing is committed with a red `go run ./tools/verify`. Never weaken a check to get to green.
+- The four fixed rules in `PLAN.md` cannot be switched off by any setting, and no check on them may be loosened.
+- Prefer plain functions and data over class hierarchies.
+
+## Each pass
+
+    You work the <lane> lane. Read docs/plan/STATE.md, your lane's latest journal entries,
+    docs/plan/PLAN.md and docs/plan/PARALLEL.md. Run the doctor tool. Do the next work item
+    in your lane as far as it can be built today, then finish with verify, docs, journal
+    and status.
+
+Finish every item the same way: tests, `go run ./tools/verify`, the part's doc under `docs/architecture/`, a decision record for any choice that was not obvious, one journal entry in `docs/journal/` named by date, lane and number, the item's status, and `STATE.md`.
+
+## Where things stand on handoff, November 24, 2026
+
+- Done: P0-01 (layout and settings registry) and P0-02 (rebuild, verify, doctor, snapshot). `verify` is green, 8 of 8, on Linux with Go 1.24.
+- Not yet done on Windows: nothing has been run there. Windows is the first target. P0-03 includes that check.
+- Ready now: P0-03 (stack decision records and the Windows check), P2-01 (tenant store), P3-01 (the model seam's internal format).
+- P2-01 needs `modernc.org/sqlite`, the same driver Waymarks uses. Follow Waymarks' choices unless a decision record says why not.
+- The look is decided. `design/README.md` has the mark and every colour. `design/screens/` has the mockups as reference markup. Build the interface from the tokens, and treat screens marked as drafts as provisional.
+- The earlier Python Keystone on `main`, and the owner's later "New Keystone", are sources to borrow from: durable jobs and queued turns, web search with approvals, voice dictation, the local model gateway client, approval cards.
+
+## What only the owner can do
+
+Listed in `STATE.md` under "Waiting on the owner". Do not guess a key, a sign-in or an approval. Build what the item says can be built without it, and mark the rest provisional.

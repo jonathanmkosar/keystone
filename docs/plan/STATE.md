@@ -3,6 +3,7 @@
 Phase: 0, foundations, and 1, design. The build has started.
 Next: wave 3. P0-03 (core), P2-01 (core) and P3-01 (models) can all start.
 Blocked: nothing
+Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
 ## Lanes
 
@@ -20,13 +21,12 @@ Blocked: nothing
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
-| Go-ahead to create the private repo `keystone` on GitHub | Yes | Work in the local git repo | P0-04 |
 | A run of `go run ./tools/rebuild` on the Windows machine | Run it and say what it prints | Built and checked on Linux only | P0-03 |
 | Corrections on the first round of screens | | The drafts stand | P1-02, P1-04 |
 | The mark on light pages: on a dark tile, or free-standing with a dark keystone | On a dark tile | On a dark tile | P1-03 |
 | The wordmark: Fraunces or Art Deco capitals | Fraunces | Fraunces | P1-02 |
 | Claude.ai captures, or go-ahead to capture | Go-ahead to capture | Layout from knowledge of Claude.ai | P1-01 |
-| Where the build agents run, and how many at once | Claude Code on the Windows machine, three at once | Loops run one at a time from this workspace | nothing |
+| Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
 
@@ -37,6 +37,7 @@ Blocked: nothing
 
 ## Known gaps
 
+- The owner chose the public `keystone` repo over a private one on November 24, 2026, so everything here is public: invented data only.
 - Nothing has been run on Windows yet. The binary cross-compiles for it.
 - The workspace these first loops ran in cannot download Go modules. P2-01 onward needs a machine that can.
 - Scripts and computer use are out of this build (see PLAN.md).

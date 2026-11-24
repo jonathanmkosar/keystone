@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Keystone operations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&amp;family=IBM+Plex+Mono&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#22587f}a:hover{color:#1e2422}
+.ico{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav{display:flex;align-items:center;gap:10px;min-height:36px;padding:0 10px;border-radius:8px;color:#1e2422;text-decoration:none;font-size:14px}
+.nav:hover{background:#dcd8cc}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:8px;background:none;color:#565d58;cursor:pointer;padding:0}
+.ib:hover{background:#e9e6dd;color:#1e2422}
+.step{display:flex;align-items:center;gap:10px;min-height:36px;font-size:14px;color:#565d58}
+.cite{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:4px;background:#dbe7ee;color:#22587f;font:500 11px 'IBM Plex Sans',sans-serif;vertical-align:3px;text-decoration:none}
+.tb{width:100%;border-collapse:collapse;font-size:14px}
+.tb th{text-align:left;font:600 11px/16px 'IBM Plex Sans',sans-serif;letter-spacing:0.08em;color:#565d58;padding:8px 12px;border-bottom:1px solid #d5d0c3}
+.tb td{padding:11px 12px;border-bottom:1px solid #d5d0c3;vertical-align:top}
+.mono{font:13px/20px 'IBM Plex Mono',monospace}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;white-space:nowrap}
+.ok{background:#dde8dd;color:#39664b}.bad{background:#f6ddd6;color:#9c3527}.warn{background:#f8e6d0;color:#a34c0b}.idle{background:#e9e6dd;color:#565d58}
+.btn{min-height:36px;padding:0 14px;border:1px solid #857f70;border-radius:8px;background:#fcfbf8;font:500 14px 'IBM Plex Sans',sans-serif;color:#1e2422;cursor:pointer}
+.btn.pri{background:#39664b;border-color:#39664b;color:#ffffff}
+.card{background:#fcfbf8;border:1px solid #d5d0c3;border-radius:12px}
+.ov{font:600 11px/16px 'IBM Plex Sans',sans-serif;letter-spacing:0.08em;color:#565d58;margin:0}
+.mut{color:#565d58}
+</style>
+</helmet>
+<div style="min-height: 1380px; display: flex; flex-wrap: wrap; background: #f4f2ec; color: #1e2422; font-family: 'IBM Plex Sans', system-ui, sans-serif">
+
+<nav aria-label="Keystone" style="flex: 1 1 272px; max-width: 100%; box-sizing: border-box; background: #e9e6dd; border-right: 1px solid #d5d0c3; padding: 12px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 6px">
+<div style="display: flex; align-items: center; gap: 10px">
+<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M3 3h20l-4.5 20h-11z" fill="#2f3a3d"/></svg>
+<span style="font: 600 21px/1 Fraunces, Georgia, serif; letter-spacing: -0.01em">Keystone</span>
+</div>
+<button class="ib" aria-label="Close sidebar"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+</div>
+<button style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 10px; border: 0; border-radius: 8px; background: none; font: 500 14px 'IBM Plex Sans', sans-serif; color: #1e2422; cursor: pointer; text-align: left">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #39664b; color: #ffffff"><svg class="ico" viewBox="0 0 24 24" style="width: 16px; height: 16px"><path d="M12 5v14M5 12h14"/></svg></span>New chat</button>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>Search</a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>Chats</a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3z"/></svg>Projects</a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="4" width="10" height="10" rx="2"/><path d="M10 20h8a2 2 0 0 0 2-2v-8"/></svg>Artifacts</a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M4 18h16M7 14h10M10 10h4"/></svg>Agents<span style="margin-left: auto; font-size: 12px; font-weight: 500; color: #a34c0b; background: #f8e6d0; padding: 2px 6px; border-radius: 4px">2 running</span></a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Scheduled</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font: 600 11px/16px 'IBM Plex Sans', sans-serif; letter-spacing: 0.08em; color: #565d58; padding: 0 10px 4px">STARRED</div>
+<a class="nav" href="#">Tax year 2025 checklist</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<div style="font: 600 11px/16px 'IBM Plex Sans', sans-serif; letter-spacing: 0.08em; color: #565d58; padding: 0 10px 4px">RECENTS</div>
+<a class="nav" href="#">Boiler service before winter</a>
+<a class="nav" href="#">Weekend in Asheville</a>
+<a class="nav" href="#">Compare savings accounts</a>
+<a class="nav" href="#">Raised garden bed plan</a>
+<a class="nav" href="#">Letter to the HOA about the fence</a>
+<a class="nav" href="#">Morning brief, Monday</a>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div style="font: 600 11px/16px 'IBM Plex Sans', sans-serif; letter-spacing: 0.08em; color: #565d58; padding: 0 10px 4px">SYSTEM</div>
+<a class="nav" href="#" aria-current="page" style="background: #fcfbf8; font-weight: 500"><svg class="ico" viewBox="0 0 24 24"><path d="M4 13h4l2-6 4 12 2-6h4"/></svg>Operations</a>
+<a class="nav" href="#"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg>Admin</a>
+</div>
+<button style="display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 8px; border: 0; border-top: 1px solid #d5d0c3; background: none; cursor: pointer; text-align: left; font-family: 'IBM Plex Sans', sans-serif; color: #1e2422">
+<span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: #2f3a3d; color: #f4f2ec; font-size: 13px; font-weight: 600">DW</span>
+<span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">Dana Whitlock</span><span style="font-size: 12px; color: #565d58">$41 of $100 this month</span></span>
+</button>
+</nav>
+
+<main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 28px; border-bottom: 1px solid #d5d0c3">
+<div><h1 style="margin: 0; font: 600 28px/34px Fraunces, Georgia, serif; letter-spacing: -0.01em">Operations</h1><div class="mut" style="font-size: 13px">What is running, how it is doing, and what went wrong. Updated 8 seconds ago.</div></div>
+<button class="btn" style="border-color: #9c3527; color: #9c3527">Pause all agents and schedules</button>
+</header>
+<div style="padding: 24px 28px; display: flex; flex-direction: column; gap: 24px">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px">
+<div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><p class="ov">RUNNING NOW</p><span class="pill warn">Running</span></div><div style="font: 600 28px/34px Fraunces, Georgia, serif">2</div><div class="mut" style="font-size: 13px; line-height: 19px">1 research run, 1 memory save. 1 more is queued.</div></div>
+<div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><p class="ov">FAILED, LAST 24 HOURS</p><span class="pill bad">3 to look at</span></div><div style="font: 600 28px/34px Fraunces, Georgia, serif">3</div><div class="mut" style="font-size: 13px; line-height: 19px">Of 186 turns and 41 background runs.</div></div>
+<div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><p class="ov">TURN TIME, MEDIAN</p><span class="pill ok">Good</span></div><div style="font: 600 28px/34px Fraunces, Georgia, serif">6.2 s</div><div class="mut" style="font-size: 13px; line-height: 19px">First words after 0.7 s. Steady this week.</div></div>
+<div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><p class="ov">CACHE HITS</p><span class="pill ok">Good</span></div><div style="font: 600 28px/34px Fraunces, Georgia, serif">71%</div><div class="mut" style="font-size: 13px; line-height: 19px">Of tokens sent to hosted models. Up 4 points.</div></div>
+<div class="card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; justify-content: space-between; gap: 8px"><p class="ov">SPEND THIS MONTH</p><span class="pill ok">On track</span></div>
+<div style="font: 600 28px/34px Fraunces, Georgia, serif">$41 of $100</div>
+<div role="img" aria-label="41 percent of the monthly cap used" style="height: 8px; background: #e9e6dd; border-radius: 4px; overflow: hidden"><div style="width: 41%; height: 8px; background: #39664b"></div></div>
+<div class="mut" style="font-size: 13px; line-height: 19px">At this rate, $51 by the end of the month.</div></div>
+</div>
+
+<section aria-label="Needs attention">
+<p class="ov" style="margin-bottom: 4px">NEEDS ATTENTION</p>
+<div class="card" style="overflow-x: auto">
+<table class="tb">
+<thead><tr><th>State</th><th>What</th><th>Why</th><th>When</th><th>Control</th></tr></thead>
+<tbody>
+<tr><td><span class="pill bad">Failed</span></td><td style="font-weight: 500">Weekly spending summary</td><td>Google sign-in had expired. Nothing was sent.</td><td class="mono">Sun 18:00</td><td><button class="btn">Reconnect Google</button></td></tr>
+<tr><td><span class="pill bad">Failed</span></td><td style="font-weight: 500">Saving to memory from "Raised garden bed plan"</td><td>Waymarks did not answer in 3 s. Tried 3 times. The facts are kept and will be sent when it is back.</td><td class="mono">21:40</td><td><button class="btn">Try now</button></td></tr>
+<tr><td><span class="pill bad">Failed</span></td><td style="font-weight: 500">Chat turn in "Compare savings accounts"</td><td>GLM 5.2 on OpenRouter refused the key. The turn was answered by Haiku 5.5 after you chose it.</td><td class="mono">18:22</td><td><button class="btn">Open models</button></td></tr>
+<tr><td><span class="pill warn">Slow</span></td><td style="font-weight: 500">Qwen 3.8 27B on the Mac mini</td><td>3 timeouts in the last hour. Those turns fell back to Haiku 5.5.</td><td class="mono">22:14</td><td><button class="btn">See the calls</button></td></tr>
+<tr><td><span class="pill warn">Watch</span></td><td style="font-weight: 500">Long chats</td><td>2 chats passed 80% of their model's context. Older turns were summarised.</td><td class="mono">today</td><td><button class="btn">See the chats</button></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px">
+<section aria-label="Models" style="flex: 3 1 560px; min-width: 0">
+<p class="ov" style="margin-bottom: 4px">MODELS, LAST 24 HOURS</p>
+<div class="card" style="overflow-x: auto">
+<table class="tb">
+<thead><tr><th>Model</th><th>Where</th><th>State</th><th>First words</th><th>Errors</th><th>Calls</th><th>Spend</th></tr></thead>
+<tbody>
+<tr><td style="font-weight: 500">Sonnet 5.5</td><td>Anthropic</td><td><span class="pill ok">Good</span></td><td class="mono">0.6 s</td><td class="mono">0.2%</td><td class="mono">88</td><td class="mono">$1.92</td></tr>
+<tr><td style="font-weight: 500">Haiku 5.5</td><td>Anthropic</td><td><span class="pill ok">Good</span></td><td class="mono">0.3 s</td><td class="mono">0%</td><td class="mono">143</td><td class="mono">$0.31</td></tr>
+<tr><td style="font-weight: 500">Qwen 3.8 27B</td><td>Mac mini, local</td><td><span class="pill warn">Slow</span></td><td class="mono">1.9 s</td><td class="mono">4.1%</td><td class="mono">212</td><td class="mono">$0.00</td></tr>
+<tr><td style="font-weight: 500">GPT-5.6</td><td>OpenAI</td><td><span class="pill ok">Good</span></td><td class="mono">0.8 s</td><td class="mono">0%</td><td class="mono">12</td><td class="mono">$0.44</td></tr>
+<tr><td style="font-weight: 500">GLM 5.2</td><td>OpenRouter</td><td><span class="pill bad">Not reachable</span></td><td class="mono">none</td><td class="mono">100%</td><td class="mono">1</td><td class="mono">$0.00</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section aria-label="Turns by hour" style="flex: 2 1 340px; min-width: 0">
+<p class="ov" style="margin-bottom: 4px">TURNS BY HOUR, TODAY</p>
+<div class="card" style="padding: 16px">
+<div role="img" aria-label="Turns for each hour of today. Most activity is from 7 in the morning to 10 at night. Failures at 7, 18 and 21 hours." style="display: flex; align-items: flex-end; gap: 3px"><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 15px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 5px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 2px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 2px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 2px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 2px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 10px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 8px; background: #9c3527; border-radius: 2px"></div><div style="height: 70px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 45px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 30px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 40px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 55px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 65px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 35px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 30px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 45px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 60px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 40px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 8px; background: #9c3527; border-radius: 2px"></div><div style="height: 25px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 50px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 75px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 8px; background: #9c3527; border-radius: 2px"></div><div style="height: 60px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 45px; background: #77807b; border-radius: 2px"></div></div><div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; height: 96px"><div style="height: 20px; background: #77807b; border-radius: 2px"></div></div></div>
+<div class="mono mut" style="display: flex; justify-content: space-between; margin-top: 6px"><span>0:00</span><span>6:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div>
+<div style="display: flex; gap: 16px; margin-top: 10px; font-size: 13px"><span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #77807b"></span>Turns</span><span style="display: inline-flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #9c3527"></span>Failed, stacked on top</span></div>
+</div>
+</section>
+</div>
+
+<section aria-label="Room to grow">
+<p class="ov" style="margin-bottom: 4px">ROOM TO GROW</p>
+<div class="card" style="overflow-x: auto">
+<table class="tb">
+<thead><tr><th>Limit</th><th>Used</th><th>Growth</th><th>Reaches the limit</th><th>State</th></tr></thead>
+<tbody>
+<tr><td style="font-weight: 500">Your chat database<div class="mut" style="font-size: 13px; font-weight: 400">keystone.db. Load-tested size.</div></td><td class="mono">212 MB of 2 GB · 11%</td><td class="mono">3 MB a day</td><td class="mono">in about 20 months</td><td><span class="pill ok">Fine</span></td></tr>
+<tr><td style="font-weight: 500">Past-chat search time<div class="mut" style="font-size: 13px; font-weight: 400">95th percentile. Budget, a setting.</div></td><td class="mono">148 of 200 ms · 74%</td><td class="mono">0.4 ms a day</td><td class="mono">in about 4 months</td><td><span class="pill warn">Watch</span></td></tr>
+<tr><td style="font-weight: 500">Disk for files and artifacts</td><td class="mono">6.1 of 50 GB · 12%</td><td class="mono">40 MB a day</td><td class="mono">in about 3 years</td><td><span class="pill ok">Fine</span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1380}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
