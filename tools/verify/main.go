@@ -32,6 +32,7 @@ var componentDocs = map[string]string{
 	"tools/doctor":     "docs/architecture/tools.md",
 	"tools/snapshot":   "docs/architecture/tools.md",
 	"tools/rebuild":    "docs/architecture/tools.md",
+	"web":              "docs/architecture/web.md",
 }
 
 var checks = []check{
@@ -157,6 +158,20 @@ func checkDocs(root string) error {
 	for _, f := range []string{"docs/plan/PLAN.md", "docs/plan/LOOP.md", "docs/plan/PARALLEL.md", "docs/architecture/overview.md", "README.md"} {
 		if _, err := os.Stat(filepath.Join(root, filepath.FromSlash(f))); err != nil {
 			problems = append(problems, f+" is missing")
+		}
+	}
+	// Every decision record must be linked from the overview.
+	overview, _ := os.ReadFile(filepath.Join(root, "docs", "architecture", "overview.md"))
+	records, err := filepath.Glob(filepath.Join(root, "docs", "architecture", "decisions", "*.md"))
+	if err != nil {
+		return err
+	}
+	if len(records) == 0 {
+		problems = append(problems, "docs/architecture/decisions holds no decision records")
+	}
+	for _, r := range records {
+		if link := "(decisions/" + filepath.Base(r) + ")"; !strings.Contains(string(overview), link) {
+			problems = append(problems, "decision "+filepath.Base(r)+" is not linked from docs/architecture/overview.md")
 		}
 	}
 	if len(problems) > 0 {

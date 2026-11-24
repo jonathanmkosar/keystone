@@ -1,0 +1,34 @@
+/* The placeholder page. Colours are the page, text, quiet text and line
+   roles from design/README.md. P4-01 replaces this file with the built
+   interface, which reads the design tokens. */
+:root {
+  --page: #15191a;
+  --text: #f1ece0;
+  --quiet: #a8aba3;
+  --line: #2e3637;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --page: #f4f2ec;
+    --text: #1e2422;
+    --quiet: #565d58;
+    --line: #d5d0c3;
+  }
+  img {
+    background: #15191a;
+    border-radius: 20px;
+    padding: 10px;
+  }
+}
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--page);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: grid;
+  place-items: center;
+}
+main { text-align: center; padding: 24px; max-width: 32rem; }
+h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; font-size: 2rem; margin: 16px 0 8px; }
+p { margin: 0 0 8px; }
+.quiet { color: var(--quiet); border-top: 1px solid var(--line); padding-top: 12px; margin-top: 16px; }

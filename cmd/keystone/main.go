@@ -1,5 +1,6 @@
 // Command keystone is the Keystone binary: the server and its command line.
-// So far it can print the settings registry and its version.
+// So far it can serve the embedded web page and print the settings registry
+// and its version.
 package main
 
 import (
@@ -19,6 +20,7 @@ var version = "dev"
 const usage = `Keystone: your own agent workspace.
 
 Usage:
+  keystone serve [--address <host:port>]       serve the web interface
   keystone settings [--json] [--lane <lane>]   print every setting, its default and who may change it
   keystone version                             print the version
   keystone help                                print this help
@@ -35,6 +37,8 @@ func run(args []string, out, errw io.Writer) int {
 		return 0
 	}
 	switch args[0] {
+	case "serve":
+		return runServe(args[1:], out, errw)
 	case "settings":
 		return runSettings(args[1:], out, errw)
 	case "version":
