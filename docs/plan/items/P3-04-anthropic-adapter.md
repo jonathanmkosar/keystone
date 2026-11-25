@@ -1,6 +1,6 @@
 # P3-04. Anthropic Messages adapter
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-02
 Owner gate: An Anthropic key, for the live check only.

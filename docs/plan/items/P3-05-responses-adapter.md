@@ -1,6 +1,6 @@
 # P3-05. OpenAI Responses adapter
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-02
 Owner gate: An OpenAI key, for the live check only.

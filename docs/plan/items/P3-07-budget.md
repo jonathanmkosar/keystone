@@ -1,6 +1,6 @@
 # P3-07. Token budget
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-02
 Owner gate: none

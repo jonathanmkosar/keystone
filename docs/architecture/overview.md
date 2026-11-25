@@ -13,6 +13,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Knowledge store | `internal/knowledge` | The interface every knowledge store is written to, the tests any store must pass, and the store that holds nothing, so a tenant can run with none. | [knowledge.md](knowledge.md) |
 | Built-in knowledge store | `internal/knowledge/builtin` | The knowledge store Keystone keeps by itself, in the tenant's own database: pages, sources, labels, a full-text index and page vectors. It passes the contract suite with every capability. The server does not open it yet. | [knowledge-builtin.md](knowledge-builtin.md) |
 | Web interface | `web` | The built interface, compiled into the binary. A placeholder page until P4-01. | [web.md](web.md) |
+| Web interface | `web` | The web shell, built with React and Vite and compiled into the binary: the frame, the theme switch, routing and the sign-in screen. | [web.md](web.md) |
 | Settings registry | `settings` | Every value someone may change: its default, its type, and who may change it. | [settings.md](settings.md) |
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
 | Chat record | `internal/chat` | Chats, their messages as a tree of branches, titles, stars, search over titles and text, and deletion with a chat's files. Functions only, until the API. | [chat.md](chat.md) |
@@ -57,5 +58,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0050 | [A model is a row in the tenant's database, holding the entry as checked JSON](decisions/0050-a-model-is-a-row-of-checked-json.md) |
 | 0051 | [The registry is a guard for rule 3, and `local` is checked against the address](decisions/0051-the-registry-guards-rule-three.md) |
 | 0052 | [An adapter's builder is passed in, and its key comes from the vault by name](decisions/0052-builders-are-passed-in.md) |
+| 0070 | [The design tokens become CSS variables when the interface is built](decisions/0070-design-tokens-become-css-at-build-time.md) |
+| 0071 | [Screens in the interface have real paths, and the server falls back to the page](decisions/0071-client-side-routes-are-real-paths.md) |
+| 0072 | [The interface names the design's fonts and does not bundle them yet](decisions/0072-fonts-are-named-not-bundled.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

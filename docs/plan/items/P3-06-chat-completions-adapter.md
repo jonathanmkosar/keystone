@@ -1,6 +1,6 @@
 # P3-06. Chat Completions adapter
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-02
 Owner gate: The Mac mini gateway address and an OpenRouter key, for the live checks only.
