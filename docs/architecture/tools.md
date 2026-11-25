@@ -64,6 +64,8 @@ Today `internal/tenant` guards tenant isolation and `internal/audit` guards call
 
 Since P3-02, `internal/models` guards the sensitive content rule: the registry's classes are what the rule reads ([models.md](models.md)). Routing (P3-08) and recall (P6-05) add their own packages. The `no keys in output` check also has a surface for the model registry, in `tools/verify/models.go`: a key reaches an adapter's builder from the vault, and is looked for in every error, in the registry as listed, and in the data folder.
 
+Since P3-04, `internal/adapters/anthropic` is on the `offline` check's list of folders that may use the network: it calls the endpoint a registry entry names, and its tests call a server on this machine. The `no keys in output` check has a surface for it, in `tools/verify/anthropic.go`: the adapter is given the stored value as its key and called against stand-in endpoints that fail in each way and repeat the key in their answers, and the value is looked for in every error, every event and the provider as printed ([adapter-anthropic.md](adapter-anthropic.md)).
+
 ## doctor
 
 `go run ./tools/doctor` prints the state lines, the Go version, whether the build is healthy, how many items are done, and the next item each lane can pick up. An agent runs it at the start of every loop. It exits with an error when the build or the plan is broken, and fixing that is then the loop's item.

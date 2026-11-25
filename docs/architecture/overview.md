@@ -24,6 +24,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Tenant settings | `internal/tenantsettings` | A tenant's own values over the registry's defaults, limited by each setting's scope. The fixed rules cannot be stored. | [tenant-settings.md](tenant-settings.md) |
 | Model registry | `internal/models` | Each tenant's list of models: adapter, endpoint, context window, output limit, capabilities, price, and whether it is local, hosted or trusted. Refuses an entry that is not valid, with the reason. Guards fixed rule 3. | [models.md](models.md) |
 | Adapters | `internal/adapters` | Turns a registry entry into a provider that can be called, with the key read by name from the tenant's vault. The fake is the only adapter built. | [models.md](models.md) |
+| Anthropic adapter | `internal/adapters/anthropic` | Speaks the Anthropic Messages API over HTTP with the standard library: streaming, tools, thinking, cache marks, token counting, errors as the seam's kinds, and retries. The entry gives the address, so it serves Ollama and LiteLLM as well. Proven on recorded exchanges, and not yet against the real API. | [adapter-anthropic.md](adapter-anthropic.md) |
 | Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
 
 ## Parts still to come
@@ -59,6 +60,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0050 | [A model is a row in the tenant's database, holding the entry as checked JSON](decisions/0050-a-model-is-a-row-of-checked-json.md) |
 | 0051 | [The registry is a guard for rule 3, and `local` is checked against the address](decisions/0051-the-registry-guards-rule-three.md) |
 | 0052 | [An adapter's builder is passed in, and its key comes from the vault by name](decisions/0052-builders-are-passed-in.md) |
+| 0100 | [The Anthropic adapter places the cache marks itself, until the seam has a marker](decisions/0100-the-anthropic-adapter-places-cache-marks.md) |
+| 0101 | [The Anthropic adapter asks for adaptive thinking, and for a token budget only where a setting names the model](decisions/0101-thinking-form-by-model-name.md) |
+| 0102 | [The Anthropic adapter retries a call only before it has passed anything on, and never follows a redirect](decisions/0102-an-adapter-retries-only-before-the-first-event.md) |
 | 0070 | [The design tokens become CSS variables when the interface is built](decisions/0070-design-tokens-become-css-at-build-time.md) |
 | 0071 | [Screens in the interface have real paths, and the server falls back to the page](decisions/0071-client-side-routes-are-real-paths.md) |
 | 0072 | [The interface names the design's fonts and does not bundle them yet](decisions/0072-fonts-are-named-not-bundled.md) |

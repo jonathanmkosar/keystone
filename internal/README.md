@@ -17,4 +17,5 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `knowledge/builtin` | knowledge | The built-in knowledge store, kept in the tenant's own database |
 | `models` | models | Each tenant's model registry, and the classes fixed rule 3 reads |
 | `adapters` | models | Turns a registry entry into a provider, with its key from the vault |
+| `adapters/anthropic` | models | The adapter for the Anthropic Messages API, and for gateways that speak it |
 | `testtenant` | core | Loads the invented test tenant from `fixtures/test-tenant` |
