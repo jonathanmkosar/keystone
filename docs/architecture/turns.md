@@ -193,7 +193,7 @@ The answer has the status 200, the header `X-Turn-Id: 9a1f0c2b3d4e5f60`, and thi
 
     id: 29
     event: title
-    data: {"chat_id":"4be0c1a2d3e4f506","title":"Suggest three names for a small bakery"}
+    data: {"chat_id":"4be0c1a2d3e4f506","title":"Suggest three names for a small"}
 
     id: 30
     event: end
@@ -217,4 +217,158 @@ What a screen does with it:
 
 ## Changed since the contract
 
-Nothing yet.
+No route, request, reply or event changed shape between the contract commit and the build. `docs/api/openapi.json` is the same file in both. Three things are worth knowing that the contract did not say:
+
+- The `not_built` code is no longer answered by any route.
+- The title in the worked example was one word too long. The fake provider writes no title, so the test tenant's titles are the first `chats.title_derived_words` words of the message, six as shipped.
+- A turn's `usage` and `cost_micros` count its chat calls. The title call is recorded in the audit log and is not added to the turn.
+
+## How a turn runs
+
+Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.
+
+**A turn is a row, and so is each event.** `POST /chats/{id}/turns` checks the body, writes a row in `turns` with the status `queued` and the body it was sent with, writes the first event, and starts reading the turn's events back to the client. Nothing else happens in the request. The request can end at any point and the turn is not affected.
+
+**The runner works each chat's turns one at a time.** `turn.Runner` starts one goroutine for a chat that has a turn waiting. The goroutine opens a store of its own for the tenant, takes the chat's oldest queued turn, runs it to its end, and takes the next. When none waits it closes its store and ends. Turns in different chats, and different tenants, run side by side. A turn sent while another runs in the same chat waits behind it, up to `chats.turn_queue_max` waiting.
+
+**One turn**, in `Runner.work`:
+
+1. The model is opened. See "Which model" below. A failure here ends the turn with an `error` event, and nothing is written to the chat.
+2. The person's message is appended to the chat record with `chat.Append`, under the last message of the current branch. With `edit_of` it goes under the edited message's parent. With `retry_of` nothing is appended, and the reply goes under the retried reply's parent.
+3. The request is built from the branch that ends at that message: `seam.Request` with the model's name, the messages, `chats.turn_max_output_tokens` and `chats.turn_thinking_tokens`. There is no system text yet. That is the context builder's (P5-01).
+4. The provider's `Stream` is called. Each seam event goes through a `seam.Collector` and is written as a row in `turn_events`: text and thinking as they arrive, a tool call when it is whole.
+5. The reply is appended to the record, with the model, the stop reason, the usage and the cost in `turn_messages`.
+6. If the model stopped for a tool, each call is answered, the results are appended as a message, and step 3 runs again, up to `chats.turn_max_steps` times. There is no tool loop yet (P7-01), so every call is answered with an error the model can read (decision [0143](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md)).
+7. A chat with no title gets one.
+8. The turn is closed with `end`.
+
+**The request holds what a provider takes.** The record holds what happened, and that includes replies that were stopped or broke off. `buildMessages` leaves out a thinking block that has no signature or was written by another model, a tool call that has no result in the next message, and a result whose call was left out. A message left with nothing is dropped, and two messages in a row from the same side become one.
+
+**A reader follows the table.** A stream reads the turn's rows in `turn_events` after the id it was given and sends them. When there are none it waits to be woken by the runner, or for `chats.stream_poll`, and reads again. So `Last-Event-ID` needs no code of its own, a turn can be read after it has ended, and it does not matter which start of the server wrote the events.
+
+### Which model
+
+`GET /chats/{id}/model` and a turn that names no model use the same order:
+
+1. The model the chat's last turn used, if the person still has it.
+2. The person's `chats.default_model`, if it names a model they have.
+3. The first model in their registry, by name.
+
+Only models that pass the registry's check today, whose adapter this build has, and that are not embedding models count. With none, the turn fails with `no_model` and the reason.
+
+A turn that names a `model` gets that one, or fails with `model_unavailable`.
+
+The provider comes from `adapters.Open` with the set in `app.Config.Adapters`, and is wrapped in `budget.Guard`, so a chat that does not fit the model's window ends as `too_long` before it is sent ([budget.md](budget.md)).
+
+**The test tenant gets its recorded turns and nothing else.** When `testtenant.IsTest` is true for the store, the registry is not read and the turn's `model` field is ignored. The model is `recorded-turns`, the provider is `testtenant.Provider`, the fake playing the fixtures' scripts, behind the same guard. Decision [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md).
+
+### Stop
+
+`POST .../stop` writes `stop_requested` on the turn's row, then:
+
+- A turn that waits is closed as `stopped` at once.
+- A turn that runs has its context cancelled, which is how the seam says a call is stopped. The provider returns, the runner appends what `Collector.Partial` holds as an assistant message with the stop reason `stopped`, and closes the turn. The route waits for that, up to `chats.stop_wait`, and answers with the turn.
+- A turn that has ended is answered as it is.
+
+Deleting a chat stops its turns first.
+
+### After a restart
+
+`Runner.Recover` runs once when the handler is made, for every tenant. Decision [0142](decisions/0142-an-interrupted-turn-fails-and-a-queued-one-runs.md).
+
+- A turn that was **queued** runs. Its body is in its row, and the request id it was sent under still names its model call in the audit log.
+- A turn that was **running** is closed as `failed` with the code `interrupted`. The text it had streamed and not yet stored is read back from `turn_events` and appended as an assistant message with the stop reason `failed`, so the chat shows what the person saw.
+
+`Runner.Close` stops the goroutines and writes nothing, which leaves the rows exactly as a killed server would. `app.Open` returns it beside the handler, for a caller that removes the data folder afterwards.
+
+### Titles
+
+After a reply, while the chat has no title and `chats.title_auto` is on:
+
+- A model writes it: the one `chats.title_model` names, or the model that answered. It is sent `chats.title_prompt` as its standing instructions and the first `chats.title_input_chars` characters of the message and of the reply. The answer's first line is used, without quotation marks or a full stop, cut to `chats.title_max_length`. The call is checked against the window and recorded like any other.
+- The fake provider writes none, and neither does a call that fails or takes longer than `chats.title_timeout`. The title is then the first `chats.title_derived_words` words of the person's message.
+
+A title the person gave is never replaced: the title is looked at again just before it is set.
+
+### The audit log
+
+Each model call leaves two entries of the kind `model` in the tenant's log, with the request id of the `POST .../turns` call that sent the turn and the model's name as the action ([audit.md](audit.md)).
+
+| Entry | Outcome | Holds |
+| --- | --- | --- |
+| Before the call | `started` | `sent`: the seam request. |
+| A whole reply | `ok` | `received`: the seam response. The usage, the cost and the time taken. |
+| Stopped by the person | `ok` | `received`: `{"stopped": true, "partial": …}`. |
+| Refused by the budget | `refused` | `received`: the seam error, `too_long`. |
+| Any other failure | `error` | `received`: the seam error. |
+
+A call whose first entry cannot be written is not made. A reply whose end cannot be recorded is not used. The model's key is read from the vault by name and passed to `audit.Append`, so it is removed from anything recorded. A call cut off by the server stopping has a `started` entry with nothing after it.
+
+## Tables
+
+In `internal/tenant/migrations/20261125T030000_turns.sql`.
+
+| Table | Holds |
+| --- | --- |
+| `turns` | One row for each turn: its chat, status, the body it was sent with, the request id and actor, the model, the two message ids, the stop reason, the error, the summed usage and cost, `stop_requested`, the id of its newest event, and three times. |
+| `turn_events` | One row for each event: the turn, the event's id, its name and its JSON. |
+| `turn_messages` | What a turn recorded about a message it wrote: the turn, and for a reply the model, the stop reason, the usage and the cost. |
+
+All three name their chat or turn with `ON DELETE CASCADE`, so `chat.Delete` removes them with no change to the chat record.
+
+## Settings
+
+In `settings/chats.json`. `turn.ReadConfig` reads the install's, and `app.ReadConfig` calls it. The ones a person may set are read from their stored values for each turn.
+
+| Key | Default | Scope | Meaning |
+| --- | --- | --- | --- |
+| `chats.default_model` | empty | tenant | The model a new chat uses. Empty means the first usable one. |
+| `chats.turn_queue_max` | 5 | install | The most turns that may wait in one chat. |
+| `chats.turn_max_steps` | 8 | install | The most model calls one turn may make. |
+| `chats.turn_max_output_tokens` | 0 | tenant | The most tokens a reply may hold. Zero means the model's own limit. |
+| `chats.turn_thinking_tokens` | 0 | tenant | The most tokens spent on thinking. Zero asks for none. Sent only to a model with the `thinking` capability. |
+| `chats.stream_poll` | 1s | install | How often a stream looks for events when nothing wakes it. |
+| `chats.stream_batch` | 200 | install | The most events a stream reads at a time. |
+| `chats.stop_wait` | 2s | install | How long the stop route waits for the turn to end. |
+| `chats.title_auto` | true | tenant | Whether a chat gets a title after its first reply. |
+| `chats.title_model` | empty | tenant | The model that writes titles. Empty means the one that answered. |
+| `chats.title_prompt` | see the file | install | The instruction the title model is given. |
+| `chats.title_max_tokens` | 40 | install | The most tokens of a title. |
+| `chats.title_input_chars` | 2000 | install | How much of the message and the reply the title model sees. |
+| `chats.title_timeout` | 20s | install | How long the title model may take. |
+| `chats.title_derived_words` | 6 | install | How many words of the message make a title with no model. |
+| `chats.test_model_context_window` | 200000 | install | The window the test tenant's turns are checked against. |
+| `chats.test_model_output_limit` | 8192 | install | The output limit of the test tenant's model. |
+
+The three chat record settings in [chat.md](chat.md) and the budget's in [budget.md](budget.md) are read here too.
+
+## In code
+
+    runner := turn.NewRunner(turn.Options{Install: install, Config: config, PageLimit: 200, Adapters: set})
+    runner.Recover()                 // once, when the server starts
+    routes := turn.Routes(runner)    // added to the list in internal/app
+    runner.Close()                   // stops its goroutines and writes nothing
+
+`app.Config.Adapters` is the set of adapter builders. It is nil as shipped, which means the fake alone. Each real adapter (P3-04 to P3-06) is added to the set by whoever starts the server, one line each in `cmd/keystone/serve.go`.
+
+## Checked by
+
+- `go test ./internal/turn`, with a real HTTP server from `httptest` and the fake provider.
+  - **A turn streams to a client**: the events arrive in order with ids from 1, the deltas join to the scripted reply, and the record, the title, the usage and the two audit entries are as the stream said. A dropped connection resumes after `Last-Event-ID`, and after `after`. A turn with a tool call makes its second model call. A retry makes a branch. The list, search, rename, star and delete routes work, and another person's session reaches none of it.
+  - **Stop ends the model call**: a provider that waits in the middle of a reply sees its context end, the half reply is in the record as `stopped`, and the stream closes with `end`.
+  - **A queued turn finishes after a restart**: a server is stopped with one turn in its model call and one waiting. A second server on the same folder runs the waiting turn to `done` and closes the other as `interrupted` with its words kept.
+  - A tenant with no model gets `no_model` and no model call. A registry model is used. A model with no adapter is `model_unavailable`. A chat over the window is `too_long`. A model that is not the fake writes the title, and both calls are recorded with their cost. A branch with a stopped tool call and another model's thinking becomes a request the seam accepts.
+- The route walks in `verify` call the twelve routes like every other: `tenant isolation`, `calls recorded` and `no keys in output` ([tools.md](tools.md)).
+- `calls recorded` also sends one message as the test tenant with the shipped settings and reads the audit log: the API call and the model call are each there before and after, under one request id, the model is `recorded-turns`, and the other tenant's log is empty. The code is in `tools/verify/turns.go`.
+
+## Not here yet
+
+- Tools. A tool call is answered with an error until the tool loop (P7-01), which also brings approvals. The `tool_call` and `tool_result` events are already in the stream.
+- The context builder, compaction and caching (P5-01 to P5-03). The whole current branch is sent, with no system text. A chat that outgrows its model's window fails with `too_long` until then.
+- Routing, fallbacks, usage records and the spend cap (P3-08). A failed call is not tried on another model. Cost is worked out from the entry's price and kept in the audit log and on the message.
+- The real adapters in the set. `app.Config.Adapters` is ready for them.
+- Uploads (P9-02). `blocks` takes image and file blocks, and the files behind a `ref` are not yet read by anything.
+- Removing old rows from `turn_events`. Every delta is a row and none is removed, except with its chat.
+- A turn left `running` by a second server on the same data folder is not noticed. One server for each data folder is assumed.
+- A title call that times out is recorded with the outcome a stopped call has.
+- A way to change which model a chat uses, other than naming one in the next turn, and routes for the person's settings (P11-01).

@@ -27,6 +27,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
 | API shell | `internal/api`, `internal/app` | The HTTP API every client uses. Every route but sign-in sits inside one audit wrapper, gets its tenant's store from the session cookie, and is listed in the OpenAPI document. Server-sent events for streams. | [api.md](api.md) |
 | Token budget | `internal/budget` | Counts the tokens a call will use, with the provider's own count where it offers one and an estimate with a margin elsewhere, and refuses a call that cannot fit the model's window before it is sent. | [budget.md](budget.md) |
+| Chats and turns | `internal/turn` | The routes a chat screen calls, and the runner behind them. A turn is a row in the tenant's database: it takes the person's message through the model seam, streams the reply as server-sent events a client can resume, can be stopped, waits its turn in a chat's queue, and is finished after a restart. The test tenant always gets the fake provider. | [turns.md](turns.md) |
 
 ## Parts still to come
 
@@ -70,5 +71,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0042 | [The OpenAPI document is built from the routes, and a copy is committed](decisions/0042-the-openapi-document-is-built-from-the-routes.md) |
 | 0130 | [A provider counts tokens through an optional interface, declared by the budget](decisions/0130-a-provider-counts-through-an-optional-interface.md) |
 | 0131 | [The estimate counts characters, and leans high](decisions/0131-the-estimate-counts-characters.md) |
+| 0140 | [A turn is a row, its events are rows, and a stream reads the table](decisions/0140-a-turn-and-its-events-are-rows.md) |
+| 0141 | [The turn runner opens a store of its own, for the tenant of the call](decisions/0141-the-runner-opens-its-own-store.md) |
+| 0142 | [After a restart a queued turn runs, and a turn that was running is closed as failed](decisions/0142-an-interrupted-turn-fails-and-a-queued-one-runs.md) |
+| 0143 | [Until the tool loop, a tool call is answered with an error and the model is called again](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md) |
+| 0144 | [The test tenant's model is in no registry, and the fake provider's titles come from the message](decisions/0144-the-test-tenants-model-is-in-no-registry.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

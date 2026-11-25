@@ -38,6 +38,8 @@ type rig struct {
 	signIn   signin.Options
 	test     tenant.Tenant // the test tenant
 	ordinary tenant.Tenant // a tenant with no models
+	// extra are adapters a test adds to the fake.
+	extra adapters.Set
 }
 
 func newRig(t *testing.T) *rig {
@@ -107,6 +109,9 @@ func (g *rig) serve(provider seam.Provider) *served {
 	set, err := adapters.Fake(g.fx.Scripts, fake.Options{DeltaSize: 12})
 	if err != nil {
 		g.t.Fatal(err)
+	}
+	for name, build := range g.extra {
+		set[name] = build
 	}
 	runner := NewRunner(Options{Install: g.install, Config: cfg, PageLimit: 50, TestProvider: provider, Adapters: set})
 	runner.Recover()
@@ -647,6 +652,72 @@ func TestAnOrdinaryTenant(t *testing.T) {
 	if end := last(t, events); end.Status != StatusFailed || end.Error == nil || end.Error.Code != string(seam.ErrTooLong) {
 		t.Errorf("a turn that does not fit the window ended as %+v", end)
 	}
+}
+
+// answers is a provider that gives one reply to a chat turn and another to
+// a call with standing instructions, which is what a title call is.
+type answers struct{ chat, title string }
+
+func (p answers) Stream(ctx context.Context, req seam.Request, emit func(seam.Event) error) error {
+	text := p.chat
+	if len(req.System) > 0 {
+		text = p.title
+	}
+	events, err := seam.Events(seam.Response{
+		Model:      req.Model,
+		Message:    seam.Message{Role: seam.RoleAssistant, Blocks: []seam.Block{{Type: seam.BlockText, Text: text}}},
+		StopReason: seam.StopEnd,
+		Usage:      seam.Usage{InputTokens: 1000, OutputTokens: 200},
+	})
+	if err != nil {
+		return err
+	}
+	for _, e := range events {
+		if err := emit(e); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// A model that is not the fake writes the chat's title, and both of its
+// calls are recorded with their cost.
+func TestAModelWritesTheTitle(t *testing.T) {
+	g := newRig(t)
+	g.extra = adapters.Set{models.AdapterChatCompletions: func(models.Model, string) (seam.Provider, error) {
+		return answers{chat: "Three names follow.", title: "\"Names for a harbour bakery.\"\nSecond line"}, nil
+	}}
+	sv := g.serve(nil)
+	g.with(g.ordinary.ID, func(s *tenant.Store) {
+		m := models.Model{
+			Name: "house-small", Label: "House Small", Adapter: models.AdapterChatCompletions, Endpoint: "http://localhost:8080/v1",
+			ProviderModel: "small-1", ContextWindow: 8192, OutputLimit: 1024, Class: models.ClassLocal, Price: models.Price{Input: 2, Output: 10},
+		}
+		if err := models.Add(context.Background(), s, models.Limits{MaxModels: 5}, m); err != nil {
+			t.Fatal(err)
+		}
+	})
+	id := sv.newChat(g.ordinary.ID)
+	body, _ := json.Marshal(SendBody{Text: bakery})
+	events, _, requestID := sv.send(g.ordinary.ID, id, string(body))
+	if got, want := names(events), "turn turn message start text message usage title end"; got != want {
+		t.Fatalf("the stream was\n\t%s\nwant\n\t%s", got, want)
+	}
+	if end := last(t, events); end.Status != StatusDone || end.CostMicros != 4000 {
+		t.Errorf("the turn ended as %+v", end)
+	}
+	var got ChatReply
+	sv.call(g.ordinary.ID, "GET", "chats/"+id, "", http.StatusOK, &got)
+	if got.Chat.Title != "Names for a harbour bakery" {
+		t.Errorf("the title is %q", got.Chat.Title)
+	}
+	g.with(g.ordinary.ID, func(s *tenant.Store) {
+		entries, err := audit.List(context.Background(), s, audit.Filter{RequestID: requestID, Kind: audit.KindModel})
+		if err != nil || len(entries) != 4 || entries[3].Outcome != audit.OutcomeOK || entries[3].CostMicros != 4000 ||
+			!strings.Contains(entries[2].Sent, "The reply began") {
+			t.Errorf("the chat call and the title call are recorded as %d entries (%v)", len(entries), err)
+		}
+	})
 }
 
 func TestARequestIsBuiltFromWhatAProviderTakes(t *testing.T) {
