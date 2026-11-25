@@ -10,6 +10,10 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 
 Since P3-09 it also loads the test tenant, in the step `the test tenant` after the data folder: an invented person with a known invented password, a few chats, and the fake provider for a model. The step prints the tenant's id and where the password is. Run again, it finds the same tenant and changes nothing. The `test_tenant.load` setting switches the step off. See [test-tenant.md](test-tenant.md).
 
+## windows/start-keystone.ps1
+
+Starts Keystone in the background with no window unless its address is already in use, logging to `%LOCALAPPDATA%Keystonelogs`. A shortcut in the Startup folder runs it at sign-in: [docs/runbooks/start-at-sign-in.md](../runbooks/start-at-sign-in.md).
+
 ## tenant
 
 `go run ./tools/tenant add "Name"` adds a tenant to the data folder and prints its id. `go run ./tools/tenant list` lists the tenants. `--data <folder>` names another data folder; without it the `data.dir` setting is used. It is a thin wrapper over `internal/tenant` ([tenants.md](tenants.md)).
