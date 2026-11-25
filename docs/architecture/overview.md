@@ -25,6 +25,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Model registry | `internal/models` | Each tenant's list of models: adapter, endpoint, context window, output limit, capabilities, price, and whether it is local, hosted or trusted. Refuses an entry that is not valid, with the reason. Guards fixed rule 3. | [models.md](models.md) |
 | Adapters | `internal/adapters` | Turns a registry entry into a provider that can be called, with the key read by name from the tenant's vault. The fake is the only adapter built. | [models.md](models.md) |
 | Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
+| Responses adapter | `internal/adapters/responses` | Calls a model that speaks the OpenAI Responses API: streaming, function calls, reasoning, errors sorted into the seam's kinds, and retries. Proven on replayed exchanges; not yet checked against the real API. | [adapter-responses.md](adapter-responses.md) |
 
 ## Parts still to come
 
@@ -63,5 +64,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0071 | [Screens in the interface have real paths, and the server falls back to the page](decisions/0071-client-side-routes-are-real-paths.md) |
 | 0072 | [The interface names the design's fonts and does not bundle them yet](decisions/0072-fonts-are-named-not-bundled.md) |
 | 0080 | [The test tenant is marked in its own database, and its password is published](decisions/0080-the-test-tenant-is-marked-in-its-own-database.md) |
+| 0110 | [The Responses adapter stores nothing at the provider, and reasoning travels in the signature](decisions/0110-responses-stores-nothing-at-the-provider.md) |
+| 0111 | [For the Responses adapter a thinking budget becomes an effort, by two settings](decisions/0111-a-thinking-budget-becomes-an-effort.md) |
+| 0112 | [The Responses adapter retries a call only before any of its reply has been passed on](decisions/0112-a-call-is-retried-only-before-its-reply-begins.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

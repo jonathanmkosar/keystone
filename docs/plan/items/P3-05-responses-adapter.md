@@ -1,6 +1,6 @@
 # P3-05. OpenAI Responses adapter
 
-Status: doing (models)
+Status: provisional
 Lane: models
 Depends on: P3-02
 Owner gate: An OpenAI key, for the live check only.
@@ -26,3 +26,22 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 - Not provable here: that the real API agrees with the fixtures. The live check needs a key and a network, which is the owner gate. The doc says which parts of the wire format are sure and which are inferred.
 - Docs: `docs/architecture/adapter-responses.md`, a row in the overview, decision records from 0110, and the journal `2026-11-24-models-005.md`.
 
+
+### Result
+
+Provisional, on the owner gate. The adapter is built and its replayed exchanges pass. It has never spoken to the real API, because the build had no key and no network. The live check is what is left.
+
+Built:
+
+- `internal/adapters/responses`, a `seam.Provider` over HTTP with the standard library: the request, the stream of server-sent events, function calls, reasoning, errors sorted into the seam's kinds, and retries with a doubling wait.
+- `adapters.Responses(options)` in `internal/adapters/responses.go`, the builder for `models.AdapterResponses`.
+- Seven settings in `settings/models.json`, under `responses.`.
+- `fixtures/responses-adapter/`: 21 invented exchanges in five files, written by hand, replayed by a server on this machine.
+- The folder is on the `offline` check's list. `verify` is 13 of 13.
+- `docs/architecture/adapter-responses.md`, which lists what in the wire format is sure and what is inferred, and decisions 0110, 0111 and 0112.
+
+The proof: "Recorded-exchange tests pass" holds, with the plain statement that the exchanges were written from the public description of the API and not recorded from it. "An optional live check passes with a key" has not been run.
+
+To clear the gate the owner supplies an OpenAI key, stored as a secret in a tenant's vault, a registry entry that names it, and a machine with a way out to the provider. The live check is then one plain answer, one turn with a tool call and its result, and one turn with reasoning on a model that reasons, where the second call sends the reasoning back. The doc's "Inferred" list is what that check should look at first.
+
+Journal: `docs/journal/2026-11-24-models-005.md`.
