@@ -30,13 +30,14 @@ If the command says the system offers no key store, the install can keep its mas
 
 ## After a restore, or on another machine
 
-The data folder alone cannot be read. The master key lives in the key store of the account that first stored a secret.
+The master key lives in the key store of the account that first stored a secret. How a tenant's keys reach another machine depends on how it got there.
 
-- **Same machine, same account:** nothing to do.
-- **Another machine or another account:** the secrets cannot be opened. Delete each tenant's `secrets.bin` and the `master_key` field in `keystone.json`, then store the keys again. Chats and files are not affected.
-- **The `file` keeper:** copy `keystone/master.key` from the old profile folder to the same place in the new one, and the secrets open.
+- **Restored from a backup made with `tenant backup`:** nothing to do. The restore wraps the tenant's data key again under this machine's key store, and its keys work at once. The steps are in the [backup and restore runbook](backup-and-restore.md).
+- **Same machine, same account, with a copy of the data folder:** nothing to do.
+- **A copy of the data folder on another machine or another account:** the secrets in the copy cannot be opened there. If the old machine still runs, make a backup there with `tenant backup` and restore it here instead. If it does not, delete each tenant's `secrets.bin` and the `master_key` field in `keystone.json`, then store the keys again. Chats and files are not affected.
+- **The `file` keeper, with a copy of the data folder:** copy `keystone/master.key` from the old profile folder to the same place in the new one, and the secrets open.
 
-A `secrets.bin` that cannot be opened is never replaced by Keystone. It stays as it is until you remove it.
+A `secrets.bin` that cannot be opened is never replaced by Keystone. It stays as it is until you remove it. A backup of a tenant whose `secrets.bin` this install cannot open is refused, so that no backup quietly leaves the keys out.
 
 ## A Tavily key for web search
 

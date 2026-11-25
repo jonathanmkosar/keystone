@@ -57,7 +57,7 @@ data/
     knowledge/             the built-in knowledge store, when that adapter is chosen
 ```
 
-A backup of one tenant is its folder. The install master key that unwraps each tenant's data key is kept by the operating system (DPAPI on Windows) and never in the data folder.
+A backup of one tenant is one file, sealed under a passphrase the person gives, holding its folder and its secrets with the data key wrapped by the passphrase's key, so it can be restored on another machine (decisions 0260 to 0262). The install master key that unwraps each tenant's data key is kept by the operating system (DPAPI on Windows) and never in the data folder.
 
 ### The door
 

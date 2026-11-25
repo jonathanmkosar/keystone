@@ -1,6 +1,6 @@
 # P13-04. Backup and restore
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P2-03
 Owner gate: none
@@ -20,4 +20,11 @@ Plan, written before the code (core 010, branch `core/p13-04-backup-restore`):
 - **Scheduled backups are left for later.** A schedule needs a passphrase nobody types, which the brief forbids storing, or a public-key recipient; and the jobs package is being built now (P8-01). A decision record says so. Backups are therefore off by default: one is made only when a person runs the command.
 - **Proof:** a test in `tools/tenant` backs up a tenant with chats, a file and a stored secret, restores it into a fresh data folder with another memory keeper, signs in, reads the chats and gets the secret. Package tests cover the refusals: wrong passphrase, a changed byte, a cut file, an existing tenant, a replace, bad names, a newer migration, and that a failed restore leaves no folder and no registry entry. `verify`'s `no keys in output` check gains a surface: a backup and a restore through the command with two key files, the stored value looked for in the backup file, everything printed and both data folders.
 - **Write-up:** `docs/architecture/backup.md`, the runbook `docs/runbooks/backup-and-restore.md`, the "After a restore" section of `docs/runbooks/secrets.md`, decisions from 0260, journal core 010.
+
+Result (core 010): done, built as planned.
+
+- `internal/backup`, `internal/secrets/rewrap.go`, `internal/tenant/backup.go` and `tools/tenant/backup.go`; decisions 0260 to 0263; `docs/architecture/backup.md` and `docs/runbooks/backup-and-restore.md`. `PLAN.md`'s line on backups now says what a backup is.
+- The proof passes in `go test ./tools/tenant` (`TestABackupRestoredOnAnotherMachine`): restored into a fresh data folder under another keeper, the tenant signs in with its password, its old session is refused, its two chats list, read back, are found by search and hold their file, and its key opens. `verify` proves it again through the built command with two key files, in `no keys in output`.
+- By hand on Windows 11, with the real keeper (DPAPI) in throwaway folders: a backup of a tenant with an invented key and password took 0.6 seconds with the shipped rounds and was 10 KB; restored into a second data folder it listed its key, refused a second restore, and replaced the tenant in the first folder with `--replace`; served on its own port, the restored tenant signed in with `keystone signin` and `GET /api/v1/secrets` listed its key.
+- Not built: scheduled backups (decision 0263), so a backup is made only when a person runs the command, which is what "off by default" asks. Not run: a restore on a second physical machine, or on macOS or Linux.
 

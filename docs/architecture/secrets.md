@@ -8,7 +8,7 @@ A tenant's secrets are its provider keys and connector tokens. The code is in `i
 2. **The tenant's data key.** 32 random bytes, made the first time the tenant stores a secret. It is stored only wrapped, at the head of the same `secrets.bin`.
 3. **The install master key.** It wraps every tenant's data key. The operating system holds it, behind a `Keeper`. It is never written to the data folder.
 
-So a copy of the data folder alone cannot be read. It takes the data folder and the account's key store together.
+So a copy of the data folder alone cannot be read. It takes the data folder and the account's key store together. A backup made with `tenant backup` is the way to move a tenant's keys on purpose: see "Moving a tenant's keys to another install" below.
 
 Both the wrap and the encryption are bound to the tenant id. A `secrets.bin` copied from one tenant's folder to another's is refused, and so is a wrapped key moved between files.
 
@@ -65,6 +65,18 @@ The value is read from standard input and never from an argument, which would st
 ## The standing check
 
 `verify` has a check named `no keys in output`, in `tools/verify/nokeys.go`. It stores an invented value as a tenant's secret, then looks for that value in everything Keystone printed, returned or wrote while it held it: what the package returns, what the tenant command prints, and every file in the data folder. The only place the value may come back is the call that asks for it by name. An item that adds a place a key could reach, such as the logs or the API's responses, adds a line to the check's list.
+
+## Moving a tenant's keys to another install
+
+Since P13-04 a backup carries a tenant's secrets to another machine ([backup.md](backup.md), decision [0261](decisions/0261-a-backup-carries-the-data-key-re-wrapped.md)). The secrets are not opened and sealed again: the data key is wrapped again.
+
+| Call | What it does |
+| --- | --- |
+| `Rewrap(file, tenant, from, to)` | Unwraps the data key of a secrets file with `from`, opens the secrets to check them, and returns the file with the same data key wrapped by `to`, and how many secrets it holds. A file that does not open is refused before `to` is asked for anything. |
+| `Vault.Rewrapped(to)` | The same for the vault's own file, read under its lock. Says when there is no file. |
+| `KeyKeeper(name, key)` | A keeper that wraps with 32 bytes the caller made. A backup file is one, with a key made from its passphrase. |
+
+A backup re-wraps the data key from the install's keeper to the backup's; a restore re-wraps it from the backup's keeper to the new install's. No unwrapped key leaves this package.
 
 ## Not built yet
 
