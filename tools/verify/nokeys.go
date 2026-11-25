@@ -47,6 +47,7 @@ var keySurfaces = []struct {
 	{"the Anthropic adapter", keysInTheAnthropicAdapter},
 	{"the settings routes", keysInTheSettingsRoutes}, // in settingsroutes.go: a value stored through the API, and the routes that could hand it back
 	{"web search", keysInWebSearch},                  // in websearch.go: a search provider that repeats the key in its refusals and results
+	{"backup and restore", keysInBackups},            // in backup.go: the backup file, a restore under another master key, and what both print
 }
 
 const keyCheckName = "provider.test"

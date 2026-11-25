@@ -114,6 +114,20 @@
       "description": "Whether rebuild loads the test tenant into the data folder: an invented person whose password is published in the repo, with a few chats and the fake provider for a model. Switch it off on an install that people outside the home can reach."
     },
     {
+      "key": "backup.passphrase_rounds",
+      "type": "int",
+      "default": "2000000",
+      "scope": "install",
+      "description": "How many rounds of PBKDF2-SHA-256 turn a backup's passphrase into its key, from 100000 to 50000000. More rounds make a stolen backup slower to guess from. A backup records its own count, so a change applies to the next backup only."
+    },
+    {
+      "key": "backup.passphrase_min_length",
+      "type": "int",
+      "default": "12",
+      "scope": "install",
+      "description": "The fewest characters a backup's passphrase may have."
+    },
+    {
       "key": "data.dir",
       "type": "string",
       "default": "data",

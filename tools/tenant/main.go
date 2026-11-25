@@ -25,6 +25,14 @@
 // model manages one tenant's model registry. An entry names the secret that
 // holds its key and never holds the key. See model.go and
 // docs/runbooks/adding-a-model.md.
+//
+//	Get-Clipboard | go run ./tools/tenant backup <tenant-id> <file>
+//	Get-Clipboard | go run ./tools/tenant --data other/folder restore [--replace] [--check] <file>
+//
+// backup writes one tenant to one file sealed under a passphrase, read
+// from standard input; restore brings it into a data folder, with its keys
+// under that install's master key. See backup.go and
+// docs/runbooks/backup-and-restore.md.
 package main
 
 import (
@@ -58,6 +66,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+modelUsage)
 		fmt.Fprintln(os.Stderr, "       "+usageUsage)
 		fmt.Fprintln(os.Stderr, "       "+settingUsage)
+		fmt.Fprintln(os.Stderr, "       "+backupUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -113,6 +122,10 @@ func main() {
 		usageMain(in, args[1:])
 	case "setting":
 		settingMain(in, args[1:])
+	case "backup":
+		backupMain(dir, *keeper, args[1:])
+	case "restore":
+		restoreMain(dir, *keeper, args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)
