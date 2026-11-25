@@ -26,8 +26,20 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 | state | `STATE.md` says the phase, what is next, and what is blocked. |
 | docs | Every folder with Go code has a doc, the plan files are present, and every decision record is linked from the overview. |
 | no secrets | Nothing in the repo is shaped like a real key. |
+| fixed rules | No setting can switch off any of the four rules in the plan. See below. |
 
 The plan's other standing checks (tenant isolation, context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
+
+### The fixed rules check
+
+The code is in `tools/verify/fixedrules.go`. It proves four things on every run.
+
+1. `settings.FixedRules()` holds the plan's four rules, word for word and in order. Changing a rule means changing `PLAN.md` and the code together.
+2. No setting in the registry has a key under `rules.`, the part of the key space kept for the rules.
+3. No override path stores a value for a rule. The check makes a tenant in a temporary folder and tries each rule as a person, as the admin, and as a row written straight into the tenant's database. Each must be refused.
+4. The packages that enforce a rule cannot read a setting. `fixedRuleGuards` lists them for each rule. The check runs `go list -deps` on each one and fails if the settings registry or the tenant settings is among what it imports, itself or through another package.
+
+Today `internal/tenant` guards tenant isolation and `internal/audit` guards call recording. The approval rule and the sensitive content rule have no code yet. The item that builds each one adds its package to `fixedRuleGuards`, and adds a step to the check if the rule needs a proof of its own. Code that enforces a rule and code that reads settings therefore live in separate packages.
 
 ## doctor
 

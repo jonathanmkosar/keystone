@@ -36,6 +36,9 @@ var componentDocs = map[string]string{
 	"tools/snapshot":   "docs/architecture/tools.md",
 	"tools/rebuild":    "docs/architecture/tools.md",
 	"web":              "docs/architecture/web.md",
+	"internal/audit":   "docs/architecture/audit.md",
+
+	"internal/tenantsettings": "docs/architecture/tenant-settings.md",
 }
 
 var checks = []check{
@@ -47,6 +50,7 @@ var checks = []check{
 	{"state", checkState},
 	{"docs", checkDocs},
 	{"no secrets", checkSecrets},
+	{"fixed rules", checkFixedRules},
 }
 
 func main() {

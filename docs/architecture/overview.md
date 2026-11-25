@@ -13,6 +13,8 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
 | Project helpers | `internal/project` | Finds the repo root, runs commands, reads the plan's items and `STATE.md`. Used by the scripts only. | [project.md](project.md) |
 | Project scripts | `tools` | `rebuild`, `verify`, `doctor` and `snapshot`. | [tools.md](tools.md) |
+| Audit log | `internal/audit` | An append-only log in each tenant's database, kept free of keys, and the wrapper that records every API call before it runs. | [audit.md](audit.md) |
+| Tenant settings | `internal/tenantsettings` | A tenant's own values over the registry's defaults, limited by each setting's scope. The fixed rules cannot be stored. | [tenant-settings.md](tenant-settings.md) |
 
 ## Parts still to come
 
@@ -30,6 +32,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0004 | [The API is HTTP with JSON, and server-sent events for streams](decisions/0004-http-json-sse.md) |
 | 0005 | [The web interface is React and Vite, with its built files committed and embedded](decisions/0005-web-built-files-committed.md) |
 | 0006 | [Secrets are encrypted per tenant, under a master key the operating system holds](decisions/0006-secrets-wrapped-by-the-os.md) |
+| 0009 | [The audit log is append-only in the database, and an API call is recorded before it runs](decisions/0009-audit-log-append-only.md) |
 | 0010 | [A content block is one struct with a type field](decisions/0010-one-block-type.md) |
+| 0014 | [A fixed rule is a name no setting can have, enforced by code that cannot read settings](decisions/0014-fixed-rules-and-tenant-settings.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

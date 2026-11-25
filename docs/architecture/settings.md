@@ -44,10 +44,35 @@ Each lane keeps its settings in its own JSON file: `settings/core.json`, `settin
 
 A person may override a setting only when its scope is `tenant`. The four fixed rules in the plan are not settings and cannot be switched off by one.
 
+## The fixed rules
+
+The plan has four rules no setting can switch off. Decision [0014](decisions/0014-fixed-rules-and-tenant-settings.md) gives them a form the code can test.
+
+`settings.FixedRules()` lists the four, each with a key and its text, word for word from `PLAN.md`:
+
+| Key | Rule |
+| --- | --- |
+| `rules.tenant_isolation` | A tenant never reads another tenant's data. |
+| `rules.approval` | A side effect outside Keystone happens only under the approval policy, and content the agent read never grants approval. |
+| `rules.sensitive_content` | Content from a sensitive space reaches only models the registry marks local or trusted. |
+| `rules.call_recording` | Every model call and every tool call is recorded: what was sent, what came back, tokens and cost. |
+
+A rule is not a setting. It has no value, no default and no scope, so there is nothing to set. Its key only names it, in a part of the key space, `rules.`, that is kept for the rules:
+
+- The registry refuses a setting whose key starts with `rules.`.
+- Tenant settings refuse to store a value for such a key, and so does the table underneath.
+- The code that enforces a rule lives in a package that does not import the registry or the tenant settings, so it has no way to read a value that could switch the rule off.
+
+The `fixed rules` check in `verify` proves all three on every run, and that the list still matches the plan. See [tools.md](tools.md).
+
 ## What is refused
 
-Reading the registry fails, and so does `verify`, when a file's name and its `lane` disagree, a key is defined twice, a file has a field the registry does not know, a default does not read as its type, or a description is missing.
+Reading the registry fails, and so does `verify`, when a file's name and its `lane` disagree, a key is defined twice, a file has a field the registry does not know, a default does not read as its type, a description is missing, or a key is in the space kept for the fixed rules.
+
+## Stored values
+
+A tenant's own values are kept in its database by `internal/tenantsettings`. See [tenant-settings.md](tenant-settings.md).
 
 ## Not built yet
 
-Stored values and overrides. This item defines what can be set. Saving an install's or a person's values, and checking them with `CheckValue`, comes with the tenant store (P2-01 and P2-04).
+The install's own stored values, for settings with the `install` scope. Today those have their defaults, and `keystone serve` takes its address from a flag.
