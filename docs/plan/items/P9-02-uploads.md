@@ -1,6 +1,6 @@
 # P9-02. Uploads
 
-Status: todo
+Status: doing (interface)
 Lane: chats + interface
 Depends on: P4-03
 Owner gate: Approval of the workspace mockups (P1-06), for the screens only.

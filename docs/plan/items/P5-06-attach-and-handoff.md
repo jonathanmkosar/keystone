@@ -1,6 +1,6 @@
 # P5-06. Attach a chat and handoff
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P5-05
 Owner gate: none
