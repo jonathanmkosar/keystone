@@ -155,3 +155,5 @@ Since P5-04 the turn inspector shows the summary each call was given, read only,
 - **Old rows.** Summaries are never removed, except with their chat.
 - **A real summary model.** Only the fake has written a summary. How well a cheap model keeps detail over many extensions is unknown.
 - **A restart forgets** which chats are being summarised and which failed. A job cut short by a restart is simply made again when needed.
+
+Since P5-05 each chat also has a recap, a short summary of the whole chat with its topics and decisions, made by the same summary route after the chat's turns and kept in `chat_recaps` ([chat-summaries.md](chat-summaries.md)). It does not take the place of these summaries, which stand for the oldest turns of one branch inside a call; the item above on summaries for attaching and handing off can start from it.

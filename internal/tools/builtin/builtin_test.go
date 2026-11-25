@@ -135,7 +135,7 @@ func TestSearchChatsFindsThePersonsOwnAndNoOthers(t *testing.T) {
 			t.Errorf("the search holds %s:\n%s", what, text)
 		}
 	}
-	if text, _ := g.run(g.one, here, SearchChats, `{"query":"windproof"}`); !strings.Contains(text, "The reply said:") || !strings.Contains(text, "1 matches") {
+	if text, _ := g.run(g.one, here, SearchChats, `{"query":"windproof"}`); !strings.Contains(text, "The reply said:") || !strings.HasPrefix(text, "1 match for") {
 		t.Errorf("a word of a reply found:\n%s", text)
 	}
 	if text, status := g.run(g.one, here, SearchChats, `{"query":"submarine"}`); status != tools.StatusOK || !strings.Contains(text, "No other chat matches") {

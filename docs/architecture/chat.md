@@ -58,6 +58,8 @@ Thinking, tool calls, tool results and file names are not indexed.
 
 The two search tables hold their own copy of the text. `Rename`, `Append` and `Delete` write and remove search rows in the same transaction as the row they index, so the index cannot fall out of step.
 
+Since P5-05, `MatchAny(store, query, most, snippetWords)` (`match.go`) searches the same two tables for any of the query's words instead of all of them, and returns the title rows and the message rows apart, each the best first by the full-text rank with the rank as `Score`. The past-chat search, `search_chats`, ranks chats by them with the chats' recaps ([chat-summaries.md](chat-summaries.md)). A chat's recap is kept by `internal/recap` in tables of its own, which go with the chat.
+
 ## Files
 
 A file is tied to a chat by a row in `chat_files`: the chat and the file's name in the tenant's `files/` folder. `Append` ties every file a message's blocks refer to by `ref`, tool results included. `AddFile` ties one by hand, for a file that is uploaded before its message is sent. `Files` lists a chat's files.

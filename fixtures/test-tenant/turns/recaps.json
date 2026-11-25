@@ -1,0 +1,109 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "the recap of the question about the lighthouse walk",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "What did I decide about the lighthouse walk?" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked what they had decided about the lighthouse walk, and the assistant found it in an earlier chat.\", \"topics\": [\"an earlier chat\"], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the question about the ferry times",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "What times did you find for the north ferry?" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked which ferry times had been found before, and the assistant found them in an earlier chat.\", \"topics\": [\"an earlier chat\"], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the question about sleep",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "Have we talked about sleep before?" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked whether sleep had come up in an earlier chat, and the assistant searched their chats.\", \"topics\": [\"an earlier chat\"], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the lighthouse walk",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "I want to walk to the old lighthouse on Saturday" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person planned a walk to the old lighthouse on Saturday: what to bring, and how long the walk is. The cliff path is the shorter way, about seven kilometres there and back, but slower.\", \"topics\": [\"the old lighthouse\", \"a Saturday walk\", \"what to bring\", \"the cliff path\"], \"decisions\": [\"Walk to the old lighthouse on Saturday.\", \"Bring water, a windproof jacket, shoes with a good grip, food and a paper map.\"]}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 70 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the north ferry times",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "When does the north ferry leave on Tuesday?" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked when the north ferry leaves on Tuesday. The timetable gave 09:00 and 11:30, and the 11:30 sailing runs in fair weather only.\", \"topics\": [\"the north ferry\", \"Tuesday sailings\", \"timetables\"], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 50 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the bakery names",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "names for a small bakery by the harbour" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked for names for a small bakery by the harbour. The assistant offered Tide and Crumb, The Early Loaf and Harbour Oven, and favoured The Early Loaf.\", \"topics\": [\"bakery names\", \"the harbour\"], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 50 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of the chat held for sensitive content",
+      "when": { "system_contains": "summary, topics and decisions of one chat", "user_text_contains": "What helped with the insomnia" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"The person asked what helped with the insomnia and what the clinic letter said. Melatonin helped in March, and the letter set out a review.\", \"topics\": [\"sleep\", \"the clinic letter\"], \"decisions\": [\"Keep to no screens after nine.\"]}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 50 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the recap of anything else",
+      "when": { "system_contains": "summary, topics and decisions of one chat" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "{\"summary\": \"A chat in the test tenant. This recap is a recorded turn of the fake provider, and says nothing of what was said.\", \"topics\": [], \"decisions\": []}" } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 300, "output_tokens": 30 }
+          }
+        }
+      ]
+    }
+  ]
+}

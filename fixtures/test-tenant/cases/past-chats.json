@@ -1,0 +1,17 @@
+{
+  "test_data": true,
+  "cases": [
+    {
+      "name": "a question about an earlier chat is answered through the past-chat search",
+      "kind": "turn",
+      "ask": "What did I decide about the lighthouse walk?",
+      "expect": { "stop_reason": "tool_call", "tool_calls": ["search_chats"] }
+    },
+    {
+      "name": "a question about the ferry times searches the earlier chats",
+      "kind": "turn",
+      "ask": "What times did you find for the north ferry?",
+      "expect": { "stop_reason": "tool_call", "tool_calls": ["search_chats"] }
+    }
+  ]
+}

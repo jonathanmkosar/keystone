@@ -45,6 +45,8 @@ type Runner struct {
 
 	memory memoryWorkers // which chats have a memory worker at work (P6-06, memory.go)
 
+	recaps recapJobs // which chats wait for their recap, or are being given one (P5-05, recap.go)
+
 	once     sync.Once
 	setupErr error
 	reg      []settings.Setting
@@ -350,6 +352,7 @@ func (r *Runner) runTurn(s *tenant.Store, t row) {
 		r.logf("turns: %s closing turn %s: %v", t.requestID, t.ID, err)
 	}
 	r.memoryLater(s, t, status) // P6-06: the memory pass, queued as the turn ends and run beside it (memory.go)
+	r.recapLater(s, t, status)  // P5-05: the chat's recap, once it is due and has rested (recap.go)
 }
 
 // work is the turn itself: the model is opened, the person's message is

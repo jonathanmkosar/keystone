@@ -43,6 +43,7 @@ func (r *Runner) lookupTools(ctx context.Context, s *tenant.Store, t row, p seam
 		return nil
 	}
 	tr.lookups = nil
+	tr.chats = r.chatTools(ctx, s, t, p, m) // P5-05: search_chats and read_chat for the least of the call's route (pastchats.go)
 	if !tr.open || !m.Has(models.CapTools) || !r.toolsOn(ctx, s) {
 		return nil
 	}
@@ -110,6 +111,9 @@ func (r *Runner) lookupTool(t row, adapter string, l recall.Lookup) tools.Tool {
 
 // lookup returns the knowledge lookup the current call offered under name.
 func (t row) lookup(name string) (tools.Tool, bool) {
+	if l, ok := t.chatTool(name); ok { // a past-chat tool made for the call's route (P5-05, pastchats.go)
+		return l, true
+	}
 	if t.recalled == nil || t.recalled.lookups == nil {
 		return tools.Tool{}, false
 	}

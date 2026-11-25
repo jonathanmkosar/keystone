@@ -82,6 +82,8 @@ var componentDocs = map[string]string{
 	"internal/backup":           "docs/architecture/backup.md",
 	"internal/knowledge/memory": "docs/architecture/memory-pass.md",
 	"internal/inspector":        "docs/architecture/inspector.md",
+
+	"internal/recap": "docs/architecture/chat-summaries.md",
 }
 
 var checks = []check{
@@ -106,6 +108,7 @@ var checks = []check{
 	{"sensitive content", checkSensitive},
 	{"memory pass", checkMemory},
 	{"background tasks", checkBackgroundTasks},
+	{"past chats", checkPastChats},
 }
 
 func main() {

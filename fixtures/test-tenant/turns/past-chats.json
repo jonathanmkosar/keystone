@@ -1,0 +1,96 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a question about the lighthouse walk",
+      "when": { "user_text": "What did I decide about the lighthouse walk?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will look through your earlier chats." },
+                { "type": "tool_call", "id": "call_past_walk", "name": "search_chats", "input": { "query": "lighthouse walk", "limit": 3 } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 420, "output_tokens": 30 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "In your chat **Planning the lighthouse walk** you decided to walk to the old lighthouse on Saturday, and what to bring: water, a windproof jacket, shoes with a good grip, food and a paper map. The cliff path is the shorter way, about seven kilometres there and back, but slower.\n\nThis reply is a recorded turn: the search ran for real, and these words were written in advance." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 80 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a question about the ferry times",
+      "when": { "user_text": "What times did you find for the north ferry?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_past_ferry", "name": "search_chats", "input": { "query": "north ferry" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 410, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "In **North ferry times** the timetable gave two sailings on Tuesday, at 09:00 and at 11:30, and the 11:30 runs in fair weather only.\n\nThis reply is a recorded turn: the search ran for real, and these words were written in advance." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 700, "output_tokens": 50 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a question about sleep",
+      "when": { "user_text": "Have we talked about sleep before?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_past_sleep", "name": "search_chats", "input": { "query": "insomnia clinic sleep" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 400, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I looked through your earlier chats for anything about sleep. This reply is a recorded turn, so it cannot say what the search found." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 600, "output_tokens": 30 }
+          }
+        }
+      ]
+    }
+  ]
+}

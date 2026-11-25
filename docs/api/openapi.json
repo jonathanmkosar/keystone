@@ -244,6 +244,9 @@
                           "starred": {
                             "type": "boolean"
                           },
+                          "summary": {
+                            "type": "string"
+                          },
                           "title": {
                             "type": "string"
                           }
@@ -312,6 +315,9 @@
                         },
                         "starred": {
                           "type": "boolean"
+                        },
+                        "summary": {
+                          "type": "string"
                         },
                         "title": {
                           "type": "string"
@@ -888,6 +894,9 @@
                         "starred": {
                           "type": "boolean"
                         },
+                        "summary": {
+                          "type": "string"
+                        },
                         "title": {
                           "type": "string"
                         }
@@ -1354,6 +1363,9 @@
                     },
                     "starred": {
                       "type": "boolean"
+                    },
+                    "summary": {
+                      "type": "string"
                     },
                     "title": {
                       "type": "string"
@@ -1995,6 +2007,212 @@
         "summary": "Pin a message of the chat, on any branch. It takes no body. Pinning a message twice changes nothing."
       }
     },
+    "/api/v1/chats/{id}/recap": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "made": {
+                      "type": "boolean"
+                    },
+                    "recap": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "decisions": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "made": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "through_id": {
+                          "type": "integer"
+                        },
+                        "topics": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "turns": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "chat_id",
+                        "summary",
+                        "topics",
+                        "decisions",
+                        "through_id",
+                        "turns",
+                        "model",
+                        "sensitive",
+                        "request_id",
+                        "made"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "made",
+                    "recap"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The chat's recap: a short summary, its topics and the decisions made in it, which the past-chat search finds it by. A chat is given one after its turns."
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "made": {
+                      "type": "boolean"
+                    },
+                    "recap": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "decisions": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "made": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "through_id": {
+                          "type": "integer"
+                        },
+                        "topics": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "turns": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "chat_id",
+                        "summary",
+                        "topics",
+                        "decisions",
+                        "through_id",
+                        "turns",
+                        "model",
+                        "sensitive",
+                        "request_id",
+                        "made"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "made",
+                    "recap"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make the chat's recap now, with the model routing gives the summary task, and answer with it. It takes no body, and waits for the model, up to chats.recap_timeout."
+      }
+    },
     "/api/v1/chats/{id}/select": {
       "post": {
         "parameters": [
@@ -2049,6 +2267,9 @@
                         },
                         "starred": {
                           "type": "boolean"
+                        },
+                        "summary": {
+                          "type": "string"
                         },
                         "title": {
                           "type": "string"

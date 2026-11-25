@@ -59,6 +59,9 @@ type turnRecall struct {
 	// lookups are the knowledge lookups the current model call offered, by
 	// name, made for the least of its route. See lookups.go.
 	lookups map[string]tools.Tool
+	// chats are the past-chat tools the current model call made, by name,
+	// for the least of its route (P5-05). See pastchats.go.
+	chats map[string]tools.Tool
 }
 
 // searchKnowledge searches the person's knowledge store with the turn's
