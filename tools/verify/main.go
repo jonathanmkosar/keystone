@@ -52,6 +52,7 @@ var componentDocs = map[string]string{
 	"internal/adapters":          "docs/architecture/models.md",
 	"internal/testtenant":        "docs/architecture/test-tenant.md",
 	"fixtures/test-tenant":       "docs/architecture/test-tenant.md",
+	"internal/budget":            "docs/architecture/budget.md",
 }
 
 var checks = []check{
@@ -68,6 +69,7 @@ var checks = []check{
 	{"fixed rules", checkFixedRules},
 	{"no keys in output", checkNoKeys},
 	{"test tenant", checkTestTenant},
+	{"context fit", checkContextFit},
 }
 
 func main() {
