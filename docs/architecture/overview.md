@@ -96,5 +96,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0144 | [The test tenant's model is in no registry, and the fake provider's titles come from the message](decisions/0144-the-test-tenants-model-is-in-no-registry.md) |
 | 0150 | [The Markdown reader is written in the interface, not taken from a package](decisions/0150-the-markdown-reader-is-written-here.md) |
 | 0151 | [Replies that are arriving live outside the screens, and are read with fetch](decisions/0151-arriving-replies-live-outside-the-screens.md) |
+| 0180 | [The profile is one text, and it goes to every model](decisions/0180-the-profile-is-one-text.md) |
+| 0181 | [The map has two versions, and the open one names nothing from a sensitive space](decisions/0181-the-map-has-two-versions.md) |
+| 0182 | [The map is kept in the tenant's database under a key, and is not used when the store is down](decisions/0182-the-map-is-kept-and-keyed.md) |
+| 0183 | [The map is held to a token limit by giving up detail in a fixed order](decisions/0183-the-map-gives-up-detail-in-a-fixed-order.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
