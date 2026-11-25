@@ -36,6 +36,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Context builder | `internal/contextbuild` | Builds what one model call carries: the standing instructions, the current turn and as many earlier turns as fit the model's window, newest first and each one whole, with named slots for the parts later items bring. Returns a record of every part, kept and dropped, with its tokens, which the turn stores for the inspector. | [context.md](context.md) |
 | Routing | `internal/routing` | Decides which models one call may be sent to: a rule for each kind of task, sensitive content kept to local and trusted models, and a fallback chain that moves to the next model while nothing of a reply has been passed on. A guard for fixed rule 3. | [routing.md](routing.md) |
 | Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
+| Tool loop | `internal/tools`, `internal/tools/approval`, `internal/tools/builtin` | The registry of the tools a turn offers, filled by plain calls, and the one place a tool runs: recorded before and after, under a timeout, with a tool that breaks turned into an error result. The approval rule's test refuses every tool that changes something until approvals exist. Three built-in tools that only read: the time, search of the person's chats, and reading one. The turn calls the model again after each step, up to its step limit. | [tool-loop.md](tool-loop.md) |
 
 ## Parts still to come
 
@@ -111,5 +112,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0161 | [The cap stops a call that could pass it, counted at the most the call could cost](decisions/0161-the-cap-stops-a-call-that-could-pass-it.md) |
 | 0162 | [The cap counts a calendar month in UTC, and every model that is not local](decisions/0162-the-cap-counts-a-utc-calendar-month.md) |
 | 0163 | [A route is one provider, and the turn's model stays the one that was asked for](decisions/0163-a-route-is-one-provider.md) |
+| 0200 | [A tool is data and a function in a registry made by plain calls, and the registry is the one place a tool runs](decisions/0200-a-tool-is-data-and-a-function-in-a-registry.md) |
+| 0201 | [Until approvals exist, a tool that changes something is refused, and an approval is a value only its own package can make](decisions/0201-a-changing-tool-is-refused-until-approvals.md) |
+| 0202 | [At the step limit a turn ends as done with a note, and the last calls are answered without running](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md) |
+| 0203 | [A tool runs beside the turn, stop does not wait for it, and every call still gets a stored result](decisions/0203-a-tool-runs-beside-the-turn-and-stop-does-not-wait.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

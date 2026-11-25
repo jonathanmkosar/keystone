@@ -134,6 +134,7 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 ## Not here yet
 
 - Every slot but the rules, the current turn and the earlier turns is empty: tools (P7-01), profile and person map (P6-04), recall (P6-05), the summary and compaction (P5-02), attachments and attached chats (P5-06), project (P9-01), style (P9-05).
+- Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
 - Cache marks on the standing start (P5-03). The varying system blocks sit after the standing start today. P5-03 may move them into the messages if a provider's cache needs the whole system text to stay the same.
 - The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them.
 - Tool definitions as names only until one is needed (P7-01 with P7-05).

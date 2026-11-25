@@ -366,6 +366,12 @@ func checkRecorded(string) error {
 		return err
 	}
 	problems = append(problems, more...)
+	// So is each tool call a turn makes (P7-01). See toolloop.go.
+	tooled, err := toolCallsRecorded()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, tooled...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

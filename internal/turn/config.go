@@ -12,6 +12,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/chat"
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -45,6 +46,9 @@ type Config struct {
 	TitleDerivedWords int           // chats.title_derived_words
 	TestContextWindow int           // chats.test_model_context_window
 	TestOutputLimit   int           // chats.test_model_output_limit
+
+	// ToolLoop is what the tool loop runs with, in settings/agents.json.
+	ToolLoop ToolLoop
 }
 
 // ReadConfig builds the configuration from wherever setting values are
@@ -96,6 +100,9 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 		return Config{}, err
 	}
 	if c.Budget, err = budget.FromSettings(reg, get); err != nil {
+		return Config{}, err
+	}
+	if c.ToolLoop, err = readToolLoop(get); err != nil {
 		return Config{}, err
 	}
 	switch {
@@ -150,4 +157,9 @@ type Options struct {
 	// means the fake provider playing the shipped recorded turns at the
 	// speed the settings give.
 	TestProvider seam.Provider
+	// Tools are the tools a turn may offer a model and run (P7-01).
+	// Whoever puts the server together makes the registry and adds the
+	// tools. Nil means none: nothing is offered, and a tool a model asks
+	// for anyway is answered with an error.
+	Tools *tools.Registry
 }

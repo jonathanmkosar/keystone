@@ -62,6 +62,10 @@ Since P3-08 there is the check `spend cap`, which makes 16. It runs the real ser
 
 Since P3-08, `internal/routing` is a second guard for the sensitive content rule in `fixedRuleGuards`: it is where a route is held to `MayReadSensitive`, and it takes its rules as arguments ([routing.md](routing.md)).
 
+Since P7-01 there is the check `approval`, which makes 17: a tool that changes something cannot run without a person's approval, and until approvals are built (P7-02) it cannot run at all. It asks the rule's test, in `internal/tools/approval`, then runs the real server with its own tools and one more that changes something, `send_postcard`, which counts its runs. The test tenant's recorded turn calls it. The check fails if it ran, if the model was not told it needs an approval, if the refusal is not in the audit log, or if the turn did not end as done. P7-02 adds the rule that a turn which read outside content asks for every side effect. `calls recorded` gained the tool calls' part the same item: the test tenant's task of several steps runs on the real server, and each tool call must be in the audit log before and after, under the request id of the call that sent the message, and in the chat record. Both are in `tools/verify/toolloop.go`. See [tool-loop.md](tool-loop.md).
+
+Since P7-01 the approval rule has code: `internal/tools/approval`, its test, and `internal/tools`, the one place a tool runs, are its guards in `fixedRuleGuards` ([tool-loop.md](tool-loop.md)).
+
 `go run ./tools/tenant usage <tenant-id> [month]` prints a tenant's model calls for a calendar month, by model, and where the month stands against the cap (since P3-08, [usage.md](usage.md)).
 
 `go run ./tools/tenant setting set | clear | list <tenant-id> [key] [value]` stores, clears and lists a tenant's own values for settings (since P3-08). It is how the cap, the fallback chain and a default model are set until the settings screens exist (P11-01). A value is stored as the role the setting's scope asks for, and an install setting and a fixed rule are refused, as `internal/tenantsettings` refuses them ([tenant-settings.md](tenant-settings.md)).

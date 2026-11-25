@@ -2,6 +2,8 @@
 
 November 25, 2026 · decided in P4-03
 
+Replaced by the tool loop (P7-01): a call is now run ([0200](0200-a-tool-is-data-and-a-function-in-a-registry.md)), and the step limit ends a turn as done with a note ([0202](0202-the-step-limit-ends-a-turn-with-a-note.md)). The third decision below, that a call left without a result is left out of later requests, still holds.
+
 ## The question
 
 A turn offers the model no tools, because there is no tool loop yet (P7-01). A reply can still stop for a tool call: the test tenant's recorded ferry turn does, and a model may ask for a tool it was never offered. A tool call with no result in the next message is refused by every provider, the fake included. What does a turn do with one?

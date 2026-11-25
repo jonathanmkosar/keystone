@@ -61,6 +61,9 @@ const (
 	CodeInterrupted = "interrupted"
 	// CodeStepLimit says the model asked for tools more times than a turn
 	// allows.
+	// Since the tool loop (P7-01) no turn fails with it: a turn at its step
+	// limit ends as done, with a note (StopStepLimit). It stays for turns
+	// an earlier build ended.
 	CodeStepLimit = "step_limit"
 	// CodeFailed says the turn failed inside Keystone. The reason is in
 	// the server's log under the turn's request id.
@@ -116,6 +119,7 @@ type Message struct {
 	// StopReason is why an assistant message ends where it does: end,
 	// tool_call, max_tokens or refused from the model, stopped when the
 	// person stopped it, failed when the call broke off.
+	// step_limit is the note a turn writes when it reaches its step limit.
 	StopReason string `json:"stop_reason,omitempty"`
 	// Usage is the token count of the model call that wrote the message.
 	Usage *seam.Usage `json:"usage,omitempty"`
@@ -180,6 +184,7 @@ type Turn struct {
 	ReplyMessageID int64 `json:"reply_message_id,omitempty"`
 	// StopReason is the model's last stop reason: end, tool_call,
 	// max_tokens or refused.
+	// step_limit is a turn that reached its step limit and ended as done.
 	StopReason string `json:"stop_reason,omitempty"`
 	// Error is set on a failed turn.
 	Error *TurnError `json:"error,omitempty"`
