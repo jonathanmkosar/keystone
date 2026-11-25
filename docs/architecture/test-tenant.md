@@ -68,6 +68,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/background-task.json` (P8-01) holds five. "Find out in the background when the lighthouse walk should start." makes the model call `start_background_task`, which asks first; the task it starts searches the person's chats, reads the time and answers, in a chat of its own, and its result comes back as a note. "Wait for the tide table, then say when the tide turns." calls `wait_for_tide`, a tool only the `background tasks` check registers. Two more answer the messages Keystone sends a task's next round, by words of `agents.task_resume_text` and `agents.task_continue_text`. See [jobs.md](jobs.md).
 
+`turns/recaps.json` (P5-05) holds the chats' recorded recaps. It answers a request whose system text holds "summary, topics and decisions of one chat", words of the shipped `chats.recap_prompt`, with a recap for each of the three chats, for the questions below, for the chat held for sensitive content, and for anything else. `turns/past-chats.json` holds three questions about earlier chats, each answered by calling `search_chats`: the lighthouse walk, the ferry times, and sleep. `cases/past-chats.json` checks that the first two ask for the search, and `past-chats.json`, beside `tenant.json` and not loaded or embedded, holds what the `past chats` check expects. See [chat-summaries.md](chat-summaries.md).
+
 ### A chat file
 
 ```json

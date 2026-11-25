@@ -1,0 +1,28 @@
+{
+  "test_data": true,
+  "about": "Invented expectations for the past chats check in verify (P5-05). The recaps are what the recorded turns in turns/recaps.json give the test tenant's chats; the questions are answered by the recorded turns in turns/past-chats.json, which call search_chats; the held chat is made on an invented tenant from the sensitive question of knowledge/knowledge.json. The loader does not read this file and the binary does not embed it.",
+  "recaps": [
+    { "title": "Planning the lighthouse walk", "summary_contains": "old lighthouse on Saturday", "decisions": ["Walk to the old lighthouse on Saturday.", "Bring water, a windproof jacket, shoes with a good grip, food and a paper map."] },
+    { "title": "North ferry times", "summary_contains": "09:00 and 11:30", "decisions": [] },
+    { "title": "A name for the bakery", "summary_contains": "The Early Loaf", "decisions": [] }
+  ],
+  "questions": [
+    {
+      "ask": "What did I decide about the lighthouse walk?",
+      "chat": "Planning the lighthouse walk",
+      "result_contains": ["Summary: The person planned a walk to the old lighthouse", "- Walk to the old lighthouse on Saturday."],
+      "reply_contains": ["walk to the old lighthouse on Saturday"]
+    },
+    {
+      "ask": "What times did you find for the north ferry?",
+      "chat": "North ferry times",
+      "result_contains": ["Topics: the north ferry; Tuesday sailings; timetables"],
+      "reply_contains": ["at 09:00 and at 11:30"]
+    }
+  ],
+  "held": {
+    "ask": "What helped with the insomnia, and what did the clinic letter say?",
+    "question": "Have we talked about sleep before?",
+    "marker": "Melatonin"
+  }
+}

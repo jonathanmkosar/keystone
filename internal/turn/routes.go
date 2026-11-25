@@ -90,6 +90,9 @@ type Chat struct {
 	Active time.Time `json:"active"`
 	// Busy says a turn is queued or running in the chat.
 	Busy bool `json:"busy"`
+	// Summary is the summary of the chat's recap, in the list of chats.
+	// Absent until the chat has one (P5-05, recap.go).
+	Summary string `json:"summary,omitempty"`
 }
 
 // Message is one message of a chat. The first seven fields are the chat

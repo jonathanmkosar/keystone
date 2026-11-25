@@ -24,7 +24,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Item | Lane | Branch |
 | --- | --- | --- |
 | P7-04 connectors | agents | `agents/p7-04-connectors` |
-| P5-05 chat summaries and past-chat search | chats | `chats/p5-05-chat-summaries` |
 | P8-03 scheduled tasks | agents | `agents/p8-03-scheduled-tasks` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
@@ -59,7 +58,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Is the cap's month a calendar month in UTC (models 008) | Yes | Yes | Nothing |
 | May a person see the admin's settings, read-only (interface 003) | Once there is an admin role, show a person only the ones that explain something they can see | Everyone sees all, read-only | P11-01 |
 | A short name for the greeting (interface 003) | A "what to call you" setting, which General would draw with no other work | The whole name | Nothing |
-| Once recall brings sensitive content into chats, should the chat-reading tools leave those chats out for a model that may not read sensitive content (agents 001) | Yes; recall marks such chats | Nothing is marked yet | P6-05 |
 | At the step limit, should the model get one more call to sum up, instead of Keystone's note (agents 001) | No; the note asks the person to send another message | The note | Nothing |
 | May each person switch tools off for themselves (agents 001) | Yes | Yes | Nothing |
 | Should the person map alone hold a chat to local or trusted models, as recalled content does (knowledge 005) | No: the map is already kept out of calls a hosted model could get | Not held | Nothing |
@@ -75,6 +73,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Should leaving a sensitive page out of a turn let that turn go to a hosted model (chats 005) | No: the route is decided from what recall found | No | Nothing |
 | Background tasks: should a model's start ask first, should a task resume after a restart (paying again for a cut-short call), should task chats stay in the sidebar, and is $1 a task right (agents 004) | Yes, yes, yes, yes | As recommended | Nothing |
 | Should recalled knowledge go in the person's message, before their words, so the start of every call can be cached; and should every call mark its last message (chats 007) | Yes to both | As recommended | Nothing |
+| Chat recaps: keep the tool's name `search_chats`, recap after the first turn and every three more after two idle minutes, and give older chats recaps in a one-time sweep on a local model (chats 006) | Yes to all three | As built; older chats get a recap at their next turn | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -117,6 +116,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P5-04, the turn inspector, provisional on the inspector mockup: an Inspect action beside Copy on each reply opens a panel with each model call's parts (rules, profile, map, recall, summary, pins, the turns kept and left out), their tokens, and the call's usage and cost, whose totals equal the usage records. A recalled page or a pinned message can be left out of the next turn. Pin sits beside Copy on every message.
 - P8-01, background tasks: a task asked for in a chat (the model's `start_background_task` asks first) works in a chat of its own through ordinary turns, so every step streams, is recorded and asks for approval; it survives a server restart and resumes, has its own budget ($1 by default), and writes its result as a note in the chat it was started from. A task from an incognito chat works in an incognito chat. The `background tasks` check proves a task finishes after a restart. `verify` is 21 of 21.
 - P5-03, prompt caching: every chat call is written in a fixed order (tools by name, the standing start, the parts that change rarely, earlier turns, then recall and the current message), so the start is byte-identical from turn to turn, and the Anthropic adapter marks up to four cache points. Recalled knowledge now goes in the person's message, before their words, not in the system text. Cache reads and writes are recorded in usage and cost and shown in the inspector. Checked live on November 25, 2026 with the owner's Claude Haiku 5.5: a second identical call read 18,440 cached tokens and cost a twelfth of the first.
+- P5-05, chat summaries and past-chat search: each chat gets a recap (summary, topics, decisions) after its first turn and every three more, once it has been idle two minutes, written by the summary model; the chat list carries it. The model's `search_chats` tool now searches titles, recaps and messages and returns each chat's recap and best passages, and `read_chat` returns the recap; both leave held chats out for a model that may not read sensitive content. The `past chats` check proves test-tenant questions about earlier chats are answered through the tool. `verify` is 22 of 22.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

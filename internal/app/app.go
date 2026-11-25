@@ -170,6 +170,7 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
+	all = append(all, turn.RecapRoutes(runner)...) // chat recaps (P5-05)
 	all = append(all, settingsapi.Routes()...)
 	all = append(all, jobs.Routes(c.jobs)...) // background tasks' (P8-01)
 	return all

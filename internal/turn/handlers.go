@@ -110,6 +110,7 @@ func (r *Runner) list(w http.ResponseWriter, req *http.Request, c api.Call) {
 	for _, ch := range chats {
 		reply.Chats = append(reply.Chats, shown(ch, busy[ch.ID]))
 	}
+	r.withSummaries(req.Context(), c.Store, reply.Chats) // each chat's summary (P5-05, recap.go)
 	api.WriteJSON(w, http.StatusOK, reply)
 }
 

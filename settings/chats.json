@@ -23,6 +23,111 @@
       "description": "About how many words of a matching message a search result shows, from 1 to 64."
     },
     {
+      "key": "chats.recap",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether each chat is given a recap after its turns: a short summary, its topics and the decisions made in it, which the past-chat search finds chats by. Off, no recap is made after a turn, and the search reads titles and messages alone."
+    },
+    {
+      "key": "chats.recap_after_turns",
+      "type": "int",
+      "default": "3",
+      "scope": "tenant",
+      "description": "A chat is given its recap once its first turn has ended with a whole reply, and a new one once this many more turns have, from 1 to 1000. The recap is not made again after every turn."
+    },
+    {
+      "key": "chats.recap_after_idle",
+      "type": "duration",
+      "default": "2m",
+      "scope": "tenant",
+      "description": "How long a chat must rest after a turn before its recap is made, so it is not made while the person is still writing, from 0s to 24h. 0s makes it as soon as the turn ends."
+    },
+    {
+      "key": "chats.recap_prompt",
+      "type": "string",
+      "default": "You write the short summary, topics and decisions of one chat in Keystone, a private workspace for one person, so the chat can be found and understood later. You are given the chat's title, its recap so far if it has one, and its messages, oldest first. Answer with one JSON object and nothing else, in this shape: {\"summary\": \"...\", \"topics\": [\"...\"], \"decisions\": [\"...\"]}. The summary says in at most {words} words what the chat is about, what was found or settled, and where it ended. The topics are at most {topics} short phrases naming what the chat covers. The decisions are at most {decisions} things the person decided, chose or agreed to in the chat, each a short sentence; give an empty list when nothing was decided. Keep what the recap so far says unless a later message changes it. Write about the person and the assistant in plain words.",
+      "scope": "install",
+      "description": "The instruction given to the model that writes a chat's recap. {words}, {topics} and {decisions} become chats.recap_summary_max_words, chats.recap_max_topics and chats.recap_max_decisions."
+    },
+    {
+      "key": "chats.recap_summary_max_words",
+      "type": "int",
+      "default": "80",
+      "scope": "install",
+      "description": "The most words a recap's summary may have, from 10 to 1000. A longer one is cut."
+    },
+    {
+      "key": "chats.recap_max_topics",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "The most topics a recap keeps, from 0 to 50."
+    },
+    {
+      "key": "chats.recap_max_decisions",
+      "type": "int",
+      "default": "8",
+      "scope": "install",
+      "description": "The most decisions a recap keeps, from 0 to 50."
+    },
+    {
+      "key": "chats.recap_item_max_chars",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The longest topic or decision a recap keeps, in characters, from 20 to 2000. A longer one is left out."
+    },
+    {
+      "key": "chats.recap_message_max_chars",
+      "type": "int",
+      "default": "2000",
+      "scope": "install",
+      "description": "The most characters of one message the model that writes a recap is shown, from 100 to 100000."
+    },
+    {
+      "key": "chats.recap_input_max_chars",
+      "type": "int",
+      "default": "24000",
+      "scope": "install",
+      "description": "The most characters of a chat the model that writes its recap is shown at once, no less than chats.recap_message_max_chars and at most 1000000. A longer chat is shown its first message and its newest, and the recap so far stands for what came before."
+    },
+    {
+      "key": "chats.recap_max_output_tokens",
+      "type": "int",
+      "default": "800",
+      "scope": "install",
+      "description": "The most tokens the model may write for a chat's recap, from 64 to 32000."
+    },
+    {
+      "key": "chats.recap_timeout",
+      "type": "duration",
+      "default": "60s",
+      "scope": "install",
+      "description": "How long making one recap may take before it is given up, from 5s to 30m."
+    },
+    {
+      "key": "chats.recap_retry_after",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "How long a chat whose recap failed waits before a turn's end tries again."
+    },
+    {
+      "key": "chats.past_chats_max_results",
+      "type": "int",
+      "default": "5",
+      "scope": "tenant",
+      "description": "The most chats one past-chat search by the model (the search_chats tool) returns, from 1 to 50. The model may ask for fewer."
+    },
+    {
+      "key": "chats.past_chats_passages",
+      "type": "int",
+      "default": "2",
+      "scope": "tenant",
+      "description": "The most matching passages of each chat a past-chat search by the model gives, from 0 to 20."
+    },
+    {
       "key": "chats.default_model",
       "type": "string",
       "default": "",
