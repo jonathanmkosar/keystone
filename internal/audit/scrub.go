@@ -27,6 +27,8 @@ var keyShapes = []*regexp.Regexp{
 	regexp.MustCompile(`xox[abprs]-[A-Za-z0-9-]{10,}`),
 	// A signed web token: three runs of letters joined by dots.
 	regexp.MustCompile(`eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}`),
+	// Keystone's own session token (internal/signin).
+	regexp.MustCompile(`kss_[a-f0-9]+_[a-f0-9]{64}`),
 }
 
 var (

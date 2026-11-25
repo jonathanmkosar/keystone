@@ -70,7 +70,7 @@ func Wrap(who func(*http.Request) (Caller, error), next http.Handler) http.Handl
 
 		c, err := who(r)
 		if err != nil || c.Store == nil {
-			refuse(w, http.StatusUnauthorized, "sign in first", id)
+			refuse(w, http.StatusUnauthorized, "no_session", "sign in first", id)
 			return
 		}
 		e := Entry{
@@ -82,7 +82,7 @@ func Wrap(who func(*http.Request) (Caller, error), next http.Handler) http.Handl
 		}
 		if _, err := Append(r.Context(), c.Store, e); err != nil {
 			log.Printf("audit: request %s was refused because it could not be recorded: %v", id, err)
-			refuse(w, http.StatusInternalServerError, "the call could not be recorded, so it was not run", id)
+			refuse(w, http.StatusInternalServerError, "not_recorded", "the call could not be recorded, so it was not run", id)
 			return
 		}
 
@@ -125,12 +125,13 @@ func outcomeOf(status int) Outcome {
 	return OutcomeOK
 }
 
-// refuse answers a call that was not run. The shape of an API error belongs
-// to the API shell (P2-05), which may change this to match its own.
-func refuse(w http.ResponseWriter, status int, message, requestID string) {
+// refuse answers a call that was not run. The body has the shape of every
+// API error, which is api.ErrorBody: this package cannot import the API
+// shell, so the three fields are written out here.
+func refuse(w http.ResponseWriter, status int, code, message, requestID string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{"error": message, "request_id": requestID})
+	json.NewEncoder(w).Encode(map[string]string{"error": message, "code": code, "request_id": requestID})
 }
 
 // recorder notes the status a handler sends. It passes Flush through, so a

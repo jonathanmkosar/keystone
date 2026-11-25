@@ -10,15 +10,19 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/app"
+	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/settings"
 	"github.com/jonathanmkosar/keystone/web"
 )
 
-// handler serves the web interface that is compiled into the binary.
-// The API shell (P2-05) takes over this mux and adds the API routes.
-func handler() http.Handler {
+// handler serves the API under /api/ and, everywhere else, the web
+// interface that is compiled into the binary. With no API it serves the
+// page alone.
+func handler(api http.Handler) http.Handler {
 	files := http.FileServerFS(web.Files())
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		h := w.Header()
@@ -26,6 +30,10 @@ func handler() http.Handler {
 		h.Set("X-Frame-Options", "DENY")
 		h.Set("Referrer-Policy", "no-referrer")
 		h.Set("Content-Security-Policy", "default-src 'self'")
+		if api != nil && (r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/")) {
+			api.ServeHTTP(w, r)
+			return
+		}
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
 			h.Set("Allow", "GET, HEAD")
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -35,37 +43,85 @@ func handler() http.Handler {
 	})
 }
 
+// setting returns the shipped value of a setting.
+func setting(reg []settings.Setting, key string) (string, error) {
+	s, ok := settings.Lookup(reg, key)
+	if !ok {
+		return "", fmt.Errorf("the %s setting is missing from the registry", key)
+	}
+	return s.Default, nil
+}
+
 func runServe(args []string, out, errw io.Writer) int {
 	reg, err := settings.Registry()
 	if err != nil {
 		fmt.Fprintln(errw, "keystone: the settings registry is broken:", err)
 		return 1
 	}
-	def, _ := settings.Lookup(reg, "server.address")
+	fail := func(err error) int {
+		fmt.Fprintln(errw, "keystone:", err)
+		return 1
+	}
+	defAddress, err := setting(reg, "server.address")
+	if err != nil {
+		return fail(err)
+	}
+	defData, err := setting(reg, "data.dir")
+	if err != nil {
+		return fail(err)
+	}
+	keeper, err := setting(reg, "secrets.keeper")
+	if err != nil {
+		return fail(err)
+	}
 	fl := flag.NewFlagSet("serve", flag.ContinueOnError)
 	fl.SetOutput(errw)
-	address := fl.String("address", def.Default, "the address and port to listen on")
+	address := fl.String("address", defAddress, "the address and port to listen on")
+	data := fl.String("data", defData, "the data folder; a relative folder is read from where keystone is started")
 	if err := fl.Parse(args); err != nil {
 		return 2
 	}
+
+	api, err := openAPI(*data, keeper, errw)
+	if err != nil {
+		return fail(err)
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	if err := serve(ctx, *address, out); err != nil {
-		fmt.Fprintln(errw, "keystone:", err)
-		return 1
+	if err := serve(ctx, *address, handler(api), out); err != nil {
+		return fail(err)
 	}
 	return 0
 }
 
-// serve listens on address and serves until ctx is done. It prints the
+// openAPI opens the data folder and returns the API's handler for it, with
+// the shipped settings. keeper is the secrets.keeper setting: the tenant
+// package reads no setting, so the server tells it where an install with
+// no master key yet keeps one. The server's own log goes to log.
+func openAPI(dataDir, keeper string, log io.Writer) (http.Handler, error) {
+	in, err := tenant.Open(dataDir)
+	if err != nil {
+		return nil, err
+	}
+	in.NewInstallKeeper(keeper)
+	c, err := app.Defaults()
+	if err != nil {
+		return nil, err
+	}
+	c.Install, c.Log = in, log
+	return app.Handler(c)
+}
+
+// serve listens on address and serves h until ctx is done. It prints the
 // address it is really listening on, so a caller that asked for port 0
 // learns the port.
-func serve(ctx context.Context, address string, out io.Writer) error {
+func serve(ctx context.Context, address string, h http.Handler, out io.Writer) error {
 	ln, err := net.Listen("tcp", address)
 	if err != nil {
 		return err
 	}
-	srv := &http.Server{Handler: handler(), ReadHeaderTimeout: 10 * time.Second}
+	// No write timeout: a stream of server-sent events stays open.
+	srv := &http.Server{Handler: h, ReadHeaderTimeout: 10 * time.Second}
 	fmt.Fprintf(out, "Keystone is listening on http://%s\n", ln.Addr())
 
 	failed := make(chan error, 1)

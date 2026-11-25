@@ -9,6 +9,41 @@
       "description": "The address and port Keystone listens on. The default is reachable from this machine only."
     },
     {
+      "key": "server.secure_cookie",
+      "type": "bool",
+      "default": "false",
+      "scope": "install",
+      "description": "Whether the session cookie is marked for HTTPS only. Turn it on once Keystone is reached over HTTPS. A request that arrives over HTTPS gets the mark whatever this says."
+    },
+    {
+      "key": "server.max_body_bytes",
+      "type": "int",
+      "default": "1048576",
+      "scope": "install",
+      "description": "The most bytes the API reads from one request's body. A larger body is refused."
+    },
+    {
+      "key": "server.stream_heartbeat",
+      "type": "duration",
+      "default": "15s",
+      "scope": "install",
+      "description": "How often an open stream sends a line that means only that it is still there, so nothing between Keystone and the browser closes a quiet connection."
+    },
+    {
+      "key": "server.page_limit",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The most rows a list in the API returns in one call. A client reads further pages to get the rest."
+    },
+    {
+      "key": "signin.list_people",
+      "type": "bool",
+      "default": "true",
+      "scope": "install",
+      "description": "Whether the API tells someone who has not signed in the names of the people on this install, so the sign-in screen can ask who is signing in. Off, a person must know their own id."
+    },
+    {
       "key": "signin.password_iterations",
       "type": "int",
       "default": "600000",
