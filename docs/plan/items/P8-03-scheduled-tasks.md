@@ -1,6 +1,6 @@
 # P8-03. Scheduled tasks
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P8-01
 Owner gate: none
