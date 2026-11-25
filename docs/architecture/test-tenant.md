@@ -64,6 +64,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/web-search.json` (P7-03) holds one: "When is the harbour museum open this week?" The model calls `web_search` and answers citing [1] and [2]. The test tenant has no search key, so on the shipped server the step says "not set up" and the numbers stay text; `verify` stores an invented key and points the search at a stand-in on this machine. See [web-search.md](web-search.md).
 
+`turns/background-task.json` (P8-01) holds five. "Find out in the background when the lighthouse walk should start." makes the model call `start_background_task`, which asks first; the task it starts searches the person's chats, reads the time and answers, in a chat of its own, and its result comes back as a note. "Wait for the tide table, then say when the tide turns." calls `wait_for_tide`, a tool only the `background tasks` check registers. Two more answer the messages Keystone sends a task's next round, by words of `agents.task_resume_text` and `agents.task_continue_text`. See [jobs.md](jobs.md).
+
 ### A chat file
 
 ```json

@@ -109,6 +109,10 @@ Ids count from 1 within a task with no gaps, and a client that lost its connecti
 
 `POST …/stop` writes the stop on the task, stops its round's turn (which keeps what it had streamed), and waits for the task to end, up to `chats.stop_wait`. Stopping the round's turn in the work chat stops the task too. Deleting the chat a task was started from deletes the task and stops its round; deleting its work chat ends it as `failed` with `chat_deleted`.
 
+## On the screen
+
+A card under the conversation for each task under way, started from the chat or working in it: its title, where it is ("Using search_chats · 1 step done", pulsing while it works, or "Waiting for your approval, in its chat"), a link to the other chat, and **Stop**. It follows the task's stream; when the task ends the chat is read again and the card goes. The note is drawn as a reply of its own, "From a background task", with a link to the task's own chat. A model's `start_background_task` reads "Starting a background task, “title”" in its step row and on its approval card. The code is `web/app/src/Tasks.tsx` and `tasks.css`, with lines in `api.ts`, `Chat.tsx`, `layout.ts`, `Conversation.tsx` and `steps.ts`; [web.md](web.md) has the calls. There is no mockup yet: the look is a first draft from the tokens until the agent mockups (P1-05).
+
 ## Tables
 
 In `internal/tenant/migrations/20261125T151700_jobs.sql`.
@@ -173,6 +177,7 @@ In `settings/agents.json`. `jobs.ReadConfig` reads the install's, and `app.ReadC
   - A round at its step limit is followed by another, and a task with one round fails with `round_limit`. A model starts a task with the tool after the person approves the start, and the result follows in the same chat. A tool that changes something waits for the person, the task says so, and it runs once when approved. A task started from a chat that read outside content asks for a tool set to always, and its note marks the chat it lands in; one started from a clean chat runs it. Stop ends a task and tells the chat. Deleting its chat stops its round. The budget stops a paid call that could pass it, and the task falls back to a local model when the chain has one. An empty task, a start from a work chat and one start too many are refused, and a refused start leaves no chat behind.
 - `verify`, the standing check `background tasks` (`tools/verify/jobs.go`): on the real server as the test tenant, a task's round is cut short by stopping the server while its tool runs; the second server resumes it; the task ends as done after two rounds; its result is a `task` note, the last message of the chat it was started from; its rounds are one interrupted and one done; its model calls and the tool are in the audit log, and its model calls in the usage records, under its own request id on both sides of the restart; and another tenant gets 404 from every task route. It was seen to fail when a round cut short by a restart ended the task instead of resuming it.
 - The route walks in `verify` call the five routes like every other: `tenant isolation`, `calls recorded` and `no keys in output`.
+- In a browser, on port 7971, as the test tenant, as [web.md](web.md) describes: a task started by asking for one, its approval, its note; running and waiting cards; Stop; and a server killed and started again while one task ran and another waited, after which the first finished with its result in the chat and the second waited on and finished once approved.
 
 ## Not here yet
 

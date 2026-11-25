@@ -1,6 +1,6 @@
 # P8-01. Background tasks
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P7-01
 Owner gate: none
@@ -42,5 +42,15 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 - Done: the server side. `internal/jobs` (rows, runner, routes, tool, gate) and its tests, the migration `20261125T151700_jobs.sql` (`jobs` and `job_events`: the rounds are found from the turns by the task's request id, so `job_turns` was not needed), `internal/turn/jobs.go`, the one line in `route.go` and the `Gate` field in `config.go`, the lines in `internal/app`, five settings, the fixture `turns/background-task.json`, the `background tasks` check in `tools/verify/jobs.go`, `docs/api/openapi.json`, `docs/architecture/jobs.md` and decisions 0290 to 0295.
 - Done: the screen (`Tasks.tsx`, `tasks.css`, calls added at the end of `api.ts`, a line in `Chat.tsx`, a branch in `layout.ts` and `Conversation.tsx`, a row in `steps.ts`, `web/dist/` rebuilt), seen in a browser on port 7971.
-- Left: the lines in `turns.md`, `web.md`, `tools.md`, `test-tenant.md` and `internal/README.md`, the screen's section of `jobs.md`, the journal, and the status.
+- Done: the lines in `turns.md`, `web.md`, `tools.md`, `test-tenant.md`, `approvals.md`, `usage.md` and `internal/README.md`, the screen's section of `jobs.md`, the journal agents 004, and the status. Nothing is left.
+
+### Result
+
+Done on November 25, 2026. The item has no owner gate, and the proof passes.
+
+- **Durable jobs that outlive the tab.** A background task is a row of its own that works through ordinary turns of a chat of its own, with no client: started by the person (`POST /api/v1/chats/{id}/tasks`) or by a model (`start_background_task`, which asks first). Its rounds stream, record and ask for approvals like any turn; it can be stopped from either chat; it has a budget of its own (`agents.task_budget_usd`), enforced before each paid call through the same gate as the monthly cap.
+- **Resume after restart.** A round the stop cut short is closed as interrupted by the turn runner, as before, and the task resumes with a new round that tells the model it was cut short. A round that waited for an approval waits again. The note is written once.
+- **Progress to the chat.** A task's stream sends the task whenever it changes, a card in the chat shows where it is and links to its own chat, and when it ends its result is a note in the chat it was started from, drawn as a reply of its own. A chat's marks for outside and sensitive content go with the task both ways.
+- **The proof**, in `go test ./internal/jobs` (`TestATaskFinishesAfterARestart`) and in the new standing check `background tasks` on the real server as the test tenant: a task whose round was cut short by stopping the server finishes on the next server, and its result is the last message of the chat it was started from. `verify` is 20 of 20. Also seen in a browser on port 7971, with the server killed and started again.
+- The contract: added only. Five routes, one tool, a stop reason (`task`), `docs/api/openapi.json` regenerated, listed in `turns.md` under "Changed since the contract". The doc is `docs/architecture/jobs.md`; decisions 0290 to 0295; the journal is agents 004. The card and the note have no mockup and are a first draft from the tokens until the agent mockups (P1-05).
 

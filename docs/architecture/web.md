@@ -261,6 +261,28 @@ A reload in the middle of a wait joins the turn's stream from its first event, s
 
 Seen in a browser on November 25, 2026, against a server built from this branch on port 7931 with a harness that registered test tools: the card asking after outside content, the input opened, Approve, a card that came back after a reload, Not now leaving the row "declined", and the policy list setting a tool to always. In light and dark, and at phone width.
 
+## Background tasks (P8-01)
+
+A card for each background task under way in the chat, and the note a task writes when it ends. The server's side is [jobs.md](jobs.md). There is no mockup for either: they are built from the tokens and follow the approval card's shape, a first draft until the agent mockups (P1-05).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The card | `src/Tasks.tsx`, `src/tasks.css` | Lists the chat's tasks when it opens and whenever one of its turns ends (a turn may have started one with the tool), and draws a card under the conversation for each task under way: "Background task" with its title, where it is ("Using search_chats · 1 step done", pulsing while it works), "Waiting for your approval, in its chat" when a call waits, a link to its own chat ("Open its chat to watch its steps", or "to answer it"), and **Stop**. In the task's own chat the card says so and links back to the chat it was started from. Each card follows its task's stream and comes back after a dropped connection; when the task ends the chat is read again and the card goes. |
+| The note | `src/Tasks.tsx` (`TaskNote`), `src/layout.ts`, `src/Conversation.tsx` | A message with the stop reason `task` is drawn as a reply of its own, not joined to the reply before it: "From a background task", a link to the task's own chat, the text, and Copy. `layout.ts` has one more branch, and `Conversation.tsx` one more kind of part. |
+| Step words | `src/steps.ts` | `start_background_task` reads "Starting a background task, “title”", and its approval card "Start a background task, “title”". |
+| The way in | `src/Chat.tsx`, `src/api.ts` | One line in `Chat.tsx` draws the cards. The calls are added at the end of `api.ts`. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/chats/{id}/tasks` | `listTasks` | The cards, and the note's link. |
+| `GET /api/v1/chats/{id}/tasks/{task}/events` | `followTask` | Following a task under way, with `Last-Event-ID` after a dropped stream. |
+| `POST /api/v1/chats/{id}/tasks/{task}/stop` | `stopTask` | Stop on a card. |
+| `POST /api/v1/chats/{id}/tasks` | `startTask` | Not called by a screen yet: a task is started by asking for one, and the model's `start_background_task` asks first. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7971 with a data folder inside the worktree, as the test tenant: "Find out in the background when the lighthouse walk should start." drew the approval card for the start; once approved, the task ran in its own chat and its note came into the chat as a reply of its own, with the work chat in the sidebar. With a launcher (not kept) that registered a slow stand-in tool and a changing one: a running card and a waiting card side by side; the work chat with its running step and its card; Stop from the work chat, and the stopped note; and **the server killed while one task's tool ran and another waited for an approval, then started again: the page came back to the streams, the first task resumed and its result appeared in the chat, and the second still waited, and finished once approved in its chat.** In light and dark, and at phone width. The only console errors were the refused connections while the server was down.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).
