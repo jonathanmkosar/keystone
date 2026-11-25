@@ -1,0 +1,87 @@
+{
+  "test_data": true,
+  "name": "openrouter-two-tools",
+  "style": "openrouter",
+  "about": "A hosted router that asks for a key. It sends comment lines while it waits, reasoning under the name \"reasoning\", a sentence of text, and two tool calls whose arguments arrive in pieces. The usage says how much of the prompt was read from a cache and how much of the reply was reasoning.",
+  "entry": {
+    "name": "router-medium",
+    "label": "Router medium",
+    "adapter": "chat_completions",
+    "endpoint": "https://router.provider-three.example/api/v1",
+    "provider_model": "provider-four/example-medium",
+    "key": "provider.three",
+    "context_window": 128000,
+    "output_limit": 8000,
+    "capabilities": ["tools", "thinking"],
+    "price": {"input": 0.5, "output": 2, "cache_read": 0.05},
+    "class": "hosted"
+  },
+  "uses_key": true,
+  "request": {
+    "model": "router-medium",
+    "system": [
+      {"type": "text", "text": "You plan walks."},
+      {"type": "text", "text": "Use the tools before you answer."}
+    ],
+    "messages": [
+      {"role": "user", "blocks": [{"type": "text", "text": "Compare the weather at Marrow Hill and at Fenwater for Saturday."}]}
+    ],
+    "tools": [
+      {
+        "name": "forecast",
+        "description": "The invented forecast for one place on one day.",
+        "input_schema": {"type": "object", "properties": {"place": {"type": "string"}, "day": {"type": "string"}}, "required": ["place", "day"]}
+      }
+    ],
+    "max_output_tokens": 9000
+  },
+  "sent": {
+    "model": "provider-four/example-medium",
+    "messages": [
+      {"role": "system", "content": "You plan walks.\n\nUse the tools before you answer."},
+      {"role": "user", "content": "Compare the weather at Marrow Hill and at Fenwater for Saturday."}
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "forecast",
+          "description": "The invented forecast for one place on one day.",
+          "parameters": {"type": "object", "properties": {"place": {"type": "string"}, "day": {"type": "string"}}, "required": ["place", "day"]}
+        }
+      }
+    ],
+    "max_tokens": 8000,
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  },
+  "stream": [
+    ": ROUTER PROCESSING",
+    ": ROUTER PROCESSING",
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": "", "reasoning": "Two places, so two lookups."}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": "", "reasoning": " Same day for both."}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": "I will look up both forecasts."}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": null, "tool_calls": [{"index": 0, "id": "call_marrow01", "type": "function", "function": {"name": "forecast", "arguments": ""}}]}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": null, "tool_calls": [{"index": 0, "function": {"arguments": "{\"place\":\"Marrow"}}]}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": null, "tool_calls": [{"index": 0, "function": {"arguments": " Hill\",\"day\":\"Saturday\"}"}}]}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": null, "tool_calls": [{"index": 1, "id": "call_fenwater02", "type": "function", "function": {"name": "forecast", "arguments": "{\"place\":"}}]}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": null, "tool_calls": [{"index": 1, "function": {"arguments": "\"Fenwater\",\"day\":\"Saturday\"}"}}]}, "finish_reason": null, "native_finish_reason": null}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [{"index": 0, "delta": {"role": "assistant", "content": ""}, "finish_reason": "tool_calls", "native_finish_reason": "tool_calls"}]},
+    {"id": "gen-201", "provider": "Provider Four", "model": "provider-four/example-medium", "object": "chat.completion.chunk", "created": 1795000200, "choices": [], "usage": {"prompt_tokens": 420, "completion_tokens": 96, "total_tokens": 516, "prompt_tokens_details": {"cached_tokens": 300}, "completion_tokens_details": {"reasoning_tokens": 40}}},
+    "data: [DONE]"
+  ],
+  "response": {
+    "model": "router-medium",
+    "message": {
+      "role": "assistant",
+      "blocks": [
+        {"type": "thinking", "text": "Two places, so two lookups. Same day for both."},
+        {"type": "text", "text": "I will look up both forecasts."},
+        {"type": "tool_call", "id": "call_marrow01", "name": "forecast", "input": {"place": "Marrow Hill", "day": "Saturday"}},
+        {"type": "tool_call", "id": "call_fenwater02", "name": "forecast", "input": {"place": "Fenwater", "day": "Saturday"}}
+      ]
+    },
+    "stop_reason": "tool_call",
+    "usage": {"input_tokens": 120, "output_tokens": 96, "cache_read_tokens": 300, "thinking_tokens": 40}
+  }
+}

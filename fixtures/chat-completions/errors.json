@@ -1,0 +1,114 @@
+{
+  "test_data": true,
+  "about": "Refusals as the endpoints of this kind send them, and the seam error each must become. The text of every body is invented.",
+  "errors": [
+    {
+      "name": "a key that is refused",
+      "status": 401,
+      "body": {"error": {"message": "No auth credentials found", "code": 401}},
+      "kind": "auth", "retryable": false, "says": "No auth credentials found"
+    },
+    {
+      "name": "a key that may not use the model",
+      "status": 403,
+      "body": {"error": {"message": "This key may not use example-medium.", "type": "permission_error", "code": "model_not_allowed"}},
+      "kind": "auth", "retryable": false, "says": "may not use"
+    },
+    {
+      "name": "a rate limit",
+      "status": 429,
+      "body": {"error": {"message": "Rate limit reached. Try again shortly.", "type": "rate_limit_error", "code": "rate_limit_exceeded"}},
+      "kind": "rate_limited", "retryable": true, "says": "Rate limit reached"
+    },
+    {
+      "name": "a quota that has run out",
+      "status": 429,
+      "body": {"error": {"message": "You have used your quota for this month.", "type": "insufficient_quota", "code": "insufficient_quota"}},
+      "kind": "rate_limited", "retryable": false, "says": "quota"
+    },
+    {
+      "name": "a request that does not fit, by its code",
+      "status": 400,
+      "body": {"error": {"message": "This request holds 9000 tokens and the model takes 8192.", "type": "invalid_request_error", "code": "context_length_exceeded"}},
+      "kind": "too_long", "retryable": false, "says": "9000 tokens"
+    },
+    {
+      "name": "a request that does not fit, by its words",
+      "status": 400,
+      "body": {"error": {"message": "The prompt is larger than the maximum context length of the model.", "code": 400}},
+      "kind": "too_long", "retryable": false, "says": "maximum context length"
+    },
+    {
+      "name": "a body that is too large",
+      "status": 413,
+      "body": "<html><body>Request Entity Too Large</body></html>",
+      "kind": "too_long", "retryable": false, "says": "413"
+    },
+    {
+      "name": "a request the endpoint cannot read",
+      "status": 400,
+      "body": {"error": {"message": "tools[0].function.parameters is not a schema", "type": "invalid_request_error", "code": null}},
+      "kind": "invalid", "retryable": false, "says": "not a schema"
+    },
+    {
+      "name": "a model the local endpoint does not have",
+      "status": 404,
+      "body": {"error": {"message": "model \"example-small:8b\" not found, try pulling it first", "type": "not_found_error", "code": null}},
+      "kind": "invalid", "retryable": false, "says": "not found"
+    },
+    {
+      "name": "an error given as plain text",
+      "status": 400,
+      "body": {"error": "the messages list is empty"},
+      "kind": "invalid", "retryable": false, "says": "the messages list is empty"
+    },
+    {
+      "name": "an account with no credit",
+      "status": 402,
+      "body": {"error": {"message": "This account has no credit left.", "code": 402}},
+      "kind": "other", "retryable": false, "says": "no credit"
+    },
+    {
+      "name": "a provider that is busy",
+      "status": 503,
+      "body": {"error": {"message": "The model is overloaded. Try again.", "code": 503}},
+      "kind": "overloaded", "retryable": true, "says": "overloaded"
+    },
+    {
+      "name": "an endpoint that failed",
+      "status": 500,
+      "body": {"detail": "Internal error in the proxy."},
+      "kind": "unavailable", "retryable": true, "says": "Internal error in the proxy"
+    },
+    {
+      "name": "a gateway with nothing behind it",
+      "status": 502,
+      "body": "<html><body>Bad Gateway</body></html>",
+      "kind": "unavailable", "retryable": true, "says": "502"
+    },
+    {
+      "name": "a redirect, which is not followed",
+      "status": 307,
+      "headers": {"Location": "https://elsewhere.example/v1/chat/completions"},
+      "body": "",
+      "kind": "other", "retryable": false, "says": "307"
+    }
+  ],
+  "in_stream": [
+    {
+      "name": "a provider that fails part of the way through",
+      "chunk": {"id": "gen-501", "object": "chat.completion.chunk", "error": {"message": "The provider returned an error.", "code": 502}, "choices": [{"index": 0, "delta": {"content": ""}, "finish_reason": "error"}]},
+      "kind": "unavailable", "retryable": true, "says": "The provider returned an error"
+    },
+    {
+      "name": "a rate limit part of the way through",
+      "chunk": {"error": {"message": "Rate limit reached for this key.", "code": "rate_limit_exceeded"}},
+      "kind": "rate_limited", "retryable": true, "says": "Rate limit reached"
+    },
+    {
+      "name": "an error with no code",
+      "chunk": {"error": {"message": "Something went wrong."}},
+      "kind": "other", "retryable": false, "says": "Something went wrong"
+    }
+  ]
+}

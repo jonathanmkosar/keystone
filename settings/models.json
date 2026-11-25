@@ -21,6 +21,48 @@
       "default": "50",
       "scope": "install",
       "description": "The most models one person's registry may hold. Adding one more is refused."
+    },
+    {
+      "key": "chat_completions.connect_timeout",
+      "type": "duration",
+      "default": "10s",
+      "scope": "install",
+      "description": "How long the Chat Completions adapter waits to connect to an endpoint, and again to finish the TLS handshake."
+    },
+    {
+      "key": "chat_completions.response_timeout",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "How long the Chat Completions adapter waits for an endpoint to start its answer. A local model that is still loading needs the time."
+    },
+    {
+      "key": "chat_completions.idle_timeout",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "How long the Chat Completions adapter waits between two pieces of a streamed reply before it ends the call."
+    },
+    {
+      "key": "chat_completions.max_attempts",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "How many times the Chat Completions adapter sends one call at most, when the endpoint is busy or cannot be reached. One means no retry."
+    },
+    {
+      "key": "chat_completions.retry_wait",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "How long the Chat Completions adapter waits before it sends a call again. The wait doubles with each attempt."
+    },
+    {
+      "key": "chat_completions.retry_wait_max",
+      "type": "duration",
+      "default": "8s",
+      "scope": "install",
+      "description": "The longest the Chat Completions adapter waits between two attempts, whatever the endpoint asks for."
     }
   ]
 }

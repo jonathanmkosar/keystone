@@ -1,0 +1,48 @@
+{
+  "test_data": true,
+  "name": "gateway-cut-short",
+  "style": "gateway",
+  "about": "A gateway on the home network, reached over https with a certificate from its own authority, which the test makes and names in the entry's ca_cert. It asks for a key. The reply stops at the output limit and the gateway reports no usage, so the counts are estimated.",
+  "entry": {
+    "name": "study-gateway",
+    "label": "Study gateway",
+    "adapter": "chat_completions",
+    "endpoint": "https://gateway.home.arpa:8443/v1",
+    "provider_model": "example-medium",
+    "key": "provider.gateway",
+    "context_window": 64000,
+    "output_limit": 8000,
+    "capabilities": ["tools", "vision"],
+    "price": {"input": 0, "output": 0},
+    "class": "local"
+  },
+  "uses_key": true,
+  "request": {
+    "model": "study-gateway",
+    "messages": [
+      {"role": "user", "blocks": [{"type": "text", "text": "List the stops on the Fenwater bus line."}]}
+    ],
+    "max_output_tokens": 12
+  },
+  "sent": {
+    "model": "example-medium",
+    "messages": [
+      {"role": "user", "content": "List the stops on the Fenwater bus line."}
+    ],
+    "max_tokens": 12,
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  },
+  "stream": [
+    {"id": "gw-401", "object": "chat.completion.chunk", "created": 1795000400, "model": "example-medium", "choices": [{"index": 0, "delta": {"role": "assistant", "content": "Larkfield, Marrow"}, "finish_reason": null}]},
+    {"id": "gw-401", "object": "chat.completion.chunk", "created": 1795000400, "model": "example-medium", "choices": [{"index": 0, "delta": {"content": " Hill, Pell"}, "finish_reason": null}]},
+    {"id": "gw-401", "object": "chat.completion.chunk", "created": 1795000400, "model": "example-medium", "choices": [{"index": 0, "delta": {}, "finish_reason": "length"}]},
+    "data: [DONE]"
+  ],
+  "response": {
+    "model": "study-gateway",
+    "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Larkfield, Marrow Hill, Pell"}]},
+    "stop_reason": "max_tokens",
+    "usage": {"input_tokens": 1, "output_tokens": 1, "estimated": true}
+  }
+}

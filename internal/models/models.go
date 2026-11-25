@@ -146,6 +146,11 @@ type Model struct {
 	Capabilities []Capability `json:"capabilities,omitempty"`
 	Price        Price        `json:"price"`
 	Class        Class        `json:"class"`
+	// CACert is one certificate authority to trust for this entry's
+	// endpoint, for an endpoint that has its own certificate, such as a
+	// gateway on the home network. It is PEM text, or the path of a PEM
+	// file. It is never a private key. Empty means the usual authorities.
+	CACert string `json:"ca_cert,omitempty"`
 }
 
 // MayReadSensitive reports whether content from a sensitive space may be
@@ -227,6 +232,8 @@ func Check(m Model) error {
 			return no("the %s adapter runs inside Keystone and takes no key", a.Name)
 		case m.Class != ClassLocal:
 			return no("the %s adapter runs inside Keystone, so its class is local", a.Name)
+		case m.CACert != "":
+			return no("the %s adapter runs inside Keystone and takes no ca_cert", a.Name)
 		}
 	} else {
 		if m.ProviderModel == "" {
@@ -238,6 +245,9 @@ func Check(m Model) error {
 		}
 		if m.Class == ClassLocal && !home {
 			return no("the class is local and the endpoint is not on this machine or the home network: a local endpoint is localhost, a private address, a name with no dot, or a name ending in %s. Mark a model you trust somewhere else as trusted", strings.Join(homeSuffixes, ", "))
+		}
+		if err := checkCACert(m); err != nil {
+			return no("%v", err)
 		}
 	}
 
@@ -326,6 +336,36 @@ func checkEndpoint(endpoint string) (home bool, err error) {
 		return false, errors.New("endpoint uses http, which is allowed only on this machine or the home network: use https")
 	}
 	return home, nil
+}
+
+// maxCACert is the most text ca_cert may hold: room for a short chain.
+const maxCACert = 32000
+
+// checkCACert checks the certificate authority an entry trusts for its own
+// endpoint. It is PEM text or the path of a PEM file, and the adapter reads
+// it. It can only add an authority for an https endpoint: nothing here, and
+// no other field, turns certificate checks off. The value is not put in an
+// error.
+func checkCACert(m Model) error {
+	if m.CACert == "" {
+		return nil
+	}
+	if !strings.HasPrefix(strings.ToLower(m.Endpoint), "https://") {
+		return errors.New("ca_cert is for an https endpoint, and this endpoint uses http")
+	}
+	if len(m.CACert) > maxCACert {
+		return fmt.Errorf("ca_cert is longer than %d characters", maxCACert)
+	}
+	if strings.Contains(m.CACert, "PRIVATE KEY") {
+		return errors.New("ca_cert holds a private key: give the authority's certificate and nothing else")
+	}
+	if strings.Contains(m.CACert, "-----BEGIN") {
+		return nil
+	}
+	if strings.TrimSpace(m.CACert) != m.CACert || strings.ContainsFunc(m.CACert, unicode.IsControl) {
+		return errors.New("ca_cert is PEM text or the path of a PEM file on one line")
+	}
+	return nil
 }
 
 // homeSuffixes end the names that only resolve on a home network.

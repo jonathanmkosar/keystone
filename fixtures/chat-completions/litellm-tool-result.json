@@ -1,0 +1,104 @@
+{
+  "test_data": true,
+  "name": "litellm-tool-result",
+  "style": "litellm",
+  "about": "A proxy that asks for a key. The request carries a whole tool round: the assistant's thinking, text and tool call, the tool's result, and a new user message with an image and a text file. The reply sends reasoning under the name \"reasoning_content\" and then the answer.",
+  "entry": {
+    "name": "proxy-vision",
+    "label": "Proxy vision",
+    "adapter": "chat_completions",
+    "endpoint": "http://proxy.lan:4000/v1",
+    "provider_model": "example-vision",
+    "key": "provider.proxy",
+    "context_window": 64000,
+    "output_limit": 4000,
+    "capabilities": ["tools", "vision", "files", "thinking"],
+    "price": {"input": 1, "output": 3},
+    "class": "trusted"
+  },
+  "uses_key": true,
+  "request": {
+    "model": "proxy-vision",
+    "messages": [
+      {"role": "user", "blocks": [{"type": "text", "text": "Is the ferry to Pell Island running this afternoon?"}]},
+      {
+        "role": "assistant",
+        "blocks": [
+          {"type": "thinking", "text": "I need the timetable.", "signature": "an-invented-signature"},
+          {"type": "text", "text": "Let me check the timetable."},
+          {"type": "tool_call", "id": "call_k3v9x2ab", "name": "ferry_times", "input": {"crossing": "Pell Island", "day": "today"}}
+        ]
+      },
+      {
+        "role": "user",
+        "blocks": [
+          {"type": "tool_result", "id": "call_k3v9x2ab", "content": [{"type": "text", "text": "14:10 and 16:40, both running."}]},
+          {"type": "text", "text": "Thanks. Does this photo of the notice board say the same?"},
+          {"type": "image", "media_type": "image/png", "data": "aW52ZW50ZWQgaW1hZ2UgYnl0ZXM="},
+          {"type": "file", "media_type": "text/plain", "name": "notes.txt", "data": "VGhlIGJvYXJkIHdhcyByZXBhaW50ZWQgaW4gTWF5Lg=="}
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "name": "ferry_times",
+        "description": "Looks up the invented ferry timetable for one crossing.",
+        "input_schema": {"type": "object", "properties": {"crossing": {"type": "string"}, "day": {"type": "string"}}, "required": ["crossing"]}
+      }
+    ],
+    "max_output_tokens": 500
+  },
+  "sent": {
+    "model": "example-vision",
+    "messages": [
+      {"role": "user", "content": "Is the ferry to Pell Island running this afternoon?"},
+      {
+        "role": "assistant",
+        "content": "Let me check the timetable.",
+        "tool_calls": [{"id": "call_k3v9x2ab", "type": "function", "function": {"name": "ferry_times", "arguments": "{\"crossing\":\"Pell Island\",\"day\":\"today\"}"}}]
+      },
+      {"role": "tool", "tool_call_id": "call_k3v9x2ab", "content": "14:10 and 16:40, both running."},
+      {
+        "role": "user",
+        "content": [
+          {"type": "text", "text": "Thanks. Does this photo of the notice board say the same?"},
+          {"type": "image_url", "image_url": {"url": "data:image/png;base64,aW52ZW50ZWQgaW1hZ2UgYnl0ZXM="}},
+          {"type": "text", "text": "File notes.txt:\nThe board was repainted in May."}
+        ]
+      }
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "ferry_times",
+          "description": "Looks up the invented ferry timetable for one crossing.",
+          "parameters": {"type": "object", "properties": {"crossing": {"type": "string"}, "day": {"type": "string"}}, "required": ["crossing"]}
+        }
+      }
+    ],
+    "max_tokens": 500,
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  },
+  "stream": [
+    {"id": "chatcmpl-301", "created": 1795000300, "model": "example-vision", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"role": "assistant", "reasoning_content": "The board lists two sailings."}}]},
+    {"id": "chatcmpl-301", "created": 1795000300, "model": "example-vision", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"content": "Yes. The board shows 14:10"}}]},
+    {"id": "chatcmpl-301", "created": 1795000300, "model": "example-vision", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"content": " and 16:40, the same as the timetable."}}]},
+    {"id": "chatcmpl-301", "created": 1795000300, "model": "example-vision", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]},
+    {"id": "chatcmpl-301", "created": 1795000300, "model": "example-vision", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {}}], "usage": {"prompt_tokens": 512, "completion_tokens": 37, "total_tokens": 549, "completion_tokens_details": {"reasoning_tokens": 12}}},
+    "data: [DONE]"
+  ],
+  "response": {
+    "model": "proxy-vision",
+    "message": {
+      "role": "assistant",
+      "blocks": [
+        {"type": "thinking", "text": "The board lists two sailings."},
+        {"type": "text", "text": "Yes. The board shows 14:10 and 16:40, the same as the timetable."}
+      ]
+    },
+    "stop_reason": "end",
+    "usage": {"input_tokens": 512, "output_tokens": 37, "thinking_tokens": 12}
+  }
+}
