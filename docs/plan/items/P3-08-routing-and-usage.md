@@ -1,6 +1,6 @@
 # P3-08. Routing, fallbacks, usage and the spend cap
 
-Status: doing (models)
+Status: done
 Lane: models
 Depends on: P3-03, P3-04, P3-05, P3-06, P3-07
 Owner gate: none
@@ -29,4 +29,20 @@ Proof:
 - Unit tests in both packages: rule and privacy routing, a failing endpoint falls back before any of the reply is passed on and does not after, the month's sums, and the cap's three answers.
 - Tests in `internal/turn`: a turn on a failing model is answered by the next model in the chain, with both calls in the audit log and in the usage records.
 - A new standing check, `spend cap`, in `tools/verify/spendcap.go`: with the fake provider behind a model marked hosted, a call under the cap runs, a call over it is stopped before the provider is called, and every model call in the audit log has a usage record.
+
+### Result
+
+Built as planned, with three additions.
+
+- **The model command** is in `tools/tenant/model.go`, with the runbook `docs/runbooks/adding-a-model.md`. A tenant can be given a real model without code.
+- **`internal/routing`**: `Plan` for the rules and the privacy filter, `Chain` for the fallback. A call falls back only while no block of its reply has been passed on, and each model is called once. The package is a guard for fixed rule 3 in `tools/verify/fixedrules.go`.
+- **`internal/usage`**: an append-only record for each model call, a month's sums for a tenant, and the cap. A call to a model that is not local is stopped when the month's spend and the most the call could cost are together more than the cap.
+- **The turn** joins them in `internal/turn/route.go`. Eight lines of the existing files changed and seven were added; the journal lists them.
+- **Added to the plan**: a `spend_cap` error kind in the seam; and two more commands, `tools/tenant setting` and `tools/tenant usage`, because without them the cap and the fallback chain could only be changed from code.
+- Seven settings under `routing.` and `usage.` in `settings/models.json`.
+- The standing check `spend cap` passes. `verify` is 16 of 16.
+
+Every part of the proof passes. Left for the items that need them, and listed in the docs: the turn marks nothing as sensitive until recall (P6-05) brings sensitive content into one; the summary, memory and embedding rules have no caller yet; and the warning near the cap is in the server's log and in `tools/tenant usage`, with no screen until P11-02.
+
+Docs: `docs/architecture/routing.md` and `docs/architecture/usage.md`. Decisions 0160 to 0163. Journal: `docs/journal/2026-11-25-models-008.md`.
 

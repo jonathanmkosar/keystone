@@ -143,3 +143,22 @@ The command prints why. The common ones:
 ## The test tenant
 
 The test tenant ignores its registry. It always answers from its recorded turns with the fake provider, whatever is added (decision [0144](../architecture/decisions/0144-the-test-tenants-model-is-in-no-registry.md)), and `model add` says so. To try a real model, add a tenant ([adding-a-tenant.md](adding-a-tenant.md)) and give that one the model.
+
+## After the model is added
+
+These are settings of the person's own, set from the command line until the settings screens exist. The names are the registry names from `model list`.
+
+    go run ./tools/tenant setting set <tenant-id> chats.default_model example-large
+    go run ./tools/tenant setting set <tenant-id> chats.title_model house-small
+    go run ./tools/tenant setting set <tenant-id> routing.fallback_models "example-open, house-small"
+    go run ./tools/tenant setting set <tenant-id> usage.monthly_cap_usd 25
+    go run ./tools/tenant setting list <tenant-id>
+
+- `chats.default_model` is the model a new chat starts on. Without it, a new chat uses the first model in the registry by name.
+- `chats.title_model` writes chat titles. A small, cheap model is enough.
+- `routing.fallback_models` are tried in order when the model a call was meant for fails before its reply begins. Empty, which is the default, means nothing falls back ([routing.md](../architecture/routing.md)).
+- `usage.monthly_cap_usd` is the most the person may spend in a calendar month on models that are not local. It ships at 100. A call that could take the month past it is not sent ([usage.md](../architecture/usage.md)).
+
+To see what a month has cost:
+
+    go run ./tools/tenant usage <tenant-id>

@@ -57,6 +57,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+testUsage)
 		fmt.Fprintln(os.Stderr, "       "+modelUsage)
 		fmt.Fprintln(os.Stderr, "       "+usageUsage)
+		fmt.Fprintln(os.Stderr, "       "+settingUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -110,6 +111,8 @@ func main() {
 		modelMain(dir, *keeper, args[1:])
 	case "usage":
 		usageMain(in, args[1:])
+	case "setting":
+		settingMain(in, args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)

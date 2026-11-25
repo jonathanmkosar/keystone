@@ -62,6 +62,8 @@ Since P3-08, `internal/routing` is a second guard for the sensitive content rule
 
 `go run ./tools/tenant usage <tenant-id> [month]` prints a tenant's model calls for a calendar month, by model, and where the month stands against the cap (since P3-08, [usage.md](usage.md)).
 
+`go run ./tools/tenant setting set | clear | list <tenant-id> [key] [value]` stores, clears and lists a tenant's own values for settings (since P3-08). It is how the cap, the fallback chain and a default model are set until the settings screens exist (P11-01). A value is stored as the role the setting's scope asks for, and an install setting and a fixed rule are refused, as `internal/tenantsettings` refuses them ([tenant-settings.md](tenant-settings.md)).
+
 ### What offline checks today
 
 The plan's rule is that `verify` passes with no network and no keys, using the fake provider. Two things can be proven now, and both are in `tools/verify/offline.go`.
