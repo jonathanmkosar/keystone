@@ -30,6 +30,13 @@ func TestAChatLongerThanTheWindowIsAnswered(t *testing.T) {
 		if err := models.Add(context.Background(), s, models.Limits{MaxModels: 5}, m); err != nil {
 			t.Fatal(err)
 		}
+		// This is the chat as it is with compaction (P5-02) off: the oldest
+		// turns are left out with the note. compact_test.go has it on.
+		if reg, err := settings.Registry(); err != nil {
+			t.Fatal(err)
+		} else if err := tenantsettings.Set(context.Background(), s, reg, tenantsettings.Person, KeyCompact, "false"); err != nil {
+			t.Fatal(err)
+		}
 		// Forty turns of about 500 tokens each, in a window of 8192.
 		var parent int64
 		for i := 1; i <= earlier; i++ {

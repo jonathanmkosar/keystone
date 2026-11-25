@@ -214,6 +214,9 @@ func (r *Runner) used(s *tenant.Store, t row, step int, m models.Model, end audi
 	if step == 0 {
 		kind = routing.KindTitle
 	}
+	if step == stepSummary { // a summary of the chat's oldest turns (P5-02)
+		kind = routing.KindSummary
+	}
 	r.record(s, t, kind, m, end, stopped)
 }
 

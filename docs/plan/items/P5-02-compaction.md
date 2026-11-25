@@ -41,8 +41,8 @@ Kept up to date at each commit, so another session can finish the item.
 
 1. ~~The builder: `SummaryCovers`, `Pinned`, the `pinned` part, `TurnRoom`, `SummaryRoom`, `Summarised`, with tests (`internal/contextbuild/compaction_test.go`).~~
 2. ~~`internal/compact`: options, `Plan`, the request and its cut to the summary model's window, reading the answer, `Save`/`List` over `chat_summaries`, `Usable` for rule 3; the migration with `chat_pins` too; `chat.Pin`/`chat.Pins`. A stub `docs/architecture/compaction.md`, its `componentDocs` line, and the guard's init in `tools/verify/compaction.go`.~~
-3. `internal/turn/compact.go`: find the summary and pins for a call, start the summary job beside the turn, the job itself; the added lines in `context.go`, `route.go` (`used`), `runner.go` (one field), `routes.go` (pin routes) and `internal/turn/pins.go`; `docs/api/openapi.json` regenerated.
-4. Settings at the end of `settings/chats.json`; the recorded summary in `fixtures/test-tenant/turns/compaction.json`.
-5. Tests in `internal/turn`, and the `context fit` step in a new `tools/verify/compaction.go` (with its `fixedRuleGuards` init), called by one added line in `contextfit.go`.
-6. Write-up: `docs/architecture/compaction.md`, its `componentDocs` line and overview row, decisions from 0230, the journal `docs/journal/2026-11-25-chats-004.md`, the item's status and result.
+3. ~~`internal/turn/compact.go`: find the summary and pins for a call, start the summary job beside the turn, the job itself; the added lines in `context.go`, `route.go` (`used`), `runner.go` (one field), `routes.go` (pin routes) and `internal/turn/pins.go`; `docs/api/openapi.json` regenerated.~~
+4. ~~Settings at the end of `settings/chats.json`; the recorded summary in `fixtures/test-tenant/turns/compaction.json`.~~
+5. ~~Tests in `internal/turn` (`compact_test.go`; `context_test.go` switches compaction off for its drop-with-note test), and the `context fit` step in `tools/verify/compaction.go`, called by added lines in `contextfit.go`.~~
+6. Write-up: `docs/architecture/compaction.md` in full (now a stub), its overview row, a row in `internal/README.md`, lines in `context.md`, `turns.md`, `routing.md`, `chat.md`, `tools.md`; decisions from 0230; the journal `docs/journal/2026-11-25-chats-004.md`; the item's status and result.
 

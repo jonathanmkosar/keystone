@@ -37,7 +37,7 @@ type Ask struct {
 	Room int
 	// CharsPerToken is the budget's chars_per_token, which turns Room into
 	// words.
-	CharsPerToken int
+	CharsPerToken float64
 	// Fits says whether a request fits the summary model's window, as the
 	// budget's guard will judge it.
 	Fits func(seam.Request) bool
@@ -61,7 +61,7 @@ func Request(a Ask) (seam.Request, int, error) {
 		return seam.Request{}, 0, fmt.Errorf("compact: turns %d to %d are not among the %d earlier turns", a.Span.From, a.Span.To, len(a.Turns))
 	}
 	most := min(o.SummaryMaxTokens, a.Room)
-	words := most * max(a.CharsPerToken, 1) / charsPerWord
+	words := int(float64(most) * max(a.CharsPerToken, 1) / charsPerWord)
 	if most < 1 || words < 1 {
 		return seam.Request{}, 0, ErrNoRoom
 	}

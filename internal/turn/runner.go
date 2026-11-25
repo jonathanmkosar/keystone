@@ -41,6 +41,8 @@ type Runner struct {
 	live    map[string]context.CancelFunc // tenant/turn: the running turn's cancel
 	waiting map[string]chan struct{}      // tenant/turn: closed when the turn has news
 
+	compaction compactions // which chats are being summarised (P5-02, compact.go)
+
 	once     sync.Once
 	setupErr error
 	reg      []settings.Setting

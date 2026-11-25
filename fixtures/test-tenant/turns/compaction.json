@@ -1,0 +1,23 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "the summary of a chat's oldest turns",
+      "when": { "system_contains": "running summary of a long chat" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Earlier in this chat the person asked a run of questions and the assistant answered each one. This summary is a recorded turn of the test tenant's fake provider: it stands in for a real summary and says nothing of what was asked." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 900, "output_tokens": 48 }
+          }
+        }
+      ]
+    }
+  ]
+}
