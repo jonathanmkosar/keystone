@@ -11,6 +11,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Web interface | `web` | The built interface, compiled into the binary. A placeholder page until P4-01. | [web.md](web.md) |
 | Settings registry | `settings` | Every value someone may change: its default, its type, and who may change it. | [settings.md](settings.md) |
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
+| Fake provider | `internal/adapters/fake` | A scripted model for the tests, `verify` and the test tenant. It plays fixture scripts through the seam's `Provider` interface: text, thinking, tool calls and failures, with no network and no keys. | [fake-provider.md](fake-provider.md) |
 | Project helpers | `internal/project` | Finds the repo root, runs commands, reads the plan's items and `STATE.md`. Used by the scripts only. | [project.md](project.md) |
 | Project scripts | `tools` | `rebuild`, `verify`, `doctor` and `snapshot`. | [tools.md](tools.md) |
 
@@ -31,5 +32,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0005 | [The web interface is React and Vite, with its built files committed and embedded](decisions/0005-web-built-files-committed.md) |
 | 0006 | [Secrets are encrypted per tenant, under a master key the operating system holds](decisions/0006-secrets-wrapped-by-the-os.md) |
 | 0010 | [A content block is one struct with a type field](decisions/0010-one-block-type.md) |
+| 0011 | [The fake provider finds its script from the request alone](decisions/0011-fake-scripts-matched-by-the-request.md) |
+| 0015 | [A provider streams through a callback](decisions/0015-a-provider-streams-through-a-callback.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

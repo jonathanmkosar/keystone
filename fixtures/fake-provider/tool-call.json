@@ -1,0 +1,77 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "ferry times",
+      "when": { "user_text": "When does the north ferry leave on Tuesday?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Let me look at the timetable." },
+                {
+                  "type": "tool_call",
+                  "id": "call_1",
+                  "name": "lookup_timetable",
+                  "input": { "route": "north", "day": "Tuesday" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 240, "output_tokens": 38 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The north ferry leaves at 09:00 and at 11:30 on Tuesday." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 310, "output_tokens": 19 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "two tools at once",
+      "when": { "user_text": "What time is it, and when is the next north ferry?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_1", "name": "current_time", "input": {} },
+                {
+                  "type": "tool_call",
+                  "id": "call_2",
+                  "name": "lookup_timetable",
+                  "input": { "route": "north", "day": "today" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 252, "output_tokens": 41 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "It is 10:40. The next north ferry leaves at 11:30." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 334, "output_tokens": 17 }
+          }
+        }
+      ]
+    }
+  ]
+}

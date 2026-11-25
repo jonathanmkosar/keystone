@@ -1,0 +1,19 @@
+{
+  "lane": "models",
+  "settings": [
+    {
+      "key": "fake.delta_size",
+      "type": "int",
+      "default": "12",
+      "scope": "install",
+      "description": "How many characters the fake provider sends in each piece of a streamed reply. Zero sends each block in one piece."
+    },
+    {
+      "key": "fake.delta_delay",
+      "type": "duration",
+      "default": "20ms",
+      "scope": "install",
+      "description": "How long the fake provider waits before each piece of a streamed reply, so a chat in the test tenant streams at a speed a person can watch. Tests use no wait."
+    }
+  ]
+}
