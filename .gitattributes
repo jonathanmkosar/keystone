@@ -2,3 +2,4 @@
 *.png binary
 *.webp binary
 *.woff2 binary
+web/dist/** linguist-generated
