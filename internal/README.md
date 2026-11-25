@@ -39,3 +39,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `knowledge/memory` | knowledge | The memory pass: the request for an exchange's durable facts, reading the answer, where the facts may land, the queue of passes, the incognito flag and the memory reserve |
 | `inspector` | chats | The turn inspector's calls and totals from a turn's records, and what a person takes out of a chat's next turn |
 | `jobs` | agents | Background tasks: rounds of turns in a chat of their own, resumed after a restart, with a budget, the task routes, `start_background_task`, and the note of the result |
+| `schedules` | agents | Scheduled tasks: schedules in the person's time zone, the scheduler that starts each run as a background task in a chat of its own, a missed run once, the pause switch, and the schedule routes |

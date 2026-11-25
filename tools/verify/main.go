@@ -106,6 +106,7 @@ var checks = []check{
 	{"sensitive content", checkSensitive},
 	{"memory pass", checkMemory},
 	{"background tasks", checkBackgroundTasks},
+	{"scheduled tasks", checkSchedules},
 }
 
 func main() {

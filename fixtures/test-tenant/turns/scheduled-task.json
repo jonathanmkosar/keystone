@@ -1,0 +1,41 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "the harbour brief, a scheduled task's run",
+      "when": { "user_text": "Write the morning harbour brief: today's date, and what my chats say about the lighthouse walk." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "First the date." },
+                {
+                  "type": "tool_call",
+                  "id": "call_brief_time",
+                  "name": "current_time",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 260, "output_tokens": 14 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Good morning. The harbour brief: the step above has today's date, high water is at noon, and your chats plan the lighthouse walk from the harbour steps, an hour before the tide turns." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 330, "output_tokens": 38 }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/jobs"
+	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
@@ -71,6 +72,16 @@ type Config struct {
 	// before the turn runner, so the tool that starts a task can be given
 	// it, and bind it to the turn runner after.
 	jobs *jobs.Runner
+	// Schedules is what scheduled tasks run with (P8-03), in
+	// settings/agents.json.
+	Schedules schedules.Config
+	// Clock is the scheduler's clock (P8-03). It is not a setting. Nil means
+	// the machine's; a check sets it to stand for time that passed while
+	// the server was stopped.
+	Clock func() time.Time
+	// schedules keeps the schedules and starts their runs. Handler and
+	// routes make it, after the task runner; Handler starts it.
+	schedules *schedules.Scheduler
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -103,6 +114,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Background tasks' settings (P8-01), in settings/agents.json.
 	if c.Jobs, err = jobs.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// Scheduled tasks' settings (P8-03), in settings/agents.json.
+	if c.Schedules, err = schedules.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -172,6 +187,10 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, settingsapi.Routes()...)
 	all = append(all, jobs.Routes(c.jobs)...) // background tasks' (P8-01)
+	if c.schedules == nil {
+		c.schedules = c.newSchedules(log) // scheduled tasks (P8-03), after the task runner
+	}
+	all = append(all, schedules.Routes(c.schedules)...) // scheduled tasks' (P8-03)
 	return all
 }
 
@@ -189,6 +208,10 @@ func Handler(c Config) (http.Handler, error) {
 	// Then a background task whose round the stop cut short goes on (P8-01).
 	c.jobs.Bind(c.runner)
 	c.jobs.Recover()
+	// Then the scheduler starts, and a run missed while the server was
+	// stopped starts once (P8-03).
+	c.schedules = c.newSchedules(log)
+	c.schedules.Start(c.runner)
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,

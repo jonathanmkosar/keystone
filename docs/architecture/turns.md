@@ -257,6 +257,12 @@ Since background tasks (P8-01), added and nothing changed. `docs/api/openapi.jso
 - Five task routes under `/chats/{id}/tasks`, in `internal/jobs`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
 - One option, `Options.Gate`, asked before each call to a model that is not local, after the monthly cap. `route.go` changed one line, so a route's gate is the cap and then the option. And one new file, `jobs.go`, of what tasks use: `Send` (a turn with no client), `Get`, `Latest`, `Calls`, `Pending`, `Events`, `ReplyText`, `Stop`, `Changed`, `Go`, `ChatModel`, `Carried` and `Note`. Nothing in it changes how a turn runs.
 
+Since scheduled tasks (P8-03), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the ten schedule routes and their shapes, and every path and shape it had is the same. Nothing in `internal/turn` changed. The whole of it is [schedules.md](schedules.md).
+
+- A chat may be a scheduled task's run: made by the scheduler with a title (the schedule's name and the date), its first turn sent by a background task under the task's own request id, with the schedule's prompt as the first message. Its turns stream and record like any turn, with the actor `schedule` in the audit log for a scheduled run and `person` for a run now. Its last reply is the task's result, with no note; a note with the stop reason `task` follows only when the run was stopped or failed.
+- `GET /chats/{id}/tasks` on a run's chat lists the run's task, whose `chat_id` and `work_chat_id` are both that chat.
+- Ten schedule routes under `/schedules`, in `internal/schedules`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.

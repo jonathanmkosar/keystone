@@ -7531,6 +7531,1960 @@
         "summary": "Replace the person's profile. An empty text clears it."
       }
     },
+    "/api/v1/schedules": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "max": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "schedules": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "held": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "last_run": {
+                            "properties": {
+                              "began": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "due": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "late": {
+                                "type": "boolean"
+                              },
+                              "late_reason": {
+                                "type": "string"
+                              },
+                              "missed": {
+                                "type": "integer"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "schedule_id": {
+                                "type": "string"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "task_id": {
+                                "type": "string"
+                              },
+                              "trigger": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "schedule_id",
+                              "trigger",
+                              "due",
+                              "started",
+                              "late",
+                              "missed",
+                              "status",
+                              "waiting",
+                              "steps",
+                              "spent_micros"
+                            ],
+                            "type": "object"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "next": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "prompt": {
+                            "type": "string"
+                          },
+                          "recurrence": {
+                            "properties": {
+                              "date": {
+                                "type": "string"
+                              },
+                              "days": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "minute": {
+                                "type": "integer"
+                              },
+                              "time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "type": "object"
+                          },
+                          "says": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "prompt",
+                          "recurrence",
+                          "says",
+                          "incognito",
+                          "enabled",
+                          "held",
+                          "created",
+                          "updated"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "zone": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "schedules",
+                    "paused",
+                    "zone",
+                    "max"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Your scheduled tasks, oldest first, with the switch that holds them all and the time zone they run in."
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "incognito": {
+                    "type": "boolean"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string"
+                  },
+                  "recurrence": {
+                    "properties": {
+                      "date": {
+                        "type": "string"
+                      },
+                      "days": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "minute": {
+                        "type": "integer"
+                      },
+                      "time": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "name",
+                  "prompt",
+                  "recurrence"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "properties": {
+                        "date": {
+                          "type": "string"
+                        },
+                        "days": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "minute": {
+                          "type": "integer"
+                        },
+                        "time": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "prompt",
+                    "recurrence",
+                    "says",
+                    "incognito",
+                    "enabled",
+                    "held",
+                    "created",
+                    "updated"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make a scheduled task. Its first run is at its first due time after now. Each run is a chat of its own, titled by the schedule and the date."
+      }
+    },
+    "/api/v1/schedules/pause-all": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "max": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "schedules": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "held": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "last_run": {
+                            "properties": {
+                              "began": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "due": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "late": {
+                                "type": "boolean"
+                              },
+                              "late_reason": {
+                                "type": "string"
+                              },
+                              "missed": {
+                                "type": "integer"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "schedule_id": {
+                                "type": "string"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "task_id": {
+                                "type": "string"
+                              },
+                              "trigger": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "schedule_id",
+                              "trigger",
+                              "due",
+                              "started",
+                              "late",
+                              "missed",
+                              "status",
+                              "waiting",
+                              "steps",
+                              "spent_micros"
+                            ],
+                            "type": "object"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "next": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "prompt": {
+                            "type": "string"
+                          },
+                          "recurrence": {
+                            "properties": {
+                              "date": {
+                                "type": "string"
+                              },
+                              "days": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "minute": {
+                                "type": "integer"
+                              },
+                              "time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "type": "object"
+                          },
+                          "says": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "prompt",
+                          "recurrence",
+                          "says",
+                          "incognito",
+                          "enabled",
+                          "held",
+                          "created",
+                          "updated"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "zone": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "schedules",
+                    "paused",
+                    "zone",
+                    "max"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Hold every scheduled task: none starts a run until resume-all, and the times that pass meanwhile are not made up. A run under way goes on. It takes no body."
+      }
+    },
+    "/api/v1/schedules/resume-all": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "max": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "schedules": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "held": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "last_run": {
+                            "properties": {
+                              "began": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "due": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "late": {
+                                "type": "boolean"
+                              },
+                              "late_reason": {
+                                "type": "string"
+                              },
+                              "missed": {
+                                "type": "integer"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "schedule_id": {
+                                "type": "string"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "task_id": {
+                                "type": "string"
+                              },
+                              "trigger": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "schedule_id",
+                              "trigger",
+                              "due",
+                              "started",
+                              "late",
+                              "missed",
+                              "status",
+                              "waiting",
+                              "steps",
+                              "spent_micros"
+                            ],
+                            "type": "object"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "next": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "prompt": {
+                            "type": "string"
+                          },
+                          "recurrence": {
+                            "properties": {
+                              "date": {
+                                "type": "string"
+                              },
+                              "days": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "minute": {
+                                "type": "integer"
+                              },
+                              "time": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "kind"
+                            ],
+                            "type": "object"
+                          },
+                          "says": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "prompt",
+                          "recurrence",
+                          "says",
+                          "incognito",
+                          "enabled",
+                          "held",
+                          "created",
+                          "updated"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "zone": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "schedules",
+                    "paused",
+                    "zone",
+                    "max"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Let every scheduled task run again, each at its first due time after now. It takes no body."
+      }
+    },
+    "/api/v1/schedules/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "deleted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "deleted"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Delete a scheduled task and the record of its runs. Each run's chat stays, and a run under way goes on."
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "runs": {
+                      "items": {
+                        "properties": {
+                          "began": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "due": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "late": {
+                            "type": "boolean"
+                          },
+                          "late_reason": {
+                            "type": "string"
+                          },
+                          "missed": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "schedule_id": {
+                            "type": "string"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task_id": {
+                            "type": "string"
+                          },
+                          "trigger": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "schedule_id",
+                          "trigger",
+                          "due",
+                          "started",
+                          "late",
+                          "missed",
+                          "status",
+                          "waiting",
+                          "steps",
+                          "spent_micros"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "schedule": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "enabled": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "incognito": {
+                          "type": "boolean"
+                        },
+                        "last_run": {
+                          "properties": {
+                            "began": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "chat_id": {
+                              "type": "string"
+                            },
+                            "due": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "ended": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "error": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "late": {
+                              "type": "boolean"
+                            },
+                            "late_reason": {
+                              "type": "string"
+                            },
+                            "missed": {
+                              "type": "integer"
+                            },
+                            "progress": {
+                              "type": "string"
+                            },
+                            "schedule_id": {
+                              "type": "string"
+                            },
+                            "spent_micros": {
+                              "type": "integer"
+                            },
+                            "started": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "task_id": {
+                              "type": "string"
+                            },
+                            "trigger": {
+                              "type": "string"
+                            },
+                            "waiting": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "schedule_id",
+                            "trigger",
+                            "due",
+                            "started",
+                            "late",
+                            "missed",
+                            "status",
+                            "waiting",
+                            "steps",
+                            "spent_micros"
+                          ],
+                          "type": "object"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "next": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "prompt": {
+                          "type": "string"
+                        },
+                        "recurrence": {
+                          "properties": {
+                            "date": {
+                              "type": "string"
+                            },
+                            "days": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "minute": {
+                              "type": "integer"
+                            },
+                            "time": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ],
+                          "type": "object"
+                        },
+                        "says": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "prompt",
+                        "recurrence",
+                        "says",
+                        "incognito",
+                        "enabled",
+                        "held",
+                        "created",
+                        "updated"
+                      ],
+                      "type": "object"
+                    },
+                    "zone": {
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "label"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "schedule",
+                    "runs",
+                    "zone"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One scheduled task, with its newest runs, newest first."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "incognito": {
+                    "type": "boolean"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "prompt": {
+                    "type": "string"
+                  },
+                  "recurrence": {
+                    "properties": {
+                      "date": {
+                        "type": "string"
+                      },
+                      "days": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      "kind": {
+                        "type": "string"
+                      },
+                      "minute": {
+                        "type": "integer"
+                      },
+                      "time": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "name",
+                  "prompt",
+                  "recurrence"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "properties": {
+                        "date": {
+                          "type": "string"
+                        },
+                        "days": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "minute": {
+                          "type": "integer"
+                        },
+                        "time": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "prompt",
+                    "recurrence",
+                    "says",
+                    "incognito",
+                    "enabled",
+                    "held",
+                    "created",
+                    "updated"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Change a scheduled task: every field is replaced. Its next due time is worked out again from now."
+      }
+    },
+    "/api/v1/schedules/{id}/pause": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "properties": {
+                        "date": {
+                          "type": "string"
+                        },
+                        "days": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "minute": {
+                          "type": "integer"
+                        },
+                        "time": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "prompt",
+                    "recurrence",
+                    "says",
+                    "incognito",
+                    "enabled",
+                    "held",
+                    "created",
+                    "updated"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Pause a scheduled task: it starts no run until it is resumed. It takes no body."
+      }
+    },
+    "/api/v1/schedules/{id}/resume": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "recurrence": {
+                      "properties": {
+                        "date": {
+                          "type": "string"
+                        },
+                        "days": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "minute": {
+                          "type": "integer"
+                        },
+                        "time": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "kind"
+                      ],
+                      "type": "object"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "prompt",
+                    "recurrence",
+                    "says",
+                    "incognito",
+                    "enabled",
+                    "held",
+                    "created",
+                    "updated"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Resume a paused scheduled task, at its first due time after now: the times that passed while it was paused are not made up. It takes no body."
+      }
+    },
+    "/api/v1/schedules/{id}/run": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "began": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "due": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "late": {
+                      "type": "boolean"
+                    },
+                    "late_reason": {
+                      "type": "string"
+                    },
+                    "missed": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "schedule_id": {
+                      "type": "string"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task_id": {
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "schedule_id",
+                    "trigger",
+                    "due",
+                    "started",
+                    "late",
+                    "missed",
+                    "status",
+                    "waiting",
+                    "steps",
+                    "spent_micros"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Run a scheduled task now, paused or held, in a chat of its own. It changes no due time, and is refused while a run of it is under way. It takes no body."
+      }
+    },
     "/api/v1/secrets": {
       "get": {
         "responses": {

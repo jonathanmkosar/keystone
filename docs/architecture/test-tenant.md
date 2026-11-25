@@ -68,6 +68,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/background-task.json` (P8-01) holds five. "Find out in the background when the lighthouse walk should start." makes the model call `start_background_task`, which asks first; the task it starts searches the person's chats, reads the time and answers, in a chat of its own, and its result comes back as a note. "Wait for the tide table, then say when the tide turns." calls `wait_for_tide`, a tool only the `background tasks` check registers. Two more answer the messages Keystone sends a task's next round, by words of `agents.task_resume_text` and `agents.task_continue_text`. See [jobs.md](jobs.md).
 
+`turns/scheduled-task.json` (P8-03) holds one: "Write the morning harbour brief: today's date, and what my chats say about the lighthouse walk." reads the time with `current_time` and answers with the brief. Make a schedule with that prompt to see a run in the browser; the `scheduled tasks` check runs it after a simulated outage. See [schedules.md](schedules.md).
+
 ### A chat file
 
 ```json
