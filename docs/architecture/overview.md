@@ -93,5 +93,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0142 | [After a restart a queued turn runs, and a turn that was running is closed as failed](decisions/0142-an-interrupted-turn-fails-and-a-queued-one-runs.md) |
 | 0143 | [Until the tool loop, a tool call is answered with an error and the model is called again](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md) |
 | 0144 | [The test tenant's model is in no registry, and the fake provider's titles come from the message](decisions/0144-the-test-tenants-model-is-in-no-registry.md) |
+| 0150 | [The Markdown reader is written in the interface, not taken from a package](decisions/0150-the-markdown-reader-is-written-here.md) |
+| 0151 | [Replies that are arriving live outside the screens, and are read with fetch](decisions/0151-arriving-replies-live-outside-the-screens.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

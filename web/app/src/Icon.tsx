@@ -58,6 +58,36 @@ const shapes = {
       <path d="M4 20v-5h5" />
     </>
   ),
+  send: <path d="M12 19V5M6 11l6-6 6 6" />,
+  stop: <rect x="7" y="7" width="10" height="10" rx="2" />,
+  copy: (
+    <>
+      <rect x="8" y="8" width="12" height="12" rx="2" />
+      <path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" />
+    </>
+  ),
+  check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  caret: <path d="m9 6 6 6-6 6" />,
+  star: <path d="m12 4 2.5 5.1 5.5.8-4 3.9.9 5.6-4.9-2.6-4.9 2.6.9-5.6-4-3.9 5.5-.8z" />,
+  pencil: (
+    <>
+      <path d="M4 20h4L19 9l-4-4L4 16z" />
+      <path d="m13 7 4 4" />
+    </>
+  ),
+  trash: (
+    <>
+      <path d="M4 7h16M10 4h4M6 7l1 13h10l1-13" />
+      <path d="M10 11v5M14 11v5" />
+    </>
+  ),
+  tool: <path d="M5 19h14M7 15h10M9.5 11h5" />,
+  alert: (
+    <>
+      <path d="M12 4 3 19h18z" />
+      <path d="M12 10v4M12 16.5v.5" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;

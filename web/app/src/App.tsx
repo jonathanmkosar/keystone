@@ -3,7 +3,9 @@ import { Navigate, Route, Routes } from "react-router";
 import { ApiError, me, signOut, type Person } from "./api";
 import { Shell } from "./Shell";
 import { NotReady, SignIn } from "./SignIn";
-import { Home, Missing, Soon } from "./pages";
+import { ChatPage, Start } from "./Chat";
+import { ChatsProvider } from "./chats";
+import { Chats, Missing, Soon } from "./pages";
 import { useTheme } from "./theme";
 
 type Session =
@@ -68,18 +70,21 @@ export function App() {
   }
 
   return (
-    <Shell person={session.person} theme={theme} onTheme={setTheme} onSignOut={leave}>
-      <Routes>
-        <Route path="/" element={<Home person={session.person} />} />
-        <Route path="/signin" element={<Navigate to="/" replace />} />
-        <Route path="/search" element={<Soon title="Search" />} />
-        <Route path="/chats" element={<Soon title="Chats" />} />
-        <Route path="/projects" element={<Soon title="Projects" />} />
-        <Route path="/artifacts" element={<Soon title="Artifacts" />} />
-        <Route path="/agents" element={<Soon title="Agents" />} />
-        <Route path="/scheduled" element={<Soon title="Scheduled" />} />
-        <Route path="*" element={<Missing />} />
-      </Routes>
-    </Shell>
+    <ChatsProvider onSignedOut={check}>
+      <Shell person={session.person} theme={theme} onTheme={setTheme} onSignOut={leave}>
+        <Routes>
+          <Route path="/" element={<Start person={session.person} />} />
+          <Route path="/signin" element={<Navigate to="/" replace />} />
+          <Route path="/search" element={<Soon title="Search" />} />
+          <Route path="/chats" element={<Chats />} />
+          <Route path="/chats/:id" element={<ChatPage />} />
+          <Route path="/projects" element={<Soon title="Projects" />} />
+          <Route path="/artifacts" element={<Soon title="Artifacts" />} />
+          <Route path="/agents" element={<Soon title="Agents" />} />
+          <Route path="/scheduled" element={<Soon title="Scheduled" />} />
+          <Route path="*" element={<Missing />} />
+        </Routes>
+      </Shell>
+    </ChatsProvider>
   );
 }

@@ -51,6 +51,25 @@ a {
   display: none;
 }
 
+.mark-c1 {
+  fill: var(--c1);
+}
+
+.mark-c2 {
+  fill: var(--c2);
+}
+
+.mark-c3 {
+  fill: var(--c3);
+}
+
+.mark-key {
+  fill: var(--key);
+  stroke: var(--sunk);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
 :root[data-theme="light"] .mark-free {
   display: none;
 }
