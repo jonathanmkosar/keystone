@@ -33,6 +33,7 @@ var componentDocs = map[string]string{
 	"internal/seam":    "docs/architecture/seam.md",
 	"internal/chat":    "docs/architecture/chat.md",
 	"internal/signin":  "docs/architecture/signin.md",
+	"internal/secrets": "docs/architecture/secrets.md",
 	"tools/verify":     "docs/architecture/tools.md",
 	"tools/doctor":     "docs/architecture/tools.md",
 	"tools/snapshot":   "docs/architecture/tools.md",
@@ -41,8 +42,8 @@ var componentDocs = map[string]string{
 
 	"internal/knowledge":               "docs/architecture/knowledge.md",
 	"internal/knowledge/knowledgetest": "docs/architecture/knowledge.md",
-	"internal/adapters/fake": "docs/architecture/fake-provider.md",
-	"internal/audit":   "docs/architecture/audit.md",
+	"internal/adapters/fake":           "docs/architecture/fake-provider.md",
+	"internal/audit":                   "docs/architecture/audit.md",
 
 	"internal/tenantsettings": "docs/architecture/tenant-settings.md",
 }
@@ -59,6 +60,7 @@ var checks = []check{
 	{"offline", checkOffline},
 	{"tenant isolation", checkIsolation},
 	{"fixed rules", checkFixedRules},
+	{"no keys in output", checkNoKeys},
 }
 
 func main() {

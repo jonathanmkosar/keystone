@@ -14,6 +14,8 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 
 `go run ./tools/tenant password <tenant-id>` gives a tenant a password, or replaces the one it has, and ends every session that tenant had. It is how a person gets a password before any sign-in screen exists. The password is read from standard input, one line, and never from an argument, so it is not left in the shell's history. Typed at the prompt, it shows on the screen. It uses the shipped sign-in settings and `internal/signin` ([signin.md](signin.md)).
 
+`go run ./tools/tenant secret set | list | delete <tenant-id> [name]` stores, lists and removes a tenant's secrets. A value is read from standard input and never printed. `--keeper file` chooses the key file for a new install on a machine with no key store ([secrets.md](secrets.md)).
+
 ## verify
 
 `go run ./tools/verify` runs the standing checks. It needs no network and no keys. Nothing merges to `main` while it is red, and a check is never weakened to get to green.
@@ -30,20 +32,19 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 | no secrets | Nothing in the repo is shaped like a real key. |
 | offline | Only the listed folders import a network package, and the tests pass with no keys and no way out to the network. |
 | tenant isolation | Two tenants are made in a throwaway data folder, and every way one could reach the other is tried: rows and files through the other's store handle, a handle opened by a path, and a session used on the other tenant, re-addressed to it, or with its row copied across. Each must be refused. The code is in `tools/verify/isolation.go`, and an item that adds a way to reach tenant data adds its tries there. |
+| fixed rules | No setting can switch off any of the four rules in the plan. See below. |
+| no keys in output | An invented value is stored as a tenant's secret, and then looked for in everything Keystone returned, printed or wrote while it held it. It may come back only from the call that asks for it by name. The code is in `tools/verify/nokeys.go`, and an item that adds a place a key could reach adds a line there. See [secrets.md](secrets.md). |
 
-The plan's other standing checks (tenant isolation, context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
+The plan's other standing checks (context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 
 ### What offline checks today
 
 The plan's rule is that `verify` passes with no network and no keys, using the fake provider. Two things can be proven now, and both are in `tools/verify/offline.go`.
 
-- **Who may use the network.** The check reads the imports of every Go file, tests included. A file that imports `net`, anything under `net/` except `net/url` and `net/netip`, `crypto/tls` or `golang.org/x/net` must sit in a folder on the list in `offline.go`. Today the list is `cmd/keystone`, because the server listens, and `tools/rebuild`, because it fetches the page from the binary it has just started. Everything else, the seam and the fake provider included, is proven to import no network package. An item that builds a part which talks to the network adds its folder to the list with the reason: the three adapters, the API, connectors, web search. A folder on the list that no longer imports a network package fails the check until it is taken off.
+- **Who may use the network.** The check reads the imports of every Go file, tests included. A file that imports `net`, anything under `net/` except `net/url` and `net/netip`, `crypto/tls` or `golang.org/x/net` must sit in a folder on the list in `offline.go`. Today the list is `cmd/keystone`, because the server listens, `internal/audit`, because it wraps the server's handlers and opens no connection, and `tools/rebuild`, because it fetches the page from the binary it has just started. Everything else, the seam and the fake provider included, is proven to import no network package. An item that builds a part which talks to the network adds its folder to the list with the reason: the three adapters, the API, connectors, web search. A folder on the list that no longer imports a network package fails the check until it is taken off.
 - **The tests need no key and no network.** The check runs `go test ./...` a second time with a changed environment. Every variable whose name ends in `_KEY`, `_TOKEN`, `_SECRET` or `_PASSWORD` is removed. `GOPROXY` is `off`, so Go cannot download a module. `HTTP_PROXY` and `HTTPS_PROXY` point at a port on this machine where nothing listens, so a call that leaves the machine through Go's standard HTTP client fails at once, while a test server on this machine still answers. A test that needs a key or the internet passes the `tests` check on a machine that has them and fails here.
 
 What it does not prove yet: that a whole turn runs offline through the fake provider. There is no turn to run until P4-03. The test tenant (P3-09) and the turn API add that, and the adapters add their folders to the list.
-| fixed rules | No setting can switch off any of the four rules in the plan. See below. |
-
-The plan's other standing checks (tenant isolation, context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 
 ### The fixed rules check
 

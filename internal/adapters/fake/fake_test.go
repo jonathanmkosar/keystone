@@ -369,7 +369,7 @@ func TestDecodeReadsAFileAndRefusesABadOne(t *testing.T) {
 		"an unknown field":          {strings.Replace(goodFile, `"name": "s"`, `"name": "s", "mood": "calm"`, 1), "unknown field"},
 		"an unknown block field":    {strings.Replace(goodFile, `"text": "Hello."`, `"text": "Hello.", "colour": "red"`, 1), "unknown field"},
 		"an unknown condition":      {strings.Replace(goodFile, `"user_text"`, `"weather"`, 1), "unknown field"},
-		"one name twice in a file": {strings.Replace(goodFile, `]}]}`, `]}, {"name": "s", "when": {}, "steps": [{"error": {"kind": "other", "message": "x"}}]}]}`, 1), "two scripts are named"},
+		"one name twice in a file":  {strings.Replace(goodFile, `]}]}`, `]}, {"name": "s", "when": {}, "steps": [{"error": {"kind": "other", "message": "x"}}]}]}`, 1), "two scripts are named"},
 		"two values":                {goodFile + goodFile, "more than one JSON value"},
 		"not JSON":                  {"name: s", "invalid character"},
 		"a script the seam refuses": {strings.Replace(goodFile, `"stop_reason": "end"`, `"stop_reason": "bored"`, 1), `script "s": step 1: reply: stop reason "bored" is not known`},

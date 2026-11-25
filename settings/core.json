@@ -77,6 +77,14 @@
       "default": "data",
       "scope": "install",
       "description": "The folder that holds keystone.json and one folder for each tenant."
+    },
+    {
+      "key": "secrets.keeper",
+      "type": "string",
+      "default": "system",
+      "options": ["system", "file"],
+      "scope": "install",
+      "description": "Where a new install keeps the master key that protects every tenant's secrets. system is the operating system's key store: DPAPI on Windows, the login keychain on macOS, the Secret Service on Linux. file is a key file in the user's profile, for a machine with no key store, and is weaker. Once an install has stored a secret, keystone.json records the keeper and this setting is no longer read."
     }
   ]
 }
