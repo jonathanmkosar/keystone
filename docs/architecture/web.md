@@ -306,6 +306,22 @@ Its calls, all in `src/api.ts`:
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7971 with a data folder inside the worktree, as the test tenant: "Find out in the background when the lighthouse walk should start." drew the approval card for the start; once approved, the task ran in its own chat and its note came into the chat as a reply of its own, with the work chat in the sidebar. With a launcher (not kept) that registered a slow stand-in tool and a changing one: a running card and a waiting card side by side; the work chat with its running step and its card; Stop from the work chat, and the stopped note; and **the server killed while one task's tool ran and another waited for an approval, then started again: the page came back to the streams, the first task resumed and its result appeared in the chat, and the second still waited, and finished once approved in its chat.** In light and dark, and at phone width. The only console errors were the refused connections while the server was down.
 
+## Scheduled tasks (P8-03)
+
+`/scheduled`, `src/Scheduled.tsx` with `src/ScheduleForm.tsx`, `src/schedules.ts` and `src/scheduled.css`, following the draft `design/screens/Scheduled.html` in the tokens: a header with Pause all (Resume all while held) and New scheduled task; the zone the times are in, with a link to General, and what is wrong with the setting when it names no zone; a banner while every schedule is held; the list of schedules, each with its recurrence in words, its last run as a pill ("Done today", "Done, late today", "Failed Fri 27 Nov", "Running", "Waiting for you") and its next due time; and the chosen schedule (`?s=` in the address, so a reload keeps it): a switch, Run now, Edit, Delete with a confirmation, four facts (schedule and zone, model, budget, if a run is missed), the prompt, and its runs (when, result with why it was late or failed, how long it took, steps, cost, and Open or Answer for its chat). The form makes and changes a schedule. Times are drawn from the text the server sent, which carries the person's zone's offset, never in the browser's zone. While a run is under way the screen reads again every two seconds; otherwise when the soonest due time comes, and every 30 seconds. In a run's own chat the task card says the chat is the task's own and its last reply will be its result, and a note there has no link to itself (`src/Tasks.tsx`).
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/schedules` | `listSchedules` | The list, the switch and the zone. |
+| `GET /api/v1/schedules/{id}` | `getSchedule` | The chosen schedule and its runs. |
+| `POST /api/v1/schedules`, `PUT /api/v1/schedules/{id}` | `createSchedule`, `updateSchedule` | The form. |
+| `DELETE /api/v1/schedules/{id}` | `deleteSchedule` | Delete, once confirmed. |
+| `POST /api/v1/schedules/{id}/pause`, `…/resume` | `setScheduleEnabled` | The switch. |
+| `POST /api/v1/schedules/{id}/run` | `runScheduleNow` | Run now. |
+| `POST /api/v1/schedules/pause-all`, `…/resume-all` | `holdSchedules` | Pause all and Resume all. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7991 with a data folder inside the worktree (removed afterwards), as the test tenant: a daily schedule made for two minutes ahead ran at its time, and its run was a chat in the sidebar titled "Harbour brief, Wed 25 Nov 2026" with the prompt, its step and the reply; a weekdays schedule made for a minute ahead, the server stopped before its time and started again more than two hours later: **one run, "Done, late", "Missed at 14:39 because Keystone was not running. Ran once when it was back."**, and the other schedule, whose time had already run, ran nothing more; Pause all and the held banner, Resume all; Edit to Mondays and Thursdays; Run now, in a chat of its own. In light and dark, and at phone width, where a table that ran wider than the screen was fixed. No console errors.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).
