@@ -1,6 +1,6 @@
 # P5-05. Chat summaries and past-chat search
 
-Status: doing (chats)
+Status: done
 Lane: chats
 Depends on: P5-02
 Owner gate: none
@@ -21,3 +21,4 @@ Plan, November 25, 2026 (chats 006), cut from `reboot` at c5a5787:
 - **Proof**: tests in `internal/recap`, `internal/chat`, `internal/tools/builtin` and `internal/turn`, and a standing `verify` check, `past chats`: the test tenant's questions about earlier chats are answered through the tool with the chats' recaps, the job runs after a turn, and a held chat's recap is made by no hosted model and never reaches one through the tool.
 - **Left for later**: a sweep that gives recaps to chats made before this item or left due by a restart (P8-01's jobs are the place); the chat screen showing summaries (interface lane); what incognito does to recaps (P6-07).
 
+Result (November 25, 2026): done, as planned. `go run ./tools/verify` is 22 of 22 with the new `past chats` check: each named chat of the test tenant is given its recorded recap through the route, by one call of the kind `summary`, and the chat list gives its summary; the test tenant's questions about the lighthouse walk and the ferry times are answered through `search_chats`, whose result names the earlier chat and holds its summary, topics and decisions, with the call in the audit log; a turn's end gives its chat a recap under the turn's request id; and on an invented tenant a chat held by recall is given its sensitive recap by the local model, never by the hosted summary model, and the search leaves it out for the hosted model, which is never sent a word of it, and gives it to the local model, holding the chat that asked. `search_chats` was extended under its own name rather than replaced by `search_past_chats` (decision 0322): the `calls recorded` check, the test tenant's recorded task, the chat screen's step words and stored policies all name it. Decisions 0320 to 0324; the component doc is `docs/architecture/chat-summaries.md`; the journal is `docs/journal/2026-11-25-chats-006.md`, with four owner questions, none of which the proof rests on. Only the fake provider has written a recap; no real model has been called.
