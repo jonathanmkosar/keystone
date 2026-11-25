@@ -1,6 +1,6 @@
 # P6-04. Profile and person map
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P6-02
 Owner gate: none

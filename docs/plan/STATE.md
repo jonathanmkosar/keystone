@@ -1,7 +1,7 @@
 # State
 
-Phase: 0, foundations, and 1, design. The build has started.
-Next: being built: P4-04, the chat screen (interface), the last step to a chat in the browser, and P3-08, routing and usage (models). Then P5-01, P6-04 and P7-01.
+Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
+Next: being built: P3-08, routing, usage and a command to register a model (models), P5-01, the context builder (chats), and P6-04, the profile and map (knowledge). Then P7-01, the tool loop.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,10 +11,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
 | models | P3-08, in its own worktree | nothing until P3-08 |
-| chats | nothing | P5-01, now ready |
-| knowledge | nothing | P6-04 |
+| chats | P5-01, in its own worktree | P5-02 |
+| knowledge | P6-04, in its own worktree | P6-05 |
 | agents | nothing | P7-01, after P4-03 |
-| interface | nothing. P4-01 is wired to the real API when P2-05 is merged | P4-04, after P4-03 |
+| interface | nothing | P7-01 with agents, P11-01 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## Waiting on the owner
@@ -39,6 +39,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | A turn that was mid-reply when the server stopped: run it again, or close it as failed with a retry (chats 002, decision 0142) | Close it as failed and keep the words that arrived. Running it again pays for the call twice unasked | Closed as failed | Nothing |
 | A message sent while a reply is streaming in the same chat: queue it or refuse it (chats 002) | Queue, up to five | Queued | Nothing |
 | How a model call the person stopped is recorded in the audit log, which has no "stopped" outcome (chats 002) | As ok, with a stopped mark and the partial reply | As recommended | Nothing |
+| Enter sends a message, and the greeting uses the person's whole name (interface 002) | Keep Enter to send. Use the whole name until the profile has a short one | As recommended | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -64,6 +65,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P6-03, the Waymarks adapter, provisional: it passes the whole contract suite against a fake Waymarks written from Waymarks' own source, and has never called a real one. Both knowledge adapters are compiled into the binary.
 - P3-04, the Anthropic Messages adapter, and P3-06, the Chat Completions adapter, both provisional: built and tested against hand-written exchanges, never against a real endpoint. With P3-05 that is all three real adapters. None is in the server's set of builders yet: the chat turn (P4-03) is where a provider is opened.
 - P4-03, streaming turns: twelve chat and turn routes, a turn that streams over server-sent events, stop, resume after a dropped connection, and turns kept in the database so a queued one finishes after a restart. On November 25, 2026 a message sent to the running server as the test tenant streamed a reply from the fake provider. The server starts with the three real adapters; no tenant has a real model registered yet, because nothing but code adds one.
+- P4-04, the chat screen, provisional: the sidebar's chats, a new chat, a reply that streams in, the title, rename, star and delete. On November 25, 2026, on the merged server, the test tenant typed a message in the browser and the fake provider's reply streamed in. Stop, resume after a dropped stream, a reload mid-reply and a failed turn have run only against a stand-in server, because the recorded replies finish too fast to interrupt. No model picker, edit, retry or attachments yet.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

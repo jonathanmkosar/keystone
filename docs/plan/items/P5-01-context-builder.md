@@ -1,6 +1,6 @@
 # P5-01. Context builder
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P4-03, P3-07
 Owner gate: none
