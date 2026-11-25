@@ -1,6 +1,6 @@
 # P3-09. Test tenant
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-01, P3-03
 Owner gate: none

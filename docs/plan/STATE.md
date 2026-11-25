@@ -9,12 +9,12 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | P2-05, in its own worktree | P3-09, P13-04 |
+| core | P2-05 and P3-09, each in its own worktree | P13-04 |
 | models | P3-02, in its own worktree | P3-04, P3-05, P3-06 |
 | chats | nothing | P4-03, after P2-05 and P3-09 |
 | knowledge | P6-02, in its own worktree | P6-03 |
 | agents | nothing | P7-01, after P4-03 |
-| interface | nothing | P4-01, after P2-05 |
+| interface | P4-01, started early against the planned API, in its own worktree | P4-04, after P4-03 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## Waiting on the owner

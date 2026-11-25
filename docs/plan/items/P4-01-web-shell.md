@@ -1,6 +1,6 @@
 # P4-01. Web shell
 
-Status: todo
+Status: doing (interface)
 Lane: interface
 Depends on: P2-05
 Owner gate: Approval of the design system (P1-02) and the chat mockups (P1-04).
