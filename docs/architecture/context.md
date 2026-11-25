@@ -29,9 +29,11 @@ func Build(ctx context.Context, in Input) (seam.Request, Record, error)
 | `Style` | The style the person chose | P9-05 |
 | `Attached` | Attachments and attached chats, as items, the most wanted first | P5-06 |
 | `Recall` | Recalled knowledge, as items, the most relevant first | P6-05 |
-| `Summary` | The summary of older history | P5-02 |
+| `Summary` | The summary of older history, with its heading | P5-02 |
+| `SummaryCovers` | How many of `Messages`, from the first, the summary stands for | P5-02 |
+| `Pinned` | The messages the person pinned, each a `Pin`: its index in `Messages` and an `Item` | P5-02 |
 
-The first seven are filled, and so are `Profile` and `PersonMap` (P6-04) and `Recall` ([knowledge-recall.md](knowledge-recall.md)). The others are empty, and an empty part takes no room and is listed in the record as `empty`. An item that fills one changes its caller and nothing in this package. An `Item` is a label for the inspector, the text that is sent, and `Pinned`.
+The first seven are filled, and so are `Profile` and `PersonMap` (P6-04), `Recall` ([knowledge-recall.md](knowledge-recall.md)), and `Summary`, `SummaryCovers` and `Pinned` ([compaction.md](compaction.md)). The others are empty, and an empty part takes no room and is listed in the record as `empty`. An item that fills one changes its caller and nothing in this package. An `Item` is a label for the inspector, the text that is sent, and `Pinned`.
 
 The only errors are a branch with no messages (`ErrNoMessages`), options that are not valid, and a cancelled context.
 
@@ -48,7 +50,8 @@ The plan fixes the order of priority: rules and tools, the current message, atta
 | `attached` | system, after the standing start | up to `chats.context_attached_percent`; an item that does not fit is left out |
 | `recent` | messages, before the current turn | the oldest turns are left out, whole |
 | `recall` | system | up to `chats.context_recall_percent`; an item that does not fit is left out |
-| `summary` | system | sent whole within `chats.context_summary_percent`, or not at all |
+| `summary` | system | sent whole within `chats.context_summary_percent`, or not at all. When it is sent, the turns it covers are not |
+| `pinned` | system | never left out: a pinned message whose turn is not sent is sent on its own |
 | `note` | system, last | sent only when turns were left out |
 
 The first six are the standing start of a call. They are always the first system blocks, in the same order, and do not change with the length of the chat, so a provider can cache them (the plan's rule; placing cache marks is P5-03). What varies comes after them.
@@ -63,7 +66,7 @@ A pinned item is counted with the parts that are never left out.
 4. **Attachments**, in the order given, up to their share.
 5. **Earlier turns**, from the newest back, in what is left after a share is held for recall and one for the summary (decision [0171](decisions/0171-recall-and-the-summary-hold-a-share.md)). The first turn that does not fit ends this step. No older turn is sent past a gap, so the conversation the model reads has no holes. `chats.context_recent_turns_max` caps the number.
 6. **Recall**, most relevant first, up to its share. An item too large for what is left is passed over and a smaller one after it may still go.
-7. **The summary**, if it fits its share.
+7. **The summary**, if it fits its share. When it does, the earlier turns that lie wholly inside `SummaryCovers` are not candidates in step 5: the summary is sent in their place, and the note is sent only for turns left out after them. When it does not, they are packed as any other turn. Pinned messages are held their room in step 3; one whose turn step 5 sent gets its room back and is not sent twice, and the others are sent on their own after the summary (decision [0233](decisions/0233-a-pinned-message-is-sent-on-its-own-only-when-its-turn-is-not.md)).
 8. **The note.** When any turn was left out, `chats.context_dropped_note` is sent as the last system block, and its tokens are found by leaving out one more turn if need be.
 9. **Count.** `budget.Tokens` counts the packed request: the provider's own count where it offers one, the estimate with its margin elsewhere. When a provider counts more than the limit, the request is packed again under a target made smaller by as much as the provider counted more, up to `chats.context_recount_max` times (decision [0172](decisions/0172-the-builder-packs-by-estimate-and-asks-the-provider-once.md)).
 
@@ -95,6 +98,8 @@ type Record struct {
 ```
 
 A `PartRecord` has the part's name, its place (`system`, `tools` or `messages`), its state (`empty`, `kept`, `partly`, `dropped`), the tokens of what was sent, how many pieces were kept and dropped, the tokens of what was dropped, and for attachments and recall each item with its label, tokens, and whether it was kept or pinned. A `TurnRecord` has the index of the turn's first message in `Input.Messages`, how many messages it has, its tokens, whether it is the current turn, and whether it was sent.
+
+Since P5-02 the record also has `TurnRoom`, the room the earlier turns were packed in, and `SummaryRoom`, the most the summary could take, both in estimated tokens with no margin; compaction measures against them ([compaction.md](compaction.md)). A `TurnRecord` says `summarised` when the summary was sent in its place, and such turns are counted neither kept nor dropped in the `recent` part. The `summary` part's `covers` is how many turns it was sent in place of. The `pinned` part lists every pin, each `kept` when it was sent on its own and `in_turn` when its turn was sent.
 
 Part and turn tokens are estimates with no margin. `Tokens` is the count the budget checks.
 
@@ -130,10 +135,11 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 - `go test ./internal/contextbuild`: a chat that fits is sent whole; the oldest turns are left out whole and with no gap; a tool call is never parted from its result, at every window from almost nothing to everything; the current turn and the standing start are never left out; the parts are packed in their order, with shares, pinned items and items passed over; the record counts what was sent; a provider's count is believed; the start of a call does not change with the chat.
 - `go test ./internal/turn`: a chat several times its model's window is answered, the stored record names what was left out, and the audit log's copy of what was sent agrees with it.
 - `verify`, `context fit`: for every fixture model, the largest test chat and a generated chat four times the window are each packed under the window, by the estimate and by a provider that counts half as much again ([tools.md](tools.md)).
+- Since P5-02, `go test ./internal/contextbuild` also proves the summary and pinned messages (`compaction_test.go`), and `context fit` grows a chat to ten times each window with a summary and pins ([compaction.md](compaction.md)).
 
 ## Not here yet
 
-- Every slot but the rules, the tools, the current turn, the earlier turns, the profile, the person map and recall is empty: the summary and compaction (P5-02), attachments and attached chats (P5-06), project (P9-01), style (P9-05).
+- Every slot but the rules, the tools, the current turn, the earlier turns, the profile, the person map, recall, the summary and pinned messages is empty: attachments and attached chats (P5-06), project (P9-01), style (P9-05).
 - Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
 - Cache marks on the standing start (P5-03). The varying system blocks sit after the standing start today. P5-03 may move them into the messages if a provider's cache needs the whole system text to stay the same.
 - The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them.

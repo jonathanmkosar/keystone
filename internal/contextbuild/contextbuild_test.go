@@ -106,6 +106,14 @@ func rebuild(in Input, rec Record) seam.Request {
 		PartProject: in.Project, PartStyle: in.Style, PartSummary: in.Summary, PartNote: in.Options.DroppedNote,
 	}
 	items := map[Part][]Item{PartAttached: in.Attached, PartRecall: in.Recall}
+	for _, p := range in.Pinned {
+		if p.Text != "" {
+			items[PartPinned] = append(items[PartPinned], p.Item)
+		}
+	}
+	if items[PartPinned] == nil {
+		items[PartPinned] = []Item{}
+	}
 	for _, p := range rec.Parts {
 		if p.Place != PlaceSystem {
 			continue
@@ -322,7 +330,7 @@ func TestThePartsArePackedInTheirOrder(t *testing.T) {
 	req, rec := build(t, in)
 	fits(t, in, req, rec)
 	for _, p := range rec.Parts {
-		if p.State != StateKept && p.Part != PartNote {
+		if p.State != StateKept && p.Part != PartNote && p.Part != PartPinned {
 			t.Errorf("with room for everything, part %s is %s", p.Part, p.State)
 		}
 	}

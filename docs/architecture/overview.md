@@ -39,6 +39,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Settings routes and screens | `internal/settingsapi`, `web/app/src` | The routes behind the settings screens, and the screens: a person's own settings, the names of their secrets, their model registry and their profile. A secret's value goes in and is never returned, and a fixed rule is listed and never changed. | [settings-screens.md](settings-screens.md) |
 | Tool loop | `internal/tools`, `internal/tools/approval`, `internal/tools/builtin` | The registry of the tools a turn offers, filled by plain calls, and the one place a tool runs: recorded before and after, under a timeout, with a tool that breaks turned into an error result. The approval rule's test refuses every tool that changes something until approvals exist. Three built-in tools that only read: the time, search of the person's chats, and reading one. The turn calls the model again after each step, up to its step limit. | [tool-loop.md](tool-loop.md) |
 | Recall | `internal/knowledge/recall` | Searches the person's knowledge store with each message, keeps the hits over a threshold set for each adapter, and gives each call the pages and sources found, each saying where it came from, with a record of what was kept and dropped. Three lookups for the model. A guard for fixed rule 3: a call that is given sensitive content is routed only to models that may read it, and a chat that was sent some stays held to them. The lookups wait for the tool loop to offer them. | [knowledge-recall.md](knowledge-recall.md) |
+| Compaction | `internal/compact` | Keeps a long chat inside its model's window: past a share of the room for earlier turns, the oldest are summarised beside the turn by the model routing gives the summary task, extending the summary before, and later calls carry the summary in their place. Keeps the summaries with the chat, and the messages a person pinned are never left out. A guard for fixed rule 3: the summary of a held chat is made and sent only where the chat may go. | [compaction.md](compaction.md) |
 
 ## Parts still to come
 
@@ -129,5 +130,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0214 | [The search-first rule is a paragraph of the standing instructions, sent when a store is open](decisions/0214-the-search-first-rule-is-a-standing-instruction.md) |
 | 0240 | [A picked model goes with the next message, and the server keeps it for the chat](decisions/0240-a-pick-goes-with-the-next-message.md) |
 | 0241 | [The picker learns that a chat is held from a refused turn, and keeps that in the browser](decisions/0241-a-held-chat-is-learned-from-a-refused-turn.md) |
+| 0230 | [A summary is made beside the turn, and the call goes with what is stored](decisions/0230-a-summary-is-made-beside-the-turn.md) |
+| 0231 | [A summary extends the one before it, and stands for the start of one branch](decisions/0231-a-summary-extends-the-one-before.md) |
+| 0232 | [A chat is summarised past a trigger share, down to a keep share, and whenever a turn is left out](decisions/0232-when-a-chat-is-summarised.md) |
+| 0233 | [A pinned message is held its room, and sent on its own only when its turn is not](decisions/0233-a-pinned-message-is-sent-on-its-own-only-when-its-turn-is-not.md) |
+| 0234 | [The summary of a held chat is sensitive, and goes only where the chat may go](decisions/0234-a-held-chats-summary-is-sensitive.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

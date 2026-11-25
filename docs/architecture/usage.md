@@ -29,6 +29,8 @@ The audit log holds what was sent and what came back ([audit.md](audit.md)). The
 
 A call the server was stopped during has a started entry in the audit log and no usage record, since it never ended here.
 
+Since P5-02, a summary of a chat's oldest turns is a call like these, made beside the turn under its request id, and its record has the kind `summary` ([compaction.md](compaction.md)).
+
 ## Reading them
 
 ```go

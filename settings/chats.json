@@ -196,6 +196,83 @@
       "default": "3",
       "scope": "tenant",
       "description": "How many times a call is packed again, smaller, when the provider counts more tokens in it than Keystone estimated."
+    },
+    {
+      "key": "chats.compact",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether the oldest turns of a long chat are summarised, and the summary sent in their place. Off, they are left out with a note, as before."
+    },
+    {
+      "key": "chats.compact_trigger_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "When the earlier turns of a chat that are not yet summarised take more than this share of the room a call has for them, from 1 to 100, the oldest are summarised. A turn that is left out is summarised whatever the share."
+    },
+    {
+      "key": "chats.compact_keep_percent",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "The oldest turns are summarised until the rest take no more than this share of the room, from 0 to less than chats.compact_trigger_percent. The gap between the two is how far a chat grows between one summary and the next."
+    },
+    {
+      "key": "chats.compact_summary_max_tokens",
+      "type": "int",
+      "default": "1500",
+      "scope": "tenant",
+      "description": "The most tokens a chat's summary may take, as Keystone estimates them. Its share of a call, chats.context_summary_percent, may make it less."
+    },
+    {
+      "key": "chats.compact_summary_heading",
+      "type": "string",
+      "default": "A summary of the earlier part of this chat. The turns it stands for are not shown to you.",
+      "scope": "tenant",
+      "description": "The line a call is given before the summary of a chat's oldest turns."
+    },
+    {
+      "key": "chats.compact_prompt",
+      "type": "string",
+      "default": "You keep the running summary of a long chat in Keystone, a private workspace for one person. You are given the summary so far, if there is one, and the turns of the chat that follow it. Write one summary that takes them all in: what the person asked for and why, what was decided, the facts, names and numbers that matter, what they prefer, and what is still open. Keep what the summary so far says unless a later turn changes it. Write plain prose about the person and the assistant, in at most {words} words, and answer with the summary alone.",
+      "scope": "install",
+      "description": "The instruction given to the model that summarises a chat's oldest turns. {words} becomes the most words the summary may have."
+    },
+    {
+      "key": "chats.compact_message_max_chars",
+      "type": "int",
+      "default": "4000",
+      "scope": "install",
+      "description": "The most characters of one message the summary model is shown."
+    },
+    {
+      "key": "chats.compact_calls_max",
+      "type": "int",
+      "default": "4",
+      "scope": "install",
+      "description": "The most model calls one summary of a chat may make, each taking in as many turns as the summary model's window holds."
+    },
+    {
+      "key": "chats.compact_timeout",
+      "type": "duration",
+      "default": "60s",
+      "scope": "install",
+      "description": "How long one summary call may take before it is given up, and the oldest turns are left out with the note."
+    },
+    {
+      "key": "chats.compact_retry_after",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "How long a chat whose summary failed waits before it is tried again."
+    },
+    {
+      "key": "chats.context_pinned_heading",
+      "type": "string",
+      "default": "A message from earlier in this chat that the person pinned, so it is always shown to you.",
+      "scope": "tenant",
+      "description": "The line a call is given before a pinned message whose turn is not sent."
     }
   ]
 }

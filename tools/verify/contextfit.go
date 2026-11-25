@@ -115,6 +115,12 @@ func checkContextFit(root string) error {
 		return err
 	}
 	problems = append(problems, packing...)
+	// Compaction: compaction.go (P5-02).
+	compacting, err := compactionProblems(entries, o)
+	if err != nil {
+		return err
+	}
+	problems = append(problems, compacting...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

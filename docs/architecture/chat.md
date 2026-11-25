@@ -78,6 +78,10 @@ The files go before the transaction commits. If one cannot be removed, the trans
 
 **A later table that belongs to a chat** names it with `REFERENCES chats(id) ON DELETE CASCADE`. `Delete` then removes its rows with no change here.
 
+## Pinned messages
+
+Since P5-02 a person can pin a message so it is never left out of a call. `Pin(store, chatID, messageID, pinned)` pins one, on any branch, or with `pinned` false takes the pin off; pinning twice or unpinning what is not pinned changes nothing. `Pins(store, chatID)` returns the pinned ids, oldest first. A chat or message that is not in the record gives `ErrNotFound`. The rows are `chat_pins`, from the migration `20261125T110000_compaction.sql`, and go with their chat. What a pin does to a call is in [compaction.md](compaction.md).
+
 ## Tables
 
 In `internal/tenant/migrations/20261124T213000_chat_record.sql`.

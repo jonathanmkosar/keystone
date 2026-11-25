@@ -379,6 +379,21 @@ func Routes(r *Runner) []api.Route {
 			Reply:   ModelChoice{},
 		},
 		{
+			Method: "GET", Path: one + "/pins", Handle: r.pins,
+			Summary: "The chat's pinned messages. A pinned message is in every call of its branch, even when the turns around it are left out or summarised.",
+			Reply:   PinsReply{},
+		},
+		{
+			Method: "PUT", Path: one + "/pins/{message}", Handle: r.pin,
+			Summary: "Pin a message of the chat, on any branch. It takes no body. Pinning a message twice changes nothing.",
+			Reply:   PinsReply{},
+		},
+		{
+			Method: "DELETE", Path: one + "/pins/{message}", Handle: r.unpin,
+			Summary: "Take the pin off a message of the chat. Taking off a pin that is not there changes nothing.",
+			Reply:   PinsReply{},
+		},
+		{
 			Method: "POST", Path: turns, Handle: r.send,
 			Summary: "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn.",
 			Body:    SendBody{}, Events: streamEvents,

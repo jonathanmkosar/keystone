@@ -31,12 +31,14 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	opts.SystemText = withRule(opts.SystemText, rule)
 	offered := r.offered(ctx, s, m)                                       // the tool loop's (P7-01)
 	offered = append(offered, r.lookupTools(ctx, s, t, p, m, offered)...) // the knowledge lookups (P6-05)
+	older := r.olderHistory(ctx, s, t, m, messages, mayRead)              // the summary and the pinned messages (P5-02)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Tools: offered,
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
 		MaxOutputTokens: maxOutput, ThinkingTokens: thinking,
 		Provider: p, Messages: messages,
 		Profile: profile, PersonMap: personMap, Recall: recalled,
+		Summary: older.text, SummaryCovers: older.covers, Pinned: older.pins,
 	})
 	if err != nil {
 		return seam.Request{}, err
@@ -44,6 +46,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	if err := saveContext(s, t.ID, step, rec); err != nil {
 		r.logf("turns: %s turn %s: storing what call %d was built from: %v", t.requestID, t.ID, step, err)
 	}
+	r.compactLater(s, t, m, messages, rec, older) // beside the turn, when the chat has outgrown its room (P5-02)
 	return req, nil
 }
 
