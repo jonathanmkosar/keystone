@@ -22,6 +22,8 @@ import (
 	"time"
 
 	_ "modernc.org/sqlite"
+
+	"github.com/jonathanmkosar/keystone/internal/secrets"
 )
 
 const (
@@ -48,15 +50,27 @@ type Install struct {
 	// other holds the fields of keystone.json this package does not own,
 	// so that saving the tenant list never drops them.
 	other map[string]json.RawMessage
+	// keeper holds the install master key. It is nil until a secret is
+	// used, unless OpenWithKeeper gave one. See secrets.go.
+	keeper secrets.Keeper
+	vaults map[string]*secrets.Vault
 }
 
 // Open opens the data folder at dir, creating it and an empty registry when
-// they are not there, and brings every tenant's database up to date.
+// they are not there, and brings every tenant's database up to date. The
+// install master key is kept by the operating system.
 func Open(dir string) (*Install, error) {
+	return OpenWithKeeper(dir, nil)
+}
+
+// OpenWithKeeper opens the data folder as Open does, with k as the keeper of
+// the install master key. Tests pass a keeper held in memory. A nil keeper
+// is the one keystone.json names, or the operating system's.
+func OpenWithKeeper(dir string, k secrets.Keeper) (*Install, error) {
 	if err := os.MkdirAll(filepath.Join(dir, "tenants"), 0o700); err != nil {
 		return nil, err
 	}
-	in := &Install{dir: dir, other: map[string]json.RawMessage{}}
+	in := &Install{dir: dir, other: map[string]json.RawMessage{}, keeper: k}
 	raw, err := os.ReadFile(filepath.Join(dir, registryFile))
 	switch {
 	case errors.Is(err, os.ErrNotExist):
@@ -183,7 +197,7 @@ func (in *Install) open(id string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := &Store{id: id, db: db}
+	s := &Store{id: id, db: db, secrets: in.vault(id)}
 	fail := func(err error) (*Store, error) {
 		s.Close()
 		return nil, err
@@ -250,6 +264,7 @@ type Store struct {
 	db        *sql.DB
 	files     *os.Root
 	artifacts *os.Root
+	secrets   *secrets.Vault
 }
 
 // TenantID returns the id of the tenant this handle belongs to.
