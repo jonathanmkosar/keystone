@@ -40,6 +40,7 @@ var componentDocs = map[string]string{
 
 	"internal/knowledge":               "docs/architecture/knowledge.md",
 	"internal/knowledge/knowledgetest": "docs/architecture/knowledge.md",
+	"internal/adapters/fake": "docs/architecture/fake-provider.md",
 }
 
 var checks = []check{
@@ -51,6 +52,7 @@ var checks = []check{
 	{"state", checkState},
 	{"docs", checkDocs},
 	{"no secrets", checkSecrets},
+	{"offline", checkOffline},
 }
 
 func main() {

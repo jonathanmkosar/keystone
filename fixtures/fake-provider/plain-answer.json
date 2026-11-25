@@ -1,0 +1,59 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "plain answer",
+      "when": { "user_text": "What is a keystone?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "A keystone is the wedge-shaped stone at the top of an arch. It locks the other stones in place, so the arch can carry weight." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 18, "output_tokens": 31 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "stops at the output limit",
+      "when": { "user_text": "Count to one hundred." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12," }
+              ]
+            },
+            "stop_reason": "max_tokens",
+            "usage": { "input_tokens": 14, "output_tokens": 24 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "anything else",
+      "when": {},
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "This is Keystone's fake provider. No script was written for that message, so this is the reply every such message gets." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 12, "output_tokens": 27 }
+          }
+        }
+      ]
+    }
+  ]
+}

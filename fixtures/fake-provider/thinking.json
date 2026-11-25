@@ -1,0 +1,24 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "thinks first",
+      "when": { "user_text": "Which is heavier, a kilogram of feathers or a kilogram of stone?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "thinking", "text": "Both are one kilogram. The question is about weight, not about how much room each takes up.", "signature": "sig-test-0001" },
+                { "type": "text", "text": "Neither. Each weighs one kilogram. The feathers only take up more room." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 26, "output_tokens": 44, "thinking_tokens": 22 }
+          }
+        }
+      ]
+    }
+  ]
+}

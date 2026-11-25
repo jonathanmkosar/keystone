@@ -1,0 +1,62 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "the provider is busy",
+      "when": { "model": "fake-busy" },
+      "steps": [
+        {
+          "error": { "kind": "overloaded", "message": "The invented provider is busy. Try again shortly.", "retryable": true }
+        }
+      ]
+    },
+    {
+      "name": "the key is refused",
+      "when": { "model": "fake-no-key" },
+      "steps": [
+        {
+          "error": { "kind": "auth", "message": "The invented provider refused the key." }
+        }
+      ]
+    },
+    {
+      "name": "the stream ends early",
+      "when": { "model": "fake-cut-off" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The harbour office opens at eight, and the first ferry leaves an hour later." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 20, "output_tokens": 18 }
+          },
+          "cut_after": 30
+        }
+      ]
+    },
+    {
+      "name": "slowed down part of the way through",
+      "when": { "model": "fake-rate-limited" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The harbour office opens at eight, and the first ferry leaves an hour later." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 20, "output_tokens": 18 }
+          },
+          "cut_after": 11,
+          "error": { "kind": "rate_limited", "message": "The invented provider asked for fewer calls.", "retryable": true }
+        }
+      ]
+    }
+  ]
+}

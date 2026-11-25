@@ -4,7 +4,7 @@ Folder: `internal/seam`
 
 Keystone's own shape for a model call and its streamed reply. Everything outside the adapters speaks this format. Each adapter translates it to and from one provider's format, so no provider's format leaks into chats, context, tools or the interface.
 
-Today the folder holds the format only. The registry, the fake provider, routing, the budget and usage records arrive with P3-02 to P3-08.
+Today the folder holds the format and the one interface every provider implements. The fake provider has its own doc, [fake-provider.md](fake-provider.md). The registry, the three adapters, routing, the budget and usage records arrive with P3-02 to P3-08.
 
 ## Content blocks
 
@@ -74,13 +74,34 @@ The first four do not overlap, so `Total` is their sum. Providers count cached i
 
 A block that opens and closes with nothing in it is dropped. A tool call that receives no input gets `{}`.
 
+## Providers
+
+A `Provider` is anything that answers a `Request` with a stream: each of the three adapters, and the fake. It has one method.
+
+```go
+Stream(ctx context.Context, req Request, emit func(Event) error) error
+```
+
+`Stream` calls `emit` once for each event, in order, and returns when the stream is over. It never calls `emit` from another goroutine.
+
+- A call that works ends with a `stop` event, and `Stream` returns nil.
+- A call that fails ends with an `error` event, and `Stream` returns that `*Error`. A reply that breaks off before its `stop` event is a failure too. The fake reports it as `unavailable` and retryable, and the adapters should do the same. So nil always means the reply is whole.
+- When `emit` returns an error, `Stream` sends nothing more and returns that error. This is how a receiver that has gone away ends the call.
+- When the context is cancelled, `Stream` sends nothing more and returns the context's error. This is how a turn is stopped.
+
+A collector's `Add` is an `emit`, so a caller can pass it as it is, or wrap it to send each event on to a browser first.
+
+`Call` is for a caller that wants the whole reply and not the stream, such as a title or a summary. It runs a provider through a collector and returns the `Response`, or the call's `*Error`.
+
+A provider is safe to use from several goroutines at once. Decision [0015](decisions/0015-a-provider-streams-through-a-callback.md) says why `emit` is a function and not a channel.
+
 ## JSON
 
 Every type has JSON tags, and that JSON is how the format is stored and sent: in the chat record, the audit log, the API's event stream and the fake provider's fixtures. The `Encode` functions validate before writing. The `Decode` functions refuse an unknown field and validate after reading.
 
 ## Checked by
 
-`go test ./internal/seam`. Every block type and every event type goes through JSON and comes back the same. Every block type a model can write goes through a stream and comes back the same. Malformed blocks, messages, requests, events and out-of-order streams are each refused.
+`go test ./internal/seam`. Every block type and every event type goes through JSON and comes back the same. Every block type a model can write goes through a stream and comes back the same. Malformed blocks, messages, requests, events and out-of-order streams are each refused. `Call` returns a whole reply, the stream's own error, an error for a stream with no stop event, and the context's error when the call is cancelled.
 
 ## Not here yet
 
