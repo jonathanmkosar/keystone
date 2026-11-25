@@ -1387,6 +1387,190 @@
         "summary": "Rename a chat, star it or clear its star."
       }
     },
+    "/api/v1/chats/{id}/connectors": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connectors": {
+                      "items": {
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "on": {
+                            "type": "boolean"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "switched": {
+                            "type": "boolean"
+                          },
+                          "tools": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "label",
+                          "enabled",
+                          "on",
+                          "switched",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "connectors"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The chat's tools menu: each connector, whether it is on in Settings, and whether its tools are offered in this chat."
+      }
+    },
+    "/api/v1/chats/{id}/connectors/{name}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "on": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "on"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connectors": {
+                      "items": {
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "on": {
+                            "type": "boolean"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "switched": {
+                            "type": "boolean"
+                          },
+                          "tools": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "label",
+                          "enabled",
+                          "on",
+                          "switched",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "connectors"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Switch one connector on or off in one chat. A connector that is off in Settings stays off."
+      }
+    },
     "/api/v1/chats/{id}/incognito": {
       "delete": {
         "parameters": [
@@ -5925,6 +6109,789 @@
           }
         },
         "summary": "Stop a turn. The model call is cancelled and what had streamed is kept. It takes no body. Stopping a turn that has ended changes nothing."
+      }
+    },
+    "/api/v1/connectors": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connectors": {
+                      "items": {
+                        "properties": {
+                          "added_by": {
+                            "type": "string"
+                          },
+                          "args": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "command": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "env_names": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "listed": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "local": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "outside": {
+                            "type": "boolean"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "secret": {
+                            "type": "string"
+                          },
+                          "token_env": {
+                            "type": "string"
+                          },
+                          "token_present": {
+                            "type": "boolean"
+                          },
+                          "tools": {
+                            "items": {
+                              "properties": {
+                                "description": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "read_only": {
+                                  "type": "boolean"
+                                },
+                                "schema": {},
+                                "title": {
+                                  "type": "string"
+                                },
+                                "tool": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "tool",
+                                "description",
+                                "schema",
+                                "read_only"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "transport": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "label",
+                          "transport",
+                          "args",
+                          "env_names",
+                          "local",
+                          "secret",
+                          "token_present",
+                          "enabled",
+                          "outside",
+                          "added_by",
+                          "created",
+                          "updated",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "max": {
+                      "type": "integer"
+                    },
+                    "transports": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "connectors",
+                    "max",
+                    "transports"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The person's connectors: MCP servers whose tools a chat may use. Each names the secret its token is stored under and says whether it is stored, with the tools it last listed. Never a token."
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "args": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "check": {
+                    "type": "boolean"
+                  },
+                  "command": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "env": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "outside": {
+                    "type": "boolean"
+                  },
+                  "secret": {
+                    "type": "string"
+                  },
+                  "token_env": {
+                    "type": "string"
+                  },
+                  "transport": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label",
+                  "transport",
+                  "url",
+                  "local",
+                  "secret",
+                  "enabled",
+                  "outside",
+                  "command",
+                  "args",
+                  "env",
+                  "token_env",
+                  "check"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "added_by": {
+                      "type": "string"
+                    },
+                    "args": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "command": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "env_names": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "listed": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "outside": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    },
+                    "token_env": {
+                      "type": "string"
+                    },
+                    "token_present": {
+                      "type": "boolean"
+                    },
+                    "tools": {
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "read_only": {
+                            "type": "boolean"
+                          },
+                          "schema": {},
+                          "title": {
+                            "type": "string"
+                          },
+                          "tool": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "tool",
+                          "description",
+                          "schema",
+                          "read_only"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "transport": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "label",
+                    "transport",
+                    "args",
+                    "env_names",
+                    "local",
+                    "secret",
+                    "token_present",
+                    "enabled",
+                    "outside",
+                    "added_by",
+                    "created",
+                    "updated",
+                    "tools"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Add a remote connector, reached over the streamable HTTP transport, and reach it to list its tools. A connector that runs a command is refused: it is added from the command line."
+      }
+    },
+    "/api/v1/connectors/{name}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Remove a connector, its switches in every chat and the policies for its tools. Its token stays in the vault."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "args": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "check": {
+                    "type": "boolean"
+                  },
+                  "command": {
+                    "type": "string"
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "env": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "type": "object"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "local": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "outside": {
+                    "type": "boolean"
+                  },
+                  "secret": {
+                    "type": "string"
+                  },
+                  "token_env": {
+                    "type": "string"
+                  },
+                  "transport": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label",
+                  "transport",
+                  "url",
+                  "local",
+                  "secret",
+                  "enabled",
+                  "outside",
+                  "command",
+                  "args",
+                  "env",
+                  "token_env",
+                  "check"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "added_by": {
+                      "type": "string"
+                    },
+                    "args": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "command": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "env_names": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "listed": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "outside": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    },
+                    "token_env": {
+                      "type": "string"
+                    },
+                    "token_present": {
+                      "type": "boolean"
+                    },
+                    "tools": {
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "read_only": {
+                            "type": "boolean"
+                          },
+                          "schema": {},
+                          "title": {
+                            "type": "string"
+                          },
+                          "tool": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "tool",
+                          "description",
+                          "schema",
+                          "read_only"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "transport": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "label",
+                    "transport",
+                    "args",
+                    "env_names",
+                    "local",
+                    "secret",
+                    "token_present",
+                    "enabled",
+                    "outside",
+                    "added_by",
+                    "created",
+                    "updated",
+                    "tools"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Change a connector: its label, address, token name, switch and outside mark. A command cannot be set or changed here."
+      }
+    },
+    "/api/v1/connectors/{name}/check": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "added_by": {
+                      "type": "string"
+                    },
+                    "args": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "command": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "env_names": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "listed": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "local": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "outside": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "secret": {
+                      "type": "string"
+                    },
+                    "token_env": {
+                      "type": "string"
+                    },
+                    "token_present": {
+                      "type": "boolean"
+                    },
+                    "tools": {
+                      "items": {
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "read_only": {
+                            "type": "boolean"
+                          },
+                          "schema": {},
+                          "title": {
+                            "type": "string"
+                          },
+                          "tool": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "tool",
+                          "description",
+                          "schema",
+                          "read_only"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "transport": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "label",
+                    "transport",
+                    "args",
+                    "env_names",
+                    "local",
+                    "secret",
+                    "token_present",
+                    "enabled",
+                    "outside",
+                    "added_by",
+                    "created",
+                    "updated",
+                    "tools"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Reach a connector now and keep the tools it lists, or why it could not be reached."
       }
     },
     "/api/v1/models": {

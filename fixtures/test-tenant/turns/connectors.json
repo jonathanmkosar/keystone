@@ -1,0 +1,76 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a connector's tools, loaded and called",
+      "when": { "user_text": "Find my notes about the harbour, and add one about the tide." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will load the notes tools first." },
+                {
+                  "type": "tool_call",
+                  "id": "call_load",
+                  "name": "load_tools",
+                  "input": { "names": ["notes_search", "notes_add"] }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 420, "output_tokens": 24 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_search",
+                  "name": "notes_search",
+                  "input": { "query": "harbour" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 610, "output_tokens": 18 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Two notes mention the harbour. Now the new one." },
+                {
+                  "type": "tool_call",
+                  "id": "call_add",
+                  "name": "notes_add",
+                  "input": { "title": "Tide", "text": "The tide is lowest at noon this week." }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 690, "output_tokens": 40 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Your notes mention the harbour twice: a harbour walk, and the ferry times. I added a note called **Tide**, once you approved it.\n\nThis reply is a recorded turn: the tools ran for real against the connector, and it cannot read out what they returned." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 52 }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -33,6 +33,15 @@
 // from standard input; restore brings it into a data folder, with its keys
 // under that install's master key. See backup.go and
 // docs/runbooks/backup-and-restore.md.
+//
+//	go run ./tools/tenant connector add <tenant-id> entry.json
+//	go run ./tools/tenant connector list <tenant-id>
+//	go run ./tools/tenant connector check <tenant-id> <name>
+//	go run ./tools/tenant connector remove <tenant-id> <name>
+//
+// connector manages one tenant's connectors. A connector that runs a
+// command on this machine is added here and never through the API. See
+// connector.go and docs/architecture/connectors.md.
 package main
 
 import (
@@ -67,6 +76,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+usageUsage)
 		fmt.Fprintln(os.Stderr, "       "+settingUsage)
 		fmt.Fprintln(os.Stderr, "       "+backupUsage)
+		fmt.Fprintln(os.Stderr, "       "+connectorUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -126,6 +136,8 @@ func main() {
 		backupMain(dir, *keeper, args[1:])
 	case "restore":
 		restoreMain(dir, *keeper, args[1:])
+	case "connector":
+		connectorMain(dir, *keeper, args[1:]) // P7-04: connector.go
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)

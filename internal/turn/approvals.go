@@ -179,6 +179,7 @@ func (r *Runner) resumeStep(ctx context.Context, s *tenant.Store, t *row, m mode
 		return at.step, at.messageID, false, &TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."}, false
 	}
 	r.lookupTools(ctx, s, *t, p, m, r.offered(ctx, s, m))
+	r.connectorTools(ctx, s, *t, m, nil, nil) // and the connectors' tools (P7-04)
 	calls := seam.ToolCalls(seam.Message{Role: msg.Role, Blocks: msg.Blocks})
 	tail, again, failure, stopped = r.toolStep(ctx, s, *t, at.step, at.messageID, calls, say)
 	return at.step, tail, again, failure, stopped
@@ -202,7 +203,10 @@ func (r *Runner) toolFor(t row, name string) (tools.Tool, bool) {
 	if l, ok := t.lookup(name); ok {
 		return l, true
 	}
-	return r.o.Tools.Get(name)
+	if tool, ok := r.o.Tools.Get(name); ok {
+		return tool, true
+	}
+	return t.connectorTool(name) // a connector's tool (P7-04, connectors.go)
 }
 
 // approveStep decides every call of one step, asks the person about those
@@ -324,6 +328,8 @@ func (r *Runner) runPlanned(ctx context.Context, s *tenant.Store, t row, c tools
 	var res tools.Result
 	if l, ok := t.lookup(c.Name); ok {
 		res = runLookup(ctx, c, l) // a knowledge lookup (lookups.go)
+	} else if ct, ok := t.connectorTool(c.Name); ok && !r.serverHas(c.Name) {
+		res = runLookup(ctx, c, ct) // a connector's tool, through a registry of its own too (P7-04)
 	} else {
 		res = r.o.Tools.Run(ctx, c)
 	}
@@ -365,7 +371,7 @@ func (r *Runner) noteOutside(s *tenant.Store, t row, c tools.Call, res tools.Res
 		}
 	case lookup:
 	default:
-		if tool, ok := r.o.Tools.Get(c.Name); ok && !tool.Inside && res.Ran {
+		if tool, ok := r.toolFor(t, c.Name); ok && !tool.Inside && res.Ran {
 			clause = "this chat read outside content, from " + c.Name
 		}
 	}

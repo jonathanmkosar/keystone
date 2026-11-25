@@ -36,6 +36,9 @@ type row struct {
 	recalled  *turnRecall // what recall found, once work has searched (P6-05)
 	// approvals is the approval policy's state for the turn (P7-02).
 	approvals *turnApprovals
+	// connectors is what the current call was given from the person's
+	// connectors (P7-04, connectors.go).
+	connectors *turnConnectors
 }
 
 const turnColumns = `id, chat_id, status, request_id, actor, input, model, user_message_id,

@@ -48,6 +48,7 @@ var keySurfaces = []struct {
 	{"the settings routes", keysInTheSettingsRoutes}, // in settingsroutes.go: a value stored through the API, and the routes that could hand it back
 	{"web search", keysInWebSearch},                  // in websearch.go: a search provider that repeats the key in its refusals and results
 	{"backup and restore", keysInBackups},            // in backup.go: the backup file, a restore under another master key, and what both print
+	{"connectors", keysInConnectors},                 // in connectors.go: servers that repeat a connector's token in results, errors, a refusal and a command's standard error
 }
 
 const keyCheckName = "provider.test"

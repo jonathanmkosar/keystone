@@ -378,6 +378,13 @@ func checkRecorded(string) error {
 		return err
 	}
 	problems = append(problems, searched...)
+	// So is a connector's tool, offered by name, loaded and called, and its
+	// tool that changes something asks after its outside content (P7-04). See connectors.go.
+	connected, err := connectorsRecorded()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, connected...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

@@ -16,6 +16,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/connectors"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
@@ -59,6 +60,9 @@ type Config struct {
 	Tools *tools.Registry
 	// toolsPlaced is turnOptions' own mark.
 	toolsPlaced bool
+	// Connectors is what each person's connectors run with (P7-04):
+	// settings in settings/agents.json.
+	Connectors connectors.Options
 	// Web is what web_search and web_fetch run with (P7-03): settings in
 	// settings/agents.json. A caller may give Web.Searcher its own search
 	// provider, or point Web.SearchEndpoint somewhere else.
@@ -87,6 +91,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 		return Config{}, err
 	}
 	if c.Turns, err = turn.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// The connectors' settings (P7-04), in settings/agents.json.
+	if c.Connectors, err = connectors.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	// The web tools' settings (P7-03), in settings/agents.json.
@@ -154,6 +162,7 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
+	all = append(all, connectors.Routes(c.Connectors)...) // the connectors' (P7-04)
 	all = append(all, settingsapi.Routes()...)
 	return all
 }
@@ -193,6 +202,7 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 	if !c.toolsPlaced {
 		c.toolsPlaced = true
 		o := c.turnOptions(log)
+		o.Connectors = connectors.NewPool(c.Connectors, log.Printf) // the connectors' sessions (P7-04), closed with the runner
 		if o.Tools = c.Tools; o.Tools == nil {
 			o.Tools = c.toolsOrNone(log)
 		}
