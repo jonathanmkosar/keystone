@@ -1,0 +1,261 @@
+{
+  "test_data": true,
+  "exchanges": [
+    {
+      "name": "a key the provider refuses",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 401, "headers": { "request-id": "req_test_0001" }, "body": { "type": "error", "error": { "type": "authentication_error", "message": "invalid x-api-key" } } }
+      ],
+      "error": { "kind": "auth", "message_has": "401 (authentication_error): invalid x-api-key [request req_test_0001]" },
+      "attempts": 1
+    },
+    {
+      "name": "a key that may not use the model",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 403, "body": { "type": "error", "error": { "type": "permission_error", "message": "this key may not use the model" } } }
+      ],
+      "error": { "kind": "auth" },
+      "attempts": 1
+    },
+    {
+      "name": "a rate limit, then the answer",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 429, "headers": { "retry-after": "1" }, "body": { "type": "error", "error": { "type": "rate_limit_error", "message": "slow down" } } },
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 3 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Hello." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 5, "output_tokens": 3 }
+      },
+      "attempts": 2,
+      "waits": ["1s"]
+    },
+    {
+      "name": "a rate limit that asks for longer than Keystone waits",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 429, "headers": { "retry-after": "3600" }, "body": { "type": "error", "error": { "type": "rate_limit_error", "message": "come back in an hour" } } }
+      ],
+      "error": { "kind": "rate_limited", "retryable": true },
+      "attempts": 1
+    },
+    {
+      "name": "a provider that stays busy",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 529, "body": { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } } },
+        { "status": 529, "body": { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } } },
+        { "status": 529, "body": { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } } }
+      ],
+      "error": { "kind": "overloaded", "retryable": true },
+      "attempts": 3,
+      "waits": ["500ms", "1s"]
+    },
+    {
+      "name": "a server error the provider says not to send again",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 500, "headers": { "x-should-retry": "false" }, "body": { "type": "error", "error": { "type": "api_error", "message": "internal error" } } }
+      ],
+      "error": { "kind": "unavailable" },
+      "attempts": 1
+    },
+    {
+      "name": "a gateway's own error page, then the answer",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 502, "text": "<html><body>Bad gateway</body></html>" },
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 3 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Hello." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 5, "output_tokens": 3 }
+      },
+      "attempts": 2
+    },
+    {
+      "name": "a request that does not fit the context window",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "A very long message, in the story." } ] } ] },
+      "answers": [
+        { "status": 400, "body": { "type": "error", "error": { "type": "invalid_request_error", "message": "prompt is too long: 250000 tokens > 200000 maximum" } } }
+      ],
+      "error": { "kind": "too_long" },
+      "attempts": 1
+    },
+    {
+      "name": "a request body that is too large",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 413, "body": { "type": "error", "error": { "type": "request_too_large", "message": "Request exceeds the maximum allowed number of bytes." } } }
+      ],
+      "error": { "kind": "too_long" },
+      "attempts": 1
+    },
+    {
+      "name": "a request the provider refuses as malformed",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 400, "body": { "type": "error", "error": { "type": "invalid_request_error", "message": "messages: field required" } } }
+      ],
+      "error": { "kind": "invalid" },
+      "attempts": 1
+    },
+    {
+      "name": "a model the endpoint does not have",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 404, "body": { "type": "error", "error": { "type": "not_found_error", "message": "model: example-large-1" } } }
+      ],
+      "error": { "kind": "invalid" },
+      "attempts": 1
+    },
+    {
+      "name": "an account with no credit",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 402, "body": { "type": "error", "error": { "type": "billing_error", "message": "the account has no credit" } } }
+      ],
+      "error": { "kind": "other" },
+      "attempts": 1
+    },
+    {
+      "name": "a redirect is not followed",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 307, "headers": { "location": "https://elsewhere.example/v1/messages" }, "text": "" }
+      ],
+      "error": { "kind": "unavailable" },
+      "attempts": 1
+    },
+    {
+      "name": "busy before the reply begins, inside the stream, then the answer",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 200, "events": [ { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } } ] },
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 3 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Hello." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 5, "output_tokens": 3 }
+      },
+      "attempts": 2
+    },
+    {
+      "name": "busy part of the way through a reply, which is not sent again",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hel" } },
+            { "type": "error", "error": { "type": "overloaded_error", "message": "Overloaded" } }
+          ]
+        }
+      ],
+      "error": { "kind": "overloaded", "retryable": true },
+      "partial": "Hel",
+      "attempts": 1
+    },
+    {
+      "name": "a reply that breaks off before its end",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello, I was about to" } }
+          ]
+        }
+      ],
+      "error": { "kind": "unavailable", "retryable": true, "message_has": "broke off" },
+      "partial": "Hello, I was about to",
+      "attempts": 1
+    },
+    {
+      "name": "a stream that is out of order",
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 5, "output_tokens": 1 } } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Hello." } }
+          ]
+        }
+      ],
+      "error": { "kind": "other", "message_has": "not in order" },
+      "attempts": 1
+    },
+    {
+      "name": "a stored file that was not read before the call is refused without a call",
+      "request": {
+        "messages": [ { "role": "user", "blocks": [ { "type": "file", "media_type": "application/pdf", "name": "invented-report.pdf", "ref": "0000000000000000000000000000000000000000000000000000000000000000" } ] } ]
+      },
+      "answers": [],
+      "error": { "kind": "invalid", "message_has": "must be read before the call" },
+      "attempts": 0
+    },
+    {
+      "name": "a kind of file the API does not take is refused without a call",
+      "request": {
+        "messages": [ { "role": "user", "blocks": [ { "type": "file", "media_type": "application/zip", "name": "invented.zip", "data": "aW52ZW50ZWQ=" } ] } ]
+      },
+      "answers": [],
+      "error": { "kind": "invalid", "message_has": "invented.zip is application/zip" },
+      "attempts": 0
+    },
+    {
+      "name": "a request for another model is refused without a call",
+      "request": {
+        "model": "some-other-model",
+        "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ]
+      },
+      "answers": [],
+      "error": { "kind": "invalid", "message_has": "this provider calls example-large" },
+      "attempts": 0
+    }
+  ]
+}

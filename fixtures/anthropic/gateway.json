@@ -1,0 +1,52 @@
+{
+  "test_data": true,
+  "exchanges": [
+    {
+      "name": "a local gateway with no key, whose address ends in /v1 and whose events have no names",
+      "model": { "provider_model": "example-small:8b", "no_key": true, "path": "/v1", "capabilities": ["tools"], "output_limit": 2048 },
+      "options": { "cache_control": false },
+      "bare_events": true,
+      "request": {
+        "system": [ { "type": "text", "text": "Answer briefly." } ],
+        "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Is the kettle on?" } ] } ],
+        "max_output_tokens": 9000
+      },
+      "sent": {
+        "model": "example-small:8b",
+        "max_tokens": 2048,
+        "stream": true,
+        "system": [ { "type": "text", "text": "Answer briefly." } ],
+        "messages": [ { "role": "user", "content": [ { "type": "text", "text": "Is the kettle on?" } ] } ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 0, "output_tokens": 0 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "I cannot " } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "see the kettle." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "input_tokens": 17, "output_tokens": 6 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "I cannot see the kettle." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 17, "output_tokens": 6 }
+      }
+    },
+    {
+      "name": "a gateway that answers with an error of its own shape",
+      "model": { "no_key": true },
+      "request": { "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Hello." } ] } ] },
+      "answers": [
+        { "status": 404, "body": { "error": "model 'example-large-1' not found" } }
+      ],
+      "error": { "kind": "invalid", "message_has": "404" },
+      "attempts": 1
+    }
+  ]
+}

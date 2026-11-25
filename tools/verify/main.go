@@ -59,6 +59,8 @@ var componentDocs = map[string]string{
 	"internal/adapters/responses": "docs/architecture/adapter-responses.md",
 
 	"internal/knowledge/waymarks": "docs/architecture/knowledge-waymarks.md",
+
+	"internal/adapters/anthropic": "docs/architecture/adapter-anthropic.md",
 }
 
 var checks = []check{
