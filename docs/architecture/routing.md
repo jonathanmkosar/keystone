@@ -20,6 +20,8 @@ Only `chat` and `title` are called today. The other three have a rule waiting fo
 
 Since P5-02, `summary` is called too: compaction summarises a long chat's oldest turns through the route for the `summary` task, planned as sensitive for a held chat like every route of that chat ([compaction.md](compaction.md)).
 
+Since P6-06, `memory` is called too: the memory pass reads each finished turn through the route for the `memory` task, planned as sensitive for a held chat. Its gate is the memory pass's reserve and then the monthly cap, so a hosted model refused at the reserve moves the call on to a local model behind it ([memory-pass.md](memory-pass.md)).
+
 ## A route
 
 `routing.Plan(rules, ask, models)` returns a `Route`: the models to try, in order.

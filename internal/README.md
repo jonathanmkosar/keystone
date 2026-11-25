@@ -35,3 +35,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `tools/web` | agents | `web_search` with Tavily and `web_fetch` of public pages, numbered sources, and results marked as outside content |
 | `knowledge/recall` | knowledge | Recall on every message, the three knowledge lookups, and the sensitive mark a chat keeps |
 | `compact` | chats | When a long chat's oldest turns are summarised and which, the summary request, the stored summaries, and whether one may go to a call |
+| `knowledge/memory` | knowledge | The memory pass: the request for an exchange's durable facts, reading the answer, where the facts may land, the queue of passes, the incognito flag and the memory reserve |

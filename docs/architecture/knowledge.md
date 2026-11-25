@@ -4,7 +4,7 @@ Folder: `internal/knowledge`
 
 The knowledge store is the long-term memory a person chooses. Waymarks is one, the built-in store is another, and a person may have none. This part is the door to it: one interface, `Store`, and plain data types. Everything outside the adapters speaks these and never a store's own format.
 
-Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store is in `internal/knowledge/builtin` and has its own page, [knowledge-builtin.md](knowledge-builtin.md). The Waymarks adapter is in `internal/knowledge/waymarks` and has its own page, [knowledge-waymarks.md](knowledge-waymarks.md). The person's profile and the map of their store are in `internal/knowledge/personmap`, on the page [knowledge-profile-and-map.md](knowledge-profile-and-map.md).
+Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store is in `internal/knowledge/builtin` and has its own page, [knowledge-builtin.md](knowledge-builtin.md). The Waymarks adapter is in `internal/knowledge/waymarks` and has its own page, [knowledge-waymarks.md](knowledge-waymarks.md). The person's profile and the map of their store are in `internal/knowledge/personmap`, on the page [knowledge-profile-and-map.md](knowledge-profile-and-map.md). Recall is in `internal/knowledge/recall` ([knowledge-recall.md](knowledge-recall.md)), and the memory pass, which adds the facts of each turn as a source, is in `internal/knowledge/memory` ([memory-pass.md](memory-pass.md)).
 
 Decisions: [0030](decisions/0030-knowledge-store-interface.md) for the shape of the interface and what having no store means, and [0031](decisions/0031-label-reads-as-sensitive.md) for the label.
 
@@ -171,6 +171,6 @@ What shaped the interface:
 ## Not here yet
 
 - The server does not import an adapter's package yet, so the binary has `none` alone. The test that every option of the setting opens is in `internal/knowledge/waymarks`, the one package whose tests have every adapter in their build, until the server has a place for it.
-- Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). A turn calls `Open` for the person map and for recall ([knowledge-recall.md](knowledge-recall.md)). The memory pass (P6-06) is next.
+- Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). A turn calls `Open` for the person map and for recall ([knowledge-recall.md](knowledge-recall.md)), and the memory pass opens it after the turn to add a source of facts when the store has the `AddSource` flag ([memory-pass.md](memory-pass.md)). With Waymarks that source goes out under the intake token.
 - Roles. The plan gives Waymarks one token for each Keystone role. The interface has no role: the Waymarks adapter picks the token by the call, so reads go out under the reader token, `AddSource` under the intake token, and page vectors under a third, the embedder (decision [0090](decisions/0090-waymarks-three-tokens.md)). Chat is handed the whole store, and recall and the lookups only read (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
 - Correcting and forgetting a fact (P6-07), and writing pages, which the wiki upkeep jobs do (P8-06). Each adds a flag and a call when its item is built.

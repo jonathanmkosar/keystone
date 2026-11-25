@@ -1,6 +1,6 @@
 # P6-06. Memory pass
 
-Status: doing (knowledge)
+Status: done
 Lane: knowledge
 Depends on: P6-05
 Owner gate: none
@@ -22,4 +22,6 @@ Plan (knowledge lane, branch `knowledge/p6-06-memory-pass`):
 - **Proof**: package and turn tests, and a standing `verify` check, `memory pass`: test-tenant chats produce their expected facts in the built-in store, as sources linked to their chats; a message with nothing durable adds nothing; an incognito chat runs no pass; a held chat's facts land in the sensitive space or nowhere; the reserve refuses a paid memory call once reached while the chat goes on, and a local model behind it still runs at no cost.
 
 Left out: a startup sweep for passes queued before a stop (they run with the chat's next turn), incognito chats that keep no record (P6-07, the memory screens), facts merged across turns (the wiki upkeep jobs, P8-06), and a response format in the model seam.
+
+Result (November 25, 2026): done, as planned. `go run ./tools/verify` is 20 of 20 with the new `memory pass` check: the test tenant's chats produce their expected facts in the built-in store as sources linked to their chats, a message with nothing durable adds nothing, an incognito turn queues no pass, a held chat's facts land labelled sensitive in the confirmed sensitive space or nowhere, and on an invented tenant the reserve refuses a hosted memory call once reached while the chat is answered, and with the reserve and the cap reached a local model reads at no cost. Decisions 0280 to 0284; the component doc is `docs/architecture/memory-pass.md`; the journal is `docs/journal/2026-11-25-knowledge-006.md`, with three owner questions (the reserve inside the cap, naming a sensitive space, incognito's scope), none of which the proof rests on. Only the fake provider has extracted facts; no real model or real Waymarks has been called.
 
