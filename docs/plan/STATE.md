@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: P8-01 background tasks (agents), P5-04 the turn inspector (chats), P6-06 the memory pass (knowledge). The owner is trying his first web search and the model picker on his own domain.
+Next: being built: P13-04 backup and restore (core), P5-04 the turn inspector (chats), P6-06 the memory pass (knowledge), P8-01 background tasks (agents). The owner is trying web search and the model picker on his own domain.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -9,11 +9,11 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | nothing | P13-04, held until the app runs |
+| core | P13-04, backup and restore | P13-01 to P13-03 drills, held |
 | models | nothing | P6-08 with knowledge, after P6-05 |
-| chats | nothing | P5-04 the turn inspector, P5-05, P9-05 |
-| knowledge | nothing | P6-06, the memory pass |
-| agents | nothing | P8-01 background tasks, P7-04 connectors |
+| chats | P5-04, the turn inspector | P5-05, P9-05 |
+| knowledge | P6-06, the memory pass | P6-07, P6-08 |
+| agents | P8-01, background tasks | P7-04 connectors, P8-02 |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -23,6 +23,10 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
+| P13-04 backup and restore | core | `core/p13-04-backup-restore` |
+| P5-04 the turn inspector | chats | `chats/p5-04-turn-inspector` |
+| P6-06 the memory pass | knowledge | `knowledge/p6-06-memory-pass` |
+| P8-01 background tasks | agents | `agents/p8-01-background-tasks` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner

@@ -1,6 +1,6 @@
 # P8-01. Background tasks
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-01
 Owner gate: none

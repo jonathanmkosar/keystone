@@ -1,6 +1,6 @@
 # P13-04. Backup and restore
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-03
 Owner gate: none

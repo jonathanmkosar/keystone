@@ -1,6 +1,6 @@
 # P5-04. Turn inspector
 
-Status: todo
+Status: doing (chats)
 Lane: chats + interface
 Depends on: P5-01
 Owner gate: Approval of the inspector mockup (P1-06), for the screen only.

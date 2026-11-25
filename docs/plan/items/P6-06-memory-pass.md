@@ -1,6 +1,6 @@
 # P6-06. Memory pass
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P6-05
 Owner gate: none
