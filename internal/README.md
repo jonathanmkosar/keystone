@@ -14,3 +14,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `adapters/fake` | models | The scripted model used by the tests and `verify` |
 | `chat` | chats | Chats, messages as a tree of branches, and search |
 | `knowledge` | knowledge | The knowledge store interface, the `none` adapter and the contract suite |
+| `knowledge/builtin` | knowledge | The built-in knowledge store, kept in the tenant's own database |

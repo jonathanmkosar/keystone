@@ -11,6 +11,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Sign-in | `internal/signin` | Passwords, passkeys and sessions, kept in each tenant's own database. Turns a session token into the one tenant's store. No routes yet. | [signin.md](signin.md) |
 | Secrets | `internal/secrets` | A tenant's provider keys and connector tokens in `secrets.bin`, encrypted under that tenant's data key, which is wrapped by a master key the operating system holds. | [secrets.md](secrets.md) |
 | Knowledge store | `internal/knowledge` | The interface every knowledge store is written to, the tests any store must pass, and the store that holds nothing, so a tenant can run with none. | [knowledge.md](knowledge.md) |
+| Built-in knowledge store | `internal/knowledge/builtin` | The knowledge store Keystone keeps by itself, in the tenant's own database: pages, sources, labels, a full-text index and page vectors. It passes the contract suite with every capability. The server does not open it yet. | [knowledge-builtin.md](knowledge-builtin.md) |
 | Web interface | `web` | The built interface, compiled into the binary. A placeholder page until P4-01. | [web.md](web.md) |
 | Settings registry | `settings` | Every value someone may change: its default, its type, and who may change it. | [settings.md](settings.md) |
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
@@ -48,5 +49,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0020 | [Messages are a tree, and each parent remembers its current child](decisions/0020-messages-are-a-tree.md) |
 | 0030 | [The knowledge store is one interface with capability flags, and having no store is an adapter](decisions/0030-knowledge-store-interface.md) |
 | 0031 | [A label that is not `normal` reads as sensitive](decisions/0031-label-reads-as-sensitive.md) |
+| 0060 | [The built-in knowledge store keeps its pages in the tenant's database](decisions/0060-built-in-store-in-the-tenant-database.md) |
+| 0061 | [A built-in search matches any word, with stemming, and adds a cosine to the word score](decisions/0061-built-in-search-any-word-and-cosine.md) |
+| 0062 | [The built-in store takes a vector of any model and size, and compares them in Go](decisions/0062-built-in-vectors-any-model.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

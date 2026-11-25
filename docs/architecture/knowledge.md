@@ -4,7 +4,7 @@ Folder: `internal/knowledge`
 
 The knowledge store is the long-term memory a person chooses. Waymarks is one, the built-in store is another, and a person may have none. This part is the door to it: one interface, `Store`, and plain data types. Everything outside the adapters speaks these and never a store's own format.
 
-Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store arrives with P6-02 and the Waymarks adapter with P6-03.
+Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store is in `internal/knowledge/builtin` and has its own page, [knowledge-builtin.md](knowledge-builtin.md). The Waymarks adapter arrives with P6-03.
 
 Decisions: [0030](decisions/0030-knowledge-store-interface.md) for the shape of the interface and what having no store means, and [0031](decisions/0031-label-reads-as-sensitive.md) for the label.
 
@@ -170,7 +170,8 @@ What shaped the interface:
 
 ## Not here yet
 
-- The built-in store (P6-02) and the Waymarks adapter (P6-03).
-- Stored per-tenant values of `knowledge.adapter` (P2-04). Nothing calls `Open` yet. Recall (P6-05) and the memory pass (P6-06) are the first callers.
+- The Waymarks adapter (P6-03).
+- The server does not import an adapter's package yet, so the binary has `none` alone. The test that every option of the setting opens is in `internal/knowledge/builtin` until the server has a place for it.
+- Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). Nothing calls `Open` yet. Recall (P6-05) and the memory pass (P6-06) are the first callers.
 - Roles. The plan gives Waymarks one token for each Keystone role. The interface has no role: the Waymarks adapter picks the token by the call, so reads go out under the reader token and `AddSource` under the intake token. Whether chat and sub-agents are handed a view of the store that cannot add is for P6-03 and P6-05.
 - Correcting and forgetting a fact (P6-07), and writing pages, which the wiki upkeep jobs do (P8-06). Each adds a flag and a call when its item is built.
