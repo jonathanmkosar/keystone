@@ -1,6 +1,6 @@
 # P7-03. Web search and fetch
 
-Status: doing (agents)
+Status: provisional
 Lane: agents
 Depends on: P7-01
 Owner gate: none
@@ -37,5 +37,14 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 - Done: the package, the tools and their tests; the settings; the registration; `outside.go`; the verify steps (`calls recorded` and `no keys in output`); a first `docs/architecture/web-search.md`. `verify` is 19 of 19.
 - Done: the screen (`steps.ts` rows, `citations.tsx` and `citations.css`, the `[n]` branch in `Markdown.tsx`, a wrapper in `Conversation.tsx`, a globe icon), built into `web/dist/` and checked in a browser on port 7951.
-- Next: the screen's part in `web.md` and `web-search.md`, the runbook section, decisions 0250 to 0253 (linked from `web-search.md` already) with overview rows, the journal agents 003, the status; commit.
+- Done: the screen's part in `web.md` and `web-search.md`, the runbook section, decisions 0250 to 0253 with overview rows, the journal agents 003, the status. Nothing is left but the live check.
+
+### Result
+
+Provisional on November 25, 2026. It waits on the live check: no search has gone to the real Tavily. The owner has stored his own key, and his first search is the check. Everything else in the scope is built, and the rows and the citation chip are provisional with the agent mockups (P1-05).
+
+- `internal/tools/web` holds `web_search` (Tavily behind the `Searcher` interface, with New Keystone's request) and `web_fetch` (public pages only, checked on the address connected to and on every redirect). The key is read per call from the person's vault as `provider.tavily`; without one the tool says "Web search is not set up: store a Tavily key as provider.tavily." and the turn goes on. `internal/tools/outside.go` marks outside content in the result itself. The doc is `docs/architecture/web-search.md`; decisions 0250 to 0253.
+- **Answers cite their sources.** `verify`'s `calls recorded` runs the test tenant's recorded web search against a stand-in on this machine: every [n] in the stored answer names a source the stand-in returned. On the screen each such [n] is a chip linking to its source, seen in a browser on port 7951.
+- **Fetched pages mark the turn as having read outside content.** Every web result that brought outside content opens with `[Outside content]`; `tools.IsOutside` and `tools.ReadOutside` read it from the stream, the record or the audit log. The approval policy (P7-02) counts the web tools as outside by its own default; the journal, agents 003, says how the two join.
+- Private addresses are refused, a missing key gives a plain message, and the key is in no output (`no keys in output` has a web search surface). `verify` is 19 of 19.
 

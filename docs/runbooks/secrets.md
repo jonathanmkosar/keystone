@@ -37,3 +37,23 @@ The data folder alone cannot be read. The master key lives in the key store of t
 - **The `file` keeper:** copy `keystone/master.key` from the old profile folder to the same place in the new one, and the secrets open.
 
 A `secrets.bin` that cannot be opened is never replaced by Keystone. It stays as it is until you remove it.
+
+## A Tavily key for web search
+
+`web_search` uses each person's own Tavily key, read from their vault on every search under the name `provider.tavily` ([web-search.md](../architecture/web-search.md)). Without one, a search sends nothing, and the step in the chat says "not set up".
+
+1. Copy the key from your Tavily account. It starts with `tvly-`.
+2. Store it for the person, from the repo's folder:
+
+        Get-Clipboard | go run ./tools/tenant secret set <tenant-id> provider.tavily
+
+   Or, signed in as that person, open Settings, then Models and keys, and add a key named `provider.tavily`.
+3. Check that it is there, by name only:
+
+        go run ./tools/tenant secret list <tenant-id>
+
+The next search uses it; the server does not need a restart. A key Tavily refuses gives the step "failed" with "Tavily refused the key stored as provider.tavily" in its open row; store the key again. To turn web search off for a person, remove the key:
+
+    go run ./tools/tenant secret delete <tenant-id> provider.tavily
+
+Where searches go, how deep they are and how many results come back are install settings in `settings/agents.json` (`agents.web_search_*`). `web_fetch`, which reads one page, needs no key.

@@ -60,6 +60,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/tool-steps.json` (P7-01) holds two turns that use tools: a task of several steps, in which the model searches the person's chats, then reads the time, then answers, and a call to `send_postcard`, a tool that would change something. They are typed into a new chat as they are written there. See [tool-loop.md](tool-loop.md).
 
+`turns/web-search.json` (P7-03) holds one: "When is the harbour museum open this week?" The model calls `web_search` and answers citing [1] and [2]. The test tenant has no search key, so on the shipped server the step says "not set up" and the numbers stay text; `verify` stores an invented key and points the search at a stand-in on this machine. See [web-search.md](web-search.md).
+
 ### A chat file
 
 ```json

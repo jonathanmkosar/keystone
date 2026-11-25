@@ -96,7 +96,7 @@ The mark only adds caution. A result that carried it by mistake would make side 
 
 ## On the screen
 
-The chat screen's side is in [web.md](web.md), under "Web search and citations".
+The rows read "Searching the web for “…”", then "Searched the web for “…”" with "2 results"; "Reading museum.example", then "Read “title”". With no key the row says "Search the web for “…”" with "not set up". Each [n] in a reply that names one of that reply's sources is a small numbered chip that links to it, with its title on hover; any other [n] stays text. The code is `web/app/src/steps.ts`, `citations.tsx`, `citations.css`, and one pattern in `Markdown.tsx`; the details are in [web.md](web.md), under "Web search and citations".
 
 ## Settings
 
@@ -133,10 +133,12 @@ In `settings/agents.json`, install scope.
   - `calls recorded` runs the test tenant's recorded web search (`fixtures/test-tenant/turns/web-search.json`) on the real server, with `agents.web_search_endpoint` pointed at a stand-in on this machine and an invented key in the test tenant's vault. The call must be in the audit log before and after, the stand-in must have had one search with the key, the result and the chat record must hold outside content, and every [n] in the answer must name a source the stand-in returned. The code is in `tools/verify/websearch.go`.
   - `no keys in output` has a web search surface: the stored value is the person's search key, and a stand-in repeats it in a 401, a 429, a 502 and in every field of a result. It must appear in no result, in the audit log or in the data folder.
   - `offline`: `internal/tools/web` is on the list of folders that may use the network.
+- In a browser, on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree and web search pointed at a stand-in on this machine, signed in as the test tenant: the recorded web search drew "Searched the web for “harbour museum opening hours”" with "2 results", and the two citations as chips linking to the stand-in's two addresses, with their titles; the row opened to show the marked result; the same after a reload; in dark and light and at phone width. With the key removed, the same question drew the row with "not set up", the sentence in its open body, and the reply's [1] and [2] as plain text.
 
 ## Provisional
 
 - Nothing has called the real Tavily. The request is New Keystone's, which did; the first real search is the owner's.
+- The citation chip and the rows have no mockup: provisional with the agent mockups (P1-05).
 - Whether each web search should ask before it is sent, as New Keystone could, is the owner's question. The tools are read-only and run without asking; once the approval policy (P7-02) lands, a person can set `web_search` to ask.
 
 ## Not here yet

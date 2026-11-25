@@ -179,13 +179,19 @@ var credential = regexp.MustCompile(`(?i)(tvly-|sk-[a-z0-9]|sk-proj-|-----BEGIN|
 // heldChat says why a web tool does not run in a chat that was given
 // content from a sensitive space: whatever the tool sends would leave
 // Keystone. A chat whose mark cannot be read counts as held.
-func heldChat(ctx context.Context, in tools.Input, what string) error {
+func heldChat(ctx context.Context, in tools.Input, why string) error {
 	held, err := recall.Held(ctx, in.Store, in.ChatID)
 	if err != nil || held {
-		return fmt.Errorf("%s is off in this chat: it was given content from a sensitive space, and what %s sends leaves Keystone. A new chat can use it", what, what)
+		return errors.New(why)
 	}
 	return nil
 }
+
+// What the web tools say in a chat held for sensitive content.
+const (
+	searchHeld = "Web search is off in this chat: it was given content from a sensitive space, and a search sends its words outside Keystone. A new chat can search the web"
+	fetchHeld  = "Reading web pages is off in this chat: it was given content from a sensitive space, and a fetch sends its address outside Keystone. A new chat can read web pages"
+)
 
 // scrub takes the key out of text the model or the person will read, in
 // case a service sends it back.
@@ -220,7 +226,7 @@ func search(o Options, n *counter) tools.Tool {
 			case credential.MatchString(query):
 				return "", errors.New("the query looks like it holds a key, a token or a password, so it was not sent. Search with public words only")
 			}
-			if err := heldChat(ctx, in, "Web search"); err != nil {
+			if err := heldChat(ctx, in, searchHeld); err != nil {
 				return "", err
 			}
 			key, ok, err := in.Store.Secrets().Get(KeyName)
@@ -282,7 +288,7 @@ func fetch(f fetcher, n *counter) tools.Tool {
 			if !strings.Contains(address, "://") {
 				address = "https://" + address
 			}
-			if err := heldChat(ctx, in, "Reading web pages"); err != nil {
+			if err := heldChat(ctx, in, fetchHeld); err != nil {
 				return "", err
 			}
 			p, err := f.fetch(ctx, address)

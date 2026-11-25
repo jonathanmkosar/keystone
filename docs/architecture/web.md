@@ -101,6 +101,16 @@ Since the tool loop a reply's tools really run, and each step is drawn as it hap
 
 It is drawn from the record, so a reload shows the same. Built from the tokens in `src/chat.css`, after the approved step rows of `MainDark.html`. Provisional until the owner approves the agent mockups (P1-05): the running row, the rows with no result, the open body and the step limit's note have no mockup.
 
+### Web search and citations (P7-03)
+
+The web tools' steps and the numbers a reply cites them by ([web-search.md](web-search.md)):
+
+- **Rows.** `web_search` reads "Searching the web for “harbour museum opening hours”" while it runs, then "Searched the web for “…”" with "2 results" (or "1 result", "nothing found") on the right. `web_fetch` reads "Reading museum.example", then "Read “Harbour Museum: opening hours”" with the site on the right, or "Read museum.example" for a page with no title. Both have a globe icon. A search with no key says "Search the web for “…”" with "not set up" in the plain tag, and one in a chat held for sensitive content says "off in this chat"; the open row has the server's sentence.
+- **Citations.** `src/citations.tsx` reads a reply's sources out of its web steps' results, in the form the server writes them: blocks of `[n] title` and the address, after the `[Outside content]` paragraph, read until the first block that is not one. The Markdown reader (`src/Markdown.tsx`) has one more pattern, `[n]` not followed by `(`, drawn by `Cite`: a small chip with the number that links to the source in a new tab, with the title and the site on hover and "Source n: title" for a screen reader. A `[n]` that names no source of its reply stays plain text, so a reply that used no web tool reads as it was written. `[1][2]` is two chips. Only an `http` or `https` address becomes a link.
+- **Which sources.** Each reply has its own: `Conversation.tsx` wraps a reply in `CitationSources` with the sources of that reply's steps. A number keeps the first source given it. The chips are the same after a reload, because they are drawn from the record.
+
+Built from the tokens in `src/citations.css`. There is no mockup for the chip yet, so it is provisional with the agent mockups (P1-05).
+
 ### A turn, from send to end
 
 `src/turns.ts` keeps the replies that are arriving, one for each chat, outside the screens (decision [0151](decisions/0151-arriving-replies-live-outside-the-screens.md)). So a reply goes on arriving while the person looks at another chat.
