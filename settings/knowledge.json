@@ -5,9 +5,30 @@
       "key": "knowledge.adapter",
       "type": "string",
       "default": "none",
-      "options": ["none"],
+      "options": ["none", "built-in"],
       "scope": "tenant",
-      "description": "The knowledge store Keystone remembers in. With none, Keystone keeps your chats and remembers nothing between them."
+      "description": "The knowledge store Keystone remembers in. With none, Keystone keeps your chats and remembers nothing between them. The built-in store keeps what it remembers in your own Keystone folder."
+    },
+    {
+      "key": "knowledge.builtin_search_max_results",
+      "type": "int",
+      "default": "20",
+      "scope": "tenant",
+      "description": "The most results one search of the built-in knowledge store returns when the search names no limit, from 1 to 1000."
+    },
+    {
+      "key": "knowledge.builtin_snippet_words",
+      "type": "int",
+      "default": "24",
+      "scope": "tenant",
+      "description": "About how many words of a matching page or source a result from the built-in knowledge store shows, from 1 to 64."
+    },
+    {
+      "key": "knowledge.builtin_vectors_needed_max",
+      "type": "int",
+      "default": "100",
+      "scope": "install",
+      "description": "The most pages the built-in knowledge store lists at once as needing a vector, from 1 to 10000."
     }
   ]
 }

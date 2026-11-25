@@ -1,6 +1,6 @@
 # P6-03. Waymarks adapter
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P6-01
 Owner gate: none
