@@ -1,6 +1,6 @@
 # P2-05. API shell and streaming
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-02, P2-04
 Owner gate: none

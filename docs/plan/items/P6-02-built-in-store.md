@@ -1,6 +1,6 @@
 # P6-02. Built-in knowledge store
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P6-01
 Owner gate: none

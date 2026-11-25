@@ -1,6 +1,6 @@
 # P3-02. Model registry
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-01, P2-04
 Owner gate: none
