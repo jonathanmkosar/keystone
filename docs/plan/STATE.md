@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P7-04 connectors and P8-03 scheduled tasks (agents), P5-05 chat summaries and past-chat search and P5-03 prompt caching (chats). Then P12-02 Gmail and Calendar, P12-01 the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-03 scheduled tasks and P12-02 Gmail and Calendar (agents). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -24,6 +24,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Item | Lane | Branch |
 | --- | --- | --- |
 | P8-03 scheduled tasks | agents | `agents/p8-03-scheduled-tasks` |
+| P12-02 Gmail and Calendar | agents | `agents/p12-02-gmail-calendar` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner

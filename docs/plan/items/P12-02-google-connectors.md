@@ -1,6 +1,6 @@
 # P12-02. Gmail and Calendar connectors
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-04
 Owner gate: Jonathan signs in to Google for the connectors.
