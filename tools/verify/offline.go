@@ -24,6 +24,8 @@ var networkAllowed = map[string]string{
 	"cmd/keystone":   "the server listens for its clients",
 	"internal/audit": "wraps the server's handlers to record each call; it opens no connection",
 	"tools/rebuild":  "fetches the page from the binary it has just started, on this machine",
+
+	"internal/adapters/responses": "calls the model at the registry entry's endpoint; its tests call a server on this machine",
 }
 
 // deadProxy is an address on this machine where nothing listens. The tests

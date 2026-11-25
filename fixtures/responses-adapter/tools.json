@@ -1,0 +1,145 @@
+{
+  "test_data": true,
+  "about": "Invented exchanges with an invented endpoint, written by hand from the public description of the Responses API. Nothing here was captured from a provider.",
+  "cases": [
+    {
+      "name": "two-tool-calls",
+      "note": "Two function calls in one reply. The first one's arguments arrive in pieces. The second arrives whole when its item is done.",
+      "capabilities": ["tools"],
+      "request": {
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "Is the bakery open on Saturday, and is there rye left?"}]}
+        ],
+        "tools": [
+          {
+            "name": "opening_hours",
+            "description": "Looks up the invented bakery's hours for a day.",
+            "input_schema": {"type": "object", "properties": {"day": {"type": "string"}}, "required": ["day"]}
+          },
+          {
+            "name": "stock_count",
+            "input_schema": {"type": "object", "properties": {"item": {"type": "string"}}}
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "input": [
+              {"role": "user", "content": [{"type": "input_text", "text": "Is the bakery open on Saturday, and is there rye left?"}]}
+            ],
+            "tools": [
+              {
+                "type": "function",
+                "name": "opening_hours",
+                "description": "Looks up the invented bakery's hours for a day.",
+                "parameters": {"type": "object", "properties": {"day": {"type": "string"}}, "required": ["day"]},
+                "strict": false
+              },
+              {
+                "type": "function",
+                "name": "stock_count",
+                "parameters": {"type": "object", "properties": {"item": {"type": "string"}}},
+                "strict": false
+              }
+            ],
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_010", "status": "in_progress"}},
+            {"type": "response.output_item.added", "output_index": 0, "item": {"id": "fc_invented_001", "type": "function_call", "status": "in_progress", "call_id": "call_invented_001", "name": "opening_hours", "arguments": ""}},
+            {"type": "response.function_call_arguments.delta", "item_id": "fc_invented_001", "output_index": 0, "delta": "{\"day\":"},
+            {"type": "response.function_call_arguments.delta", "item_id": "fc_invented_001", "output_index": 0, "delta": "\"saturday\"}"},
+            {"type": "response.function_call_arguments.done", "item_id": "fc_invented_001", "output_index": 0, "arguments": "{\"day\":\"saturday\"}"},
+            {"type": "response.output_item.done", "output_index": 0, "item": {"id": "fc_invented_001", "type": "function_call", "status": "completed", "call_id": "call_invented_001", "name": "opening_hours", "arguments": "{\"day\":\"saturday\"}"}},
+            {"type": "response.output_item.added", "output_index": 1, "item": {"id": "fc_invented_002", "type": "function_call", "status": "in_progress", "call_id": "call_invented_002", "name": "stock_count", "arguments": ""}},
+            {"type": "response.output_item.done", "output_index": 1, "item": {"id": "fc_invented_002", "type": "function_call", "status": "completed", "call_id": "call_invented_002", "name": "stock_count", "arguments": "{\"item\":\"rye loaf\"}"}},
+            {"type": "response.completed", "response": {"id": "resp_invented_010", "status": "completed", "usage": {"input_tokens": 80, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 30, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 110}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {
+          "role": "assistant",
+          "blocks": [
+            {"type": "tool_call", "id": "call_invented_001", "name": "opening_hours", "input": {"day": "saturday"}},
+            {"type": "tool_call", "id": "call_invented_002", "name": "stock_count", "input": {"item": "rye loaf"}}
+          ]
+        },
+        "stop_reason": "tool_call",
+        "usage": {"input_tokens": 80, "output_tokens": 30}
+      }
+    },
+    {
+      "name": "tool-results-go-back",
+      "note": "The next call of the turn. The reasoning goes back as it came, a thinking block from another provider is left out, each tool call and each result is an item of its own, and a tool that failed is marked in its output.",
+      "capabilities": ["tools", "thinking"],
+      "request": {
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "Is the bakery open on Saturday, and is there rye left?"}]},
+          {
+            "role": "assistant",
+            "blocks": [
+              {"type": "thinking", "text": "Two lookups are needed.", "signature": "responses/1:{\"id\":\"rs_invented_001\",\"encrypted_content\":\"aW52ZW50ZWQtcmVhc29uaW5n\"}"},
+              {"type": "thinking", "signature": "a-signature-from-another-provider"},
+              {"type": "text", "text": "Let me look."},
+              {"type": "tool_call", "id": "call_invented_001", "name": "opening_hours", "input": {"day": "saturday"}},
+              {"type": "tool_call", "id": "call_invented_002", "name": "stock_count", "input": {"item": "rye loaf"}}
+            ]
+          },
+          {
+            "role": "user",
+            "blocks": [
+              {"type": "tool_result", "id": "call_invented_001", "content": [{"type": "text", "text": "07:00 to 15:00"}]},
+              {"type": "tool_result", "id": "call_invented_002", "content": [{"type": "text", "text": "the stock list is not available"}], "is_error": true},
+              {"type": "text", "text": "Thanks."}
+            ]
+          }
+        ],
+        "tools": [
+          {"name": "opening_hours", "input_schema": {"type": "object"}},
+          {"name": "stock_count", "input_schema": {"type": "object"}}
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "input": [
+              {"role": "user", "content": [{"type": "input_text", "text": "Is the bakery open on Saturday, and is there rye left?"}]},
+              {"type": "reasoning", "id": "rs_invented_001", "summary": [{"type": "summary_text", "text": "Two lookups are needed."}], "encrypted_content": "aW52ZW50ZWQtcmVhc29uaW5n"},
+              {"role": "assistant", "content": "Let me look."},
+              {"type": "function_call", "call_id": "call_invented_001", "name": "opening_hours", "arguments": "{\"day\":\"saturday\"}"},
+              {"type": "function_call", "call_id": "call_invented_002", "name": "stock_count", "arguments": "{\"item\":\"rye loaf\"}"},
+              {"type": "function_call_output", "call_id": "call_invented_001", "output": "07:00 to 15:00"},
+              {"type": "function_call_output", "call_id": "call_invented_002", "output": "Tool error: the stock list is not available"},
+              {"role": "user", "content": [{"type": "input_text", "text": "Thanks."}]}
+            ],
+            "tools": [
+              {"type": "function", "name": "opening_hours", "parameters": {"type": "object"}, "strict": false},
+              {"type": "function", "name": "stock_count", "parameters": {"type": "object"}, "strict": false}
+            ],
+            "include": ["reasoning.encrypted_content"],
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_011", "status": "in_progress"}},
+            {"type": "response.output_text.delta", "item_id": "msg_invented_011", "output_index": 0, "content_index": 0, "delta": "It opens at seven. I could not check the rye."},
+            {"type": "response.output_text.done", "item_id": "msg_invented_011", "output_index": 0, "content_index": 0, "text": "It opens at seven. I could not check the rye."},
+            {"type": "response.completed", "response": {"id": "resp_invented_011", "status": "completed", "usage": {"input_tokens": 140, "input_tokens_details": {"cached_tokens": 64}, "output_tokens": 14, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 154}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "It opens at seven. I could not check the rye."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 76, "output_tokens": 14, "cache_read_tokens": 64}
+      }
+    }
+  ]
+}

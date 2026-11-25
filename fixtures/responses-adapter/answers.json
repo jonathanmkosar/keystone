@@ -1,0 +1,191 @@
+{
+  "test_data": true,
+  "about": "Invented exchanges with an invented endpoint, written by hand from the public description of the Responses API. Nothing here was captured from a provider.",
+  "cases": [
+    {
+      "name": "plain-answer",
+      "note": "A text answer in three pieces, with part of the input read from the provider's cache.",
+      "request": {
+        "system": [{"type": "text", "text": "You answer for Fernhill Bakery, an invented shop."}],
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "What time does the bakery open on Saturday?"}]}
+        ],
+        "max_output_tokens": 400
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "instructions": "You answer for Fernhill Bakery, an invented shop.",
+            "input": [
+              {"role": "user", "content": [{"type": "input_text", "text": "What time does the bakery open on Saturday?"}]}
+            ],
+            "max_output_tokens": 400,
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.created", "sequence_number": 0, "response": {"id": "resp_invented_001", "object": "response", "status": "in_progress", "output": []}},
+            {"type": "response.in_progress", "sequence_number": 1, "response": {"id": "resp_invented_001", "object": "response", "status": "in_progress", "output": []}},
+            {"type": "response.output_item.added", "sequence_number": 2, "output_index": 0, "item": {"id": "msg_invented_001", "type": "message", "role": "assistant", "status": "in_progress", "content": []}},
+            {"type": "response.content_part.added", "sequence_number": 3, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "part": {"type": "output_text", "text": "", "annotations": []}},
+            {"type": "response.output_text.delta", "sequence_number": 4, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "delta": "On Saturday "},
+            {"type": "response.output_text.delta", "sequence_number": 5, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "delta": "the bakery opens "},
+            {"type": "response.output_text.delta", "sequence_number": 6, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "delta": "at seven."},
+            {"type": "response.output_text.done", "sequence_number": 7, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "text": "On Saturday the bakery opens at seven."},
+            {"type": "response.content_part.done", "sequence_number": 8, "item_id": "msg_invented_001", "output_index": 0, "content_index": 0, "part": {"type": "output_text", "text": "On Saturday the bakery opens at seven.", "annotations": []}},
+            {"type": "response.output_item.done", "sequence_number": 9, "output_index": 0, "item": {"id": "msg_invented_001", "type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": "On Saturday the bakery opens at seven.", "annotations": []}]}},
+            {"type": "response.completed", "sequence_number": 10, "response": {"id": "resp_invented_001", "object": "response", "status": "completed", "usage": {"input_tokens": 42, "input_tokens_details": {"cached_tokens": 30}, "output_tokens": 12, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 54}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "On Saturday the bakery opens at seven."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 12, "output_tokens": 12, "cache_read_tokens": 30}
+      }
+    },
+    {
+      "name": "whole-item-and-no-usage",
+      "note": "An endpoint that sends the finished item with no deltas, and no usage. The text still arrives, and the usage is marked as not reported.",
+      "request": {
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "Name the ferry that crosses to Larch Island."}]}
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "input": [
+              {"role": "user", "content": [{"type": "input_text", "text": "Name the ferry that crosses to Larch Island."}]}
+            ],
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.output_item.done", "output_index": 0, "item": {"id": "msg_invented_002", "type": "message", "role": "assistant", "status": "completed", "content": [{"type": "output_text", "text": "The North Ferry.", "annotations": []}]}},
+            {"type": "response.completed", "response": {"id": "resp_invented_002", "status": "completed"}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "The North Ferry."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 0, "output_tokens": 0, "estimated": true}
+      }
+    },
+    {
+      "name": "output-limit",
+      "note": "A reply that stops at its output limit. The entry's output limit of 8000 caps the 20000 that was asked for.",
+      "request": {
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "List every loaf the bakery has ever sold."}]}
+        ],
+        "max_output_tokens": 20000
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "input": [
+              {"role": "user", "content": [{"type": "input_text", "text": "List every loaf the bakery has ever sold."}]}
+            ],
+            "max_output_tokens": 8000,
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_003", "status": "in_progress"}},
+            {"type": "response.output_text.delta", "item_id": "msg_invented_003", "output_index": 0, "content_index": 0, "delta": "Rye, seeded rye, oat"},
+            {"type": "response.incomplete", "response": {"id": "resp_invented_003", "status": "incomplete", "incomplete_details": {"reason": "max_output_tokens"}, "usage": {"input_tokens": 15, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 8000, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 8015}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Rye, seeded rye, oat"}]},
+        "stop_reason": "max_tokens",
+        "usage": {"input_tokens": 15, "output_tokens": 8000}
+      }
+    },
+    {
+      "name": "refusal",
+      "note": "The model declines. The refusal's words are the reply's text, and the stop reason says it refused.",
+      "request": {
+        "messages": [
+          {"role": "user", "blocks": [{"type": "text", "text": "Write the bakery's rival a rude letter."}]}
+        ]
+      },
+      "exchanges": [
+        {
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_004", "status": "in_progress"}},
+            {"type": "response.output_item.added", "output_index": 0, "item": {"id": "msg_invented_004", "type": "message", "role": "assistant", "status": "in_progress", "content": []}},
+            {"type": "response.content_part.added", "item_id": "msg_invented_004", "output_index": 0, "content_index": 0, "part": {"type": "refusal", "refusal": ""}},
+            {"type": "response.refusal.delta", "item_id": "msg_invented_004", "output_index": 0, "content_index": 0, "delta": "I would rather "},
+            {"type": "response.refusal.delta", "item_id": "msg_invented_004", "output_index": 0, "content_index": 0, "delta": "not write that."},
+            {"type": "response.refusal.done", "item_id": "msg_invented_004", "output_index": 0, "content_index": 0, "refusal": "I would rather not write that."},
+            {"type": "response.content_part.done", "item_id": "msg_invented_004", "output_index": 0, "content_index": 0, "part": {"type": "refusal", "refusal": "I would rather not write that."}},
+            {"type": "response.output_item.done", "output_index": 0, "item": {"id": "msg_invented_004", "type": "message", "role": "assistant", "status": "completed", "content": [{"type": "refusal", "refusal": "I would rather not write that."}]}},
+            {"type": "response.completed", "response": {"id": "resp_invented_004", "status": "completed", "usage": {"input_tokens": 14, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 9, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 23}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "I would rather not write that."}]},
+        "stop_reason": "refused",
+        "usage": {"input_tokens": 14, "output_tokens": 9}
+      }
+    },
+    {
+      "name": "image-and-file",
+      "note": "An image and a file go inline as data addresses. The bytes are the word invented.",
+      "capabilities": ["vision", "files"],
+      "request": {
+        "messages": [
+          {
+            "role": "user",
+            "blocks": [
+              {"type": "text", "text": "Does the photo match the price list?"},
+              {"type": "image", "media_type": "image/png", "data": "aW52ZW50ZWQ="},
+              {"type": "file", "media_type": "application/pdf", "name": "price-list.pdf", "data": "aW52ZW50ZWQ="}
+            ]
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "model": "example-model-1",
+            "input": [
+              {
+                "role": "user",
+                "content": [
+                  {"type": "input_text", "text": "Does the photo match the price list?"},
+                  {"type": "input_image", "image_url": "data:image/png;base64,aW52ZW50ZWQ="},
+                  {"type": "input_file", "filename": "price-list.pdf", "file_data": "data:application/pdf;base64,aW52ZW50ZWQ="}
+                ]
+              }
+            ],
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {"type": "response.output_text.delta", "item_id": "msg_invented_005", "output_index": 0, "content_index": 0, "delta": "Yes, both show the rye loaf."},
+            {"type": "response.completed", "response": {"id": "resp_invented_005", "status": "completed", "usage": {"input_tokens": 900, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 8, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 908}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Yes, both show the rye loaf."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 900, "output_tokens": 8}
+      }
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "test_data": true,
+  "about": "Invented exchanges with an invented endpoint, written by hand from the public description of the Responses API. Nothing here was captured from a provider. {{key}} stands for the invented key the test sends, so a reply can repeat it as a careless provider might.",
+  "cases": [
+    {
+      "name": "key-refused",
+      "note": "The provider refuses the key and repeats it in its message. The error is of kind auth, is not retried, and does not hold the key.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Hello."}]}]},
+      "exchanges": [
+        {"status": 401, "body": {"error": {"message": "Incorrect API key provided: {{key}}.", "type": "invalid_request_error", "param": null, "code": "invalid_api_key"}}}
+      ],
+      "error": {"kind": "auth", "retryable": false}
+    },
+    {
+      "name": "too-long",
+      "note": "The request does not fit the model's context window.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Read the whole ferry timetable since the first sailing."}]}]},
+      "exchanges": [
+        {"status": 400, "body": {"error": {"message": "Your input exceeds the context window of this model.", "type": "invalid_request_error", "param": "input", "code": "context_length_exceeded"}}}
+      ],
+      "error": {"kind": "too_long", "retryable": false, "message_has": "context_length_exceeded"}
+    },
+    {
+      "name": "bad-request",
+      "note": "The provider refuses a field. Sending the same call again would not help.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Hello."}]}]},
+      "exchanges": [
+        {"status": 400, "body": {"error": {"message": "Unknown parameter: 'include'. The key sent was {{key}}.", "type": "invalid_request_error", "param": "include", "code": "unknown_parameter"}}}
+      ],
+      "error": {"kind": "invalid", "retryable": false, "message_has": "Unknown parameter"}
+    },
+    {
+      "name": "quota-spent",
+      "note": "A 429 that waiting will not cure.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Hello."}]}]},
+      "exchanges": [
+        {"status": 429, "body": {"error": {"message": "You exceeded your current quota.", "type": "insufficient_quota", "param": null, "code": "insufficient_quota"}}}
+      ],
+      "error": {"kind": "rate_limited", "retryable": false}
+    },
+    {
+      "name": "not-a-stream",
+      "note": "An endpoint that answers 200 with something that is not a stream of events.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Hello."}]}]},
+      "exchanges": [
+        {"status": 200, "body": {"message": "Welcome to an invented gateway."}}
+      ],
+      "error": {"kind": "other", "retryable": false}
+    },
+    {
+      "name": "rate-limit-part-way",
+      "note": "The provider reports a rate limit after part of the reply. The call is not sent again, because part of it has been passed on. The error says it may be retried, which is the caller's choice.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Describe the lighthouse walk."}]}]},
+      "exchanges": [
+        {
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_030", "status": "in_progress"}},
+            {"type": "response.output_text.delta", "item_id": "msg_invented_030", "output_index": 0, "content_index": 0, "delta": "The path starts "},
+            {"type": "error", "code": "rate_limit_exceeded", "message": "Rate limit reached for this invented account.", "param": null}
+          ]
+        }
+      ],
+      "error": {"kind": "rate_limited", "retryable": true, "message_has": "Rate limit reached"},
+      "partial_text": "The path starts "
+    },
+    {
+      "name": "cut-short",
+      "note": "The connection ends before the reply does. A reply with no end is a failure.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Describe the lighthouse walk."}]}]},
+      "exchanges": [
+        {
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_031", "status": "in_progress"}},
+            {"type": "response.output_text.delta", "item_id": "msg_invented_031", "output_index": 0, "content_index": 0, "delta": "The path "}
+          ]
+        }
+      ],
+      "error": {"kind": "unavailable", "retryable": true},
+      "partial_text": "The path "
+    },
+    {
+      "name": "cut-in-a-tool-call",
+      "note": "The output limit is reached part of the way through a function call's arguments. Half a call cannot be run, so the reply fails.",
+      "capabilities": ["tools"],
+      "request": {
+        "messages": [{"role": "user", "blocks": [{"type": "text", "text": "Is there rye left?"}]}],
+        "tools": [{"name": "stock_count", "input_schema": {"type": "object"}}]
+      },
+      "exchanges": [
+        {
+          "events": [
+            {"type": "response.output_item.added", "output_index": 0, "item": {"id": "fc_invented_030", "type": "function_call", "status": "in_progress", "call_id": "call_invented_030", "name": "stock_count", "arguments": ""}},
+            {"type": "response.function_call_arguments.delta", "item_id": "fc_invented_030", "output_index": 0, "delta": "{\"item\":\"ry"},
+            {"type": "response.incomplete", "response": {"id": "resp_invented_032", "status": "incomplete", "incomplete_details": {"reason": "max_output_tokens"}}}
+          ]
+        }
+      ],
+      "error": {"kind": "other", "retryable": false, "message_has": "tool call"}
+    }
+  ]
+}
