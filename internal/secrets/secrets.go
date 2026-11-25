@@ -158,6 +158,12 @@ func (v *Vault) read() (contents, error) {
 	if err != nil {
 		return contents{}, err
 	}
+	return v.parse(raw)
+}
+
+// parse opens the bytes of a secrets file with the vault's keeper.
+func (v *Vault) parse(raw []byte) (contents, error) {
+	var err error
 	head := len(magic) + 2
 	if len(raw) < head || !bytes.Equal(raw[:len(magic)], magic) {
 		return contents{}, v.refused("it is not a Keystone secrets file")
@@ -204,18 +210,28 @@ func (v *Vault) write(c contents) error {
 		}
 		c.wrapped = wrapped
 	}
-	plain, err := json.Marshal(c.values)
+	raw, err := v.encode(c)
 	if err != nil {
 		return err
+	}
+	return writeFile(v.path, raw)
+}
+
+// encode seals the values with the data key and returns the bytes of the
+// file, with the wrapped data key at its head.
+func (v *Vault) encode(c contents) ([]byte, error) {
+	plain, err := json.Marshal(c.values)
+	if err != nil {
+		return nil, err
 	}
 	out := append([]byte{}, magic...)
 	out = binary.BigEndian.AppendUint16(out, uint16(len(c.wrapped)))
 	out = append(out, c.wrapped...)
 	sealed, err := seal(c.key, plain, v.fileContext())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return writeFile(v.path, append(out, sealed...))
+	return append(out, sealed...), nil
 }
 
 // keyContext is what the wrapped data key is bound to.

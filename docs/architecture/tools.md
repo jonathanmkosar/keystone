@@ -79,6 +79,10 @@ Since P7-03, `calls recorded` also runs the test tenant's recorded web search on
 
 `go run ./tools/tenant setting set | clear | list <tenant-id> [key] [value]` stores, clears and lists a tenant's own values for settings (since P3-08). It is how the cap, the fallback chain and a default model are set until the settings screens exist (P11-01). A value is stored as the role the setting's scope asks for, and an install setting and a fixed rule are refused, as `internal/tenantsettings` refuses them ([tenant-settings.md](tenant-settings.md)).
 
+`go run ./tools/tenant backup <tenant-id> <file>` writes one tenant to one file sealed under a passphrase, and `go run ./tools/tenant restore [--replace] [--check] <file>` brings it into the data folder with its keys under that install's keeper, or with `--check` reads it through and writes nothing (since P13-04). The passphrase is read from standard input and never from an argument; `backup` asks twice when it is typed, refuses a file that is there, and reads what it wrote back before giving it its name. `restore` refuses a tenant that is there unless given `--replace`, and ends the restored tenant's sessions. The rounds and the shortest passphrase are the settings `backup.passphrase_rounds` and `backup.passphrase_min_length` ([backup.md](backup.md), [runbook](../runbooks/backup-and-restore.md)).
+
+Since P13-04, `no keys in output` has a surface for backups, in `tools/verify/backup.go`: a tenant holding the stored value is backed up and restored into a second data folder under another master key, through the package with two memory keepers and through the built command with two key files. The value must come back from the restored vault, the second install must list the secret while the first key file is refused there, and the value is looked for in the backup files, in everything both steps returned or printed, refusals included, and in every data folder and profile.
+
 ### What offline checks today
 
 The plan's rule is that `verify` passes with no network and no keys, using the fake provider. Two things can be proven now, and both are in `tools/verify/offline.go`.

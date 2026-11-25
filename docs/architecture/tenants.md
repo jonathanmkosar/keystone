@@ -37,6 +37,10 @@ PARALLEL.md asks for date-and-time names so two lanes can add migrations at once
 
 A lane adds a table by adding a file. A shipped file is never edited.
 
+## Backup and restore
+
+`Install.Backup` writes one tenant to one file sealed under a passphrase, and `Install.Restore` brings it into a data folder, on this machine or another, with its keys under that install's keeper. A restore refuses a tenant that is already there unless told to replace it, checks the whole file before it writes anything, builds the tenant in a folder beside the others and renames it into place. `openStore` opens that folder as a store before it is in the registry. The code is in `internal/tenant/backup.go`, and the file's format in `internal/backup`. See [backup.md](backup.md).
+
 ## The command
 
 `go run ./tools/tenant add "Name"` adds a tenant and prints its id. `go run ./tools/tenant list` lists them. See [tools.md](tools.md).

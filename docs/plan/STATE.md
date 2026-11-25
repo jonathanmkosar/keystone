@@ -9,7 +9,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | P13-04, backup and restore | P13-01 to P13-03 drills, held |
+| core | nothing | scheduled backups once the owner answers; P13-01 to P13-03 drills, held |
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P5-04, the turn inspector | P5-05, P9-05 |
 | knowledge | P6-06, the memory pass | P6-07, P6-08 |
@@ -23,7 +23,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P13-04 backup and restore | core | `core/p13-04-backup-restore` |
 | P5-04 the turn inspector | chats | `chats/p5-04-turn-inspector` |
 | P6-06 the memory pass | knowledge | `knowledge/p6-06-memory-pass` |
 | P8-01 background tasks | agents | `agents/p8-01-background-tasks` |
@@ -72,6 +71,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | How long a call waits for an answer (agents 002) | 24 hours, each person can change it | 24 hours | Nothing |
 | Should each web search ask before it is sent, as New Keystone did (agents 003) | No; a person can set web_search to ask on Settings → Approvals | Runs without asking | Nothing |
 | Should web tools run in a chat held for sensitive content (agents 003, decision 0252) | Ask there instead of refusing, now that approvals exist | Off in a held chat | Nothing |
+| Scheduled backups: where they go, how many are kept, and whether they are sealed to a public key whose private half lives in a password manager (core 010, decision 0263) | Yes to the public key; nightly, to a folder the owner names, keeping the last 14 | By hand only | Nothing built |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -109,6 +109,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P5-02, compaction: when a chat's earlier turns no longer fit, the oldest are summarised beside the turn (never delaying it) by the summary model, and later calls send the summary in their place; summaries extend one another and are stored with the chat. Pinned messages are never left out (pin routes, no button yet). A held chat's summary is written and read only by models that may read sensitive content. The `context fit` check grows a chat to ten times each model's window. Only the fake provider has written a summary so far.
 - P7-02, approvals, provisional on the agent mockups for the card's look: each tool is always, ask or never, per person (a list on Settings → Approvals); a tool that changes something asks by default, and always asks once the chat has read outside content, whatever its policy. A call that asks pauses the turn, shows an approval card, and runs once when approved; a waiting turn survives a restart. The `approval` check proves a side effect after outside content always asks.
 - P7-03, web search and fetch, provisional until the owner's first search in a chat (a real Tavily search with his key through Keystone's searcher returned three results on November 25, 2026): `web_search` through Tavily with each person's own key (`provider.tavily`), numbered sources the answer cites as [1], [2] with links in the chat, and `web_fetch` for one page, which refuses any address that is not public, after resolving it and on every redirect. Every result is marked as outside content, so a tool that changes something always asks afterwards. Both tools are off in a chat held for sensitive content.
+- P13-04, backup and restore: one person goes into one file sealed under a passphrase they give (`go run ./tools/tenant backup <tenant-id> <file>`), and a restore on another machine re-wraps their data key under that machine's keeper so their keys work there. A restore checks the whole file before writing anything and is run with the server stopped. Backups are by hand only: a schedule waits on the owner's choice of where they go (decision 0263). Steps: `docs/runbooks/backup-and-restore.md`.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

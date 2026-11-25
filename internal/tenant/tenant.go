@@ -195,12 +195,18 @@ func (in *Install) open(id string) (*Store, error) {
 	if !known {
 		return nil, fmt.Errorf("there is no tenant %s", id)
 	}
-	folder := filepath.Join(in.dir, "tenants", id)
+	return openStore(filepath.Join(in.dir, "tenants", id), id, in.vault(id))
+}
+
+// openStore opens the handle for the tenant whose folder is folder: its
+// database brought up to date and checked to be this tenant's, and its
+// folders. A restore opens a tenant this way before it is put in place.
+func openStore(folder, id string, vault *secrets.Vault) (*Store, error) {
 	db, err := openDB(filepath.Join(folder, "keystone.db"))
 	if err != nil {
 		return nil, err
 	}
-	s := &Store{id: id, db: db, secrets: in.vault(id)}
+	s := &Store{id: id, db: db, secrets: vault}
 	fail := func(err error) (*Store, error) {
 		s.Close()
 		return nil, err

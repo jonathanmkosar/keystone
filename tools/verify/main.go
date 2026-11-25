@@ -78,6 +78,8 @@ var componentDocs = map[string]string{
 	"internal/compact":          "docs/architecture/compaction.md",
 
 	"internal/tools/web": "docs/architecture/web-search.md",
+
+	"internal/backup": "docs/architecture/backup.md",
 }
 
 var checks = []check{
