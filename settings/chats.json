@@ -1,0 +1,26 @@
+{
+  "lane": "chats",
+  "settings": [
+    {
+      "key": "chats.title_max_length",
+      "type": "int",
+      "default": "150",
+      "scope": "install",
+      "description": "The most characters a chat's title may have."
+    },
+    {
+      "key": "chats.search_max_results",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "The most results one search over chats returns."
+    },
+    {
+      "key": "chats.search_snippet_words",
+      "type": "int",
+      "default": "24",
+      "scope": "tenant",
+      "description": "About how many words of a matching message a search result shows, from 1 to 64."
+    }
+  ]
+}
