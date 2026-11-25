@@ -43,6 +43,7 @@ var keySurfaces = []struct {
 	{"the secrets package", keysInThePackage},
 	{"the tenant command", keysInTheCommand},
 	{"the model registry", keysInTheRegistry},
+	{"the Anthropic adapter", keysInTheAnthropicAdapter},
 }
 
 const keyCheckName = "provider.test"

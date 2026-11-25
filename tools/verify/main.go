@@ -52,6 +52,8 @@ var componentDocs = map[string]string{
 	"internal/adapters":          "docs/architecture/models.md",
 	"internal/testtenant":        "docs/architecture/test-tenant.md",
 	"fixtures/test-tenant":       "docs/architecture/test-tenant.md",
+
+	"internal/adapters/anthropic": "docs/architecture/adapter-anthropic.md",
 }
 
 var checks = []check{

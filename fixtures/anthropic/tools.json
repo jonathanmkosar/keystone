@@ -1,0 +1,203 @@
+{
+  "test_data": true,
+  "exchanges": [
+    {
+      "name": "a tool call, with its input in pieces",
+      "request": {
+        "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "What is the weather in Exampleton?" } ] } ],
+        "tools": [
+          { "name": "weather", "description": "The weather in a town, today.", "input_schema": { "type": "object", "properties": { "town": { "type": "string" } }, "required": ["town"] } },
+          { "name": "clock", "description": "The time now.", "input_schema": { "type": "object", "properties": {} } }
+        ]
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "tools": [
+          { "name": "weather", "description": "The weather in a town, today.", "input_schema": { "type": "object", "properties": { "town": { "type": "string" } }, "required": ["town"] } },
+          { "name": "clock", "description": "The time now.", "input_schema": { "type": "object", "properties": {} }, "cache_control": { "type": "ephemeral" } }
+        ],
+        "messages": [ { "role": "user", "content": [ { "type": "text", "text": "What is the weather in Exampleton?", "cache_control": { "type": "ephemeral" } } ] } ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 410, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "I will look." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "content_block_start", "index": 1, "content_block": { "type": "tool_use", "id": "toolu_test_0001", "name": "weather", "input": {} } },
+            { "type": "content_block_delta", "index": 1, "delta": { "type": "input_json_delta", "partial_json": "" } },
+            { "type": "content_block_delta", "index": 1, "delta": { "type": "input_json_delta", "partial_json": "{\"town\": \"Exam" } },
+            { "type": "content_block_delta", "index": 1, "delta": { "type": "input_json_delta", "partial_json": "pleton\"}" } },
+            { "type": "content_block_stop", "index": 1 },
+            { "type": "message_delta", "delta": { "stop_reason": "tool_use" }, "usage": { "output_tokens": 38 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [
+          { "type": "text", "text": "I will look." },
+          { "type": "tool_call", "id": "toolu_test_0001", "name": "weather", "input": { "town": "Exampleton" } }
+        ] },
+        "stop_reason": "tool_call",
+        "usage": { "input_tokens": 410, "output_tokens": 38 }
+      }
+    },
+    {
+      "name": "the tool's result goes back, and the model answers",
+      "request": {
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "What is the weather in Exampleton?" } ] },
+          { "role": "assistant", "blocks": [
+            { "type": "text", "text": "I will look." },
+            { "type": "tool_call", "id": "toolu_test_0001", "name": "weather", "input": { "town": "Exampleton" } }
+          ] },
+          { "role": "user", "blocks": [
+            { "type": "tool_result", "id": "toolu_test_0001", "content": [ { "type": "text", "text": "Dry, 12 degrees, a light wind." } ] }
+          ] }
+        ],
+        "tools": [
+          { "name": "weather", "description": "The weather in a town, today.", "input_schema": { "type": "object", "properties": { "town": { "type": "string" } }, "required": ["town"] } }
+        ]
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "tools": [
+          { "name": "weather", "description": "The weather in a town, today.", "input_schema": { "type": "object", "properties": { "town": { "type": "string" } }, "required": ["town"] }, "cache_control": { "type": "ephemeral" } }
+        ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "What is the weather in Exampleton?" } ] },
+          { "role": "assistant", "content": [
+            { "type": "text", "text": "I will look." },
+            { "type": "tool_use", "id": "toolu_test_0001", "name": "weather", "input": { "town": "Exampleton" } }
+          ] },
+          { "role": "user", "content": [
+            { "type": "tool_result", "tool_use_id": "toolu_test_0001", "content": [ { "type": "text", "text": "Dry, 12 degrees, a light wind." } ], "cache_control": { "type": "ephemeral" } }
+          ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 460, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "It is dry in Exampleton, 12 degrees with a light wind." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 17 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "It is dry in Exampleton, 12 degrees with a light wind." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 460, "output_tokens": 17 }
+      }
+    },
+    {
+      "name": "two tool calls in one reply, one with no input, and a failed result going back",
+      "request": {
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "Weather and time, please." } ] },
+          { "role": "assistant", "blocks": [ { "type": "tool_call", "id": "toolu_test_0002", "name": "weather", "input": { "town": "Nowhere" } } ] },
+          { "role": "user", "blocks": [
+            { "type": "tool_result", "id": "toolu_test_0002", "is_error": true, "content": [ { "type": "text", "text": "No town of that name." } ] },
+            { "type": "text", "text": "Try Exampleton." }
+          ] }
+        ],
+        "tools": [
+          { "name": "weather", "input_schema": { "type": "object" } },
+          { "name": "clock", "input_schema": { "type": "object" } }
+        ]
+      },
+      "options": { "cache_control": false },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "tools": [
+          { "name": "weather", "input_schema": { "type": "object" } },
+          { "name": "clock", "input_schema": { "type": "object" } }
+        ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "Weather and time, please." } ] },
+          { "role": "assistant", "content": [ { "type": "tool_use", "id": "toolu_test_0002", "name": "weather", "input": { "town": "Nowhere" } } ] },
+          { "role": "user", "content": [
+            { "type": "tool_result", "tool_use_id": "toolu_test_0002", "is_error": true, "content": [ { "type": "text", "text": "No town of that name." } ] },
+            { "type": "text", "text": "Try Exampleton." }
+          ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 300, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "tool_use", "id": "toolu_test_0003", "name": "weather", "input": {} } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "input_json_delta", "partial_json": "{\"town\":\"Exampleton\"}" } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "content_block_start", "index": 1, "content_block": { "type": "tool_use", "id": "toolu_test_0004", "name": "clock", "input": {} } },
+            { "type": "content_block_stop", "index": 1 },
+            { "type": "message_delta", "delta": { "stop_reason": "tool_use" }, "usage": { "output_tokens": 40 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [
+          { "type": "tool_call", "id": "toolu_test_0003", "name": "weather", "input": { "town": "Exampleton" } },
+          { "type": "tool_call", "id": "toolu_test_0004", "name": "clock", "input": {} }
+        ] },
+        "stop_reason": "tool_call",
+        "usage": { "input_tokens": 300, "output_tokens": 40 }
+      }
+    },
+    {
+      "name": "a block the seam has no type for is read past",
+      "request": {
+        "messages": [ { "role": "user", "blocks": [ { "type": "text", "text": "Look something up." } ] } ]
+      },
+      "options": { "cache_control": false },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "messages": [ { "role": "user", "content": [ { "type": "text", "text": "Look something up." } ] } ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 20, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "server_tool_use", "id": "srvtoolu_test_0001", "name": "invented_lookup", "input": {} } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "input_json_delta", "partial_json": "{\"q\":\"example\"}" } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "content_block_start", "index": 1, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 1, "delta": { "type": "text_delta", "text": "Found it." } },
+            { "type": "content_block_delta", "index": 1, "delta": { "type": "citations_delta", "citation": { "type": "invented" } } },
+            { "type": "content_block_stop", "index": 1 },
+            { "type": "an_event_from_a_later_version" },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 9 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Found it." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 20, "output_tokens": 9 }
+      }
+    }
+  ]
+}

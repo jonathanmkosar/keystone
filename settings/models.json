@@ -2,6 +2,62 @@
   "lane": "models",
   "settings": [
     {
+      "key": "anthropic.version",
+      "type": "string",
+      "default": "2023-06-01",
+      "scope": "install",
+      "description": "The value the Anthropic adapter sends in the anthropic-version header. Gateways that speak the Messages API, such as Ollama and LiteLLM, expect this one."
+    },
+    {
+      "key": "anthropic.max_retries",
+      "type": "int",
+      "default": "2",
+      "scope": "install",
+      "description": "How many times the Anthropic adapter sends a call again when it failed before any of the reply arrived and the failure may pass: a rate limit, a busy provider, or an endpoint that could not be reached. Zero means never."
+    },
+    {
+      "key": "anthropic.retry_base_delay",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "How long the Anthropic adapter waits before its first retry. Each later wait is twice the one before."
+    },
+    {
+      "key": "anthropic.retry_max_delay",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "The longest the Anthropic adapter waits before a retry. When the provider asks for a longer wait, the call fails at once so another model can be tried."
+    },
+    {
+      "key": "anthropic.header_timeout",
+      "type": "duration",
+      "default": "5m",
+      "scope": "install",
+      "description": "How long an endpoint that speaks the Anthropic Messages API may take to begin its answer. A local model that has to be loaded first needs the time. Zero means no limit."
+    },
+    {
+      "key": "anthropic.idle_timeout",
+      "type": "duration",
+      "default": "5m",
+      "scope": "install",
+      "description": "How long a reply from the Anthropic adapter's endpoint may send nothing before the call is given up. Zero means no limit."
+    },
+    {
+      "key": "anthropic.cache_control",
+      "type": "bool",
+      "default": "true",
+      "scope": "install",
+      "description": "Whether the Anthropic adapter marks the end of the system blocks and of the last message so the provider can cache what comes before."
+    },
+    {
+      "key": "anthropic.budget_thinking_models",
+      "type": "string",
+      "default": "claude-3-*,claude-sonnet-4-2*,claude-opus-4-2*,claude-opus-4-1*,claude-sonnet-4-5*,claude-opus-4-5*,claude-haiku-4-5*",
+      "scope": "install",
+      "description": "The provider model names, separated by commas, that are asked for thinking as a token budget. A name ending in * matches by its start. Every other model is asked for adaptive thinking, where the model decides how much to think."
+    },
+    {
       "key": "fake.delta_size",
       "type": "int",
       "default": "12",
