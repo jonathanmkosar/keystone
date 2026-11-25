@@ -32,6 +32,8 @@ A turn has read outside content when, before the call being decided:
 - **recall gave a call of this chat a source** (`turn_recall` keeps what each turn's recall kept);
 - **an earlier call in the same step** may bring outside content (it is not inside), since the calls of a step are decided together.
 
+Since P7-04, a connector's tool is not inside unless the person marks the connector's results as not outside content, and `load_tools`, whose result holds the connectors' own words, is not inside unless every connector offered is so marked. A connector's tool only reads when its server's `readOnlyHint` says so, and otherwise asks by default. `GET /api/v1/tools` lists the tools the person's connectors last listed, so each can have a policy, and removing a connector, or pointing it at another server, removes its tools' policies ([connectors.md](connectors.md)).
+
 A page of the knowledge store is not outside content: the person and Keystone's own upkeep write it. That is the recommended answer to the owner's open question (knowledge 005), built here and marked provisional.
 
 **The mark is on the chat, not only the turn.** What was read stays in the chat's history, and every later call is sent it again, so every later turn of the chat asks for side effects too. The plan says "every side-effect tool in that turn asks"; marking the chat is stricter and never weaker (decision [0221](decisions/0221-outside-content-marks-the-chat.md)). The mark is kept in `tool_outside`, and a mark that cannot be read counts as read. A new chat starts unmarked.

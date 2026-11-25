@@ -249,6 +249,12 @@ Since the turn inspector (P5-04), added and nothing changed. `docs/api/openapi.j
 - `PUT /chats/{id}/skips/{kind}/{ref}` and `DELETE` on the same path, with no body: take a recalled page or source (`kind` `page` or `source`, `ref` its id in the knowledge store) or a pinned message (`kind` `message`) out of the chat's next turn only, or put it back. 400 `bad_request` for a kind or id that is not one, or a message that is not pinned; 404 `not_found` for a page or source no recent call of the chat was given.
 - Each model call of a turn now leaves out what the turn claimed: `build` in `context.go` calls `leaveOut` in `inspect.go` (decision [0271](decisions/0271-a-skip-is-used-by-the-next-turn-and-no-other.md)).
 
+Since connectors (P7-04), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the seven routes of `connectors.Routes` and their shapes, and every path and shape it had is the same. The whole of it is [connectors.md](connectors.md).
+
+- `GET /connectors`, `POST /connectors`, `PUT /connectors/{name}`, `DELETE /connectors/{name}` and `POST /connectors/{name}/check`: the person's connectors. 403 `command_line_only` for a command sent through the API, 400 `bad_connector`, 409 `exists` or `full`, 404 `not_found`.
+- `GET /chats/{id}/connectors` and `PUT /chats/{id}/connectors/{name}` (`{"on": bool}`): the chat's tools menu. 404 `not_found` for a chat or a connector that is not in the person's record.
+- A turn may now call `load_tools` and a connector's tools, `<connector>_<tool>`, which stream as `tool_call` and `tool_result` as every tool does. `GET /tools` lists the connector tools the person's connectors last listed, and a policy can be set for each.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.
@@ -397,6 +403,10 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 - A turn left `running` by a second server on the same data folder is not noticed. One server for each data folder is assumed.
 - A title call that times out is recorded with the outcome a stopped call has.
 - A way to change which model a chat uses, other than naming one in the next turn, and routes for the person's settings (P11-01).
+
+## Connectors
+
+Since P7-04, `build` in `context.go` asks `withConnectors` in `connectors.go` for what the call offers from the person's connectors, after the server's tools and the knowledge lookups, and keeps on the turn's row (`t.connectors`, made in `work`) every connector tool the call's replies may name. `toolFor` and `runPlanned` in `approvals.go` find those tools there, run each through a registry of its own, and `noteOutside` marks the chat once one that is not inside has run. A paused step asks for them again in `resumeStep`. `policies.go` lists them for the approvals screen. `Options.Connectors` is the server's `connectors.Pool`, closed with the runner. See [connectors.md](connectors.md).
 
 ## Routing, usage and the spend cap
 

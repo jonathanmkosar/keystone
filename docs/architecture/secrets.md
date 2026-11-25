@@ -27,7 +27,7 @@ Both the wrap and the encryption are bound to the tenant id. A `secrets.bin` cop
 | `Names()` | Lists the names, sorted. Never a value. |
 | `Delete(name)` | Removes one. Removing one that is not there is not an error. |
 
-A name is 1 to 100 lower-case letters, digits, dots, dashes and underscores, such as `provider.anthropic`.
+A name is 1 to 100 lower-case letters, digits, dots, dashes and underscores, such as `provider.anthropic`. A connector's token is stored as `connector.<name>` by the Connectors screen, and is read for each session with its server and sent nowhere else (since P7-04, [connectors.md](connectors.md)).
 
 Every handle for one tenant shares one vault, so two writers cannot lose each other's change. Nothing in the package prints or logs a value, and no error carries one.
 

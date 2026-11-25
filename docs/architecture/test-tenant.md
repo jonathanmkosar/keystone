@@ -64,6 +64,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/memory.json` (P6-06) holds the memory pass's recorded turns: replies to two messages with durable facts in them (two beehives at the allotment, a sister's visit), the facts each gives when the memory pass reads it, the facts of the question about the sensitive space, and an empty list for any other exchange. An extraction answers a request whose system text holds "long-term memory of a personal assistant", words of the shipped `knowledge.memory_prompt`. `knowledge/memory.json` holds the messages, the facts each must give, a message with nothing durable, and the held chat's question, space and facts, for the `memory pass` check. See [memory-pass.md](memory-pass.md).
 
+`turns/connectors.json` (P7-04) holds one: "Find my notes about the harbour, and add one about the tide." The model calls `load_tools` for `notes_search` and `notes_add`, searches, adds a note, which asks for approval, and answers. The test tenant has no connectors, so on the shipped server each call is answered as a tool that does not exist; `verify` adds a test MCP server on this machine as the connector `notes`. See [connectors.md](connectors.md).
+
 `turns/web-search.json` (P7-03) holds one: "When is the harbour museum open this week?" The model calls `web_search` and answers citing [1] and [2]. The test tenant has no search key, so on the shipped server the step says "not set up" and the numbers stay text; `verify` stores an invented key and points the search at a stand-in on this machine. See [web-search.md](web-search.md).
 
 ### A chat file

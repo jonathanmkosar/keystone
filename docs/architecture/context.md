@@ -145,6 +145,6 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 - Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
 - Cache marks on the standing start (P5-03). The varying system blocks sit after the standing start today. P5-03 may move them into the messages if a provider's cache needs the whole system text to stay the same.
 - The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them. Built since: `GET /chats/{id}/turns/{turn}/inspect` returns them with each call's usage records ([inspector.md](inspector.md)).
-- Tool definitions as names only until one is needed (P7-01 with P7-05).
+- Tool definitions as names only until one is needed (P7-01 with P7-05). Since P7-04 a connector's tools are offered so, by name and one line until `load_tools` loads them ([connectors.md](connectors.md)); the server's own tools and the lookups are still offered whole.
 - A relevance threshold for recall is the recall item's own (P6-05): the builder takes the items it is given.
 - A current turn that outgrows the window on its own, as a long run of tool calls could, is refused whole. Trimming inside a turn is the tool loop's question.
