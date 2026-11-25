@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/project"
+	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/settings"
 )
 
 type step struct {
@@ -55,6 +57,7 @@ func main() {
 			return out, err
 		}},
 		{"it serves the page", func(string) (string, error) { return servesThePage(bin) }},
+		{"the data folder", dataFolder},
 		{"verify", func(r string) (string, error) {
 			out, err := project.Run(r, "go", "run", "./tools/verify")
 			if err == nil {
@@ -75,6 +78,33 @@ func main() {
 		fmt.Printf("ok    %-22s %s\n", s.name, out)
 	}
 	fmt.Printf("\nRebuilt in %s. Run bin/%s serve to start.\n", time.Since(start).Round(time.Millisecond), filepath.Base(bin))
+}
+
+// dataFolder opens the data folder named by the data.dir setting, creating
+// it when it is not there, and brings every tenant's database up to date.
+// It adds no tenant: the test tenant is loaded by P3-09.
+func dataFolder(root string) (string, error) {
+	reg, err := settings.Registry()
+	if err != nil {
+		return "", err
+	}
+	s, ok := settings.Lookup(reg, "data.dir")
+	if !ok {
+		return "", fmt.Errorf("the data.dir setting is missing from the registry")
+	}
+	dir := s.Default
+	if !filepath.IsAbs(dir) {
+		dir = filepath.Join(root, dir)
+	}
+	in, err := tenant.Open(dir)
+	if err != nil {
+		return "", err
+	}
+	n := len(in.Tenants())
+	if n == 1 {
+		return s.Default + "/, 1 tenant", nil
+	}
+	return fmt.Sprintf("%s/, %d tenants", s.Default, n), nil
 }
 
 // servesThePage starts the built binary on a free port on this machine,

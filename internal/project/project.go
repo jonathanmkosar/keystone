@@ -228,7 +228,7 @@ func StateLine(state, key string) string {
 // Skip reports whether a folder is left out when the project scripts walk the tree.
 func Skip(name string) bool {
 	switch name {
-	case ".git", "bin", "data", "node_modules":
+	case ".git", ".claude", "bin", "data", "node_modules":
 		return true
 	}
 	return false

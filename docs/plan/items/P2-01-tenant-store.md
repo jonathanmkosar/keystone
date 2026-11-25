@@ -1,6 +1,6 @@
 # P2-01. Tenant folders and databases
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P0-02
 Owner gate: none
@@ -20,5 +20,6 @@ Plan:
 - Migrations are SQL files named by date and time, as PARALLEL.md asks, and applied in name order, forward only. Each runs in its own transaction and is recorded by name. This differs from the item's word "numbered": PARALLEL.md is the later text and exists so two lanes can add migrations at once.
 - The driver is `modernc.org/sqlite` at the version Waymarks uses, with the same connection settings: write-ahead log, a wait when busy, foreign keys on.
 - `tools/tenant` adds and lists tenants. `rebuild` gains a step that opens the data folder and brings every tenant's database up to date.
+- The item's scope says numbered migrations. PARALLEL.md, the later text, says migrations are named by date and time so two lanes can add them at once, and decision 0003 follows it. Files are named by date and time and applied in name order.
 - Proof: tests create two tenants and show that one handle cannot read the other's rows or files, that migrations run from an empty file and only once, and that a database from another tenant is refused.
 

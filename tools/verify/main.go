@@ -26,6 +26,8 @@ type check struct {
 // Adding a part without adding its doc fails the docs check.
 var componentDocs = map[string]string{
 	"cmd/keystone":     "docs/architecture/cli.md",
+	"internal/tenant":  "docs/architecture/tenants.md",
+	"tools/tenant":     "docs/architecture/tools.md",
 	"settings":         "docs/architecture/settings.md",
 	"internal/project": "docs/architecture/project.md",
 	"tools/verify":     "docs/architecture/tools.md",

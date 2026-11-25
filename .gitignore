@@ -4,3 +4,4 @@ node_modules/
 *.exe
 *.test
 *.out
+/.claude/worktrees/

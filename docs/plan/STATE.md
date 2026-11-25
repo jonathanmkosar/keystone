@@ -1,7 +1,7 @@
 # State
 
 Phase: 0, foundations, and 1, design. The build has started.
-Next: wave 3. P2-01 (core) and P3-01 (models) can both start.
+Next: wave 4. P2-02, P2-03 and P2-04 (core) can start. P3-01 (models) is in progress.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -9,10 +9,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | nothing | P2-01 |
-| models | nothing | P3-01 |
-| chats | nothing | P4-02, after P2-01 |
-| knowledge | nothing | P6-01, after P2-01 |
+| core | nothing | P2-02, P2-03, P2-04 |
+| models | P3-01 | P3-03, after P3-01 |
+| chats | nothing | P4-02 |
+| knowledge | nothing | P6-01 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing | P4-01, after P2-05 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
@@ -30,6 +30,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 ## Done
 
 - P0-01, repo layout and settings registry, and P0-02, project scripts and docs skeleton. `verify` is green, 8 of 8.
+- P2-01, tenant folders and databases. A tenant is a folder under `data/tenants/` with its own SQLite database, and a store handle for one tenant cannot read another's rows or files. `tools/tenant` adds and lists tenants, and `rebuild` opens the data folder.
 - P0-03, the five stack decision records (0002 to 0006) and the Windows check. `rebuild` and `verify` are green on Windows 11 with Go 1.26, and `keystone serve` serves the page compiled into the binary.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
@@ -38,7 +39,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 ## Known gaps
 
 - The owner chose the public `keystone` repo over a private one on November 24, 2026, so everything here is public: invented data only.
-- The first loops ran in a workspace that could not download Go modules. P2-01 onward runs on the owner's Windows machine, which can.
+- The first build on a machine downloads `modernc.org/sqlite` and what it needs. After that, `verify` and `rebuild` run offline.
 - P0-03 was checked on Windows only. P0-01 and P0-02 were checked on Linux and then on Windows.
 - Scripts and computer use are out of this build (see PLAN.md).
 
