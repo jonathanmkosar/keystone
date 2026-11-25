@@ -1,0 +1,21 @@
+/* A citation in a reply: the source's number as a small raised chip that
+   links to it. Made from the tokens; there is no mockup for it yet. */
+.cite {
+  display: inline-block;
+  min-width: 18px;
+  margin: 0 1px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--raised);
+  color: var(--link);
+  font: 600 11px/16px var(--font-sans);
+  text-align: center;
+  text-decoration: none;
+  vertical-align: 2px;
+}
+
+.cite:hover,
+.cite:focus-visible {
+  border-color: var(--link);
+}

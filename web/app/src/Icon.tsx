@@ -15,6 +15,12 @@ const shapes = {
       <path d="m20 20-4.5-4.5" />
     </>
   ),
+  web: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4 12h16M12 4c-2.5 2.2-3.5 5-3.5 8s1 5.8 3.5 8c2.5-2.2 3.5-5 3.5-8s-1-5.8-3.5-8" />
+    </>
+  ),
   chats: <path d="M5 5h14v10H9l-4 4z" />,
   projects: <path d="M3 7h7l2 2h9v10H3z" />,
   artifacts: (

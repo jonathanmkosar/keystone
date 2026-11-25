@@ -7,6 +7,7 @@
 // first few values it was sent.
 
 import type { IconName } from "./Icon";
+import { sourcesOfText } from "./citations";
 
 export type ToolLine = {
   icon: IconName;
@@ -85,7 +86,41 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
     const title = chatTitle(result);
     return { icon: "chats", running: "Reading one of your chats", asked: "Read one of your chats", done: title ? `Read ${quoted(title, 56)}` : "Read one of your chats", meta: "" };
   },
+  // The web tools (P7-03). Their results are numbered sources: citations.tsx.
+  web_search: (args, result) => {
+    const q = quoted(args.query);
+    const found = result === undefined ? -1 : sourcesOfText(result).length;
+    return {
+      icon: "web",
+      running: q ? `Searching the web for ${q}` : "Searching the web",
+      asked: q ? `Search the web for ${q}` : "Search the web",
+      done: q ? `Searched the web for ${q}` : "Searched the web",
+      meta: found < 0 ? "" : found === 0 ? "nothing found" : found === 1 ? "1 result" : `${found} results`,
+    };
+  },
+  web_fetch: (args, result) => {
+    const site = siteOf(args.url);
+    const title = result === undefined ? "" : (sourcesOfText(result)[0]?.title ?? "");
+    const named = title !== "" && !/^https?:\/\//.test(title);
+    return {
+      icon: "web",
+      running: site ? `Reading ${site}` : "Reading a web page",
+      asked: site ? `Read ${site}` : "Read a web page",
+      done: named ? `Read ${quoted(title, 56)}` : site ? `Read ${site}` : "Read a web page",
+      meta: named ? site : "",
+    };
+  },
 };
+
+/** The site of an address, for a row: its host without "www.". */
+function siteOf(v: unknown): string {
+  if (typeof v !== "string" || v.trim() === "") return "";
+  try {
+    return new URL(v.includes("://") ? v : "https://" + v).host.replace(/^www\./, "");
+  } catch {
+    return cut(v, 40);
+  }
+}
 
 /** The line for one tool step. `result` is undefined until the tool has answered. */
 export function toolLine(name: string, input: string, result: string | undefined): ToolLine {
@@ -110,5 +145,8 @@ export function errorLabel(result: string | undefined): { text: string; broke: b
   if (/turn was stopped/i.test(text)) return { text: "stopped", broke: false };
   if (/\bwas not run\b|\bno tool was run\b/i.test(text)) return { text: "not run", broke: false };
   if (/^There is no tool named/.test(text)) return { text: "no such tool", broke: true };
+  // The web tools' own words, in internal/tools/web: no key yet, or a chat held for sensitive content.
+  if (/^Web search is not set up/.test(text)) return { text: "not set up", broke: false };
+  if (/is off in this chat/.test(text)) return { text: "off in this chat", broke: false };
   return { text: "failed", broke: true };
 }
