@@ -60,6 +60,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/tool-steps.json` (P7-01) holds two turns that use tools: a task of several steps, in which the model searches the person's chats, then reads the time, then answers, and a call to `send_postcard`, a tool that would change something. They are typed into a new chat as they are written there. See [tool-loop.md](tool-loop.md).
 
+`turns/compaction.json` (P5-02) holds one recorded summary. It answers any request whose system text holds "running summary of a long chat", words of the shipped `chats.compact_prompt`, so the fake provider summarises a long chat's oldest turns for the test tenant and for any model that names the fake adapter. See [compaction.md](compaction.md).
+
 ### A chat file
 
 ```json

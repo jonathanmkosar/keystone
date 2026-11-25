@@ -1,6 +1,6 @@
 # P5-02. Compaction
 
-Status: doing (chats)
+Status: done
 Lane: chats
 Depends on: P5-01
 Owner gate: none
@@ -44,5 +44,20 @@ Kept up to date at each commit, so another session can finish the item.
 3. ~~`internal/turn/compact.go`: find the summary and pins for a call, start the summary job beside the turn, the job itself; the added lines in `context.go`, `route.go` (`used`), `runner.go` (one field), `routes.go` (pin routes) and `internal/turn/pins.go`; `docs/api/openapi.json` regenerated.~~
 4. ~~Settings at the end of `settings/chats.json`; the recorded summary in `fixtures/test-tenant/turns/compaction.json`.~~
 5. ~~Tests in `internal/turn` (`compact_test.go`; `context_test.go` switches compaction off for its drop-with-note test), and the `context fit` step in `tools/verify/compaction.go`, called by added lines in `contextfit.go`.~~
-6. Write-up: `docs/architecture/compaction.md` in full (now a stub), its overview row, a row in `internal/README.md`, lines in `context.md`, `turns.md`, `routing.md`, `chat.md`, `tools.md`; decisions from 0230; the journal `docs/journal/2026-11-25-chats-004.md`; the item's status and result.
+6. ~~Write-up: `docs/architecture/compaction.md`, its overview row, a row in `internal/README.md`, lines in `context.md`, `turns.md`, `routing.md`, `chat.md`, `tools.md`; decisions 0230 to 0234; the journal `docs/journal/2026-11-25-chats-004.md`; the item's status and result.~~
+
+### Result
+
+Done on November 25, 2026, on `chats/p5-02-compaction`, in five commits: the plan, three build steps, and the write-up. The branch was not pushed: the session's permissions refused it.
+
+- `internal/compact`, described in `docs/architecture/compaction.md`. Decisions 0230 to 0234.
+- When a call's record says the turns the summary does not yet stand for take more than `chats.compact_trigger_percent` of their room, or one was left out, the oldest are summarised beside the turn, until the rest take no more than `chats.compact_keep_percent`. The call is sent at once with what was stored; a failure leaves the note and one line in the log.
+- The summary is written by the model routing gives the `summary` task, from the summary so far and the turns that follow it, so it is extended and never made again. Its calls have audit entries, usage records of the kind `summary`, and the cap.
+- Summaries are rows of `chat_summaries` with the first and last message they stand for (migration `20261125T110000_compaction.sql`). A call is given the newest one that stands for the start of its branch, checked against its own messages, and the context builder sends it in place of the turns it covers.
+- A summary of a held chat is made only by a model that may read sensitive content, is stored as sensitive, and is given only to a call whose every model may read it. `internal/compact` is a guard of rule 3.
+- Pins: `chat.Pin` and `chat.Pins` over `chat_pins`, and `GET /chats/{id}/pins`, `PUT` and `DELETE /chats/{id}/pins/{message}`. The builder's new `pinned` part sends a pinned message on its own when its turn is not sent, and never twice.
+- Eleven settings in `settings/chats.json`, and a recorded summary for the fake provider.
+- The proof passes: `go test ./internal/turn` answers a chat ten times its model's window six turns running, every call under the window and holding both pinned messages, with the summary in place of the oldest turns from the second call on. `verify` is 19 of 19, and `context fit` grows a chat to ten times the window of every fixture model with the same result.
+
+Left for the items that own them: showing summaries and pins in the turn inspector (P5-04), a pin in the chat screen, summaries of a whole chat for attaching and handing off (P5-05, P5-06). No real model has written a summary.
 

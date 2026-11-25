@@ -18,6 +18,8 @@ The package holds no state and reads no store and no setting. Everything it need
 
 Only `chat` and `title` are called today. The other three have a rule waiting for the items that make those calls (P5-05, P6-06, P6-08).
 
+Since P5-02, `summary` is called too: compaction summarises a long chat's oldest turns through the route for the `summary` task, planned as sensitive for a held chat like every route of that chat ([compaction.md](compaction.md)).
+
 ## A route
 
 `routing.Plan(rules, ask, models)` returns a `Route`: the models to try, in order.

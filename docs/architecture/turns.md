@@ -20,6 +20,9 @@ Every path starts with `/api/v1`. `{id}` is a chat's id, sixteen hex characters.
 | `DELETE /chats/{id}` | | `DeletedReply`: `{"deleted": true}`. |
 | `POST /chats/{id}/select` | `SelectBody`: `message_id`. | `ChatReply`, with the branch that message is on. |
 | `GET /chats/{id}/model` | | `ModelChoice`. |
+| `GET /chats/{id}/pins` | | `PinsReply`: `chat_id` and `pinned`, the ids of the pinned messages, oldest first. See [compaction.md](compaction.md). |
+| `PUT /chats/{id}/pins/{message}` | No body. | `PinsReply`, after pinning the message. |
+| `DELETE /chats/{id}/pins/{message}` | | `PinsReply`, after taking the pin off. |
 | `POST /chats/{id}/turns` | `SendBody`: `text` or `blocks`, and optionally `edit_of`, `retry_of`, `model`. | A stream of events. The turn's id is in the `X-Turn-Id` header. |
 | `GET /chats/{id}/turns/{turn}` | | `Turn`. |
 | `GET /chats/{id}/turns/{turn}/events` | Header `Last-Event-ID`, or query `after`. | The same stream, from the start or from after that event. |
@@ -371,7 +374,7 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 ## Not here yet
 
 - Approvals (P7-02). Since the tool loop (P7-01) a turn runs tools that only read, and refuses every tool that changes something ([tool-loop.md](tool-loop.md)).
-- Compaction and caching (P5-02, P5-03). The context builder (P5-01) leaves the oldest turns out of a chat that outgrows its model's window. Nothing stands in for them yet but one sentence that tells the model. A single message larger than the window still fails with `too_long`.
+- Caching (P5-03). Since P5-02 the oldest turns of a long chat are summarised and the summary sent in their place (see "Compaction" below). A single message larger than the window still fails with `too_long`.
 - Routing, fallbacks, usage records and the spend cap (P3-08). A failed call is not tried on another model. Cost is worked out from the entry's price and kept in the audit log and on the message.
 - The real adapters in the set. `app.Config.Adapters` is ready for them.
 - Uploads (P9-02). `blocks` takes image and file blocks, and the files behind a `ref` are not yet read by anything.
@@ -392,3 +395,7 @@ Since P3-08 a turn does not open one model. `open` asks `internal/turn/route.go`
 
 Since P6-05, `work` searches the person's knowledge store once, before it opens the route, with `searchKnowledge` in `internal/turn/recall.go`, and keeps what was found on the turn's row. `routed` asks whether the call is sensitive: the chat was sent sensitive content before, or the chat's model may read it and recall kept some. `build` makes each call for the least of the route's models, the person map included, fills the context builder's `recall` slot, adds the search-first rule to the standing instructions when a store is open, and keeps the record of the first call in `turn_recall`. A store that is missing, down or slow gives nothing and one line in the log, within `knowledge.recall_timeout`. See [knowledge-recall.md](knowledge-recall.md).
 - A title is routed as its own kind of task: the model `chats.title_model` names, then the chat's own.
+
+## Compaction
+
+Since P5-02, `build` in `context.go` asks `olderHistory` in `compact.go` for the chat's summary that stands for the start of the branch, and for the pinned messages on it, and gives both to the context builder. After the call is built it calls `compactLater`, which starts a summary of the oldest turns in the background when the call's record says the chat has outgrown its room. The summary call goes through the route for the `summary` task, is recorded in the audit log under the turn's request id, and has a usage record of the kind `summary`. A turn never waits for it, and a failure leaves one line in the log. Three routes pin and unpin messages. See [compaction.md](compaction.md).
