@@ -326,15 +326,17 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   let ended = false;
   try {
     await readEvents(res.body, (e) => {
-      if (!turnEventNames.has(e.name)) return; // an event a later server adds
+      if (!turnEventNames.has(e.name)) return true; // an event a later server adds
       let data: unknown;
       try {
         data = JSON.parse(e.data);
       } catch {
-        return;
+        return true;
       }
       if (e.name === "end") ended = true;
       reader.onEvent({ name: e.name, data } as TurnEvent, e.id);
+      // `end` is always the last event, so the reading stops there.
+      return !ended;
     });
   } catch {
     // The connection broke in the middle. The caller decides what is next.

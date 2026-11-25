@@ -53,9 +53,16 @@ export function eventParser(onEvent: (e: StreamEvent) => void): (chunk: string) 
   };
 }
 
-/** Reads a response body to its end, calling onEvent for each event in it. */
-export async function readEvents(body: ReadableStream<Uint8Array>, onEvent: (e: StreamEvent) => void): Promise<void> {
-  const feed = eventParser(onEvent);
+/**
+ * Reads a response body, calling onEvent for each event in it. It reads to
+ * the body's end, or until onEvent returns false: the caller has seen the
+ * stream's last event and does not wait for the server to close.
+ */
+export async function readEvents(body: ReadableStream<Uint8Array>, onEvent: (e: StreamEvent) => boolean | void): Promise<void> {
+  let stopped = false;
+  const feed = eventParser((e) => {
+    if (!stopped && onEvent(e) === false) stopped = true;
+  });
   const reader = body.getReader();
   const decoder = new TextDecoder();
   try {
@@ -63,6 +70,10 @@ export async function readEvents(body: ReadableStream<Uint8Array>, onEvent: (e: 
       const { done, value } = await reader.read();
       if (done) return;
       feed(decoder.decode(value, { stream: true }));
+      if (stopped) {
+        await reader.cancel().catch(() => {});
+        return;
+      }
     }
   } finally {
     reader.releaseLock();
