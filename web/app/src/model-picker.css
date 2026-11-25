@@ -193,4 +193,20 @@
   .model-button-label {
     max-width: 150px;
   }
+
+  /* On a phone the menu is as wide as the composer and hangs from it, not
+     from the picker, so it never runs off the side of the screen. */
+  .composer:has(.model-picker) {
+    position: relative;
+  }
+
+  .model-picker {
+    position: static;
+  }
+
+  .model-menu {
+    left: 0;
+    width: auto;
+    max-width: none;
+  }
 }
