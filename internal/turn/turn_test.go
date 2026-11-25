@@ -655,12 +655,12 @@ func TestAnOrdinaryTenant(t *testing.T) {
 }
 
 // answers is a provider that gives one reply to a chat turn and another to
-// a call with standing instructions, which is what a title call is.
+// a title call, which is the call whose one message begins "The person wrote:".
 type answers struct{ chat, title string }
 
 func (p answers) Stream(ctx context.Context, req seam.Request, emit func(seam.Event) error) error {
 	text := p.chat
-	if len(req.System) > 0 {
+	if len(req.Messages) == 1 && strings.HasPrefix(seam.Text(req.Messages[0]), "The person wrote:") {
 		text = p.title
 	}
 	events, err := seam.Events(seam.Response{

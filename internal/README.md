@@ -26,3 +26,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `knowledge/waymarks` | knowledge | The Waymarks adapter: a client of one Waymarks instance for each tenant |
 | `adapters/chatcompletions` | models | The adapter for OpenRouter, LiteLLM, Ollama and the Mac mini gateway |
 | `turn` | chats | Runs a turn: the message, the model call, the stream, stop and restart |
+| `contextbuild` | chats | Builds what one model call carries, under the model's window, and records every part of it |

@@ -140,6 +140,62 @@
       "default": "8192",
       "scope": "install",
       "description": "The output limit, in tokens, of the test tenant's recorded turns."
+    },
+    {
+      "key": "chats.context_system_text",
+      "type": "string",
+      "default": "You are the assistant in Keystone, a private workspace for one person. Answer plainly, and say so when you do not know something.",
+      "scope": "tenant",
+      "description": "The standing instructions every chat call starts with. Empty sends none."
+    },
+    {
+      "key": "chats.context_fill_percent",
+      "type": "int",
+      "default": "100",
+      "scope": "tenant",
+      "description": "The share of a model's input room a chat call may fill, from 1 to 100. The room is the context window less what is kept for the reply."
+    },
+    {
+      "key": "chats.context_recent_turns_max",
+      "type": "int",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The most earlier turns of a chat one call carries. Zero means as many as fit."
+    },
+    {
+      "key": "chats.context_attached_percent",
+      "type": "int",
+      "default": "40",
+      "scope": "tenant",
+      "description": "The most attachments and attached chats may take of a call, as a percentage of the room left after the rules, the tools and the current message."
+    },
+    {
+      "key": "chats.context_recall_percent",
+      "type": "int",
+      "default": "15",
+      "scope": "tenant",
+      "description": "The most recalled knowledge may take of a call, as a percentage of the room left after the rules, the tools and the current message. That much is held for it ahead of earlier turns."
+    },
+    {
+      "key": "chats.context_summary_percent",
+      "type": "int",
+      "default": "10",
+      "scope": "tenant",
+      "description": "The most the summary of older history may take of a call, as a percentage of the room left after the rules, the tools and the current message. That much is held for it ahead of earlier turns."
+    },
+    {
+      "key": "chats.context_dropped_note",
+      "type": "string",
+      "default": "The earliest part of this chat is not shown to you, because the whole chat no longer fits. If the person refers to something you cannot see, say so and ask.",
+      "scope": "tenant",
+      "description": "What the model is told when earlier turns of a chat were left out of a call. Empty tells it nothing."
+    },
+    {
+      "key": "chats.context_recount_max",
+      "type": "int",
+      "default": "3",
+      "scope": "tenant",
+      "description": "How many times a call is packed again, smaller, when the provider counts more tokens in it than Keystone estimated."
     }
   ]
 }
