@@ -652,3 +652,184 @@ export async function setToolPolicy(name: string, policy: string): Promise<ToolP
 export async function resetToolPolicy(name: string): Promise<ToolPolicy> {
   return toolPolicyFrom(await call("DELETE", `/api/v1/tools/${encodeURIComponent(name)}/policy`));
 }
+
+// ---------------------------------------------------------------------------
+// The turn inspector (P5-04), and the pins of P5-02. What went into each
+// model call of a turn, what the chat's next turn leaves out, and the chat's
+// pinned messages. docs/architecture/inspector.md has the server's side.
+// ---------------------------------------------------------------------------
+
+/** One piece of a part of a call: a recalled item, a pinned message. */
+export type ItemRecord = {
+  label?: string;
+  /** The inspector's name for it: page:7, source:3, message:42. */
+  ref?: string;
+  tokens: number;
+  kept: boolean;
+  pinned?: boolean;
+  /** A pinned message whose turn was sent, so it was not sent on its own. */
+  in_turn?: boolean;
+  /** The person took it out of this call. */
+  removed?: boolean;
+};
+
+/** One part of a call, as the context builder recorded it. */
+export type PartRecord = {
+  part: string;
+  place: string;
+  /** empty, kept, partly or dropped. */
+  state: string;
+  tokens: number;
+  kept: number;
+  dropped: number;
+  dropped_tokens: number;
+  covers?: number;
+  removed?: number;
+  /** On the summary: summary:12. */
+  ref?: string;
+  items?: ItemRecord[];
+};
+
+/** One turn of the chat's branch, and whether the call sent it. */
+export type TurnRecord = { first: number; messages: number; tokens: number; part: string; kept: boolean; summarised?: boolean };
+
+/** What one call was built from. */
+export type ContextRecord = {
+  model: string;
+  window: number;
+  output: number;
+  room: number;
+  limit: number;
+  tokens: number;
+  margin: number;
+  exact: boolean;
+  over: number;
+  parts: PartRecord[];
+  turns: TurnRecord[];
+};
+
+/** One model call's usage record. */
+export type UsageRecord = {
+  id: number;
+  at: string;
+  kind: string;
+  model: string;
+  class: string;
+  /** ok, stopped, refused or error. */
+  outcome: string;
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens?: number;
+  cache_write_tokens?: number;
+  thinking_tokens?: number;
+  estimated?: boolean;
+  cost_micros: number;
+  duration_ms: number;
+};
+
+export type Totals = {
+  calls: number;
+  input_tokens: number;
+  output_tokens: number;
+  cache_read_tokens: number;
+  cache_write_tokens: number;
+  thinking_tokens: number;
+  cost_micros: number;
+  estimated: boolean;
+};
+
+/** One model call of a turn. step is set on a chat call; kind says what the call was for. */
+export type InspectedCall = {
+  step?: number;
+  kind: string;
+  model?: string;
+  context?: ContextRecord;
+  /** The first words of each turn of context.turns, in the same order. */
+  previews?: string[];
+  usage: UsageRecord[];
+  total: Totals;
+};
+
+/** One hit of the turn's search of the knowledge store. */
+export type RecallHit = { type: string; id: string; space: string; title: string; score: number; sensitive: boolean; kept: boolean; reason?: string };
+
+export type RecallRecord = {
+  adapter?: string;
+  note?: string;
+  query?: string;
+  found: number;
+  kept: number;
+  dropped: number;
+  withheld: number;
+  sensitive: boolean;
+  hits?: RecallHit[];
+};
+
+/** A summary of older turns, as stored with the chat. */
+export type ChatSummary = { id: number; turns: number; text: string; model: string; sensitive: boolean; tokens: number; created: string };
+
+/** One item the chat's next turn leaves out. */
+export type Skip = { kind: string; ref: string; label: string; asked: string; turn_id?: string };
+
+export type InspectedTurn = Turn & {
+  stop_reason?: string;
+  usage?: { input_tokens?: number; output_tokens?: number };
+  cost_micros?: number;
+  created?: string;
+  ended?: string;
+};
+
+export type Inspection = {
+  turn: InspectedTurn;
+  calls: InspectedCall[];
+  recall?: RecallRecord;
+  summaries: ChatSummary[];
+  totals: Totals;
+  pinned: number[];
+  skips: Skip[];
+};
+
+/** What went into each model call of one turn. */
+export async function inspectTurn(chatId: string, turnId: string): Promise<Inspection> {
+  const data = await object("GET", `${turnPath(chatId, turnId)}/inspect`);
+  if (typeof data.turn !== "object" || !Array.isArray(data.calls) || typeof data.totals !== "object") throw new ApiError("not-ready", 200);
+  return {
+    turn: data.turn as InspectedTurn,
+    calls: data.calls as InspectedCall[],
+    recall: (data.recall ?? undefined) as RecallRecord | undefined,
+    summaries: Array.isArray(data.summaries) ? (data.summaries as ChatSummary[]) : [],
+    totals: data.totals as Totals,
+    pinned: Array.isArray(data.pinned) ? (data.pinned as number[]) : [],
+    skips: Array.isArray(data.skips) ? (data.skips as Skip[]) : [],
+  };
+}
+
+function idsFrom(data: Record<string, unknown>): number[] {
+  if (!Array.isArray(data.pinned)) throw new ApiError("not-ready", 200);
+  return data.pinned.filter((n): n is number => typeof n === "number");
+}
+
+/** The ids of a chat's pinned messages, oldest first. */
+export async function listPins(chatId: string): Promise<number[]> {
+  return idsFrom(await object("GET", `${chatPath(chatId)}/pins`));
+}
+
+/** Pins a message, or takes its pin off, and returns the chat's pins. */
+export async function setPin(chatId: string, messageId: number, pinned: boolean): Promise<number[]> {
+  return idsFrom(await object(pinned ? "PUT" : "DELETE", `${chatPath(chatId)}/pins/${messageId}`));
+}
+
+function skipsFrom(data: Record<string, unknown>): Skip[] {
+  if (!Array.isArray(data.skips)) throw new ApiError("not-ready", 200);
+  return data.skips as Skip[];
+}
+
+/** What the chat's next turn leaves out. */
+export async function listSkips(chatId: string): Promise<Skip[]> {
+  return skipsFrom(await object("GET", `${chatPath(chatId)}/skips`));
+}
+
+/** Takes an item out of the chat's next turn, or puts it back, and returns what the next turn leaves out. */
+export async function setSkip(chatId: string, kind: string, ref: string, skipped: boolean): Promise<Skip[]> {
+  return skipsFrom(await object(skipped ? "PUT" : "DELETE", `${chatPath(chatId)}/skips/${encodeURIComponent(kind)}/${encodeURIComponent(ref)}`));
+}

@@ -101,6 +101,20 @@ const shapes = {
       <path d="M12 10v4M12 16.5v.5" />
     </>
   ),
+  // The turn inspector's, as in the chat header of MainDark.html (P5-04).
+  layers: (
+    <>
+      <path d="m12 3 9 5-9 5-9-5z" />
+      <path d="m3 13 9 5 9-5" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M9 4h6l-1 6 3 3H7l3-3z" />
+      <path d="M12 13v7" />
+    </>
+  ),
+  close: <path d="M6 6l12 12M18 6 6 18" />,
 } as const;
 
 export type IconName = keyof typeof shapes;

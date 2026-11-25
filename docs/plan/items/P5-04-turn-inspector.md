@@ -41,8 +41,8 @@ Gated: the screen waits on the inspector mockup (P1-06). The server side is not 
 
 Kept up to date at each commit, so another session can finish the item.
 
-1. The builder's `Ref`, `Removed` and `SummaryRef`, with tests.
-2. `internal/inspector`: calls and totals, skips and the migration, `LeaveOut`, with tests; its `componentDocs` line and a stub doc.
-3. `internal/turn`: the glue in `build`, the routes, `InspectorRoutes` in `internal/app`, tests; `docs/api/openapi.json`.
-4. The screen: pins and the inspector panel, `web/dist/` rebuilt, seen in a browser on port 7961.
+1. ~~The builder's `Ref`, `Removed` and `SummaryRef`, with tests.~~
+2. ~~`internal/inspector`: calls and totals, skips and the migration, `LeaveOut`, with tests; its `componentDocs` line and a stub doc.~~
+3. ~~`internal/turn`: the glue in `build`, the routes, `InspectorRoutes` in `internal/app`, tests; `docs/api/openapi.json`.~~
+4. ~~The screen: pins and the inspector panel, `web/dist/` rebuilt, seen in a browser on port 7961.~~
 5. Write-up: `docs/architecture/inspector.md`, the overview row, lines in `context.md`, `turns.md`, `compaction.md`, `knowledge-recall.md`, `web.md`; decisions from 0270; the journal `docs/journal/2026-11-25-chats-005.md`; the item's status and result.

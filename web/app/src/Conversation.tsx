@@ -4,9 +4,11 @@
 // arriving into the items drawn here.
 
 import { useState } from "react";
+import { useParams } from "react-router";
 import { useWaitingFor } from "./Approval";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
+import { InspectButton, PinButton, SaidActions } from "./MessageActions";
 import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
 
@@ -23,8 +25,11 @@ export type Part =
   | { kind: "limit"; text: string };
 
 export type Item =
-  | { kind: "user"; key: string; text: string; files: string[] }
-  | { kind: "reply"; key: string; parts: Part[]; streaming: boolean };
+  // id is the message's, for its Pin action (P5-04).
+  | { kind: "user"; key: string; text: string; files: string[]; id?: number }
+  // turnId is the turn that wrote the reply, for Inspect, and pinId the
+  // message of it a pin goes on: its last with text (P5-04).
+  | { kind: "reply"; key: string; parts: Part[]; streaming: boolean; turnId?: string; pinId?: number };
 
 function seconds(n: number): string {
   const whole = Math.max(1, Math.round(n));
@@ -142,6 +147,7 @@ function Steps({ steps }: { steps: Step[] }) {
 }
 
 function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
+  const { id: chatId = "" } = useParams();
   const text = item.parts
     .filter((p) => p.kind === "text")
     .map((p) => p.text)
@@ -187,9 +193,11 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
           Keystone is answering
         </div>
       )}
-      {!item.streaming && text !== "" && (
+      {!item.streaming && (text !== "" || item.turnId) && (
         <div className="reply-actions">
-          <CopyButton text={text} />
+          {text !== "" && <CopyButton text={text} />}
+          {chatId !== "" && item.pinId !== undefined && <PinButton chatId={chatId} messageId={item.pinId} />}
+          {chatId !== "" && item.turnId && <InspectButton chatId={chatId} turnId={item.turnId} />}
         </div>
       )}
     </div>
@@ -208,21 +216,25 @@ function CitedReply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
 
 /** Every message on the current branch, oldest first, then a reply still arriving. */
 export function Conversation({ items }: { items: Item[] }) {
+  const { id: chatId = "" } = useParams();
   return (
     <div className="conversation">
       {items.map((item) =>
         item.kind === "user" ? (
-          <div key={item.key} className="said">
-            {item.files.length > 0 && (
-              <div className="said-files">
-                {item.files.map((f, i) => (
-                  <span key={i} className="said-file">
-                    {f}
-                  </span>
-                ))}
-              </div>
-            )}
-            {item.text}
+          <div key={item.key} className="said-wrap">
+            <div className="said">
+              {item.files.length > 0 && (
+                <div className="said-files">
+                  {item.files.map((f, i) => (
+                    <span key={i} className="said-file">
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {item.text}
+            </div>
+            {chatId !== "" && item.id !== undefined && <SaidActions chatId={chatId} messageId={item.id} text={item.text} />}
           </div>
         ) : (
           <CitedReply key={item.key} item={item} />
