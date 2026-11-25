@@ -86,6 +86,8 @@ Since P3-02, `internal/models` guards the sensitive content rule: the registry's
 
 Since P3-04, `internal/adapters/anthropic` is on the `offline` check's list of folders that may use the network: it calls the endpoint a registry entry names, and its tests call a server on this machine. The `no keys in output` check has a surface for it, in `tools/verify/anthropic.go`: the adapter is given the stored value as its key and called against stand-in endpoints that fail in each way and repeat the key in their answers, and the value is looked for in every error, every event and the provider as printed ([adapter-anthropic.md](adapter-anthropic.md)).
 
+Since P11-01, `internal/settingsapi` is on the `offline` check's list too: it holds the settings routes' handlers and opens no connection. The `no keys in output` check has a surface for those routes, in `tools/verify/settingsroutes.go`: the value is stored through `PUT /api/v1/secrets/{name}`, as the Models and keys screen does it, and is then looked for in the answers of the routes that could hand it back, in the refusals when it is sent as a secret's name, a model's key name, a model's endpoint and a setting's value, in the server's log and in the data folder. The item's proof, that every setting a person may change has a control, is a test in that package run by the `tests` check ([settings-screens.md](settings-screens.md)).
+
 ## doctor
 
 `go run ./tools/doctor` prints the state lines, the Go version, whether the build is healthy, how many items are done, and the next item each lane can pick up. An agent runs it at the start of every loop. It exits with an error when the build or the plan is broken, and fixing that is then the loop's item.

@@ -106,5 +106,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0181 | [The map has two versions, and the open one names nothing from a sensitive space](decisions/0181-the-map-has-two-versions.md) |
 | 0182 | [The map is kept in the tenant's database under a key, and is not used when the store is down](decisions/0182-the-map-is-kept-and-keyed.md) |
 | 0183 | [The map is held to a token limit by giving up detail in a fixed order](decisions/0183-the-map-gives-up-detail-in-a-fixed-order.md) |
+| 0190 | [The settings routes act as the person, in a package of their own](decisions/0190-settings-routes-act-as-the-person.md) |
+| 0191 | [The General screen is drawn from the settings route, and the proof is a test of the route](decisions/0191-the-general-screen-is-drawn-from-the-route.md) |
+| 0192 | [The theme is a setting once a person has chosen one](decisions/0192-the-theme-is-a-setting-once-chosen.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
