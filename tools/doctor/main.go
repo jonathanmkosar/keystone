@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -95,7 +96,124 @@ func main() {
 			fmt.Printf("  %-10s then %s\n", "", strings.Join(ids[1:], ", "))
 		}
 	}
+	inFlight(root, items)
 	if sick {
 		os.Exit(1)
 	}
+}
+
+// laneBranch is a lane's branch: the lane, a slash, then the item's id in
+// lower case, such as agents/p7-02-approvals.
+var laneBranch = regexp.MustCompile(`^[a-z]+/p\d+-\d+`)
+
+// inFlight lists the work a stopped session may have left: every item
+// marked doing, and every lane branch not yet merged into the branch this
+// checkout is on, with where its work is: commits not merged, commits not
+// pushed, and files not committed in its worktree. docs/plan/LOOP.md says
+// how to pick one up.
+func inFlight(root string, items []project.Item) {
+	base, err := project.Run(root, "git", "rev-parse", "--abbrev-ref", "HEAD")
+	if err != nil {
+		return
+	}
+	base = strings.TrimSpace(base)
+
+	// Worktrees, by the branch they have checked out.
+	where := map[string]string{}
+	if out, err := project.Run(root, "git", "worktree", "list", "--porcelain"); err == nil {
+		path := ""
+		for _, line := range strings.Split(out, "\n") {
+			line = strings.TrimSpace(line)
+			switch {
+			case strings.HasPrefix(line, "worktree "):
+				path = strings.TrimPrefix(line, "worktree ")
+			case strings.HasPrefix(line, "branch refs/heads/"):
+				where[strings.TrimPrefix(line, "branch refs/heads/")] = path
+			}
+		}
+	}
+
+	var branches []string
+	if out, err := project.Run(root, "git", "for-each-ref", "--format=%(refname:short)", "refs/heads"); err == nil {
+		for _, b := range strings.Fields(out) {
+			if !laneBranch.MatchString(b) {
+				continue
+			}
+			if n := count(root, base+".."+b); n > 0 {
+				branches = append(branches, b)
+			}
+		}
+	}
+
+	var doing []project.Item
+	for _, it := range items {
+		if strings.HasPrefix(it.Status, "doing") {
+			doing = append(doing, it)
+		}
+	}
+	if len(doing) == 0 && len(branches) == 0 {
+		fmt.Println("\nIn flight: nothing.")
+		return
+	}
+
+	fmt.Printf("\nIn flight (not yet merged into %s):\n", base)
+	shown := map[string]bool{}
+	describe := func(b string) {
+		shown[b] = true
+		line := fmt.Sprintf("        branch %s: %d commits not merged", b, count(root, base+".."+b))
+		if _, err := project.Run(root, "git", "rev-parse", "--verify", "--quiet", "refs/remotes/origin/"+b); err != nil {
+			line += ", not pushed"
+		} else if n := count(root, "origin/"+b+".."+b); n > 0 {
+			line += fmt.Sprintf(", %d not pushed", n)
+		} else {
+			line += ", pushed"
+		}
+		fmt.Println(line)
+		if path, ok := where[b]; ok {
+			dirty := 0
+			if out, err := project.Run(path, "git", "status", "--porcelain"); err == nil {
+				for _, l := range strings.Split(out, "\n") {
+					if strings.TrimSpace(l) != "" {
+						dirty++
+					}
+				}
+			}
+			state := "clean"
+			if dirty > 0 {
+				state = fmt.Sprintf("%d files not committed", dirty)
+			}
+			fmt.Printf("        worktree %s: %s\n", path, state)
+		}
+	}
+	for _, it := range doing {
+		fmt.Printf("  %s %s (%s)\n", it.ID, it.Title, it.Status)
+		found := false
+		for _, b := range branches {
+			if strings.HasPrefix(strings.SplitN(b, "/", 2)[1], strings.ToLower(it.ID)+"-") {
+				describe(b)
+				found = true
+			}
+		}
+		if !found {
+			fmt.Println("        no branch with work on it yet")
+		}
+	}
+	for _, b := range branches {
+		if !shown[b] {
+			fmt.Printf("  %s, for an item not marked doing\n", b)
+			describe(b)
+		}
+	}
+	fmt.Println("To pick one up after a stop: \"Resuming after a stop\" in docs/plan/LOOP.md.")
+}
+
+// count is the number of commits in a git range, or 0.
+func count(root, rangeSpec string) int {
+	out, err := project.Run(root, "git", "rev-list", "--count", rangeSpec)
+	if err != nil {
+		return 0
+	}
+	n := 0
+	fmt.Sscanf(strings.TrimSpace(out), "%d", &n)
+	return n
 }

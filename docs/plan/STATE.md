@@ -17,6 +17,18 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | interface | a model picker in the chat, finishing P4-04, in its own worktree | P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
+## In flight
+
+Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the live state of each branch and worktree. Each lane branch is pushed to `origin` after every commit, so another machine can pick it up. To carry one on after a stop: "Resuming after a stop" in `docs/plan/LOOP.md`.
+
+| Item | Lane | Branch |
+| --- | --- | --- |
+| P7-02 approval policy | agents | `agents/p7-02-approvals` |
+| P7-03 web search and fetch, Tavily first | agents | `agents/p7-03-web-search` |
+| P5-02 compaction | chats | `chats/p5-02-compaction` |
+| P4-04, the chat's model picker | interface | `interface/p4-04-model-picker` |
+| P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
+
 ## Waiting on the owner
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |

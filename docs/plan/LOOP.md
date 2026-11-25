@@ -29,6 +29,31 @@ Each pass through the loop finishes one work item, or as much of it as can be bu
 - No merge with a red `verify`.
 - Never weaken a standing check to get to green.
 
+## Surviving a stop
+
+A session can stop at any moment: a usage limit, a closed window, a restart. Work is kept so that the next session, on this machine or another, loses nothing:
+
+- **Claim with a branch name.** When an item is claimed, `STATE.md` records it under "In flight" with its lane branch, named `<lane>/<item id in lower case>-<words>`, such as `agents/p7-02-approvals`. `doctor` finds branches by that shape.
+- **Plan first.** The item's Plan section says what will be built and what is left, in a few lines, before any code. It is the brief a second session finishes from.
+- **Commit small, push the branch.** Commit each time `verify` is green, not only at the end, and push the lane branch to `origin` after every commit (`git push -u origin <branch>`). Only the integrator pushes `reboot`.
+- **Write up at once.** Docs, journal and status follow the build commit straight away, so a stop never leaves built code with no record.
+
+## Resuming after a stop
+
+1. Run `go run ./tools/doctor`. Its "In flight" section lists every item marked doing and every lane branch not yet merged, with unmerged and unpushed commits and uncommitted files in its worktree.
+2. For each one, in this order of value: the branches nearest done first (code committed, write-up left), then the rest.
+   - **Its worktree is on this machine** (doctor names it): work in that worktree. Uncommitted files there are the stopped session's work in progress; read them with `git diff` and continue the design, do not start over.
+   - **Only the branch exists** (another machine, or the worktree was removed): `git fetch origin`, then `git worktree add .claude/worktrees/<branch with / as -> <branch>` and work there.
+   - **No branch yet**: start the item fresh in a new worktree on a branch of that shape.
+3. Start the work with the lane brief in `docs/plan/LANE-BRIEF.md`, filled in for the item, and add: "A previous session started this and stopped. Read the item's Plan and the branch's commits and uncommitted files first, then finish."
+4. When a lane finishes, the integrator merges its branch into `reboot`, runs `verify`, updates `STATE.md` (moving it out of "In flight") and pushes `reboot`.
+
+A stopped agent in the same session can instead be sent a message to carry on: it keeps its own context.
+
 ## Prompt for each pass
 
 > You work the <lane> lane. Read docs/plan/STATE.md, your lane's latest journal entries, docs/plan/PLAN.md and docs/plan/PARALLEL.md. Run the doctor tool. Do the next work item in your lane as far as it can be built today, then finish with verify, docs, journal and status, and hand the branch to the integrator.
+
+For the integrator, who runs the lanes and merges them, including in a new session after a stop:
+
+> /loop Work the Keystone build loop from AGENTS.md and docs/plan/LOOP.md: run doctor, finish anything in flight first ("Resuming after a stop"), then take the next ready item in each lane, each in its own worktree with the brief in docs/plan/LANE-BRIEF.md; merge each lane as it reports, with verify, docs, journal, status and STATE.md, commit as the owner with no agent attribution, and push to reboot. Goal: every item in docs/plan/items is done or provisional on its owner gate.

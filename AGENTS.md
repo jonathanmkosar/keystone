@@ -13,7 +13,7 @@ Then run:
 
     go run ./tools/doctor
 
-It prints the state, whether the build is healthy, and the next item each lane can pick up. The item files are in `docs/plan/items/`.
+It prints the state, whether the build is healthy, the next item each lane can pick up, and what is in flight: work a stopped session left on a lane branch or in a worktree. If anything is in flight, finish it first: "Resuming after a stop" in `docs/plan/LOOP.md`, with the brief in `docs/plan/LANE-BRIEF.md`. The item files are in `docs/plan/items/`.
 
 ## The branch
 

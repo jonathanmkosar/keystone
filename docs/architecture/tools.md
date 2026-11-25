@@ -105,7 +105,7 @@ Since P11-01, `internal/settingsapi` is on the `offline` check's list too: it ho
 
 ## doctor
 
-`go run ./tools/doctor` prints the state lines, the Go version, whether the build is healthy, how many items are done, and the next item each lane can pick up. An agent runs it at the start of every loop. It exits with an error when the build or the plan is broken, and fixing that is then the loop's item.
+`go run ./tools/doctor` prints the state lines, the Go version, whether the build is healthy, how many items are done, and the next item each lane can pick up. An agent runs it at the start of every loop. It exits with an error when the build or the plan is broken, and fixing that is then the loop's item. It ends with "In flight": every item marked doing and every lane branch not yet merged, with commits not merged, commits not pushed, and files not committed in its worktree, so a session that starts after a stop sees what the last one left. `docs/plan/LOOP.md` says how to pick it up.
 
 ## snapshot
 
