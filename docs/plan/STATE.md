@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: being built: P11-01, the settings screens (interface), P7-01, the tool loop (agents), and P6-05, recall (knowledge). The live checks of the three adapters wait on keys from the owner.
+Next: being built: P7-02 approvals (agents), P5-02 compaction (chats), and the chat's model picker (interface). The owner is adding his own person and three real models (Claude Sonnet 5.5, Claude Haiku 5.5, Qwen on the Mac mini).
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,10 +11,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
 | models | nothing | P6-08 with knowledge, after P6-05 |
-| chats | nothing | P5-02, P5-04, P9-05 |
+| chats | P5-02, compaction, in its own worktree | P5-04, P9-05 |
 | knowledge | nothing | P6-06, the memory pass |
-| agents | nothing | P7-02 approvals, P7-03, P8-01 |
-| interface | nothing | a model picker in the chat, P11-02 |
+| agents | P7-02, approvals, in its own worktree | P7-03, P8-01 |
+| interface | a model picker in the chat, finishing P4-04, in its own worktree | P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## Waiting on the owner

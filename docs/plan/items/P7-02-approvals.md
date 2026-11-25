@@ -1,6 +1,6 @@
 # P7-02. Approval policy
 
-Status: todo
+Status: doing (agents)
 Lane: agents + interface
 Depends on: P7-01
 Owner gate: Approval of the agent mockups (P1-05), for the approval cards only.

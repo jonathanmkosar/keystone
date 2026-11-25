@@ -1,6 +1,6 @@
 # P5-02. Compaction
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P5-01
 Owner gate: none
