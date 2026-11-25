@@ -14,6 +14,13 @@
       "default": "20ms",
       "scope": "install",
       "description": "How long the fake provider waits before each piece of a streamed reply, so a chat in the test tenant streams at a speed a person can watch. Tests use no wait."
+    },
+    {
+      "key": "models.max_per_tenant",
+      "type": "int",
+      "default": "50",
+      "scope": "install",
+      "description": "The most models one person's registry may hold. Adding one more is refused."
     }
   ]
 }

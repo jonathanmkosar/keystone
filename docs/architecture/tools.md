@@ -57,6 +57,8 @@ The code is in `tools/verify/fixedrules.go`. It proves four things on every run.
 
 Today `internal/tenant` guards tenant isolation and `internal/audit` guards call recording. The approval rule and the sensitive content rule have no code yet. The item that builds each one adds its package to `fixedRuleGuards`, and adds a step to the check if the rule needs a proof of its own. Code that enforces a rule and code that reads settings therefore live in separate packages.
 
+Since P3-02, `internal/models` guards the sensitive content rule: the registry's classes are what the rule reads ([models.md](models.md)). Routing (P3-08) and recall (P6-05) add their own packages. The `no keys in output` check also has a surface for the model registry, in `tools/verify/models.go`: a key reaches an adapter's builder from the vault, and is looked for in every error, in the registry as listed, and in the data folder.
+
 ## doctor
 
 `go run ./tools/doctor` prints the state lines, the Go version, whether the build is healthy, how many items are done, and the next item each lane can pick up. An agent runs it at the start of every loop. It exits with an error when the build or the plan is broken, and fixing that is then the loop's item.

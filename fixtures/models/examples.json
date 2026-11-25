@@ -1,0 +1,78 @@
+{
+  "test_data": true,
+  "models": [
+    {
+      "name": "scripted",
+      "label": "Scripted model",
+      "adapter": "fake",
+      "context_window": 32000,
+      "output_limit": 4000,
+      "capabilities": ["tools", "thinking"],
+      "price": {"input": 0, "output": 0},
+      "class": "local"
+    },
+    {
+      "name": "house-small",
+      "label": "House small",
+      "adapter": "chat_completions",
+      "endpoint": "http://127.0.0.1:11434/v1",
+      "provider_model": "example-small:8b",
+      "context_window": 8192,
+      "output_limit": 2048,
+      "capabilities": ["tools"],
+      "price": {"input": 0, "output": 0},
+      "class": "local"
+    },
+    {
+      "name": "house-embed",
+      "label": "House embeddings",
+      "adapter": "chat_completions",
+      "endpoint": "http://127.0.0.1:11434/v1",
+      "provider_model": "example-embed",
+      "context_window": 2048,
+      "output_limit": 1,
+      "capabilities": ["embedding"],
+      "price": {"input": 0, "output": 0},
+      "class": "local"
+    },
+    {
+      "name": "study-gateway",
+      "label": "Study gateway",
+      "adapter": "chat_completions",
+      "endpoint": "https://gateway.home.arpa:8443/v1",
+      "provider_model": "example-medium",
+      "key": "provider.gateway",
+      "context_window": 64000,
+      "output_limit": 8000,
+      "capabilities": ["tools", "vision"],
+      "price": {"input": 0, "output": 0},
+      "class": "local"
+    },
+    {
+      "name": "example-large",
+      "label": "Example Large",
+      "adapter": "anthropic",
+      "endpoint": "https://api.provider-one.example",
+      "provider_model": "example-large-1",
+      "key": "provider.one",
+      "context_window": 200000,
+      "output_limit": 16000,
+      "capabilities": ["tools", "vision", "files", "thinking"],
+      "price": {"input": 3, "output": 15, "cache_read": 0.3, "cache_write": 3.75},
+      "class": "hosted"
+    },
+    {
+      "name": "example-private",
+      "label": "Example Private",
+      "adapter": "responses",
+      "endpoint": "https://private.provider-two.example/v1",
+      "provider_model": "example-private-2",
+      "key": "provider.two",
+      "context_window": 128000,
+      "output_limit": 8000,
+      "capabilities": ["tools", "vision"],
+      "price": {"input": 1.25, "output": 10},
+      "class": "trusted"
+    }
+  ]
+}
