@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
@@ -40,6 +41,15 @@ type Config struct {
 	MaxBodyBytes int64         // server.max_body_bytes
 	Heartbeat    time.Duration // server.stream_heartbeat
 	PageLimit    int           // server.page_limit
+
+	// Turns are the settings chats and turns run with, in
+	// settings/chats.json.
+	Turns turn.Config
+	// Adapters are the model adapters this binary has. It is not a setting:
+	// whoever starts the server makes the set. Nil means the fake alone.
+	Adapters adapters.Set
+	// runner works the turns. Handler and Open make it.
+	runner *turn.Runner
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -61,6 +71,9 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	var c Config
 	var err error
 	if c.SignIn, err = signin.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
+	if c.Turns, err = turn.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -115,13 +128,22 @@ func routes(c Config, log *api.Log) []api.Route {
 		Routes:       func() []api.Route { return all },
 		Log:          log,
 	})...)
-	all = append(all, turn.Routes(&turn.Runner{})...)
+	runner := c.runner
+	if runner == nil {
+		runner = turn.NewRunner(c.turnOptions(log))
+	}
+	all = append(all, turn.Routes(runner)...)
 	return all
 }
 
 // Handler returns the handler for everything under /api/.
 func Handler(c Config) (http.Handler, error) {
 	log := api.NewLog(c.Log)
+	if c.runner == nil {
+		c.runner = turn.NewRunner(c.turnOptions(log))
+	}
+	// A turn that was waiting when the server last stopped runs now.
+	c.runner.Recover()
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,
@@ -139,4 +161,24 @@ func OpenAPI() ([]byte, error) {
 		return nil, err
 	}
 	return api.Document(Routes(c), APIVersion)
+}
+
+// turnOptions is what the runner of chats and turns is made with.
+func (c Config) turnOptions(log *api.Log) turn.Options {
+	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}
+}
+
+// Open returns the handler as Handler does, and a function that stops the
+// work the handler started and waits for it: the goroutines that run
+// turns. A turn that is cut short this way is finished by the next start.
+// A caller that removes the data folder afterwards, as a check does, calls
+// it first.
+func Open(c Config) (http.Handler, func(), error) {
+	c.runner = turn.NewRunner(c.turnOptions(api.NewLog(c.Log)))
+	h, err := Handler(c)
+	if err != nil {
+		c.runner.Close()
+		return nil, nil, err
+	}
+	return h, c.runner.Close, nil
 }
