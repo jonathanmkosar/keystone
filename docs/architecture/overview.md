@@ -36,6 +36,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Context builder | `internal/contextbuild` | Builds what one model call carries: the standing instructions, the current turn and as many earlier turns as fit the model's window, newest first and each one whole, with named slots for the parts later items bring. Returns a record of every part, kept and dropped, with its tokens, which the turn stores for the inspector. | [context.md](context.md) |
 | Routing | `internal/routing` | Decides which models one call may be sent to: a rule for each kind of task, sensitive content kept to local and trusted models, and a fallback chain that moves to the next model while nothing of a reply has been passed on. A guard for fixed rule 3. | [routing.md](routing.md) |
 | Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
+| Recall | `internal/knowledge/recall` | Searches the person's knowledge store with each message, keeps the hits over a threshold set for each adapter, and gives each call the pages and sources found, each saying where it came from, with a record of what was kept and dropped. Three lookups for the model. A guard for fixed rule 3: a call that is given sensitive content is routed only to models that may read it, and a chat that was sent some stays held to them. The lookups wait for the tool loop to offer them. | [knowledge-recall.md](knowledge-recall.md) |
 
 ## Parts still to come
 
@@ -111,5 +112,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0161 | [The cap stops a call that could pass it, counted at the most the call could cost](decisions/0161-the-cap-stops-a-call-that-could-pass-it.md) |
 | 0162 | [The cap counts a calendar month in UTC, and every model that is not local](decisions/0162-the-cap-counts-a-utc-calendar-month.md) |
 | 0163 | [A route is one provider, and the turn's model stays the one that was asked for](decisions/0163-a-route-is-one-provider.md) |
+| 0210 | [Recall searches once, before the route, and a call is built for the least of its route](decisions/0210-recall-searches-once-before-the-route.md) |
+| 0211 | [A chat that was sent sensitive content is held to models that may read it](decisions/0211-a-chat-sent-sensitive-content-is-held.md) |
+| 0212 | [Recall searches with the message's words, keeps by a threshold for each adapter, and fills each kind of model's room](decisions/0212-what-recall-searches-with-and-keeps.md) |
+| 0213 | [The lookups are plain values the tool loop wraps, and take the model's answer like recall](decisions/0213-the-lookups-are-plain-values.md) |
+| 0214 | [The search-first rule is a paragraph of the standing instructions, sent when a store is open](decisions/0214-the-search-first-rule-is-a-standing-instruction.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

@@ -10,6 +10,7 @@ This is Test Person One, the tenant `rebuild` loads so a fresh checkout has some
 | `turns/` | Recorded model turns, as fake provider scripts. The format is in [`docs/architecture/fake-provider.md`](../../docs/architecture/fake-provider.md), and `fixtures/fake-provider/` has examples to copy. |
 | `chats/` | One file for each chat: its title and the person's messages. The replies come from `turns/` when the chat is loaded. |
 | `cases/` | Use cases and their expected results, which the `test tenant` check in `verify` runs. |
+| `knowledge/` | Invented pages and sources in two ordinary spaces and a sensitive one, with the questions the `recall` and `sensitive content` checks ask. The checks load it themselves; the loader does not read this folder and the binary does not embed it. |
 | `fixture.go` | Compiles this folder into the binary. |
 
 ## Adding a chat

@@ -121,12 +121,12 @@ Other refusals:
 
 - **A real Waymarks.** The item's proof is the contract suite against a Waymarks test tenant. That needs a running instance and three tokens, which only the owner can give. Until then the adapter is proven against the fake alone, and the fake is this lane's reading of the source.
 - **A chat finishes with Waymarks down.** There is no chat turn until P4-03. What is proven is the half this package owns: every call returns `ErrUnavailable` quickly and nothing panics or hangs.
-- **Relevance.** A score is Waymarks' own. Recall's threshold for this adapter is set in P6-05.
+- **Relevance.** A score is Waymarks' own. Recall's threshold for this adapter is `knowledge.recall_min_score_waymarks`, which ships at 0 until real scores are seen ([knowledge-recall.md](knowledge-recall.md)).
 
 ## Not here
 
 - The server does not import the package yet, so the binary does not have `waymarks`. `cmd/keystone` belongs to the core lane.
-- Nothing calls `Open` yet. Recall (P6-05) and the memory pass (P6-06) are the first callers.
-- Roles in the interface. The adapter picks the token by the call. A caller that must not add sources is handed a store opened for a tenant with no intake token, or checks the flag. Whether chat gets a view that cannot add is for P6-05.
+- A turn opens the store for the person map and for recall. The `recall` and `sensitive content` checks in `verify` run turns against a small fake Waymarks of their own, in `tools/verify/waymarksfake.go`. The memory pass (P6-06) is the next caller.
+- Roles in the interface. The adapter picks the token by the call. A caller that must not add sources is handed a store opened for a tenant with no intake token, or checks the flag. Chat gets the whole store, and recall and the lookups only read (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
 - A wider search than 100 hits, and paging through a search. The interface has no call for either.
 - The upkeep jobs' tokens (P8-06). Each job has its own token and writes pages, which the interface has no call for yet.

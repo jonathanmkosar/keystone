@@ -1,6 +1,6 @@
 # P6-05. Recall
 
-Status: doing (knowledge)
+Status: done
 Lane: knowledge
 Depends on: P6-04, P5-01, P3-08, P3-09
 Owner gate: none
@@ -24,3 +24,19 @@ A new package, `internal/knowledge/recall`. It imports the knowledge interface a
 
 Proof: two new checks in `verify`, `recall` and `sensitive content`, run on the test tenant with the built-in store and with the Waymarks adapter against a fake Waymarks on this machine. A message about something in the store brings it into the call. A message about nothing in the store brings nothing. Content from a sensitive space never appears in a call to a model that may not read it, by recall, by a lookup or by fallback. The invented knowledge is a fixture under `fixtures/test-tenant/knowledge/`.
 
+### Result (November 25, 2026)
+
+Done. The proof passes: the `recall` and `sensitive content` checks run on the test tenant, with an invented tenant beside it for the hosted half, on the built-in store and on the Waymarks adapter against a fake Waymarks on this machine. A second session finished the item after the first stopped partway.
+
+Built:
+
+- `internal/knowledge/recall`: `Find` and `Found.For` for automatic recall, the three lookups (`Lookups`), and the record a turn keeps (`Save`, `Hold`, `Saved`, `Held`) in a new table, `turn_recall`. A guard of fixed rule 3 in `verify`: it reads no setting, and `Found.For` and `Lookups` are the only ways to the content.
+- In a turn (`internal/turn/recall.go`, with small edits to `runner.go`, `route.go`, `context.go`, `person.go` and `store.go`): the store is searched once, before the route; routing is told the call is sensitive when recall kept a sensitive item for the chat's model or the chat was sent sensitive content before; each call is built for the least of its route's models, the person map included; the search-first rule joins the standing instructions when a store is open; a store that is missing, down or slow gives nothing within `knowledge.recall_timeout`; `none` searches nothing.
+- Twelve settings in `settings/knowledge.json`, among them a relevance threshold for each adapter.
+- Invented knowledge in `fixtures/test-tenant/knowledge/knowledge.json`, seeded by the checks.
+
+One thing goes past the plan above (decision 0210): each call is built for the least of its route's models, which closes a door the plan did not name, a hosted fallback behind a local model. The person map is built that way too, which `person.go` did not do before.
+
+Not delivered here: no model is offered the lookups until the tool loop (P7-01) registers them, which the journal tells the integrator how to do. The Waymarks threshold ships at 0 and has met only a fake. The recall check compares the share with a floor and keeps no history of it.
+
+The doc is `docs/architecture/knowledge-recall.md`, the decisions are 0210 to 0214, and the journal entry is `docs/journal/2026-11-25-knowledge-005.md`, which has the owner's questions and the integrator's steps.
