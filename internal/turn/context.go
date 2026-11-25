@@ -25,10 +25,12 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	if err != nil {
 		return seam.Request{}, err
 	}
+	profile, personMap := r.person(ctx, s, t, m)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
 		MaxOutputTokens: maxOutput, ThinkingTokens: thinking,
 		Provider: p, Messages: messages,
+		Profile: profile, PersonMap: personMap,
 	})
 	if err != nil {
 		return seam.Request{}, err
