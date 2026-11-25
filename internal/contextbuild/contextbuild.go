@@ -102,6 +102,13 @@ type Item struct {
 	Text string
 	// Pinned says the item is never left out.
 	Pinned bool
+	// Ref is the turn inspector's name for the item (P5-04), such as
+	// page:7, source:3 or message:42. It is not sent.
+	Ref string
+	// Removed says the person took the item out of this call from the turn
+	// inspector (P5-04). It is not sent and takes no room, even when it is
+	// pinned, and the record lists it as removed.
+	Removed bool
 }
 
 // Pin is a message of the chat the person pinned (P5-02). It is never left
@@ -164,6 +171,9 @@ type Input struct {
 	// sent when the summary is. When it does not fit its share, they are
 	// packed as any other earlier turn.
 	SummaryCovers int
+	// SummaryRef is the turn inspector's name for the summary (P5-04),
+	// such as summary:12. The record carries it on the summary part.
+	SummaryRef string
 	// Pinned is the messages of the chat the person pinned (P5-02).
 	Pinned []Pin
 }
@@ -225,6 +235,12 @@ type PartRecord struct {
 	// Covers is, for the summary, how many earlier turns it was sent in
 	// place of.
 	Covers int `json:"covers,omitempty"`
+	// Removed counts the pieces the person took out of the call from the
+	// turn inspector (P5-04). They are counted neither kept nor dropped.
+	Removed int `json:"removed,omitempty"`
+	// Ref names what the part was made from, for the turn inspector: on
+	// the summary, Input.SummaryRef (P5-04).
+	Ref string `json:"ref,omitempty"`
 	// Items lists the pieces of a part that holds several, in the order
 	// they were given.
 	Items []ItemRecord `json:"items,omitempty"`
@@ -232,13 +248,18 @@ type PartRecord struct {
 
 // ItemRecord is one piece of a part.
 type ItemRecord struct {
-	Label  string `json:"label,omitempty"`
+	Label string `json:"label,omitempty"`
+	// Ref is the item's Ref (P5-04).
+	Ref    string `json:"ref,omitempty"`
 	Tokens int    `json:"tokens"`
 	Kept   bool   `json:"kept"`
 	Pinned bool   `json:"pinned,omitempty"`
 	// InTurn says a pinned message was not sent as an item because the
 	// turn it is in was sent.
 	InTurn bool `json:"in_turn,omitempty"`
+	// Removed says the person took the item out of the call (P5-04). Its
+	// Tokens are what it would have taken.
+	Removed bool `json:"removed,omitempty"`
 }
 
 // TurnRecord is one turn of the branch: a message of the person's and
@@ -487,24 +508,24 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 	left := target - w.rules - w.tools - w.profile - w.personMap - w.project - w.style - w.turns[cur].tokens
 	keepAttached, keepRecall := make([]bool, len(in.Attached)), make([]bool, len(in.Recall))
 	for i, it := range in.Attached {
-		if it.Pinned && it.Text != "" {
+		if it.Pinned && it.Text != "" && !it.Removed {
 			keepAttached[i] = true
 			left -= w.attached[i]
 		}
 	}
 	for i, it := range in.Recall {
-		if it.Pinned && it.Text != "" {
+		if it.Pinned && it.Text != "" && !it.Removed {
 			keepRecall[i] = true
 			left -= w.recall[i]
 		}
 	}
 	// A pinned message outside the current turn is held its room here.
 	// When its turn is sent below, the room is given back and the message
-	// is not sent a second time.
+	// is not sent a second time. One the person removed is held nothing.
 	pinTurn, heldPin := make([]int, len(in.Pinned)), make([]bool, len(in.Pinned))
 	for i, p := range in.Pinned {
 		pinTurn[i] = turnOf(w.turns, p.Message)
-		if p.Text != "" && pinTurn[i] != cur {
+		if p.Text != "" && !p.Removed && pinTurn[i] != cur {
 			heldPin[i] = true
 			left -= w.pinned[i]
 		}
@@ -520,7 +541,7 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 	fill := func(items []Item, sizes []int, keep []bool, room int) int {
 		used := 0
 		for i, it := range items {
-			if keep[i] || it.Text == "" || used+sizes[i] > room {
+			if keep[i] || it.Text == "" || it.Removed || used+sizes[i] > room {
 				continue
 			}
 			keep[i] = true
@@ -531,7 +552,7 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 	need := func(items []Item, sizes []int, keep []bool) int {
 		n := 0
 		for i, it := range items {
-			if !keep[i] && it.Text != "" {
+			if !keep[i] && it.Text != "" && !it.Removed {
 				n += sizes[i]
 			}
 		}
@@ -633,15 +654,18 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 			if it.Text == "" {
 				continue
 			}
-			pr.Items = append(pr.Items, ItemRecord{Label: it.Label, Tokens: sizes[i], Kept: keep[i], Pinned: it.Pinned})
-			if keep[i] {
+			pr.Items = append(pr.Items, ItemRecord{Label: it.Label, Ref: it.Ref, Tokens: sizes[i], Kept: keep[i], Pinned: it.Pinned, Removed: it.Removed})
+			switch {
+			case keep[i]:
 				system(it.Text)
 				pr.Kept, pr.Tokens = pr.Kept+1, pr.Tokens+sizes[i]
-			} else {
+			case it.Removed:
+				pr.Removed++
+			default:
 				pr.Dropped, pr.DroppedTokens = pr.Dropped+1, pr.DroppedTokens+sizes[i]
 			}
 		}
-		pr.State = state(pr.Kept, pr.Dropped)
+		pr.State = state(pr.Kept, pr.Dropped+pr.Removed)
 		return pr
 	}
 	turnsOf := func(p Part, lo, hi int) PartRecord {
@@ -664,17 +688,28 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 	}
 	pinned := func() PartRecord {
 		pr := PartRecord{Part: PartPinned, Place: PlaceSystem}
+		gone := 0 // removed, and not in a turn that was sent
 		for i, p := range in.Pinned {
 			if p.Text == "" {
 				continue
 			}
-			pr.Items = append(pr.Items, ItemRecord{Label: p.Label, Tokens: w.pinned[i], Kept: sendPin[i], Pinned: true, InTurn: !sendPin[i]})
+			// A removed pin whose turn is sent is in the call all the same,
+			// in its turn.
+			inTurn := !sendPin[i]
+			if p.Removed {
+				inTurn = pinTurn[i] == cur || (pinTurn[i] >= from && pinTurn[i] < cur)
+				pr.Removed++
+				if !inTurn {
+					gone++
+				}
+			}
+			pr.Items = append(pr.Items, ItemRecord{Label: p.Label, Ref: p.Ref, Tokens: w.pinned[i], Kept: sendPin[i], Pinned: true, InTurn: inTurn, Removed: p.Removed})
 			if sendPin[i] {
 				system(p.Text)
 				pr.Kept, pr.Tokens = pr.Kept+1, pr.Tokens+w.pinned[i]
 			}
 		}
-		pr.State = state(pr.Kept, 0)
+		pr.State = state(pr.Kept, gone)
 		return pr
 	}
 
@@ -689,6 +724,9 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 		pr := one(PartSummary, in.Summary, w.summary, keepSummary)
 		if keepSummary {
 			pr.Covers = floor
+		}
+		if in.Summary != "" {
+			pr.Ref = in.SummaryRef
 		}
 		return pr
 	}
