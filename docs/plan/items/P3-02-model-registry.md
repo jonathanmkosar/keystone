@@ -1,6 +1,6 @@
 # P3-02. Model registry
 
-Status: doing (models)
+Status: done
 Lane: models
 Depends on: P3-01, P2-04
 Owner gate: none
@@ -33,3 +33,17 @@ How it will be proven:
 - A key is read from the vault by name, a missing key is refused by name, and no error holds a key's value. The `no keys in output` check gets a line for this.
 - `verify` is green, with `internal/models` listed as a guard in the `fixed rules` check.
 
+
+### Result
+
+Done on November 24, 2026.
+
+- `internal/models` is the registry. An entry has a name, a label, an adapter, an endpoint, the provider's name for the model, the name of the secret that holds its key, a context window, an output limit, capabilities, a price and a class. Each tenant's entries are rows in its own `models` table (decision 0050).
+- The proof holds. Adding a model is a row and no code: a test adds the six example entries to a tenant, reads them back after the database is reopened, and calls the fake one. An invalid entry is refused with a reason: each of the 25 entries in `fixtures/models/refused.json` is refused for the reason the file gives.
+- The class is what fixed rule 3 reads, so the package is a guard for `rules.sensitive_content` and reads no setting (decision 0051). An entry marked `local` must have an address on this machine or the home network.
+- `internal/adapters` opens a model as a `seam.Provider`, with the key read by name from the tenant's vault (decision 0052). The fake is the only adapter built. An entry may name one of the other three, and opening it says the adapter is not in this build.
+- One setting, `models.max_per_tenant`. `verify` is 12 of 12, with a registry surface in `no keys in output`.
+- Not here: a route, a screen or a command that adds a model, and anything that stops a call because of its class. Those are P2-05, P11-01 and P3-08.
+- One question for the owner, which holds up nothing built: who may change a person's registry. Recommended: the admin only.
+
+Journal: `docs/journal/2026-11-24-models-003.md`.
