@@ -11,6 +11,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/audit"
 	"github.com/jonathanmkosar/keystone/internal/knowledge"
+	"github.com/jonathanmkosar/keystone/internal/knowledge/memory"
 	"github.com/jonathanmkosar/keystone/internal/knowledge/recall"
 	"github.com/jonathanmkosar/keystone/internal/models"
 	"github.com/jonathanmkosar/keystone/internal/seam"
@@ -217,6 +218,12 @@ func sensitiveProblems(g *knowledgeRig, e *ears) ([]string, error) {
 		return nil, err
 	}
 	if err := g.seed(person.ID); err != nil {
+		return nil, err
+	}
+	// The memory pass (P6-06) runs beside each turn, and on this tenant it
+	// would call the hosted model between the counts below. Its own proof
+	// of rule 3 is the memory pass check, in memory.go.
+	if err := g.set(person.ID, memory.SettingOn, "false"); err != nil {
 		return nil, err
 	}
 	token, rec := g.w.signIn(person.ID, sensitivePassword)

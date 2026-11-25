@@ -108,7 +108,7 @@ func (r *Runner) routed(ctx context.Context, s *tenant.Store, t row, kind routin
 		secrets = append(secrets, o.secrets...)
 	}
 	chain, err := routing.NewChain(sensitive, links, routing.Hooks{
-		Gate:  r.capGate(s),
+		Gate:  r.gate(s, kind),
 		Moved: r.moved(s, t, kind, &secrets),
 	})
 	if err != nil {
@@ -216,6 +216,9 @@ func (r *Runner) used(s *tenant.Store, t row, step int, m models.Model, end audi
 	}
 	if step == stepSummary { // a summary of the chat's oldest turns (P5-02)
 		kind = routing.KindSummary
+	}
+	if step == stepMemory { // the memory pass after a turn (P6-06)
+		kind = routing.KindMemory
 	}
 	r.record(s, t, kind, m, end, stopped)
 }

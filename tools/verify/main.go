@@ -78,6 +78,8 @@ var componentDocs = map[string]string{
 	"internal/compact":          "docs/architecture/compaction.md",
 
 	"internal/tools/web": "docs/architecture/web-search.md",
+
+	"internal/knowledge/memory": "docs/architecture/memory-pass.md",
 }
 
 var checks = []check{
@@ -100,6 +102,7 @@ var checks = []check{
 	{"approval", checkApproval},
 	{"recall", checkRecall},
 	{"sensitive content", checkSensitive},
+	{"memory pass", checkMemory},
 }
 
 func main() {

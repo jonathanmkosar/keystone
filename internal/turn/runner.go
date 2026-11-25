@@ -43,6 +43,8 @@ type Runner struct {
 
 	compaction compactions // which chats are being summarised (P5-02, compact.go)
 
+	memory memoryWorkers // which chats have a memory worker at work (P6-06, memory.go)
+
 	once     sync.Once
 	setupErr error
 	reg      []settings.Setting
@@ -347,6 +349,7 @@ func (r *Runner) runTurn(s *tenant.Store, t row) {
 	if _, err := finish(s, t.ID, status, failure); err != nil && !errors.Is(err, errNoTurn) {
 		r.logf("turns: %s closing turn %s: %v", t.requestID, t.ID, err)
 	}
+	r.memoryLater(s, t, status) // P6-06: the memory pass, queued as the turn ends and run beside it (memory.go)
 }
 
 // work is the turn itself: the model is opened, the person's message is
