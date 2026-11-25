@@ -12,6 +12,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Secrets | `internal/secrets` | A tenant's provider keys and connector tokens in `secrets.bin`, encrypted under that tenant's data key, which is wrapped by a master key the operating system holds. | [secrets.md](secrets.md) |
 | Knowledge store | `internal/knowledge` | The interface every knowledge store is written to, the tests any store must pass, and the store that holds nothing, so a tenant can run with none. | [knowledge.md](knowledge.md) |
 | Built-in knowledge store | `internal/knowledge/builtin` | The knowledge store Keystone keeps by itself, in the tenant's own database: pages, sources, labels, a full-text index and page vectors. It passes the contract suite with every capability. The server does not open it yet. | [knowledge-builtin.md](knowledge-builtin.md) |
+| Waymarks adapter | `internal/knowledge/waymarks` | The knowledge store adapter for Waymarks: an HTTP client of one instance for each tenant, with the address in that tenant's settings and one token for each role in that tenant's secrets. It passes the contract suite against a fake Waymarks and has not met a real one. The server does not open it yet. | [knowledge-waymarks.md](knowledge-waymarks.md) |
 | Web interface | `web` | The built interface, compiled into the binary. A placeholder page until P4-01. | [web.md](web.md) |
 | Settings registry | `settings` | Every value someone may change: its default, its type, and who may change it. | [settings.md](settings.md) |
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
@@ -52,5 +53,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0060 | [The built-in knowledge store keeps its pages in the tenant's database](decisions/0060-built-in-store-in-the-tenant-database.md) |
 | 0061 | [A built-in search matches any word, with stemming, and adds a cosine to the word score](decisions/0061-built-in-search-any-word-and-cosine.md) |
 | 0062 | [The built-in store takes a vector of any model and size, and compares them in Go](decisions/0062-built-in-vectors-any-model.md) |
+| 0090 | [The Waymarks adapter holds three tokens, and its capabilities follow them](decisions/0090-waymarks-three-tokens.md) |
+| 0091 | [The Waymarks catalog marker is a hash of the catalog and the labels](decisions/0091-waymarks-marker-is-a-hash-of-the-catalog.md) |
+| 0092 | [A Waymarks label comes from the answer's own mark, and from the list of spaces read afterwards](decisions/0092-waymarks-labels-from-the-answer.md) |
+| 0093 | [What each Waymarks refusal becomes](decisions/0093-waymarks-refusals.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
