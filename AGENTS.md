@@ -39,8 +39,8 @@ Finish every item the same way: tests, `go run ./tools/verify`, the part's doc u
 
 ## Where things stand on handoff, November 24, 2026
 
-- Done: P0-01 (layout and settings registry), P0-02 (rebuild, verify, doctor, snapshot), P0-03 (stack decision records and the Windows check) and P2-01 (tenant folders and databases). `verify` is green, 8 of 8, on Windows 11 with Go 1.26.
-- Ready now: P2-02 (sign-in), P2-03 (secrets), P2-04 (audit log and tenant settings), P3-01 (the model seam's internal format).
+- Done: P0-01 (layout and settings registry), P0-02 (rebuild, verify, doctor, snapshot), P0-03 (stack decision records and the Windows check), P2-01 (tenant folders and databases) and P3-01 (the model seam's internal format). `verify` is green, 8 of 8, on Windows 11 with Go 1.26.
+- Ready now: P2-02 (sign-in), P2-03 (secrets), P2-04 (audit log and tenant settings), P3-02 (model registry), P3-03 (fake provider).
 - The store is `modernc.org/sqlite`, the same driver and version Waymarks uses (decision 0003). Follow Waymarks' choices unless a decision record says why not.
 - The look is decided. `design/README.md` has the mark and every colour. `design/screens/` has the mockups as reference markup. Build the interface from the tokens, and treat screens marked as drafts as provisional.
 - The earlier Python Keystone on `main`, and the owner's later "New Keystone", are sources to borrow from: durable jobs and queued turns, web search with approvals, voice dictation, the local model gateway client, approval cards.

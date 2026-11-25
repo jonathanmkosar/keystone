@@ -30,6 +30,7 @@ var componentDocs = map[string]string{
 	"tools/tenant":     "docs/architecture/tools.md",
 	"settings":         "docs/architecture/settings.md",
 	"internal/project": "docs/architecture/project.md",
+	"internal/seam":    "docs/architecture/seam.md",
 	"tools/verify":     "docs/architecture/tools.md",
 	"tools/doctor":     "docs/architecture/tools.md",
 	"tools/snapshot":   "docs/architecture/tools.md",
