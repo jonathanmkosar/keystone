@@ -1,6 +1,6 @@
 # P8-03. Scheduled tasks
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P8-01
 Owner gate: none
@@ -23,4 +23,13 @@ Plan, November 25, 2026 (agents, on `agents/p8-03-scheduled-tasks`):
 - Proof: tests, and a standing `verify` check, `scheduled tasks`: a daily schedule whose due time passes while the server is stopped fires once, and only once, when it starts again, late, and its run is a chat with the result; a paused schedule does not fire, and the switch holds them all; the next due time is right across a daylight-saving change.
 
 Left for later: a budget of its own for each schedule and the full pause switch (P8-05), a list of runs on Operations (P11-03), and a schedule a model can make with a tool.
+
+Done on November 25, 2026. The item has no owner gate, and the proof passes.
+
+- **Schedules in the person's time zone.** Hourly at a minute, daily, weekdays, weekly on chosen days, or once on a date, at a time of day in `agents.time_zone` (an IANA name; empty is this computer's). The next due time is worked out from wall-clock time, right across the changes of the clocks, with the zone database compiled in. A change of zone moves every next due time.
+- **Each run is a chat turn.** A due schedule starts a background task (P8-01) that works in a chat of its own, titled by the schedule and the date: the prompt is the chat's first message, its steps stream and record, a tool that changes something waits for the person, the task's budget and the monthly cap hold, and a run cut short by a restart resumes. Its reply is its result; a note says why when it did not finish. No second runner: `jobs.Runner.StartIn` is a task in its own chat.
+- **A missed run happens once.** One run stands for every due time that passed, marked late with the reason, its next due time moved in the same transaction that writes it; the database refuses a second run for one due time. A due time while a run is under way waits and runs once, late.
+- **The pause switch.** `agents.schedules_paused`, set by Pause all and Resume all, holds every schedule; nothing paused or held is made up. It does not hold background tasks or a run under way (P8-05).
+- **The proof**, in `go test ./internal/schedules` (`TestAMissedRunHappensOnceAfterAnOutage`) and in the new standing check `scheduled tasks` on the real server as the test tenant: a daily schedule whose due time passed three times while the server was stopped fires once, and only once, when it starts again, and its run is a chat with the result; a paused schedule does not fire; the next due time is right across a daylight-saving change. `verify` is 22 of 22. Also seen in a browser on port 7991.
+- The contract: added only. Ten routes under `/schedules`, `docs/api/openapi.json` regenerated, listed in `turns.md` under "Changed since the contract". The doc is `docs/architecture/schedules.md`; decisions 0340 to 0343; the journal is agents 006. The Scheduled screen follows a draft mockup and is provisional on the agent mockups (P1-05) for its look.
 
