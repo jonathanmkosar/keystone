@@ -192,7 +192,11 @@ func Summary(t Tool, input json.RawMessage) string {
 	if len(parts) == 0 {
 		return fmt.Sprintf("Use %s.", t.Name)
 	}
-	return fmt.Sprintf("Use %s with %s.", t.Name, strings.Join(parts, ", "))
+	s := fmt.Sprintf("Use %s with %s", t.Name, strings.Join(parts, ", "))
+	if strings.HasSuffix(s, ".”") || strings.HasSuffix(s, "?”") || strings.HasSuffix(s, "!”") {
+		return s // a quoted sentence already ends it
+	}
+	return s + "."
 }
 
 // Definitions returns the tools as a model is offered them, by name, so

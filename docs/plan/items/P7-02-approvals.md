@@ -41,6 +41,6 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 **What is left**, for a session that picks this up (updated at each commit):
 
 - Done: the server side. `internal/tools/approval` (policy, `Decide`, `Answered`, `Covers`), `internal/tools` (`Inside`, `Describe`, `Get`, `Summary`), the migration `20261125T113000_tool_approvals.sql`, `internal/turn/approvals.go`, `policies.go`, `approvalroutes.go` and their tests, the lines in `runner.go`, `store.go`, `tools.go`, `lookups.go`, `internal/app/app.go`, `agents.approval_timeout`, the fixture `turns/approvals.json`, the `approval` check's new parts in `tools/verify/approvals.go`, and `docs/api/openapi.json`.
-- Next: the card (`web/app/src/Approval.tsx`, `approval.css`, one line in `Chat.tsx`, a few in `api.ts`) and the small policy list on `/settings/approvals`, rebuilt into `web/dist/`, and checked in a browser with an uncommitted harness that registers `write_harbour_log` and `read_notice_board`.
-- Then the docs (`docs/architecture/approvals.md` with its `componentDocs` lines and overview row, a section in `web.md`, `turns.md` "Changed since the contract", decisions from 0220), the journal agents 002, and `Status: provisional` with the Result.
+- Done: the card (`web/app/src/Approval.tsx`, `approval.css`), the policy list (`ApprovalSettings.tsx` on `/settings/approvals`), a few lines in `Chat.tsx`, `api.ts`, `Conversation.tsx`, `steps.ts` and `Settings.tsx`, `web/dist/` rebuilt, and seen in a browser on port 7931.
+- Next: the docs (`docs/architecture/approvals.md` with its `componentDocs` lines and overview row, a section in `web.md`, `turns.md` "Changed since the contract", decisions from 0220), the journal agents 002, and `Status: provisional` with the Result.
 

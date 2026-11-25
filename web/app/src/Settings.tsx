@@ -23,6 +23,7 @@ import {
   type SecretName,
   type Setting,
 } from "./api";
+import { ApprovalSettings } from "./ApprovalSettings";
 import { Icon } from "./Icon";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
@@ -154,14 +155,7 @@ export function Settings(props: Props) {
             </NotBuilt>
           }
         />
-        <Route
-          path="approvals"
-          element={
-            <NotBuilt title="Approvals" brings="P7-02, approvals">
-              Approvals decide when Keystone must ask before it does something outside itself. Until they are built, Keystone has no tool that acts outside itself.
-            </NotBuilt>
-          }
-        />
+        <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route
           path="spend"
           element={

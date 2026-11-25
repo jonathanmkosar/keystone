@@ -326,6 +326,7 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   let ended = false;
   try {
     await readEvents(res.body, (e) => {
+      if (e.name === "approval") return tellApproval(e.data); // P7-02: for the approval card, Approval.tsx
       if (!turnEventNames.has(e.name)) return true; // an event a later server adds
       let data: unknown;
       try {
@@ -528,4 +529,97 @@ export async function readProfile(): Promise<Profile> {
 
 export async function writeProfile(text: string): Promise<Profile> {
   return profileFrom(await object("PUT", settingsPaths.profile, { text }));
+}
+
+// ---------------------------------------------------------------------------
+// Approvals (P7-02). A tool call that needs the person's answer arrives as an
+// `approval` event in a turn's stream; readTurn hands it to tellApproval, and
+// Approval.tsx keeps and draws it. docs/architecture/approvals.md.
+// ---------------------------------------------------------------------------
+
+/** One tool call that needs, or had, the person's answer. */
+export type Approval = {
+  id: string;
+  turn_id: string;
+  chat_id: string;
+  /** The tool call's id, as its tool_call event gave it. */
+  call_id: string;
+  tool: string;
+  /** What the call will do, in the server's words. */
+  summary: string;
+  input: unknown;
+  /** policy: the person's policy says to ask. outside: the chat read outside content. */
+  reason: string;
+  /** Why it asks, as a sentence. */
+  why: string;
+  status: "pending" | "approved" | "declined" | "expired" | "stopped";
+  asked: string;
+  decided?: string;
+};
+
+function isApproval(v: unknown): v is Approval {
+  if (typeof v !== "object" || v === null) return false;
+  const a = v as Record<string, unknown>;
+  return typeof a.id === "string" && typeof a.turn_id === "string" && typeof a.chat_id === "string" && typeof a.tool === "string" && typeof a.status === "string";
+}
+
+const approvalListeners = new Set<(a: Approval) => void>();
+
+/** Called with each approval event of any turn this page reads. */
+export function onApproval(fn: (a: Approval) => void): () => void {
+  approvalListeners.add(fn);
+  return () => approvalListeners.delete(fn);
+}
+
+/** Passes an approval event on. It returns true, so the stream reads on. */
+function tellApproval(data: string): boolean {
+  try {
+    const a: unknown = JSON.parse(data);
+    if (isApproval(a)) for (const l of approvalListeners) l(a);
+  } catch {
+    // An event that does not read is passed over.
+  }
+  return true;
+}
+
+const approvalPath = (a: Pick<Approval, "chat_id" | "turn_id" | "id">) => `${turnPath(a.chat_id, a.turn_id)}/approvals/${encodeURIComponent(a.id)}`;
+
+/** The person's answer to one call. The stream brings the change too. */
+export async function answerApproval(a: Approval, answer: "approve" | "decline"): Promise<Approval> {
+  const data = await call("POST", `${approvalPath(a)}/${answer}`);
+  if (!isApproval(data)) throw new ApiError("not-ready", 200);
+  return data;
+}
+
+/** One tool, with the person's policy for it. */
+export type ToolPolicy = {
+  name: string;
+  description: string;
+  read_only: boolean;
+  /** Its result is Keystone's own, not outside content. */
+  inside: boolean;
+  default: string;
+  policy: string;
+  overridden: boolean;
+};
+
+function toolPolicyFrom(data: unknown): ToolPolicy {
+  const t = data as Partial<ToolPolicy> | undefined;
+  if (!t || typeof t.name !== "string" || typeof t.policy !== "string") throw new ApiError("not-ready", 200);
+  return t as ToolPolicy;
+}
+
+/** Every tool a turn may use, with the person's policy for each, and the policies there are. */
+export async function listToolPolicies(): Promise<{ tools: ToolPolicy[]; policies: string[] }> {
+  const data = await object("GET", "/api/v1/tools");
+  if (!Array.isArray(data.tools) || !Array.isArray(data.policies)) throw new ApiError("not-ready", 200);
+  return { tools: data.tools.map(toolPolicyFrom), policies: data.policies as string[] };
+}
+
+export async function setToolPolicy(name: string, policy: string): Promise<ToolPolicy> {
+  return toolPolicyFrom(await call("PUT", `/api/v1/tools/${encodeURIComponent(name)}/policy`, { policy }));
+}
+
+export async function resetToolPolicy(name: string): Promise<ToolPolicy> {
+  return toolPolicyFrom(await call("DELETE", `/api/v1/tools/${encodeURIComponent(name)}/policy`));
 }
