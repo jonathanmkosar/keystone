@@ -48,8 +48,9 @@ type Options struct {
 	// IdleTimeout is how long a stream may send nothing before the call
 	// is given up.
 	IdleTimeout time.Duration
-	// CacheControl says whether the adapter marks the end of the system
-	// blocks and of the last message for the provider's cache.
+	// CacheControl says whether the adapter marks a request for the
+	// provider's cache: where the request's cache points say, or the end of
+	// the system blocks and of the last message when it has none.
 	CacheControl bool
 	// BudgetThinkingModels lists the provider model names that take
 	// thinking as a token budget. A name ending in * matches by its start.

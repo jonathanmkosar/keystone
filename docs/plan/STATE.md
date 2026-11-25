@@ -25,7 +25,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | --- | --- | --- |
 | P7-04 connectors | agents | `agents/p7-04-connectors` |
 | P5-05 chat summaries and past-chat search | chats | `chats/p5-05-chat-summaries` |
-| P5-03 prompt caching | chats | `chats/p5-03-prompt-caching` |
 | P8-03 scheduled tasks | agents | `agents/p8-03-scheduled-tasks` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
@@ -75,6 +74,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Is the memory reserve part of the monthly cap or set aside from it (knowledge 006, decision 0280) | Part of the cap, $2 a month | Part of the cap | Nothing |
 | Should leaving a sensitive page out of a turn let that turn go to a hosted model (chats 005) | No: the route is decided from what recall found | No | Nothing |
 | Background tasks: should a model's start ask first, should a task resume after a restart (paying again for a cut-short call), should task chats stay in the sidebar, and is $1 a task right (agents 004) | Yes, yes, yes, yes | As recommended | Nothing |
+| Should recalled knowledge go in the person's message, before their words, so the start of every call can be cached; and should every call mark its last message (chats 007) | Yes to both | As recommended | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -116,6 +116,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P6-06, the memory pass: after each reply, beside it, the memory model (the owner's is Qwen on the Mac mini) pulls durable facts from the exchange and adds them to the person's knowledge store as one source linked to the chat, when the store can take sources. Its spend comes from a reserve inside the monthly cap ($2 by default). A chat that was sent sensitive content keeps its facts only in a named sensitive space. A chat can be made incognito, which turns the memory pass off for it. Only the fake provider has extracted facts so far.
 - P5-04, the turn inspector, provisional on the inspector mockup: an Inspect action beside Copy on each reply opens a panel with each model call's parts (rules, profile, map, recall, summary, pins, the turns kept and left out), their tokens, and the call's usage and cost, whose totals equal the usage records. A recalled page or a pinned message can be left out of the next turn. Pin sits beside Copy on every message.
 - P8-01, background tasks: a task asked for in a chat (the model's `start_background_task` asks first) works in a chat of its own through ordinary turns, so every step streams, is recorded and asks for approval; it survives a server restart and resumes, has its own budget ($1 by default), and writes its result as a note in the chat it was started from. A task from an incognito chat works in an incognito chat. The `background tasks` check proves a task finishes after a restart. `verify` is 21 of 21.
+- P5-03, prompt caching: every chat call is written in a fixed order (tools by name, the standing start, the parts that change rarely, earlier turns, then recall and the current message), so the start is byte-identical from turn to turn, and the Anthropic adapter marks up to four cache points. Recalled knowledge now goes in the person's message, before their words, not in the system text. Cache reads and writes are recorded in usage and cost and shown in the inspector.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

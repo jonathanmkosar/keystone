@@ -68,6 +68,8 @@ The fake looks at the last message the person wrote: the last user message that 
 
 The three text conditions ignore letter case and the spaces around the text. A `when` with nothing in it, `{}`, answers any request.
 
+Since P5-03 the context builder puts recalled knowledge before the person's words in that message ([caching.md](caching.md)). So `user_text` also holds when the message's last text block, the person's own words, is exactly this. `user_text_contains` still looks in the whole text, recall and all.
+
 When several scripts match, the one with the most conditions wins. A tie goes to the earlier script: by file name, then by place in the file. So a script for one exact question beats a script for anything else, wherever the two sit.
 
 Most scripts need `user_text` and nothing more. `system_contains` tells a call for a title or a summary apart from the chat turn it is about. `model` gives one model a different answer, which is how a fallback is tested: one model's script fails and the next model's answers.

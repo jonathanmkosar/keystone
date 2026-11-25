@@ -1,0 +1,242 @@
+{
+  "test_data": true,
+  "exchanges": [
+    {
+      "name": "the cache points: the end of the standing start, of the system blocks, of the history and of the last message",
+      "request": {
+        "model": "example-large",
+        "system": [
+          { "type": "text", "text": "You are the house assistant. Answer in one or two sentences." },
+          { "type": "text", "text": "The person keeps a bakery by the north pier." },
+          { "type": "text", "text": "Earlier in this chat the person asked about the ferry." }
+        ],
+        "tools": [
+          { "name": "date_time", "description": "Gives the date and the time.", "input_schema": { "type": "object" } },
+          { "name": "timetable", "description": "Reads the ferry timetable.", "input_schema": { "type": "object", "properties": { "pier": { "type": "string" } } } }
+        ],
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "When does the north ferry leave?" } ] },
+          { "role": "assistant", "blocks": [ { "type": "text", "text": "At seven, and then every hour." } ] },
+          { "role": "user", "blocks": [
+            { "type": "text", "text": "From the person's knowledge store: the bakery opens at six." },
+            { "type": "text", "text": "Can I buy bread before the first ferry?" }
+          ] }
+        ],
+        "cache": { "start": 2, "history": 2 }
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "system": [
+          { "type": "text", "text": "You are the house assistant. Answer in one or two sentences." },
+          { "type": "text", "text": "The person keeps a bakery by the north pier.", "cache_control": { "type": "ephemeral" } },
+          { "type": "text", "text": "Earlier in this chat the person asked about the ferry.", "cache_control": { "type": "ephemeral" } }
+        ],
+        "tools": [
+          { "name": "date_time", "description": "Gives the date and the time.", "input_schema": { "type": "object" } },
+          { "name": "timetable", "description": "Reads the ferry timetable.", "input_schema": { "type": "object", "properties": { "pier": { "type": "string" } } } }
+        ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "When does the north ferry leave?" } ] },
+          { "role": "assistant", "content": [ { "type": "text", "text": "At seven, and then every hour.", "cache_control": { "type": "ephemeral" } } ] },
+          { "role": "user", "content": [
+            { "type": "text", "text": "From the person's knowledge store: the bakery opens at six." },
+            { "type": "text", "text": "Can I buy bread before the first ferry?", "cache_control": { "type": "ephemeral" } }
+          ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "id": "msg_test_0301", "type": "message", "role": "assistant", "model": "example-large-1", "content": [], "stop_reason": null, "usage": { "input_tokens": 3, "cache_creation_input_tokens": 41, "cache_read_input_tokens": 2400, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Yes: the bakery opens an hour before the first ferry." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 12 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Yes: the bakery opens an hour before the first ferry." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 3, "output_tokens": 12, "cache_read_tokens": 2400, "cache_write_tokens": 41 }
+      }
+    },
+    {
+      "name": "an empty standing start marks the last tool, and a first message has no history",
+      "request": {
+        "system": [ { "type": "text", "text": "Earlier in this chat the person asked about the ferry." } ],
+        "tools": [
+          { "name": "timetable", "description": "Reads the ferry timetable.", "input_schema": { "type": "object" } }
+        ],
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "And on Sunday?" } ] }
+        ],
+        "cache": { "start": 0, "history": 0 }
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "system": [ { "type": "text", "text": "Earlier in this chat the person asked about the ferry.", "cache_control": { "type": "ephemeral" } } ],
+        "tools": [
+          { "name": "timetable", "description": "Reads the ferry timetable.", "input_schema": { "type": "object" }, "cache_control": { "type": "ephemeral" } }
+        ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "And on Sunday?", "cache_control": { "type": "ephemeral" } } ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 30, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "At nine." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 3 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "At nine." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 30, "output_tokens": 3 }
+      }
+    },
+    {
+      "name": "a standing start that is the whole system text takes one mark, and a history that ends in thinking is marked at the block before it",
+      "request": {
+        "system": [ { "type": "text", "text": "You are the house assistant." } ],
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "Think about the tides." } ] },
+          { "role": "assistant", "blocks": [ { "type": "thinking", "text": "The tide tables are not to hand.", "signature": "c2lnbmVkLWJ5LXRoZS10ZXN0cw==" } ] },
+          { "role": "user", "blocks": [ { "type": "text", "text": "Go on." } ] }
+        ],
+        "cache": { "start": 1, "history": 2 }
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "system": [ { "type": "text", "text": "You are the house assistant.", "cache_control": { "type": "ephemeral" } } ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "Think about the tides.", "cache_control": { "type": "ephemeral" } } ] },
+          { "role": "assistant", "content": [ { "type": "thinking", "thinking": "The tide tables are not to hand.", "signature": "c2lnbmVkLWJ5LXRoZS10ZXN0cw==" } ] },
+          { "role": "user", "content": [ { "type": "text", "text": "Go on.", "cache_control": { "type": "ephemeral" } } ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 20, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "High water is at six." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 6 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "High water is at six." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 20, "output_tokens": 6 }
+      }
+    },
+    {
+      "name": "a message left out before the history mark moves the mark with it",
+      "request": {
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "Name a river." } ] },
+          { "role": "assistant", "blocks": [ { "type": "thinking", "text": "Another provider's thinking, with no signature." } ] },
+          { "role": "user", "blocks": [ { "type": "text", "text": "Any river will do." } ] },
+          { "role": "assistant", "blocks": [ { "type": "text", "text": "The Example River." } ] },
+          { "role": "user", "blocks": [ { "type": "text", "text": "And a mountain." } ] }
+        ],
+        "cache": { "start": 0, "history": 4 }
+      },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "Name a river." } ] },
+          { "role": "user", "content": [ { "type": "text", "text": "Any river will do." } ] },
+          { "role": "assistant", "content": [ { "type": "text", "text": "The Example River.", "cache_control": { "type": "ephemeral" } } ] },
+          { "role": "user", "content": [ { "type": "text", "text": "And a mountain.", "cache_control": { "type": "ephemeral" } } ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 18, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Mount Example." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 5 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Mount Example." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 18, "output_tokens": 5 }
+      }
+    },
+    {
+      "name": "with the setting off the points send no mark",
+      "request": {
+        "system": [ { "type": "text", "text": "You are the house assistant." } ],
+        "messages": [
+          { "role": "user", "blocks": [ { "type": "text", "text": "Name a river." } ] },
+          { "role": "assistant", "blocks": [ { "type": "text", "text": "The Example River." } ] },
+          { "role": "user", "blocks": [ { "type": "text", "text": "And a mountain." } ] }
+        ],
+        "cache": { "start": 1, "history": 2 }
+      },
+      "options": { "cache_control": false },
+      "sent": {
+        "model": "example-large-1",
+        "max_tokens": 16000,
+        "stream": true,
+        "system": [ { "type": "text", "text": "You are the house assistant." } ],
+        "messages": [
+          { "role": "user", "content": [ { "type": "text", "text": "Name a river." } ] },
+          { "role": "assistant", "content": [ { "type": "text", "text": "The Example River." } ] },
+          { "role": "user", "content": [ { "type": "text", "text": "And a mountain." } ] }
+        ]
+      },
+      "answers": [
+        {
+          "status": 200,
+          "events": [
+            { "type": "message_start", "message": { "usage": { "input_tokens": 24, "output_tokens": 1 } } },
+            { "type": "content_block_start", "index": 0, "content_block": { "type": "text", "text": "" } },
+            { "type": "content_block_delta", "index": 0, "delta": { "type": "text_delta", "text": "Mount Example." } },
+            { "type": "content_block_stop", "index": 0 },
+            { "type": "message_delta", "delta": { "stop_reason": "end_turn" }, "usage": { "output_tokens": 5 } },
+            { "type": "message_stop" }
+          ]
+        }
+      ],
+      "reply": {
+        "model": "example-large",
+        "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "Mount Example." } ] },
+        "stop_reason": "end",
+        "usage": { "input_tokens": 24, "output_tokens": 5 }
+      }
+    }
+  ]
+}

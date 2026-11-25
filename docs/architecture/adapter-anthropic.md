@@ -91,12 +91,16 @@ Decision [0101](decisions/0101-thinking-form-by-model-name.md) says why the form
 
 ### Cache control
 
-With `anthropic.cache_control` on, the adapter marks two places with `{"type": "ephemeral"}`:
+The provider reads tools, then system, then messages, and caches everything up to a block marked `{"type": "ephemeral"}`, at most four marks in a request. With `anthropic.cache_control` on, the adapter marks where the request's cache points say (P5-03, decision [0331](decisions/0331-the-seam-carries-cache-points-and-the-anthropic-adapter-makes-four-marks.md)), up to four places:
 
-1. The last system block. The provider reads tools, then system, then messages, so this covers the tools as well. With no system blocks, the last tool is marked.
-2. The last block of the last message that is not thinking, so each turn reads what the turn before wrote.
+1. The end of the standing start: system block `cache.start`, counted from one. With an empty start, the last tool.
+2. The last system block, when there are blocks after the standing start.
+3. The end of the history: the last block of message `cache.history`, counted from one, among the messages sent.
+4. The last block of the last message, which the next step of a turn of tool calls reads.
 
-The seam has no cache marker of its own yet. Decision [0100](decisions/0100-the-anthropic-adapter-places-cache-marks.md) says why the adapter places them. A gateway that does not cache ignores the marks, and the setting turns them off for one that refuses them.
+A thinking block cannot carry a mark, so a mark that would fall on one goes on the block before it. A message the adapter leaves out is allowed for when the history is counted. [caching.md](caching.md) says how the context builder sets the points and what each mark saves.
+
+A request with no cache points, such as a title or a summary, gets the two marks of decision [0100](decisions/0100-the-anthropic-adapter-places-cache-marks.md): the last system block (or the last tool when there is none) and the last block of the last message that is not thinking. A gateway that does not cache ignores the marks, and the setting turns them all off for one that refuses them.
 
 ## What comes back
 
@@ -196,7 +200,7 @@ In `settings/models.json`. All are for the install.
 | `anthropic.retry_max_delay` | `20s` | The longest wait. |
 | `anthropic.header_timeout` | `5m` | How long the endpoint may take to begin its answer. |
 | `anthropic.idle_timeout` | `5m` | How long a stream may send nothing. |
-| `anthropic.cache_control` | `true` | Whether the cache marks are sent. |
+| `anthropic.cache_control` | `true` | Whether the cache marks are sent, those the cache points ask for and the two of decision 0100 alike. |
 | `anthropic.budget_thinking_models` | a list of older model names | The models asked for thinking as a token budget. |
 
 They are read at their defaults. An install's own stored values are not built yet (see [settings.md](settings.md)).
@@ -205,11 +209,12 @@ They are read at their defaults. An install's own stored values are not built ye
 
 `go test ./internal/adapters/anthropic ./internal/adapters`, with no key and no network.
 
-- Every exchange under `fixtures/anthropic/` is replayed by a server on this machine: 35 of them. For each, the body the adapter sends is compared with the fixture's, the headers are checked, every event is checked against the seam's own rules, and the reply or the error is compared with the fixture's. [The fixtures' README](../../fixtures/anthropic/README.md) lists what each file holds.
+- Every exchange under `fixtures/anthropic/` is replayed by a server on this machine: 40 of them, five of them the cache points' marks (`cache.json`, P5-03). For each, the body the adapter sends is compared with the fixture's, the headers are checked, every event is checked against the seam's own rules, and the reply or the error is compared with the fixture's. [The fixtures' README](../../fixtures/anthropic/README.md) lists what each file holds.
 - A cancelled call returns the context's error and sends nothing more. A receiver that goes away ends the call. A stream that goes quiet is given up, and the text that had arrived is kept.
 - An endpoint that cannot be reached is tried again the set number of times, and its error repeats neither the key nor the address.
 - The waits double up to the longest, and a call is not sent again after part of its reply was passed on.
 - A token count sends the request with no output limit, and an endpoint without the call gives an error.
+- Requests of every shape with every cache point get never more than four marks, none on a thinking block, the end of the standing start and of the last message always marked, and none with the setting off (`cache_test.go`).
 - The event reader handles comments, both kinds of line ending, data on several lines, and an event cut off at the end.
 - Entries and options that are not valid are refused, and no refusal holds the key.
 - The key is in nothing the adapter gives back.
@@ -225,6 +230,8 @@ This is the owner gate. It needs one thing: an Anthropic API key, stored in a te
 2. Add a registry entry for that tenant with `"adapter": "anthropic"`, `"endpoint": "https://api.anthropic.com"`, `"key": "provider.anthropic"`, a current model as `provider_model`, and `"class": "hosted"`. There is no command or screen for this yet (see [models.md](models.md)), so today it is a few lines of Go, or the registry route once P2-05 has one.
 3. Open it with `adapters.Open` and make four calls: a plain question, a question with a tool, a question with `thinking_tokens` set, and the same long system text twice to see `cache_read_tokens` above zero on the second. Then `CountTokens`.
 
+Since P5-03 the cache can also be checked in a real chat: send a second message within five minutes of the first, with standing instructions long enough to cache (the model's least, 1024 tokens or more), and open the inspector on the second reply. Its usage line shows the tokens read from the cache ([caching.md](caching.md)).
+
 What the check should settle: that the format in the fixtures is the format on the wire, that `display` is accepted with adaptive thinking on the models in use, that the phrases read for a prompt that is too long are the API's, and whether the default list in `anthropic.budget_thinking_models` is right for the models in the registry.
 
 A check against Ollama or LiteLLM needs only a registry entry with the gateway's address, and no key when it asks for none.
@@ -232,7 +239,7 @@ A check against Ollama or LiteLLM needs only a registry entry with the gateway's
 ## Not here yet
 
 - The live check above.
-- A cache marker on the seam's own blocks, P5-03. Until then the two marks are the adapter's choice.
+- A cache marker on the seam's own blocks, P5-03. Built since as cache points on the request, which the adapter turns into its marks; a request with none still gets the adapter's two.
 - A longer cache lifetime. The marks ask for the provider's default.
 - Files read from a `ref`. The turn (P4-03) reads the bytes first.
 - The provider's own tools, such as its web search. The adapter sends only Keystone's tools, and reads past blocks from the provider's.

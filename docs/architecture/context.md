@@ -49,14 +49,26 @@ The plan fixes the order of priority: rules and tools, the current message, atta
 | `current` | the last messages | never left out |
 | `attached` | system, after the standing start | up to `chats.context_attached_percent`; an item that does not fit is left out |
 | `recent` | messages, before the current turn | the oldest turns are left out, whole |
-| `recall` | system | up to `chats.context_recall_percent`; an item that does not fit is left out |
+| `recall` | the current turn's first message, before the person's words (since P5-03) | up to `chats.context_recall_percent`; an item that does not fit is left out |
 | `summary` | system | sent whole within `chats.context_summary_percent`, or not at all. When it is sent, the turns it covers are not |
 | `pinned` | system | never left out: a pinned message whose turn is not sent is sent on its own |
 | `note` | system, last | sent only when turns were left out |
 
-The first six are the standing start of a call. They are always the first system blocks, in the same order, and do not change with the length of the chat, so a provider can cache them (the plan's rule; placing cache marks is P5-03). What varies comes after them.
+The first six are the standing start of a call. They are always the first system blocks, in the same order, and do not change with the length of the chat, so a provider can cache them (the plan's rule). What varies comes after them.
 
 A pinned item is counted with the parts that are never left out.
+
+### The order of the request
+
+Since P5-03 the request carries the parts in another order than the record lists them, `Layout`, with what changes least first, so that a provider can cache the start of every call ([caching.md](caching.md), decision [0330](decisions/0330-what-changes-every-turn-goes-last-and-recall-goes-with-the-message.md)):
+
+1. `tools`, sorted by name (`ByName`), whatever order they were given in;
+2. the standing start: `rules`, `profile`, `person_map`, `project`, `style`;
+3. the system blocks that change rarely: `attached`, `summary`, `pinned`, `note`;
+4. `recent`, the earlier turns;
+5. `recall`, as text blocks at the start of the current turn's first message, and `current`.
+
+So the system text stays the same while a chat goes on, and so does every earlier turn. The request's cache points, `seam.Request.Cache`, say where the standing start ends (`Start`, in system blocks) and where the earlier turns end (`History`, in messages). The packing is as before: only where each kept piece is written moved. The branch the builder is given is not changed: recall goes into a copy of the current turn's first message.
 
 ## How it packs
 
@@ -103,6 +115,8 @@ Since P5-02 the record also has `TurnRoom`, the room the earlier turns were pack
 
 Since P5-04 an `Item` also has a `Ref`, the turn inspector's name for it (`page:7`, `source:3`, `message:42`), and `Removed`, which the person sets from the inspector for one turn. A removed item is not sent and takes no room, even when it is pinned, and its `ItemRecord` says `removed` with the tokens it would have taken; a `PartRecord` counts such items in `removed`, apart from kept and dropped, and a part whose items were all removed is `dropped`. A removed pin is held no room and not sent on its own; when its turn is sent it is in the call in its turn, and its record says `in_turn`. `Input.SummaryRef` names the summary, and the summary part carries it as `ref`. See [inspector.md](inspector.md) and decision [0272](decisions/0272-a-removed-item-is-marked-and-recorded-and-never-moves-a-call.md).
 
+Since P5-03 the record also has `Order`, the parts that were sent in the order the request carries them (`Layout` less what sent nothing), and `Cache`, the request's cache points. The `recall` part's place is `messages`.
+
 Part and turn tokens are estimates with no margin. `Tokens` is the count the budget checks.
 
 The record is the request: the tests put the request together again from the record and the input alone and compare the two.
@@ -138,12 +152,13 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 - `go test ./internal/turn`: a chat several times its model's window is answered, the stored record names what was left out, and the audit log's copy of what was sent agrees with it.
 - `verify`, `context fit`: for every fixture model, the largest test chat and a generated chat four times the window are each packed under the window, by the estimate and by a provider that counts half as much again ([tools.md](tools.md)).
 - Since P5-02, `go test ./internal/contextbuild` also proves the summary and pinned messages (`compaction_test.go`), and `context fit` grows a chat to ten times each window with a summary and pins ([compaction.md](compaction.md)).
+- Since P5-03, `go test ./internal/contextbuild` proves the order (`cache_test.go`): over the turns of a growing chat with new recall each time, the tools, the system text and the history are the bytes the call before sent, and recall is in the current message only. `context fit` checks the same for every fixture model ([caching.md](caching.md)).
 
 ## Not here yet
 
 - Every slot but the rules, the tools, the current turn, the earlier turns, the profile, the person map, recall, the summary and pinned messages is empty: attachments and attached chats (P5-06), project (P9-01), style (P9-05).
 - Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
-- Cache marks on the standing start (P5-03). The varying system blocks sit after the standing start today. P5-03 may move them into the messages if a provider's cache needs the whole system text to stay the same.
+- Cache marks on the standing start (P5-03). Built since: recall moved into the current turn's first message, the system blocks after the standing start change only when compaction runs or turns are left out, and the request carries cache points the Anthropic adapter marks ([caching.md](caching.md)).
 - The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them. Built since: `GET /chats/{id}/turns/{turn}/inspect` returns them with each call's usage records ([inspector.md](inspector.md)).
 - Tool definitions as names only until one is needed (P7-01 with P7-05).
 - A relevance threshold for recall is the recall item's own (P6-05): the builder takes the items it is given.

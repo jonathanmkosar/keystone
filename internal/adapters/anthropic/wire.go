@@ -112,6 +112,7 @@ func (p *Provider) body(req seam.Request, stream bool) ([]byte, error) {
 	for _, t := range req.Tools {
 		out.Tools = append(out.Tools, wireTool{Name: t.Name, Description: t.Description, InputSchema: t.InputSchema})
 	}
+	history := 0 // the messages sent that came from the request's history
 	for i, m := range req.Messages {
 		content, err := wireBlocks(m.Blocks)
 		if err != nil {
@@ -123,6 +124,9 @@ func (p *Provider) body(req seam.Request, stream bool) ([]byte, error) {
 			continue
 		}
 		out.Messages = append(out.Messages, wireMessage{Role: string(m.Role), Content: content})
+		if req.Cache != nil && i < req.Cache.History {
+			history = len(out.Messages)
+		}
 	}
 	if len(out.Messages) == 0 {
 		return nil, fmt.Errorf("nothing in the request can be sent")
@@ -130,27 +134,80 @@ func (p *Provider) body(req seam.Request, stream bool) ([]byte, error) {
 
 	out.Thinking = p.thinking(req.ThinkingTokens, maxTokens)
 
-	if p.opts.CacheControl {
-		mark := &wireCache{Type: "ephemeral"}
-		// The provider reads tools, then system, then messages. A mark
-		// covers everything before it, so one at the end of the system
-		// blocks covers the tools as well.
-		switch {
-		case len(out.System) > 0:
-			out.System[len(out.System)-1].CacheControl = mark
-		case len(out.Tools) > 0:
-			out.Tools[len(out.Tools)-1].CacheControl = mark
-		}
-		last := out.Messages[len(out.Messages)-1].Content
-		for i := len(last) - 1; i >= 0; i-- {
-			// A thinking block cannot carry a mark.
-			if last[i].Type != "thinking" && last[i].Type != "redacted_thinking" {
-				last[i].CacheControl = mark
-				break
+	switch {
+	case !p.opts.CacheControl:
+	case req.Cache != nil:
+		markPoints(&out, req.Cache.Start, history)
+	default:
+		markDefault(&out)
+	}
+	return json.Marshal(out)
+}
+
+// The cache marks. The provider reads the tools, then the system blocks,
+// then the messages, and a mark asks it to cache everything it read up to
+// the end of the block that carries it. A request may carry four at most.
+// A prefix too short for the model to cache is not an error: the mark is
+// passed over.
+
+// markPoints places the marks a request's cache points ask for (P5-03), up
+// to four: the end of the standing start, or the last tool when the start
+// is empty; the last system block, when there are blocks after the start;
+// the end of the history; and the end of the last message, which the next
+// step of a turn of tool calls reads. start counts system blocks, which are
+// sent one for one. history counts the messages sent, after any that were
+// left out.
+func markPoints(out *wireRequest, start, history int) {
+	mark := &wireCache{Type: "ephemeral"}
+	switch {
+	case start > 0:
+		out.System[start-1].CacheControl = mark
+	case len(out.Tools) > 0:
+		out.Tools[len(out.Tools)-1].CacheControl = mark
+	}
+	if len(out.System) > start {
+		out.System[len(out.System)-1].CacheControl = mark
+	}
+	markEnd(out.Messages[:history], mark)
+	markEnd(out.Messages, mark)
+}
+
+// markEnd marks the last block of messages that can carry a mark. A
+// thinking block cannot, so a message that ends in one is marked at the
+// block before it, or the message before.
+func markEnd(messages []wireMessage, mark *wireCache) {
+	for m := len(messages) - 1; m >= 0; m-- {
+		content := messages[m].Content
+		for i := len(content) - 1; i >= 0; i-- {
+			if markable(content[i]) {
+				content[i].CacheControl = mark
+				return
 			}
 		}
 	}
-	return json.Marshal(out)
+}
+
+func markable(b wireBlock) bool { return b.Type != "thinking" && b.Type != "redacted_thinking" }
+
+// markDefault places the two marks of decision 0100, for a request with no
+// cache points, such as a title or a summary: the last system block, or the
+// last tool when there is none, and the last block of the last message that
+// is not thinking.
+func markDefault(out *wireRequest) {
+	mark := &wireCache{Type: "ephemeral"}
+	switch {
+	case len(out.System) > 0:
+		out.System[len(out.System)-1].CacheControl = mark
+	case len(out.Tools) > 0:
+		out.Tools[len(out.Tools)-1].CacheControl = mark
+	}
+	last := out.Messages[len(out.Messages)-1].Content
+	for i := len(last) - 1; i >= 0; i-- {
+		if markable(last[i]) {
+			last[i].CacheControl = mark
+			break
+		}
+	}
 }
 
 // thinking works out the thinking part of a request. Nil means none is

@@ -9,6 +9,13 @@
 // then earlier turns from the newest back, then recalled knowledge, then
 // the summary of older history. A turn is kept whole or left out whole.
 //
+// The request carries the parts in another order, Layout, which keeps what
+// stays the same from one call of a chat to the next at its front, so a
+// provider can cache it (P5-03): the tools by name, the standing start, the
+// parts that change rarely, the earlier turns, and last what changes on
+// every call, recall and the current turn. The request's cache points say
+// where the standing start and the earlier turns end.
+//
 // The package holds no state, opens no connection and reads no store. Its
 // tunables are settings, read by FromSettings and passed in as Options.
 // docs/architecture/context.md describes it.
@@ -19,6 +26,7 @@ import (
 	"errors"
 	"math"
 	"slices"
+	"strings"
 
 	"github.com/jonathanmkosar/keystone/internal/budget"
 	"github.com/jonathanmkosar/keystone/internal/models"
@@ -55,7 +63,9 @@ const (
 	PartAttached Part = "attached"
 	// PartRecent is the turns before the current one.
 	PartRecent Part = "recent"
-	// PartRecall is recalled knowledge: Input.Recall. P6-05 fills it.
+	// PartRecall is recalled knowledge: Input.Recall. P6-05 fills it. It
+	// goes in the current turn's first message, before the person's words,
+	// since it changes on every call (P5-03).
 	PartRecall Part = "recall"
 	// PartSummary is older history as a summary: Input.Summary. P5-02
 	// fills it. When it is sent, the turns it covers are not.
@@ -72,6 +82,24 @@ const (
 var Parts = []Part{
 	PartRules, PartTools, PartProfile, PartPersonMap, PartProject, PartStyle,
 	PartCurrent, PartAttached, PartRecent, PartRecall, PartSummary, PartPinned, PartNote,
+}
+
+// Layout is every part, in the order the request carries them (P5-03): the
+// tools, then the system blocks, then the messages. What stays the same
+// from one call of a chat to the next comes first, so that a provider can
+// cache it:
+//
+//   - the tools, sorted by name, and the standing start, which change only
+//     when the person changes them;
+//   - attachments, the summary, pinned messages sent on their own and the
+//     note, which change when compaction runs or turns are left out;
+//   - the earlier turns, which a later call sends again as they were;
+//   - recall and the current turn, which change on every call. Recall goes
+//     in the current turn's first message, before the person's words.
+var Layout = []Part{
+	PartTools, PartRules, PartProfile, PartPersonMap, PartProject, PartStyle,
+	PartAttached, PartSummary, PartPinned, PartNote,
+	PartRecent, PartRecall, PartCurrent,
 }
 
 // Where a part is put in the request.
@@ -216,6 +244,12 @@ type Record struct {
 	Parts []PartRecord `json:"parts"`
 	// Turns lists every turn of the branch, oldest first.
 	Turns []TurnRecord `json:"turns"`
+	// Order lists the parts that were sent, in the order the request
+	// carries them: Layout, less what sent nothing (P5-03).
+	Order []Part `json:"order,omitempty"`
+	// Cache is the request's cache points: how many system blocks are the
+	// standing start, and how many messages are earlier turns (P5-03).
+	Cache *seam.Cache `json:"cache,omitempty"`
 }
 
 // PartRecord is one part of a call.
@@ -314,6 +348,9 @@ func Build(ctx context.Context, in Input) (seam.Request, Record, error) {
 	room := budget.InputRoom(in.Model, in.MaxOutputTokens)
 	limit := room * in.Options.FillPercent / 100
 	output := in.Model.ContextWindow - room
+	// The tools are offered by name, whatever order they came in, so the
+	// same set is the same bytes on every call (P5-03).
+	in.Tools = ByName(in.Tools)
 
 	// Every piece is measured once, with no margin.
 	w := weigh(in)
@@ -345,6 +382,17 @@ func Build(ctx context.Context, in Input) (seam.Request, Record, error) {
 		}
 		target = min(int(float64(sent)*float64(limit)/float64(count.Tokens)), sent-1)
 	}
+}
+
+// ByName returns the tools sorted by name, in a new slice. A tool added to
+// a set moves no other: those before it in the order keep their bytes.
+func ByName(tools []seam.Tool) []seam.Tool {
+	if len(tools) == 0 {
+		return tools
+	}
+	out := slices.Clone(tools)
+	slices.SortStableFunc(out, func(a, b seam.Tool) int { return strings.Compare(a.Name, b.Name) })
+	return out
 }
 
 // canShrink says whether packing under a smaller target could leave
@@ -625,8 +673,9 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 		return seam.Request{}, Record{}, false
 	}
 
-	// The request. The standing start is first and never varies with the
-	// chat's length. What varies comes after it.
+	// The request, in the order of Layout. The standing start is first and
+	// never varies with the chat's length. What varies comes after it, and
+	// what varies on every call, recall, goes with the current turn.
 	req := seam.Request{
 		Model: in.Model.Name, Tools: in.Tools,
 		MaxOutputTokens: in.MaxOutputTokens, ThinkingTokens: in.ThinkingTokens,
@@ -634,6 +683,10 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 	}
 	system := func(text string) {
 		req.System = append(req.System, seam.Block{Type: seam.BlockText, Text: text})
+	}
+	var recalled []seam.Block // put before the person's words in the current turn
+	inTurn := func(text string) {
+		recalled = append(recalled, seam.Block{Type: seam.BlockText, Text: text})
 	}
 	var turns []TurnRecord
 	one := func(p Part, text string, tokens int, kept bool) PartRecord {
@@ -648,8 +701,12 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 		}
 		return pr
 	}
-	many := func(p Part, items []Item, sizes []int, keep []bool) PartRecord {
-		pr := PartRecord{Part: p, Place: PlaceSystem}
+	many := func(p Part, place string, items []Item, sizes []int, keep []bool) PartRecord {
+		pr := PartRecord{Part: p, Place: place}
+		send := system
+		if place == PlaceMessages {
+			send = inTurn
+		}
 		for i, it := range items {
 			if it.Text == "" {
 				continue
@@ -657,7 +714,7 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 			pr.Items = append(pr.Items, ItemRecord{Label: it.Label, Ref: it.Ref, Tokens: sizes[i], Kept: keep[i], Pinned: it.Pinned, Removed: it.Removed})
 			switch {
 			case keep[i]:
-				system(it.Text)
+				send(it.Text)
 				pr.Kept, pr.Tokens = pr.Kept+1, pr.Tokens+sizes[i]
 			case it.Removed:
 				pr.Removed++
@@ -731,7 +788,8 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 		return pr
 	}
 	// In the order of Parts. A system block is appended as its part is
-	// written, so the standing start comes first in the request too.
+	// written, so the standing start comes first in the request too, and
+	// the parts that change rarely follow it in the order of Layout.
 	parts := []PartRecord{
 		one(PartRules, o.SystemText, w.rules, true),
 		{Part: PartTools, Place: PlaceTools, State: state(len(in.Tools), 0), Tokens: w.tools, Kept: len(in.Tools)},
@@ -740,14 +798,37 @@ func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, R
 		one(PartProject, in.Project, w.project, true),
 		one(PartStyle, in.Style, w.style, true),
 		current,
-		many(PartAttached, in.Attached, w.attached, keepAttached),
+		many(PartAttached, PlaceSystem, in.Attached, w.attached, keepAttached),
 		earlier,
-		many(PartRecall, in.Recall, w.recall, keepRecall),
+		many(PartRecall, PlaceMessages, in.Recall, w.recall, keepRecall),
 		summary(),
 		pinned(),
 		one(PartNote, noteText, w.note, note),
 	}
-	return req, Record{Parts: parts, Turns: turns, TurnRoom: max(recentRoom, 0), SummaryRoom: share(o.SummaryPercent)}, true
+	// The cache points: the standing start is every system block written
+	// before attachments, and the earlier turns are the messages before the
+	// current turn's first. Recall goes into that message, before the
+	// person's words, in a slice of its own so the branch is not changed.
+	start := 0
+	for _, p := range parts[:6] {
+		if p.Place == PlaceSystem {
+			start += p.Kept
+		}
+	}
+	history := w.turns[cur].first - w.turns[from].first
+	if len(recalled) > 0 {
+		m := req.Messages[history]
+		m.Blocks = append(recalled, m.Blocks...)
+		req.Messages[history] = m
+	}
+	req.Cache = &seam.Cache{Start: start, History: history}
+	rec := Record{Parts: parts, Turns: turns, TurnRoom: max(recentRoom, 0), SummaryRoom: share(o.SummaryPercent), Cache: req.Cache}
+	for _, p := range Layout {
+		if rec.Part(p).Kept > 0 {
+			rec.Order = append(rec.Order, p)
+		}
+	}
+	return req, rec, true
 }
 
 func state(kept, dropped int) string {

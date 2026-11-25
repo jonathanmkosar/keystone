@@ -85,12 +85,14 @@ The reply is read as server-sent events. Comment lines, which OpenRouter sends w
 | Usage | From |
 | --- | --- |
 | `input_tokens` | `prompt_tokens` less the cached part. |
-| `cache_read_tokens` | `prompt_tokens_details.cached_tokens`. |
+| `cache_read_tokens` | `prompt_tokens_details.cached_tokens`, or, when that says nothing was cached, `prompt_cache_hit_tokens`, the form some endpoints use instead (since P5-03). Never more than the prompt. |
 | `output_tokens` | `completion_tokens`. |
 | `thinking_tokens` | `completion_tokens_details.reasoning_tokens`. |
 | `estimated` | True when the endpoint reported no usage. The counts are then the bytes sent and received, at four bytes a token. |
 
 `cache_write_tokens` is always zero: the format does not report it.
+
+**Caching.** The adapter sends no cache marks and ignores a request's cache points ([caching.md](caching.md)). The endpoints of this kind cache by themselves where they cache at all: OpenAI's own endpoint and OpenRouter by the longest prefix they have seen, reported as above, and a local gateway such as the Mac mini's by keeping the prompt it last read and reusing its common start, which it does not report. The context builder's fixed order, with what changes on every turn last, is what lets each of them reuse a chat's start.
 
 ## When a call fails
 
@@ -183,6 +185,7 @@ In `verify`: the folder is on the `offline` check's list of folders that may imp
 - **The live checks.** No real endpoint has been called. See below.
 - **Asking for thinking.** `thinking_tokens` is not sent. The endpoints of this kind each ask for reasoning in their own way, and a field one of them does not know can be refused. Reasoning that an endpoint sends is read. A per-entry way to ask for it can be added when a model needs it.
 - **Cache writes.** Not reported by the format.
+- **Cache marks for an Anthropic model behind OpenRouter**, which takes `cache_control` on content parts. Without them such a model is cached only as far as OpenRouter does by itself.
 - **Embeddings.** `/embeddings` is a separate call with its own request shape, and comes with P6-08.
 - **Asking the endpoint what models it has.** An entry is written by hand.
 - **OpenRouter's own headers and fields**, such as the site name and provider preferences. Not needed to make a call.

@@ -13,6 +13,7 @@ They were written by hand from the published format of the Messages API. None wa
 | `thinking.json` | Adaptive thinking, the token budget form, a model that cannot think, and withheld and redacted thinking going out and coming back. |
 | `failures.json` | Every error kind, the retries and their waits, an error inside a stream, a reply that breaks off, and requests refused before any call. |
 | `gateway.json` | A local gateway with no key, an address that ends in `/v1`, events with no names, and an error that is not in the API's shape. |
+| `cache.json` | The marks a request's cache points ask for (P5-03): the end of the standing start, of the system blocks, of the history and of the last message; an empty start that marks the last tool; a history that ends in thinking; a message left out before the history mark; the setting off. |
 
 ## An exchange
 
