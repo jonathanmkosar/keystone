@@ -12,7 +12,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | core | nothing | P13-04, held until the app runs |
 | models | P3-08, in its own worktree | nothing until P3-08 |
 | chats | P5-01, in its own worktree | P5-02 |
-| knowledge | P6-04, in its own worktree | P6-05 |
+| knowledge | nothing | P6-05, after P5-01 and P3-08 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing | P7-01 with agents, P11-01 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
@@ -40,6 +40,8 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | A message sent while a reply is streaming in the same chat: queue it or refuse it (chats 002) | Queue, up to five | Queued | Nothing |
 | How a model call the person stopped is recorded in the audit log, which has no "stopped" outcome (chats 002) | As ok, with a stopped mark and the partial reply | As recommended | Nothing |
 | Enter sends a message, and the greeting uses the person's whole name (interface 002) | Keep Enter to send. Use the whole name until the profile has a short one | As recommended | Nothing |
+| Should a model that may not read sensitive content be told how many sensitive spaces were left out of the map (knowledge 004) | Yes, a number and no names | The line is there | Nothing |
+| The profile has no label and goes to every model, hosted ones included (knowledge 004) | Yes, with a sentence on the editing screen saying so | One profile for every model | Nothing built. It shapes the profile screen |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -66,6 +68,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P3-04, the Anthropic Messages adapter, and P3-06, the Chat Completions adapter, both provisional: built and tested against hand-written exchanges, never against a real endpoint. With P3-05 that is all three real adapters. None is in the server's set of builders yet: the chat turn (P4-03) is where a provider is opened.
 - P4-03, streaming turns: twelve chat and turn routes, a turn that streams over server-sent events, stop, resume after a dropped connection, and turns kept in the database so a queued one finishes after a restart. On November 25, 2026 a message sent to the running server as the test tenant streamed a reply from the fake provider. The server starts with the three real adapters. A real model is registered with `go run ./tools/tenant model add`, as `docs/runbooks/adding-a-model.md` describes; none has been yet.
 - P4-04, the chat screen, provisional: the sidebar's chats, a new chat, a reply that streams in, the title, rename, star and delete. On November 25, 2026, on the merged server, the test tenant typed a message in the browser and the fake provider's reply streamed in. Stop, resume after a dropped stream, a reload mid-reply and a failed turn have run only against a stand-in server, because the recorded replies finish too fast to interrupt. No model picker, edit, retry or attachments yet.
+- P6-04, the profile and the map, provisional: a short text about the person, and a size-bounded outline of what their knowledge store holds, in two versions so a model that may not read sensitive content never sees a sensitive space. Nothing puts either into a call yet: that is joined when P5-01, the context builder, is merged.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

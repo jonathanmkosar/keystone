@@ -41,6 +41,13 @@ var fixedRuleGuards = map[string][]string{
 	"rules.call_recording":    {"internal/audit"},
 }
 
+// The person map (P6-04) makes two versions of its text, and the one for a
+// model that may not read sensitive content leaves every sensitive space
+// out. It enforces rule 3 beside the model registry.
+func init() {
+	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/knowledge/personmap")
+}
+
 // settingsPackages are the ways to read a setting's value.
 var settingsPackages = []string{module + "/settings", module + "/internal/tenantsettings"}
 

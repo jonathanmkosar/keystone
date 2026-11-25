@@ -4,7 +4,7 @@ Folder: `internal/knowledge`
 
 The knowledge store is the long-term memory a person chooses. Waymarks is one, the built-in store is another, and a person may have none. This part is the door to it: one interface, `Store`, and plain data types. Everything outside the adapters speaks these and never a store's own format.
 
-Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store is in `internal/knowledge/builtin` and has its own page, [knowledge-builtin.md](knowledge-builtin.md). The Waymarks adapter is in `internal/knowledge/waymarks` and has its own page, [knowledge-waymarks.md](knowledge-waymarks.md).
+Today the folder holds the interface, the `none` adapter, the registry of adapters, and the contract suite. The built-in store is in `internal/knowledge/builtin` and has its own page, [knowledge-builtin.md](knowledge-builtin.md). The Waymarks adapter is in `internal/knowledge/waymarks` and has its own page, [knowledge-waymarks.md](knowledge-waymarks.md). The person's profile and the map of their store are in `internal/knowledge/personmap`, on the page [knowledge-profile-and-map.md](knowledge-profile-and-map.md).
 
 Decisions: [0030](decisions/0030-knowledge-store-interface.md) for the shape of the interface and what having no store means, and [0031](decisions/0031-label-reads-as-sensitive.md) for the label.
 
