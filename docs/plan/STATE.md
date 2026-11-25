@@ -14,7 +14,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | chats | nothing | P5-02, P5-04, P9-05 |
 | knowledge | P6-05, recall, in its own worktree | P6-06 |
 | agents | P7-01, the tool loop, in its own worktree | P7-02, P7-03, P8-01 |
-| interface | P11-01, the settings screens and their routes, in its own worktree | P7-01 with agents |
+| interface | nothing | a model picker in the chat, P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## Waiting on the owner
@@ -46,6 +46,8 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | At the monthly cap, should a chat fall back to a local model in the person's chain, or always stop (models 008, decision 0160) | Fall back, and name the model that wrote the reply | Falls back; the chain ships empty | Nothing |
 | Should a home-network model that forwards to a paid provider count against the cap (models 008, decision 0162) | Mark such a model trusted, which puts it under the cap | Local models are outside the cap | Nothing |
 | Is the cap's month a calendar month in UTC (models 008) | Yes | Yes | Nothing |
+| May a person see the admin's settings, read-only (interface 003) | Once there is an admin role, show a person only the ones that explain something they can see | Everyone sees all, read-only | P11-01 |
+| A short name for the greeting (interface 003) | A "what to call you" setting, which General would draw with no other work | The whole name | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -75,6 +77,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P6-04, the profile and the map, provisional: a short text about the person, and a size-bounded outline of what their knowledge store holds, in two versions so a model that may not read sensitive content never sees a sensitive space. The turn puts both into every call (`internal/turn/person.go`). No route or screen edits the profile yet.
 - P5-01, the context builder: every chat call is packed under its model's window, starting with standing instructions, with the oldest turns dropped whole when a chat is too long, and a record kept of what each call was built from. The person's profile and the map of their knowledge store are now part of each call. Recall, summaries, project text and styles have named slots that are empty until their items land.
 - P3-08, routing and usage: a model chosen by the kind of task, a fallback chain that moves on only before any of a reply has been passed on, one usage record for each model call, and a monthly cap that stops a call to a model that is not local, with the `spend cap` check. `verify` is 16 of 16. `tools/tenant` gained `model`, `setting` and `usage` commands. No real endpoint has been called. Privacy routing is built and tested and has no caller until recall (P6-05) marks a call sensitive.
+- P11-01, the settings screens, provisional: Profile, Appearance, Models and keys, and General, reached from the person's name in the sidebar, with routes under `/api/v1/` for settings, secret names, the model registry and the profile. General draws a control for every setting a person may change, generated from the registry, and a test proves every one is there. No route ever returns a key. Connectors, approvals and spend are placeholders. On November 25, 2026 the screens loaded on the running server with no console errors. There is no settings mockup, so the layout is provisional.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
