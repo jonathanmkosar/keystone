@@ -48,6 +48,8 @@ var componentDocs = map[string]string{
 	"internal/tenantsettings": "docs/architecture/tenant-settings.md",
 
 	"internal/knowledge/builtin": "docs/architecture/knowledge-builtin.md",
+
+	"internal/knowledge/waymarks": "docs/architecture/knowledge-waymarks.md",
 }
 
 var checks = []check{
