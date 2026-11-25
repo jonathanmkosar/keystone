@@ -8,6 +8,7 @@ import { useWaitingFor } from "./Approval";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
 import { errorLabel, toolLine } from "./steps";
+import { CitationSources, sourcesOf } from "./citations";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -195,6 +196,16 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
   );
 }
 
+// A reply, with the sources its web steps read, so each [n] in its text
+// links to one (citations.tsx).
+function CitedReply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
+  return (
+    <CitationSources sources={sourcesOf(item.parts)}>
+      <Reply item={item} />
+    </CitationSources>
+  );
+}
+
 /** Every message on the current branch, oldest first, then a reply still arriving. */
 export function Conversation({ items }: { items: Item[] }) {
   return (
@@ -214,7 +225,7 @@ export function Conversation({ items }: { items: Item[] }) {
             {item.text}
           </div>
         ) : (
-          <Reply key={item.key} item={item} />
+          <CitedReply key={item.key} item={item} />
         ),
       )}
     </div>

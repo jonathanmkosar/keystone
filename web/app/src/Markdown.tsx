@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
+import { Cite } from "./citations";
 
 type Block =
   | { kind: "p"; text: string }
@@ -139,6 +140,10 @@ function parse(source: string): Block[] {
 const inlinePattern =
   /\\([\\`*_~[\]()#>!.+-])|(`+)(?!`)([\s\S]*?[^`])\2(?!`)|\[([^\]\n]+)\]\(\s*([^()\s]+(?:\([^()\s]*\)[^()\s]*)*)(?:\s+"[^"]*")?\s*\)|\*\*(?=\S)([\s\S]*?\S)\*\*|(?<![A-Za-z0-9])__(?=\S)([\s\S]*?\S)__(?![A-Za-z0-9])|\*(?=[^\s*])([\s\S]*?[^\s*])\*(?!\*)|(?<![A-Za-z0-9_])_(?=[^\s_])([\s\S]*?[^\s_])_(?![A-Za-z0-9_])|~~(?=\S)([\s\S]*?\S)~~|(https?:\/\/[^\s<>"'`]*[^\s<>"'`.,;:!?)\]}])/g;
 
+// 12 a citation, [n], which links to its source when the reply's web steps
+// read one with that number (citations.tsx), and is plain text otherwise.
+const withCitations = new RegExp(inlinePattern.source + String.raw`|\[(\d{1,4})\](?!\()`, "g");
+
 /** An address a reply may link to. Anything else is shown as plain text. */
 function safeAddress(href: string): boolean {
   return /^(https?:\/\/|mailto:)/i.test(href);
@@ -146,7 +151,7 @@ function safeAddress(href: string): boolean {
 
 function inline(text: string, keyBase = ""): ReactNode[] {
   const out: ReactNode[] = [];
-  const pattern = new RegExp(inlinePattern.source, "g");
+  const pattern = new RegExp(withCitations.source, "g");
   let last = 0;
   let n = 0;
   for (let m = pattern.exec(text); m; m = pattern.exec(text)) {
@@ -171,7 +176,7 @@ function inline(text: string, keyBase = ""): ReactNode[] {
           {m[11]}
         </a>,
       );
-    }
+    } else if (m[12] !== undefined) out.push(<Cite key={key} n={Number(m[12])} raw={m[0]} />);
     last = m.index + m[0].length;
   }
   if (last < text.length) out.push(text.slice(last));

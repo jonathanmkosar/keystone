@@ -62,6 +62,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/compaction.json` (P5-02) holds one recorded summary. It answers any request whose system text holds "running summary of a long chat", words of the shipped `chats.compact_prompt`, so the fake provider summarises a long chat's oldest turns for the test tenant and for any model that names the fake adapter. See [compaction.md](compaction.md).
 
+`turns/web-search.json` (P7-03) holds one: "When is the harbour museum open this week?" The model calls `web_search` and answers citing [1] and [2]. The test tenant has no search key, so on the shipped server the step says "not set up" and the numbers stay text; `verify` stores an invented key and points the search at a stand-in on this machine. See [web-search.md](web-search.md).
+
 ### A chat file
 
 ```json

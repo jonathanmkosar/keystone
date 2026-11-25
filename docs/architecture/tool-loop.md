@@ -78,6 +78,8 @@ In `internal/tools/builtin`. All three only read, and each reaches the person's 
 
 Knowledge lookups are recall's (P6-05), web search and fetch are P7-03's, and artifacts are P9-03's. Each adds its tools to the registry the same way.
 
+`web_search` and `web_fetch` are in `internal/tools/web`, added in `app.Tools` by `web.Add`. Both only read, and both bring outside content: each result opens with `tools.OutsideMark`, and `tools.IsOutside` and `tools.ReadOutside`, in `internal/tools/outside.go`, tell a result or a turn that read outside content ([web-search.md](web-search.md)).
+
 ## In a turn
 
 `internal/turn/tools.go`, called from `Runner.work` and `Runner.build`.

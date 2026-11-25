@@ -37,6 +37,8 @@ var networkAllowed = map[string]string{
 	"internal/adapters/chatcompletions": "calls the endpoint in a model's registry entry; its tests call servers on this machine only",
 	"internal/turn":                     "the chat and turn routes' handlers, served by the server; it opens no connection",
 	"internal/settingsapi":              "the settings routes' handlers, served by the server; it opens no connection",
+
+	"internal/tools/web": "web_search calls the search provider at agents.web_search_endpoint, and web_fetch reads public pages only; its tests call servers on this machine only",
 }
 
 // The recall and sensitive content checks (P6-05) serve a fake Waymarks on

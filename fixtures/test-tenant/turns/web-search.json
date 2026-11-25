@@ -1,0 +1,41 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a web search with citations",
+      "when": { "user_text": "When is the harbour museum open this week?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will search the web for that." },
+                {
+                  "type": "tool_call",
+                  "id": "call_web",
+                  "name": "web_search",
+                  "input": { "query": "harbour museum opening hours" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 430, "output_tokens": 29 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The harbour museum opens at ten in the morning [1], and it is closed on Mondays [2].\n\nThis reply is a recorded turn: its words are fixed, and each number links to the result the search returned under it." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 41 }
+          }
+        }
+      ]
+    }
+  ]
+}

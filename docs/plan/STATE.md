@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: being built: P7-02 approvals and P7-03 web search with Tavily (agents), P5-02 compaction (chats), and the chat's model picker (interface). The owner is adding his own person and three real models (Claude Sonnet 5.5, Claude Haiku 5.5, Qwen on the Mac mini).
+Next: P8-01 background tasks (agents), P5-04 the turn inspector (chats), P6-06 the memory pass (knowledge). The owner is trying his first web search and the model picker on his own domain.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | nothing | P5-04 the turn inspector, P5-05, P9-05 |
 | knowledge | nothing | P6-06, the memory pass |
-| agents | P7-02 approvals and P7-03 web search, each in its own worktree | P8-01 |
+| agents | nothing | P8-01 background tasks, P7-04 connectors |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -23,7 +23,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P7-03 web search and fetch, Tavily first | agents | `agents/p7-03-web-search` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
@@ -67,6 +66,8 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Where pinning is offered (chats 004) | A small action beside Copy on every message | Routes only | the chat screen |
 | After outside content, should side effects ask for the rest of the chat or only the rest of that turn, as the plan says (agents 002, decision 0221) | The rest of the chat: what was read is sent again with every later call | The rest of the chat | Nothing |
 | How long a call waits for an answer (agents 002) | 24 hours, each person can change it | 24 hours | Nothing |
+| Should each web search ask before it is sent, as New Keystone did (agents 003) | No; a person can set web_search to ask on Settings → Approvals | Runs without asking | Nothing |
+| Should web tools run in a chat held for sensitive content (agents 003, decision 0252) | Ask there instead of refusing, now that approvals exist | Off in a held chat | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -103,6 +104,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - The chat's model picker (part of P4-04, still provisional on the mockups): the composer lists the person's models with a local, hosted or trusted mark; a model whose key is missing cannot be picked; a pick goes with the next message and the server keeps it as the chat's model. A chat held to local or trusted models is learned in the browser from a refused turn until the model route reports it (decision 0241).
 - P5-02, compaction: when a chat's earlier turns no longer fit, the oldest are summarised beside the turn (never delaying it) by the summary model, and later calls send the summary in their place; summaries extend one another and are stored with the chat. Pinned messages are never left out (pin routes, no button yet). A held chat's summary is written and read only by models that may read sensitive content. The `context fit` check grows a chat to ten times each model's window. Only the fake provider has written a summary so far.
 - P7-02, approvals, provisional on the agent mockups for the card's look: each tool is always, ask or never, per person (a list on Settings → Approvals); a tool that changes something asks by default, and always asks once the chat has read outside content, whatever its policy. A call that asks pauses the turn, shows an approval card, and runs once when approved; a waiting turn survives a restart. The `approval` check proves a side effect after outside content always asks.
+- P7-03, web search and fetch, provisional until the first real search: `web_search` through Tavily with each person's own key (`provider.tavily`), numbered sources the answer cites as [1], [2] with links in the chat, and `web_fetch` for one page, which refuses any address that is not public, after resolving it and on every redirect. Every result is marked as outside content, so a tool that changes something always asks afterwards. Both tools are off in a chat held for sensitive content.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
