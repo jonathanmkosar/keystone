@@ -1,6 +1,6 @@
 # P4-02. Chat record
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P2-01
 Owner gate: none

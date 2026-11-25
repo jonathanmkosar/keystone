@@ -1,6 +1,6 @@
 # P6-01. Knowledge store interface
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P2-01
 Owner gate: none

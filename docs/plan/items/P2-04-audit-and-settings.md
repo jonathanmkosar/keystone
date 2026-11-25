@@ -1,6 +1,6 @@
 # P2-04. Audit log and per-tenant settings
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-01
 Owner gate: none

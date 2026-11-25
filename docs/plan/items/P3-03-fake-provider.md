@@ -1,6 +1,6 @@
 # P3-03. Fake provider
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-01
 Owner gate: none

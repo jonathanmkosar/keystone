@@ -1,6 +1,6 @@
 # P2-02. Sign-in and sessions
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-01
 Owner gate: none

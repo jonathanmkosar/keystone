@@ -1,7 +1,7 @@
 # State
 
 Phase: 0, foundations, and 1, design. The build has started.
-Next: wave 4. P2-02, P2-03 and P2-04 (core) can start. P3-02 and P3-03 (models) can start.
+Next: wave 4 is being built: P2-02, P2-03 and P2-04 (core), P3-03 (models), P4-02 (chats) and P6-01 (knowledge). Wave 5 opens as they merge.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -9,10 +9,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | nothing | P2-02, P2-03, P2-04 |
-| models | nothing | P3-02, P3-03 |
-| chats | nothing | P4-02, after P2-01 |
-| knowledge | nothing | P6-01, after P2-01 |
+| core | P2-02, P2-03, P2-04, each in its own worktree | P2-05, P3-09, P13-04 |
+| models | P3-03 | P3-02, after P2-04 |
+| chats | P4-02 | P4-03, after P2-05 and P3-09 |
+| knowledge | P6-01 | P6-02, P6-03 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing | P4-01, after P2-05 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |

@@ -1,6 +1,6 @@
 # P2-03. Per-tenant secrets
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P2-01
 Owner gate: none
