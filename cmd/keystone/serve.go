@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/app"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/settings"
@@ -138,7 +139,15 @@ func openAPI(dataDir, keeper string, log io.Writer) (http.Handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.Install, c.Log = in, log
+	reg, err := settings.Registry()
+	if err != nil {
+		return nil, err
+	}
+	set, err := adapters.Real(reg)
+	if err != nil {
+		return nil, err
+	}
+	c.Install, c.Log, c.Adapters = in, log, set
 	return app.Handler(c)
 }
 

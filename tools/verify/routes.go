@@ -360,6 +360,12 @@ func checkRecorded(string) error {
 	} else if rec.Code != http.StatusNotFound || len(got) != 2 {
 		problems = append(problems, fmt.Sprintf("a call to a path that is no route answered %d and left %d audit entries", rec.Code, len(got)))
 	}
+	// A model call made for a turn is recorded too. See turns.go.
+	more, err := modelCallsRecorded()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, more...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

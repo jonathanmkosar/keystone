@@ -31,6 +31,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Token budget | `internal/budget` | Counts the tokens a call will use, with the provider's own count where it offers one and an estimate with a margin elsewhere, and refuses a call that cannot fit the model's window before it is sent. | [budget.md](budget.md) |
 | Responses adapter | `internal/adapters/responses` | Calls a model that speaks the OpenAI Responses API: streaming, function calls, reasoning, errors sorted into the seam's kinds, and retries. Proven on replayed exchanges; not yet checked against the real API. | [adapter-responses.md](adapter-responses.md) |
 | Chat Completions adapter | `internal/adapters/chatcompletions` | Calls any endpoint that speaks the OpenAI-style Chat Completions format: OpenRouter, LiteLLM, Ollama and the Mac mini gateway. Streaming, tool calls, errors mapped to the seam's kinds, retries, and a certificate authority an entry may trust for itself. Proven on recorded exchanges; no live call yet. | [adapter-chat-completions.md](adapter-chat-completions.md) |
+| Chats and turns | `internal/turn` | The routes a chat screen calls, and the runner behind them. A turn is a row in the tenant's database: it takes the person's message through the model seam, streams the reply as server-sent events a client can resume, can be stopped, waits its turn in a chat's queue, and is finished after a restart. The test tenant always gets the fake provider. | [turns.md](turns.md) |
 
 ## Parts still to come
 
@@ -87,5 +88,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0120 | [An entry may trust one certificate authority of its own, and nothing turns the check off](decisions/0120-an-entry-trusts-one-authority.md) |
 | 0121 | [The Chat Completions adapter holds tool calls until the reply ends](decisions/0121-tool-calls-are-held-until-the-reply-ends.md) |
 | 0122 | [An adapter retries only until the first event, calls a local model directly, and follows no redirect](decisions/0122-retries-stop-at-the-first-event.md) |
+| 0140 | [A turn is a row, its events are rows, and a stream reads the table](decisions/0140-a-turn-and-its-events-are-rows.md) |
+| 0141 | [The turn runner opens a store of its own, for the tenant of the call](decisions/0141-the-runner-opens-its-own-store.md) |
+| 0142 | [After a restart a queued turn runs, and a turn that was running is closed as failed](decisions/0142-an-interrupted-turn-fails-and-a-queued-one-runs.md) |
+| 0143 | [Until the tool loop, a tool call is answered with an error and the model is called again](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md) |
+| 0144 | [The test tenant's model is in no registry, and the fake provider's titles come from the message](decisions/0144-the-test-tenants-model-is-in-no-registry.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

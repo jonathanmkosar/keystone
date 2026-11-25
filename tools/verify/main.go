@@ -63,6 +63,7 @@ var componentDocs = map[string]string{
 	"internal/adapters/anthropic": "docs/architecture/adapter-anthropic.md",
 
 	"internal/adapters/chatcompletions": "docs/architecture/adapter-chat-completions.md",
+	"internal/turn":                     "docs/architecture/turns.md",
 }
 
 var checks = []check{

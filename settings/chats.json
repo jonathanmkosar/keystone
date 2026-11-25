@@ -21,6 +21,125 @@
       "default": "24",
       "scope": "tenant",
       "description": "About how many words of a matching message a search result shows, from 1 to 64."
+    },
+    {
+      "key": "chats.default_model",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The registry name of the model a new chat uses. Empty means the first usable model in the person's registry."
+    },
+    {
+      "key": "chats.turn_queue_max",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "The most turns that may wait in one chat behind the one that is running."
+    },
+    {
+      "key": "chats.turn_max_steps",
+      "type": "int",
+      "default": "8",
+      "scope": "install",
+      "description": "The most model calls one turn may make, counting each call that follows a tool."
+    },
+    {
+      "key": "chats.turn_max_output_tokens",
+      "type": "int",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The most tokens a chat reply may hold. Zero means the model's own limit."
+    },
+    {
+      "key": "chats.turn_thinking_tokens",
+      "type": "int",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The most tokens a model may spend on thinking in a chat turn. Zero asks for no thinking."
+    },
+    {
+      "key": "chats.stream_poll",
+      "type": "duration",
+      "default": "1s",
+      "scope": "install",
+      "description": "How often an open turn stream looks for new events when nothing has woken it."
+    },
+    {
+      "key": "chats.stream_batch",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The most stored events a turn stream reads from the database at a time."
+    },
+    {
+      "key": "chats.stop_wait",
+      "type": "duration",
+      "default": "2s",
+      "scope": "install",
+      "description": "How long the stop route waits for a turn to end before it answers."
+    },
+    {
+      "key": "chats.title_auto",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether a chat is given a title after its first reply."
+    },
+    {
+      "key": "chats.title_model",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The registry name of the model that writes chat titles. Empty means the model that answered the chat."
+    },
+    {
+      "key": "chats.title_prompt",
+      "type": "string",
+      "default": "Write a title of at most six words for the chat that begins below. Answer with the title alone, with no quotation marks and no full stop.",
+      "scope": "install",
+      "description": "The instruction given to the model that writes a chat's title."
+    },
+    {
+      "key": "chats.title_max_tokens",
+      "type": "int",
+      "default": "40",
+      "scope": "install",
+      "description": "The most tokens the model may write for a chat's title."
+    },
+    {
+      "key": "chats.title_input_chars",
+      "type": "int",
+      "default": "2000",
+      "scope": "install",
+      "description": "How many characters of the first message, and of the first reply, the title model is shown."
+    },
+    {
+      "key": "chats.title_timeout",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long the title model may take before the title is made from the first message."
+    },
+    {
+      "key": "chats.title_derived_words",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "How many words of the first message make a title when no model writes one."
+    },
+    {
+      "key": "chats.test_model_context_window",
+      "type": "int",
+      "default": "200000",
+      "scope": "install",
+      "description": "The context window, in tokens, the test tenant's recorded turns are checked against."
+    },
+    {
+      "key": "chats.test_model_output_limit",
+      "type": "int",
+      "default": "8192",
+      "scope": "install",
+      "description": "The output limit, in tokens, of the test tenant's recorded turns."
     }
   ]
 }
