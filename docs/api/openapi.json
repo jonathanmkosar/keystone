@@ -2156,6 +2156,264 @@
         "summary": "Put a message on the chat's current branch: step to a sibling at a branch point, or open a search result."
       }
     },
+    "/api/v1/chats/{id}/skips": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "skips": {
+                      "items": {
+                        "properties": {
+                          "asked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "ref": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref",
+                          "label",
+                          "asked"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "skips"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "What the chat's next turn leaves out: recalled pages and sources, and pinned messages, the person took out of it."
+      }
+    },
+    "/api/v1/chats/{id}/skips/{kind}/{ref}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "skips": {
+                      "items": {
+                        "properties": {
+                          "asked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "ref": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref",
+                          "label",
+                          "asked"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "skips"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Put an item back into the chat's next turn. Putting back one that is not left out changes nothing, and an item a turn has already left out stays left out of that turn."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "skips": {
+                      "items": {
+                        "properties": {
+                          "asked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "ref": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref",
+                          "label",
+                          "asked"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "skips"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Leave one item out of the chat's next turn only: a recalled page or source (kind page or source, ref its id in the knowledge store), which a recent turn of the chat must have been given, or a pinned message (kind message, ref its id). It takes no body. Every model call of the next turn leaves it out, and no later turn does. Taking out an item twice changes nothing."
+      }
+    },
     "/api/v1/chats/{id}/turns": {
       "post": {
         "parameters": [
@@ -4544,6 +4802,678 @@
           }
         },
         "summary": "A turn's stream, from the start or from after the event named by Last-Event-ID. It is how a client joins a turn it did not send, and how it comes back after a dropped connection."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/inspect": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "calls": {
+                      "items": {
+                        "properties": {
+                          "context": {
+                            "properties": {
+                              "exact": {
+                                "type": "boolean"
+                              },
+                              "limit": {
+                                "type": "integer"
+                              },
+                              "margin": {
+                                "type": "integer"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "output": {
+                                "type": "integer"
+                              },
+                              "over": {
+                                "type": "integer"
+                              },
+                              "parts": {
+                                "items": {
+                                  "properties": {
+                                    "covers": {
+                                      "type": "integer"
+                                    },
+                                    "dropped": {
+                                      "type": "integer"
+                                    },
+                                    "dropped_tokens": {
+                                      "type": "integer"
+                                    },
+                                    "items": {
+                                      "items": {
+                                        "properties": {
+                                          "in_turn": {
+                                            "type": "boolean"
+                                          },
+                                          "kept": {
+                                            "type": "boolean"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          },
+                                          "pinned": {
+                                            "type": "boolean"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "removed": {
+                                            "type": "boolean"
+                                          },
+                                          "tokens": {
+                                            "type": "integer"
+                                          }
+                                        },
+                                        "required": [
+                                          "tokens",
+                                          "kept"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "kept": {
+                                      "type": "integer"
+                                    },
+                                    "part": {
+                                      "type": "string"
+                                    },
+                                    "place": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "removed": {
+                                      "type": "integer"
+                                    },
+                                    "state": {
+                                      "type": "string"
+                                    },
+                                    "tokens": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "part",
+                                    "place",
+                                    "state",
+                                    "tokens",
+                                    "kept",
+                                    "dropped",
+                                    "dropped_tokens"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "recounts": {
+                                "type": "integer"
+                              },
+                              "room": {
+                                "type": "integer"
+                              },
+                              "summary_room": {
+                                "type": "integer"
+                              },
+                              "tokens": {
+                                "type": "integer"
+                              },
+                              "turn_room": {
+                                "type": "integer"
+                              },
+                              "turns": {
+                                "items": {
+                                  "properties": {
+                                    "first": {
+                                      "type": "integer"
+                                    },
+                                    "kept": {
+                                      "type": "boolean"
+                                    },
+                                    "messages": {
+                                      "type": "integer"
+                                    },
+                                    "part": {
+                                      "type": "string"
+                                    },
+                                    "summarised": {
+                                      "type": "boolean"
+                                    },
+                                    "tokens": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "first",
+                                    "messages",
+                                    "tokens",
+                                    "part",
+                                    "kept"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "window": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "model",
+                              "window",
+                              "output",
+                              "room",
+                              "limit",
+                              "tokens",
+                              "margin",
+                              "exact",
+                              "over",
+                              "turn_room",
+                              "summary_room",
+                              "parts",
+                              "turns"
+                            ],
+                            "type": "object"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "previews": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "step": {
+                            "type": "integer"
+                          },
+                          "total": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "calls": {
+                                "type": "integer"
+                              },
+                              "cost_micros": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "calls",
+                              "input_tokens",
+                              "output_tokens",
+                              "cache_read_tokens",
+                              "cache_write_tokens",
+                              "thinking_tokens",
+                              "cost_micros",
+                              "estimated"
+                            ],
+                            "type": "object"
+                          },
+                          "usage": {
+                            "items": {
+                              "properties": {
+                                "at": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "class": {
+                                  "type": "string"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "duration_ms": {
+                                  "type": "integer"
+                                },
+                                "estimated": {
+                                  "type": "boolean"
+                                },
+                                "id": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "model": {
+                                  "type": "string"
+                                },
+                                "outcome": {
+                                  "type": "string"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                },
+                                "request_id": {
+                                  "type": "string"
+                                },
+                                "thinking_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "at",
+                                "kind",
+                                "model",
+                                "class",
+                                "outcome",
+                                "input_tokens",
+                                "output_tokens",
+                                "cost_micros",
+                                "duration_ms"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "usage",
+                          "total"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "pinned": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    },
+                    "recall": {
+                      "properties": {
+                        "adapter": {
+                          "type": "string"
+                        },
+                        "dropped": {
+                          "type": "integer"
+                        },
+                        "found": {
+                          "type": "integer"
+                        },
+                        "hits": {
+                          "items": {
+                            "properties": {
+                              "chars": {
+                                "type": "integer"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "kept": {
+                                "type": "boolean"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "score": {
+                                "type": "number"
+                              },
+                              "sensitive": {
+                                "type": "boolean"
+                              },
+                              "space": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "id",
+                              "space",
+                              "title",
+                              "score",
+                              "sensitive",
+                              "kept"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "kept": {
+                          "type": "integer"
+                        },
+                        "min_score": {
+                          "type": "number"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "query": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "withheld": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "min_score",
+                        "found",
+                        "kept",
+                        "dropped",
+                        "withheld",
+                        "sensitive"
+                      ],
+                      "type": "object"
+                    },
+                    "skips": {
+                      "items": {
+                        "properties": {
+                          "asked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "ref": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "ref",
+                          "label",
+                          "asked"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "summaries": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "extends": {
+                            "type": "integer"
+                          },
+                          "first_id": {
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "through_id": {
+                            "type": "integer"
+                          },
+                          "tokens": {
+                            "type": "integer"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "turns": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "first_id",
+                          "through_id",
+                          "turns",
+                          "text",
+                          "model",
+                          "sensitive",
+                          "tokens",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "totals": {
+                      "properties": {
+                        "cache_read_tokens": {
+                          "type": "integer"
+                        },
+                        "cache_write_tokens": {
+                          "type": "integer"
+                        },
+                        "calls": {
+                          "type": "integer"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "estimated": {
+                          "type": "boolean"
+                        },
+                        "input_tokens": {
+                          "type": "integer"
+                        },
+                        "output_tokens": {
+                          "type": "integer"
+                        },
+                        "thinking_tokens": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "calls",
+                        "input_tokens",
+                        "output_tokens",
+                        "cache_read_tokens",
+                        "cache_write_tokens",
+                        "thinking_tokens",
+                        "cost_micros",
+                        "estimated"
+                      ],
+                      "type": "object"
+                    },
+                    "turn": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "turn",
+                    "calls",
+                    "summaries",
+                    "totals",
+                    "pinned",
+                    "skips"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "What went into each model call of one turn: every part of the call (standing instructions, tools, profile, person map, the current turn, recalled items with their sources, the summary, pinned messages, earlier turns sent and left out) with its tokens, each call's usage records and cost, and the totals of every usage record of the turn. Also the turn's recall record, the summaries its calls were given, and the chat's pins and what its next turn leaves out."
       }
     },
     "/api/v1/chats/{id}/turns/{turn}/stop": {

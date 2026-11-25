@@ -151,6 +151,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	}
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
+	// The turn inspector's (P5-04).
+	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, settingsapi.Routes()...)
 	return all
 }

@@ -233,8 +233,9 @@ func (r *Runner) recallFor(ctx context.Context, s *tenant.Store, t row, step int
 			}
 		}
 	}
-	for _, it := range out.Items {
-		items = append(items, contextbuild.Item{Label: it.Label, Text: it.Text})
+	refs := recallRefs(out.Record) // the inspector's names for them (P5-04)
+	for i, it := range out.Items {
+		items = append(items, contextbuild.Item{Label: it.Label, Text: it.Text, Ref: refAt(refs, i)})
 	}
 	return items, rule
 }

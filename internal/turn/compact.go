@@ -185,7 +185,7 @@ func (r *Runner) olderHistory(ctx context.Context, s *tenant.Store, t row, m mod
 		}
 		h.pins = append(h.pins, contextbuild.Pin{
 			Message: len(prefix(p+1)) - 1,
-			Item:    contextbuild.Item{Label: fmt.Sprintf("pinned message %d", id), Text: withRule(heading, who+"\n"+strings.Join(words, "\n"))},
+			Item:    contextbuild.Item{Label: fmt.Sprintf("pinned message %d", id), Text: withRule(heading, who+"\n"+strings.Join(words, "\n")), Ref: messageRef(id)},
 		})
 	}
 	return h
