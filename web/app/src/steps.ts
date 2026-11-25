@@ -86,6 +86,17 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
     const title = chatTitle(result);
     return { icon: "chats", running: "Reading one of your chats", asked: "Read one of your chats", done: title ? `Read ${quoted(title, 56)}` : "Read one of your chats", meta: "" };
   },
+  // Background tasks (P8-01): the task's title, or the first words of its task.
+  start_background_task: (args) => {
+    const t = quoted(args.title) || quoted(args.task);
+    return {
+      icon: "agents",
+      running: t ? `Starting a background task, ${t}` : "Starting a background task",
+      asked: t ? `Start a background task, ${t}` : "Start a background task",
+      done: t ? `Started a background task, ${t}` : "Started a background task",
+      meta: "",
+    };
+  },
   // The web tools (P7-03). Their results are numbered sources: citations.tsx.
   web_search: (args, result) => {
     const q = quoted(args.query);

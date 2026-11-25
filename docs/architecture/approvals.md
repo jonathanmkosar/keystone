@@ -148,6 +148,7 @@ In `settings/agents.json`.
 - Editing a call on its card before approving it.
 - A standing approval for one chat or one session ("allow for the rest of this chat").
 - A list of what waits for an answer across chats, and approvals for background tasks (P8): a card waits in its chat only.
+  - Since P8-01 a background task's calls ask in its own chat like any turn's, and the task's card in the chat it was started from says it waits ([jobs.md](jobs.md)).
 - A tool that marks its own result as outside or not from what it returned. Only the knowledge search does, in the turn.
 - `read_chat` returning another chat's words that came from outside content. A chat is Keystone's own, and the words a model wrote about a web page in one chat are inside when another chat reads them.
 - A chat edited back to before the turn that read outside content stays marked, as a held chat does.

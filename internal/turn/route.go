@@ -108,7 +108,7 @@ func (r *Runner) routed(ctx context.Context, s *tenant.Store, t row, kind routin
 		secrets = append(secrets, o.secrets...)
 	}
 	chain, err := routing.NewChain(sensitive, links, routing.Hooks{
-		Gate:  r.gate(s, kind),
+		Gate:  r.optionGate(s, t, r.gate(s, kind)), // the cap and the memory reserve (P6-06), then Options.Gate (P8-01, jobs.go)
 		Moved: r.moved(s, t, kind, &secrets),
 	})
 	if err != nil {

@@ -82,6 +82,12 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
       reply = undefined;
       continue;
     }
+    if (m.stop_reason === "task") {
+      // A background task's note (P8-01): Keystone's words, as a reply of its own.
+      items.push({ kind: "reply", key: "t" + m.id, parts: [{ kind: "task", text: textOf(m.blocks), messageId: m.id, chatId: m.chat_id }], streaming: false });
+      reply = undefined;
+      continue;
+    }
     const into = open();
     if (m.turn_id) into.turnId = m.turn_id; // for Inspect (P5-04)
     if (m.stop_reason === "step_limit") {

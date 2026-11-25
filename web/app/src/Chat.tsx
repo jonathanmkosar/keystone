@@ -9,6 +9,7 @@ import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
+import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
@@ -195,6 +196,7 @@ function OneChat({ id }: { id: string }) {
           <Conversation items={items} />
         )}
         <Approvals chatId={id} />
+        <Tasks chatId={id} onEnded={() => void load(true)} />
       </div>
       <div className="composer-dock">
         <div className="composer-column">

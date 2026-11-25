@@ -249,6 +249,14 @@ Since the turn inspector (P5-04), added and nothing changed. `docs/api/openapi.j
 - `PUT /chats/{id}/skips/{kind}/{ref}` and `DELETE` on the same path, with no body: take a recalled page or source (`kind` `page` or `source`, `ref` its id in the knowledge store) or a pinned message (`kind` `message`) out of the chat's next turn only, or put it back. 400 `bad_request` for a kind or id that is not one, or a message that is not pinned; 404 `not_found` for a page or source no recent call of the chat was given.
 - Each model call of a turn now leaves out what the turn claimed: `build` in `context.go` calls `leaveOut` in `inspect.go` (decision [0271](decisions/0271-a-skip-is-used-by-the-next-turn-and-no-other.md)).
 
+Since background tasks (P8-01), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the five task routes and their shapes, and every path and shape it had is the same. The whole of it is [jobs.md](jobs.md).
+
+- `stop_reason` on a `Message` and on a `Turn` may be `task`: the note a background task writes in the chat it was started from when it ends, as an assistant message. The turn that writes it calls no model: it is written `running` with the input `{}`, gets its `turn`, `message` and `end` events, and ends as `done`. It is taken in the chat's queue, so it never lands in the middle of a turn.
+- A chat may have turns no client sent: a background task's rounds, sent under the task's own request id, and the note. They stream and record like any turn, and a screen that opens the chat joins one that is running as before.
+- `spend_cap` may come from a background task's budget as well as the monthly cap, with a message that names the task.
+- Five task routes under `/chats/{id}/tasks`, in `internal/jobs`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
+- One option, `Options.Gate`, asked before each call to a model that is not local, after the monthly cap. `route.go` changed one line, so a route's gate is the cap and then the option. And one new file, `jobs.go`, of what tasks use: `Send` (a turn with no client), `Get`, `Latest`, `Calls`, `Pending`, `Events`, `ReplyText`, `Stop`, `Changed`, `Go`, `ChatModel`, `Carried` and `Note`. Nothing in it changes how a turn runs.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.

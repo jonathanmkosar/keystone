@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P5-04, the turn inspector | P5-05, P9-05 |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner), P6-07, P6-08 |
-| agents | P8-01 background tasks, P7-04 connectors | P8-03 scheduled tasks, P12-02 Gmail and Calendar |
+| agents | P7-04 connectors, P8-03 scheduled tasks | P12-02 Gmail and Calendar |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -23,7 +23,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P8-01 background tasks | agents | `agents/p8-01-background-tasks` |
 | P7-04 connectors | agents | `agents/p7-04-connectors` |
 | P5-05 chat summaries and past-chat search | chats | `chats/p5-05-chat-summaries` |
 | P5-03 prompt caching | chats | `chats/p5-03-prompt-caching` |
@@ -74,6 +73,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Where facts from a chat that was sent sensitive content go (knowledge 006) | The owner names his Waymarks sensitive space in `knowledge.memory_sensitive_space` | Kept nowhere | Nothing |
 | Is the memory reserve part of the monthly cap or set aside from it (knowledge 006, decision 0280) | Part of the cap, $2 a month | Part of the cap | Nothing |
 | Should leaving a sensitive page out of a turn let that turn go to a hosted model (chats 005) | No: the route is decided from what recall found | No | Nothing |
+| Background tasks: should a model's start ask first, should a task resume after a restart (paying again for a cut-short call), should task chats stay in the sidebar, and is $1 a task right (agents 004) | Yes, yes, yes, yes | As recommended | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -114,6 +114,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P13-04, backup and restore: one person goes into one file sealed under a passphrase they give (`go run ./tools/tenant backup <tenant-id> <file>`), and a restore on another machine re-wraps their data key under that machine's keeper so their keys work there. A restore checks the whole file before writing anything and is run with the server stopped. Backups are by hand only: a schedule waits on the owner's choice of where they go (decision 0263). Steps: `docs/runbooks/backup-and-restore.md`.
 - P6-06, the memory pass: after each reply, beside it, the memory model (the owner's is Qwen on the Mac mini) pulls durable facts from the exchange and adds them to the person's knowledge store as one source linked to the chat, when the store can take sources. Its spend comes from a reserve inside the monthly cap ($2 by default). A chat that was sent sensitive content keeps its facts only in a named sensitive space. A chat can be made incognito, which turns the memory pass off for it. Only the fake provider has extracted facts so far.
 - P5-04, the turn inspector, provisional on the inspector mockup: an Inspect action beside Copy on each reply opens a panel with each model call's parts (rules, profile, map, recall, summary, pins, the turns kept and left out), their tokens, and the call's usage and cost, whose totals equal the usage records. A recalled page or a pinned message can be left out of the next turn. Pin sits beside Copy on every message.
+- P8-01, background tasks: a task asked for in a chat (the model's `start_background_task` asks first) works in a chat of its own through ordinary turns, so every step streams, is recorded and asks for approval; it survives a server restart and resumes, has its own budget ($1 by default), and writes its result as a note in the chat it was started from. A task from an incognito chat works in an incognito chat. The `background tasks` check proves a task finishes after a restart. `verify` is 21 of 21.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

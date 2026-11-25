@@ -833,3 +833,103 @@ export async function listSkips(chatId: string): Promise<Skip[]> {
 export async function setSkip(chatId: string, kind: string, ref: string, skipped: boolean): Promise<Skip[]> {
   return skipsFrom(await object(skipped ? "PUT" : "DELETE", `${chatPath(chatId)}/skips/${encodeURIComponent(kind)}/${encodeURIComponent(ref)}`));
 }
+
+// Background tasks (P8-01). A task works in a chat of its own and writes its
+// result in the chat it was started from; Tasks.tsx draws it there.
+// docs/architecture/jobs.md.
+// ---------------------------------------------------------------------------
+
+export type TaskError = { code: string; message: string };
+
+/** One background task, as the server sends it. */
+export type Task = {
+  id: string;
+  /** The chat it was started from. Its result is written there. */
+  chat_id: string;
+  /** The chat of its own its turns run in. */
+  work_chat_id: string;
+  title: string;
+  task: string;
+  started_by: "person" | "tool";
+  status: "queued" | "running" | "done" | "stopped" | "failed";
+  /** A call of its round waits for the person's approval, in its own chat. */
+  waiting: boolean;
+  /** Where it is, in the server's few words. */
+  progress: string;
+  rounds: number;
+  max_rounds: number;
+  steps: number;
+  turn_id?: string;
+  budget_micros: number;
+  spent_micros: number;
+  result?: string;
+  error?: TaskError;
+  /** The message in chat_id that holds its result, once written. */
+  note_message_id?: number;
+  created: string;
+  started?: string;
+  ended?: string;
+  last_event_id: number;
+};
+
+const tasksPath = (chat: string) => `${chatPath(chat)}/tasks`;
+
+function taskFrom(data: unknown): Task {
+  const t = data as Partial<Task> | undefined;
+  if (!t || typeof t.id !== "string" || typeof t.chat_id !== "string" || typeof t.status !== "string") throw new ApiError("not-ready", 200);
+  return t as Task;
+}
+
+/** The tasks started from a chat or working in it, oldest first. */
+export async function listTasks(chatId: string): Promise<Task[]> {
+  const data = await object("GET", tasksPath(chatId));
+  if (!Array.isArray(data.tasks)) throw new ApiError("not-ready", 200);
+  return data.tasks.map(taskFrom);
+}
+
+/** Starts a task from a chat. */
+export async function startTask(chatId: string, text: string, title?: string): Promise<Task> {
+  return taskFrom(await call("POST", tasksPath(chatId), title ? { text, title } : { text }));
+}
+
+/** Stops a task. Its round is stopped and the chat it was started from is told. */
+export async function stopTask(chatId: string, taskId: string): Promise<Task> {
+  return taskFrom(await call("POST", `${tasksPath(chatId)}/${encodeURIComponent(taskId)}/stop`));
+}
+
+/**
+ * Reads a task's stream from after the event `lastEventId`, or from its
+ * first event when that is empty, calling onTask with the task each time it
+ * changes. It returns true when the `end` event came, and false when the
+ * stream closed without one: the connection dropped, and the caller comes
+ * back with the last id it had.
+ */
+export async function followTask(chatId: string, taskId: string, lastEventId: string, onTask: (task: Task, id: string, end: boolean) => void, signal?: AbortSignal): Promise<boolean> {
+  const headers = headersFor(undefined, "text/event-stream");
+  if (lastEventId !== "") headers["Last-Event-ID"] = lastEventId;
+  let res: Response;
+  try {
+    res = await fetch(`${tasksPath(chatId)}/${encodeURIComponent(taskId)}/events`, { method: "GET", credentials: "same-origin", headers, signal });
+  } catch {
+    throw new ApiError("not-ready", 0);
+  }
+  if (!res.ok) throw await errorFrom(res);
+  if (!(res.headers.get("Content-Type") ?? "").includes("text/event-stream") || !res.body) throw new ApiError("not-ready", res.status);
+  let ended = false;
+  try {
+    await readEvents(res.body, (e) => {
+      if (e.name !== "task" && e.name !== "end") return true;
+      try {
+        const task = taskFrom(JSON.parse(e.data));
+        ended = e.name === "end";
+        onTask(task, e.id, ended);
+      } catch {
+        return true;
+      }
+      return !ended;
+    });
+  } catch {
+    return ended;
+  }
+  return ended;
+}

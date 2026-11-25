@@ -162,4 +162,8 @@ type Options struct {
 	// tools. Nil means none: nothing is offered, and a tool a model asks
 	// for anyway is answered with an error.
 	Tools *tools.Registry
+	// Gate is asked before each call to a model that is not local, after
+	// the monthly cap (P8-01: a background task's budget, jobs.Gate). Nil
+	// asks nothing more.
+	Gate Gate
 }

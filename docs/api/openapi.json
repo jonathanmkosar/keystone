@@ -2724,6 +2724,875 @@
         "summary": "Leave one item out of the chat's next turn only: a recalled page or source (kind page or source, ref its id in the knowledge store), which a recent turn of the chat must have been given, or a pinned message (kind message, ref its id). It takes no body. Every model call of the next turn leaves it out, and no later turn does. Taking out an item twice changes nothing."
       }
     },
+    "/api/v1/chats/{id}/tasks": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "tasks": {
+                      "items": {
+                        "properties": {
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_event_id": {
+                            "type": "integer"
+                          },
+                          "max_rounds": {
+                            "type": "integer"
+                          },
+                          "note_message_id": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          },
+                          "rounds": {
+                            "type": "integer"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "started_by": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "work_chat_id",
+                          "title",
+                          "task",
+                          "started_by",
+                          "status",
+                          "waiting",
+                          "progress",
+                          "rounds",
+                          "max_rounds",
+                          "steps",
+                          "budget_micros",
+                          "spent_micros",
+                          "created",
+                          "last_event_id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "tasks"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The background tasks started from this chat, or working in it, oldest first."
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_event_id": {
+                      "type": "integer"
+                    },
+                    "max_rounds": {
+                      "type": "integer"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    },
+                    "rounds": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "started_by": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "task",
+                    "started_by",
+                    "status",
+                    "waiting",
+                    "progress",
+                    "rounds",
+                    "max_rounds",
+                    "steps",
+                    "budget_micros",
+                    "spent_micros",
+                    "created",
+                    "last_event_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Start a background task from this chat. It runs in a chat of its own, goes on without a client and after a restart, and writes its result in this chat when it ends."
+      }
+    },
+    "/api/v1/chats/{id}/tasks/{task}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_event_id": {
+                      "type": "integer"
+                    },
+                    "max_rounds": {
+                      "type": "integer"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    },
+                    "rounds": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "started_by": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "task",
+                    "started_by",
+                    "status",
+                    "waiting",
+                    "progress",
+                    "rounds",
+                    "max_rounds",
+                    "steps",
+                    "budget_micros",
+                    "spent_micros",
+                    "created",
+                    "last_event_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One background task: where it is, what it has spent, and its result once it has one."
+      }
+    },
+    "/api/v1/chats/{id}/tasks/{task}/events": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The id of the last event the client has, for a client that cannot set Last-Event-ID. The header wins when both are sent.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-keystone-events": [
+                  {
+                    "data": {
+                      "properties": {
+                        "budget_micros": {
+                          "type": "integer"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "max_rounds": {
+                          "type": "integer"
+                        },
+                        "note_message_id": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "result": {
+                          "type": "string"
+                        },
+                        "rounds": {
+                          "type": "integer"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "started_by": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        },
+                        "work_chat_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "work_chat_id",
+                        "title",
+                        "task",
+                        "started_by",
+                        "status",
+                        "waiting",
+                        "progress",
+                        "rounds",
+                        "max_rounds",
+                        "steps",
+                        "budget_micros",
+                        "spent_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The task as it stands. It is the first event, and is sent again whenever the task changes: a round starts, a step ends, a call waits for the person's approval, the task ends.",
+                    "event": "task"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "budget_micros": {
+                          "type": "integer"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "max_rounds": {
+                          "type": "integer"
+                        },
+                        "note_message_id": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "result": {
+                          "type": "string"
+                        },
+                        "rounds": {
+                          "type": "integer"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "started_by": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        },
+                        "work_chat_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "work_chat_id",
+                        "title",
+                        "task",
+                        "started_by",
+                        "status",
+                        "waiting",
+                        "progress",
+                        "rounds",
+                        "max_rounds",
+                        "steps",
+                        "budget_micros",
+                        "spent_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "Always the last event: the task as it ended, with the status done, stopped or failed, once its result is written in the chat it was started from. The stream closes after it.",
+                    "event": "end"
+                  }
+                ]
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "A background task's stream: the task each time it changes, then end. From the start, or from after the event named by Last-Event-ID."
+      }
+    },
+    "/api/v1/chats/{id}/tasks/{task}/stop": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_event_id": {
+                      "type": "integer"
+                    },
+                    "max_rounds": {
+                      "type": "integer"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    },
+                    "rounds": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "started_by": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "task",
+                    "started_by",
+                    "status",
+                    "waiting",
+                    "progress",
+                    "rounds",
+                    "max_rounds",
+                    "steps",
+                    "budget_micros",
+                    "spent_micros",
+                    "created",
+                    "last_event_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Stop a background task. Its round is stopped, what it did is kept in its chat, and the chat it was started from is told. It takes no body. Stopping a task that has ended changes nothing."
+      }
+    },
     "/api/v1/chats/{id}/turns": {
       "post": {
         "parameters": [
