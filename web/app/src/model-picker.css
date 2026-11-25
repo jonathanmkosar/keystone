@@ -1,0 +1,196 @@
+/* The model picker in the composer. The button follows MainDark.html and
+   MainLight.html, where it sits just before the send button. The menu has no
+   mockup: it is drawn like the chat's menu in chat.css, opening upwards
+   because the composer is at the foot of the page. Every colour is a token. */
+
+.model-picker {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  /* Pushes the picker and the send button to the right of the row. */
+  margin-left: auto;
+}
+
+.model-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  height: 36px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.model-button:hover,
+.model-button[aria-expanded="true"] {
+  background: var(--sunk);
+}
+
+.model-button > .ico {
+  color: var(--muted);
+}
+
+.model-button.is-blocked > .ico:first-child {
+  color: var(--err);
+}
+
+.model-button-label {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  max-height: min(440px, 60vh);
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--strong);
+  border-radius: 10px;
+  background: var(--raised);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+}
+
+.model-menu-head {
+  margin: 0;
+  padding: 6px 10px 4px;
+  color: var(--muted);
+  font: 600 11px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.model-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 10px 6px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--ink);
+  font: 400 14px/20px var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.model-item:hover:not(:disabled),
+.model-item:focus-visible {
+  background: var(--page);
+}
+
+.model-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.model-item.is-current {
+  font-weight: 500;
+}
+
+.model-item:disabled {
+  cursor: default;
+}
+
+.model-item:disabled .model-item-label {
+  color: var(--muted);
+}
+
+.model-item-check {
+  display: inline-flex;
+  flex: none;
+  width: 16px;
+  color: var(--accent);
+}
+
+.model-item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.model-item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-item-why {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.model-tags {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+  max-width: 120px;
+}
+
+/* The class mark, as on the Models and keys screen: a model that may read
+   sensitive content (local or trusted) is marked in the "ok" colour. */
+.model-tag {
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font: 500 11px/18px var(--font-mono);
+  white-space: nowrap;
+}
+
+.model-tag.is-private {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.model-tag.is-bad {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.model-menu-note {
+  margin: 0;
+  padding: 6px 10px 2px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.model-menu-link {
+  align-self: flex-start;
+  margin: 2px 10px 4px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 760px) {
+  /* The hint is hidden on a phone already. With the picker in the row it
+     gives up its room too. */
+  .composer-row:has(.model-picker) .composer-hint {
+    display: none;
+  }
+
+  .model-button-label {
+    max-width: 150px;
+  }
+}

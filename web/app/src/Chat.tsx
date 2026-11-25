@@ -7,6 +7,8 @@ import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
+import { ModelPicker } from "./ModelPicker";
+import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
 
 const footnote = "Keystone can make mistakes. Check what matters against its sources.";
@@ -34,7 +36,7 @@ export function Start({ person }: { person: Person }) {
     try {
       const made = await createChat();
       put(made.chat, true);
-      send(made.chat.id, text);
+      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id));
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
       setBusy(false);
@@ -54,7 +56,7 @@ export function Start({ person }: { person: Person }) {
         </h1>
       </div>
       <div className="composer-column">
-        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} />
+        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<ModelPicker newChatFor={person.id} />} />
         {problem && (
           <p className="composer-problem" role="alert">
             {problem}
@@ -87,6 +89,7 @@ function OneChat({ id }: { id: string }) {
   const { put, lost } = useChats();
   const live = useLive(id);
   const [loaded, setLoaded] = useState<Loaded>({ state: "loading" });
+  const shown = useShownChoice(id, loaded.state === "ready" ? loaded.model : undefined);
   const scroller = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
 
@@ -141,7 +144,7 @@ function OneChat({ id }: { id: string }) {
 
   function sendHere(text: string) {
     stick.current = true;
-    send(id, text);
+    send(id, text, takePick(id));
   }
 
   if (loaded.state === "missing" || loaded.state === "failed") {
@@ -173,7 +176,7 @@ function OneChat({ id }: { id: string }) {
 
   const busy = isActive(live);
   const noModel = loaded.state === "ready" && !loaded.model.model;
-  const note = loaded.state === "ready" ? modelLine(loaded.model) : "";
+  const note = loaded.state === "ready" && shown ? modelLine(shown) : "";
 
   return (
     <div className="chat">
@@ -204,6 +207,7 @@ function OneChat({ id }: { id: string }) {
             focusKey={id}
             onSend={sendHere}
             onStop={busy ? () => stop(id) : undefined}
+            beside={<ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} />}
           />
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>

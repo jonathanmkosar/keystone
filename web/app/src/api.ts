@@ -345,9 +345,9 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   return ended;
 }
 
-/** Sends a message to a chat and reads the reply's stream. See readTurn for what it returns. */
-export function sendMessage(chatId: string, text: string, reader: StreamReader): Promise<boolean> {
-  return readTurn("POST", turnsPath(chatId), { text }, "", reader);
+/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. See readTurn for what it returns. */
+export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string): Promise<boolean> {
+  return readTurn("POST", turnsPath(chatId), model ? { text, model } : { text }, "", reader);
 }
 
 /**
@@ -528,4 +528,33 @@ export async function readProfile(): Promise<Profile> {
 
 export async function writeProfile(text: string): Promise<Profile> {
   return profileFrom(await object("PUT", settingsPaths.profile, { text }));
+}
+
+// The model picker in the composer (P4-04). The routes are the chat
+// contract's, docs/architecture/turns.md.
+
+function isModelInfo(v: unknown): v is ModelInfo {
+  if (typeof v !== "object" || v === null) return false;
+  const m = v as Record<string, unknown>;
+  return typeof m.name === "string" && typeof m.label === "string" && typeof m.class === "string";
+}
+
+/** Which model a chat's next turn uses when the turn names none, and the models a turn in it may name. */
+export async function chatModel(chatId: string): Promise<ModelChoice> {
+  const data = await object("GET", `${chatPath(chatId)}/model`);
+  if (!Array.isArray(data.models) || !data.models.every(isModelInfo) || typeof data.source !== "string") throw new ApiError("not-ready", 200);
+  if (data.model !== undefined && !isModelInfo(data.model)) throw new ApiError("not-ready", 200);
+  return {
+    model: data.model as ModelInfo | undefined,
+    source: data.source,
+    reason: typeof data.reason === "string" ? data.reason : undefined,
+    models: data.models,
+  };
+}
+
+/** One turn as it stands, with the reason it failed if it did. */
+export async function getTurn(chatId: string, turnId: string): Promise<Turn> {
+  const data = await object("GET", turnPath(chatId, turnId));
+  if (typeof data.id !== "string" || typeof data.status !== "string") throw new ApiError("not-ready", 200);
+  return data as unknown as Turn;
 }
