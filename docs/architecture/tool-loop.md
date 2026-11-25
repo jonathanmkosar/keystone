@@ -4,7 +4,7 @@ Folders: `internal/tools`, `internal/tools/approval`, `internal/tools/builtin`, 
 
 A turn offers the model tools. When the model asks for one, the tool runs for the person whose turn it is, its result is appended to the chat, and the model is called again, until it answers or the turn reaches its step limit. Each step is streamed as it happens, kept in the chat record, and recorded in the audit log. A tool that changes something does not run: approvals are the next item (P7-02).
 
-Decisions [0200](decisions/0200-a-tool-is-data-and-a-function-in-a-registry.md) to [0203](decisions/0203-a-tool-runs-beside-the-turn-and-stop-does-not-wait.md) say why it is built this way.
+Decisions [0200](decisions/0200-a-tool-is-data-and-a-function-in-a-registry.md) to [0204](decisions/0204-the-screen-writes-the-steps-line.md) say why it is built this way. The chat screen's side is under "On the screen" below, and in [web.md](web.md).
 
 ## A tool
 
@@ -102,6 +102,20 @@ and then the next step's `start`. At the step limit, after the declined calls' r
 - "What have I asked you about the lighthouse, and what is the date today?" The fake model says it will look, calls `search_chats` with "lighthouse", reads the result, calls `current_time`, reads that, and answers. The tools run for real against the test tenant's chats. This is the item's proof.
 - "Send a postcard to the lighthouse keeper." The fake model calls `send_postcard`, a tool no build registers. It is answered as a tool that does not exist, or, in the `approval` check, which registers it as a tool that changes something, it is refused. The model then says nothing was sent.
 
+## On the screen
+
+The chat screen already drew tool calls as steps in the reply's card. Since this item each step reads as a sentence, from the approved step rows of `MainDark.html`, built from the design tokens (decision [0204](decisions/0204-the-screen-writes-the-steps-line.md)):
+
+| State | The row |
+| --- | --- |
+| Running | What it is doing, in the present, pulsing, with "running" on the right: "Searching your chats for “lighthouse”". |
+| Answered | What it did, in the past, with a few words on the right where the result gives them: "Searched your chats for “lighthouse”" and "3 matches"; "Read “Planning the lighthouse walk”"; "Checked the date and time". |
+| No result | What the model asked for, with a tag: "Check the date and time" and "not run", or "stopped", in the plain tag; "failed" or "no such tool" in the error colour. |
+
+A tool the screen has no words for reads "Used send_postcard: to “The lighthouse keeper”, message “Thank you for the light.”": its name and the first plain values of its input, cut short. Each row is closed until the person opens it, and then shows the tool's name, what it was sent, and what came back. The text a model wrote between steps stays between them, so a reply reads in the order it happened.
+
+The note at the step limit is drawn as Keystone's own: in a dashed box with the stop mark, under the steps, and not in the reply's reading type. All of it is the same after a reload, because it is drawn from the record. The code is `web/app/src/steps.ts`, `Conversation.tsx` and `layout.ts`.
+
 ## Settings
 
 In `settings/agents.json`. `turn.ReadConfig` reads the install's, and the one a person may set is read from their stored value for each turn.
@@ -131,9 +145,17 @@ In `settings/agents.json`. `turn.ReadConfig` reads the install's, and the one a 
   - `approval`, a new standing check, registers a tool that changes something on the real server beside the built-in ones, has the test tenant's recorded turn call it, and fails if it ran, if the model was not told it needs an approval, or if the refusal is not in the audit log.
   - `fixed rules`: `internal/tools/approval` and `internal/tools` are the guards of the approval rule, and may not import the settings registry or the tenant overrides.
 
+- In a browser, against the server built from this branch on port 7921 with a data folder of its own, signed in as the test tenant: the task of several steps, its rows opened, and the chat reloaded; the postcard turn; and, with a stand-in server made for the look and not kept, a slow search to see a running row, a turn at a step limit of two to see the note, and a postcard tool that changes something to see "not run". In dark and light, and at phone width.
+
+## Provisional
+
+- How the steps look waits on the owner's approval of the agent mockups (P1-05). The rows follow `MainDark.html`'s approved step rows. The running state, the "no result" rows, the open body and the step limit's note have no mockup, and were made from the tokens.
+- The words of each row are a first draft, in `web/app/src/steps.ts`.
+
 ## Not here yet
 
 - Approvals (P7-02): the policy for each tool, the card that asks, and the rule that a turn which read outside content asks for every side effect. Until then no tool that changes something runs.
 - Tools that change something, web search and fetch, connectors, skills and sub-agents (P7-03 to P7-07).
 - Running two calls of one reply side by side. They run one after another.
+- Sensitive chats. Nothing marks a chat as holding content from a sensitive space yet. When recall (P6-05) marks a turn sensitive, `search_chats` and `read_chat` must leave a marked chat out for a model that may not read sensitive content, or they would carry it into a turn with a hosted model (fixed rule 3). This is a question for the owner in the journal, agents 001.
 - A tool's own settings screen, and a list of tools a person can switch one by one.

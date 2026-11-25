@@ -1,6 +1,6 @@
 # P7-01. Tool loop
 
-Status: doing (agents)
+Status: provisional
 Lane: agents + interface
 Depends on: P4-03
 Owner gate: Approval of the agent mockups (P1-05), for how steps are shown only.
@@ -33,3 +33,14 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 **The screen.** The chat screen already draws tool steps from the same events. It gains a readable line for each step (what the tool is doing and to what, from its name and input), the running state, the result collapsed by default, and the step limit's note. Built from the tokens, from the approved `MainDark.html` step rows.
 
+
+### Result
+
+Provisional on November 25, 2026. It waits on the owner gate: approval of the agent mockups (P1-05), for how the steps look. Everything else in the scope is built. It was finished by a second session, after the first stopped partway.
+
+- `internal/tools` is the registry and the one place a tool runs, `internal/tools/approval` is fixed rule 2's test, and `internal/tools/builtin` has three tools that only read: `current_time`, `search_chats` and `read_chat`. The server's registry is made in `internal/app/tools.go`. The doc is `docs/architecture/tool-loop.md`.
+- The turn's side is `internal/turn/tools.go`: the tools on offer go into the context builder's `Tools` slot, each call is run and its result streamed and stored, and the model is called again up to `chats.turn_max_steps`. At the limit the turn ends as `done` with a note, with the stop reason `step_limit`. Stop cancels a running tool. A tool that fails or panics is an error result.
+- Every tool that changes something is refused until approvals (P7-02). A new standing check, `approval`, proves it on the real server, and the two packages are the rule's guards in `fixedRuleGuards`.
+- The proof holds. The test tenant's scripted task (`fixtures/test-tenant/turns/tool-steps.json`: search the chats, read the time, answer) completes in `go test ./internal/turn` and in `verify`'s `calls recorded`, with each step in the stream, the record and the audit log. In a browser each step rendered as a readable row, running and then answered, collapsed until opened, and the same after a reload. `verify` is 17 of 17.
+- The contract: no route or event changed shape. `stop_reason` may now be `step_limit`, and the error code `step_limit` is no longer sent. `docs/api/openapi.json` was regenerated and is unchanged. Listed in `turns.md` under "Changed since the contract".
+- Five settings in a new `settings/agents.json`. Decisions 0200 to 0204. The journal is agents 001, with three questions for the owner.

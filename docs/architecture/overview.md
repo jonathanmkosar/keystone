@@ -116,5 +116,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0201 | [Until approvals exist, a tool that changes something is refused, and an approval is a value only its own package can make](decisions/0201-a-changing-tool-is-refused-until-approvals.md) |
 | 0202 | [At the step limit a turn ends as done with a note, and the last calls are answered without running](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md) |
 | 0203 | [A tool runs beside the turn, stop does not wait for it, and every call still gets a stored result](decisions/0203-a-tool-runs-beside-the-turn-and-stop-does-not-wait.md) |
+| 0204 | [The chat screen writes each step's readable line from the tool's name, input and result](decisions/0204-the-screen-writes-the-steps-line.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
