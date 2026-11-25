@@ -46,7 +46,7 @@ This is fixed rule 3: content from a sensitive space reaches only models the reg
 - `NewChain(sensitive, links, hooks)` checks again, and refuses to build a chain that holds a model which may not read sensitive content.
 - The package imports neither `settings` nor `internal/tenantsettings`, itself or through another package. It is listed in `fixedRuleGuards` in `tools/verify/fixedrules.go`, and the `fixed rules` check fails if that import ever appears ([tools.md](tools.md)).
 
-Nothing marks a turn as sensitive yet. The turn passes `false` until recall (P6-05) brings content from a sensitive space into a turn. See "Not here yet".
+Since P6-05 the turn passes the real answer: a call is sensitive when recall kept an item from a sensitive space for the chat's model, or when the chat was sent sensitive content in an earlier turn. Each call is then built for the least of its route's models, so a fallback that may not read sensitive content is never sent any ([knowledge-recall.md](knowledge-recall.md)).
 
 ## The fallback chain
 
@@ -127,11 +127,10 @@ answeredBy := chain.Last()
 - A gate's refusal moves to a model the gate allows, and is the call's error when there is none.
 - In a turn: a failing endpoint falls back, the audit log holds a started and an end entry for each of the two calls, and the reply is recorded under the model that wrote it.
 
-In `verify`: the `fixed rules` check lists `internal/routing` as a guard for rule 3.
+In `verify`: the `fixed rules` check lists `internal/routing` as a guard for rule 3. Since P6-05 the `sensitive content` check sends real turns through routes with a hosted model in the fallback chain, and proves it is never sent content from a sensitive space ([knowledge-recall.md](knowledge-recall.md)).
 
 ## Not here yet
 
-- **The sensitive mark on a turn.** The filter is built and tested, and the turn passes `false`, because nothing yet brings sensitive content into a turn. Recall (P6-05) sets it, and adds the proof that a sensitive page never reaches a hosted model.
 - **Calls of the kinds `summary`, `memory` and `embedding`.** Their rules are settings; the callers come with P5-05, P6-06 and P6-08.
 - **A cost ceiling on one call**, which the plan lists among what a call states. The monthly cap is the only ceiling today.
 - **Routing by capability from a turn.** `Ask.Needs` works, and the turn does not fill it yet: a message with an image does not yet ask for vision.

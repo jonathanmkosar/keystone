@@ -130,6 +130,7 @@ An expectation that is not set is not checked. A use case that expects nothing i
 ## Not here yet
 
 - Files, images and a knowledge store with sensitive and ordinary spaces. Uploads are P9-02 and the built-in store is P6-02. Each adds its fixtures to `fixtures/test-tenant/`, a step to `Load`, and a kind of use case.
+- Invented knowledge with a sensitive and two ordinary spaces is in `fixtures/test-tenant/knowledge/knowledge.json` (P6-05). The loader does not read it, and the test tenant ships with the `none` adapter. The `recall` and `sensitive content` checks put it into the test tenant's built-in store and into a fake Waymarks themselves ([knowledge-recall.md](knowledge-recall.md)). Loading it in `Load` would change every call the test tenant makes, which is for the item that wants that.
 - The fake provider is not wired to a route. The model registry (P3-02) and the turn runner (P4-03) give a store for which `IsTest` is true the provider from `testtenant.Provider`. Until then the recorded turns are played by the loader and by the use cases.
 - Chats loaded together all carry the time of the load. The chat record has no way to write an earlier time.
 - No command removes the test tenant, because no command removes any tenant.

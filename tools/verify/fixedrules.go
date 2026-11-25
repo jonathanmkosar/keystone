@@ -56,6 +56,14 @@ func init() {
 	fixedRuleGuards["rules.approval"] = append(fixedRuleGuards["rules.approval"], "internal/tools/approval", "internal/tools")
 }
 
+// Recall (P6-05) brings content from the knowledge store into a call and
+// gives the lookups their results. Found.For and Lookups take the model's
+// plain answer and are the only ways to the content, so the package
+// enforces rule 3 too.
+func init() {
+	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/knowledge/recall")
+}
+
 // settingsPackages are the ways to read a setting's value.
 var settingsPackages = []string{module + "/settings", module + "/internal/tenantsettings"}
 

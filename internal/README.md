@@ -32,3 +32,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `usage` | models | A record for each model call, a month's sums, and the monthly spend cap |
 | `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |
 | `tools` | agents | The tool registry and the one place a tool runs; `tools/approval`, the test for fixed rule 2; `tools/builtin`, the tools that come with Keystone |
+| `knowledge/recall` | knowledge | Recall on every message, the three knowledge lookups, and the sensitive mark a chat keeps |

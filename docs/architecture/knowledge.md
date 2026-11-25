@@ -171,6 +171,6 @@ What shaped the interface:
 ## Not here yet
 
 - The server does not import an adapter's package yet, so the binary has `none` alone. The test that every option of the setting opens is in `internal/knowledge/waymarks`, the one package whose tests have every adapter in their build, until the server has a place for it.
-- Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). Nothing calls `Open` yet. Recall (P6-05) and the memory pass (P6-06) are the first callers.
-- Roles. The plan gives Waymarks one token for each Keystone role. The interface has no role: the Waymarks adapter picks the token by the call, so reads go out under the reader token, `AddSource` under the intake token, and page vectors under a third, the embedder (decision [0090](decisions/0090-waymarks-three-tokens.md)). Whether chat and sub-agents are handed a view of the store that cannot add is for P6-05.
+- Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). A turn calls `Open` for the person map and for recall ([knowledge-recall.md](knowledge-recall.md)). The memory pass (P6-06) is next.
+- Roles. The plan gives Waymarks one token for each Keystone role. The interface has no role: the Waymarks adapter picks the token by the call, so reads go out under the reader token, `AddSource` under the intake token, and page vectors under a third, the embedder (decision [0090](decisions/0090-waymarks-three-tokens.md)). Chat is handed the whole store, and recall and the lookups only read (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
 - Correcting and forgetting a fact (P6-07), and writing pages, which the wiki upkeep jobs do (P8-06). Each adds a flag and a call when its item is built.

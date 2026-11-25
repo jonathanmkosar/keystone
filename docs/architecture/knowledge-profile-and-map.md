@@ -124,7 +124,7 @@ The caller reads these and fills `Limits`. The package exports each key as a con
 
 ## Not here yet
 
-- Nothing calls `ForContext`. The context builder (P5-01) has the slot.
+- The turn calls `ForContext` for each model call (`internal/turn/person.go`). Since P6-05 it passes the answer for the least of the call's route, not the first model's, so a local model with a hosted fallback behind it is given the open map ([knowledge-recall.md](knowledge-recall.md), decision [0210](decisions/0210-recall-searches-once-before-the-route.md)).
 - A route and a screen for the profile (P6-07, P11-01).
 - Facts the memory pass might offer for the profile (P6-06). Today only the person writes it.
 - The Waymarks adapter has been run against a fake only, so the map has not been built from a real Waymarks.

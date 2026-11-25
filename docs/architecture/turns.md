@@ -386,5 +386,9 @@ Since P3-08 a turn does not open one model. `open` asks `internal/turn/route.go`
 
 - The turn's `model` is the one asked for. A reply written by a fallback has the fallback's name in its own `model`, and so does the turn's `usage` event.
 - When a model of the route did not answer and the next one did, the audit log holds a started entry and an end entry for each.
-- Two more codes can end a turn: `spend_cap`, when the call could take the month past the cap and was not sent, and `sensitive`, when the turn holds sensitive content and the person has no local or trusted model. Nothing sets the second yet.
+- Two more codes can end a turn: `spend_cap`, when the call could take the month past the cap and was not sent, and `sensitive`, when the turn holds sensitive content and the person has no local or trusted model. Recall (P6-05) sets the second ([knowledge-recall.md](knowledge-recall.md)).
+
+## Recall
+
+Since P6-05, `work` searches the person's knowledge store once, before it opens the route, with `searchKnowledge` in `internal/turn/recall.go`, and keeps what was found on the turn's row. `routed` asks whether the call is sensitive: the chat was sent sensitive content before, or the chat's model may read it and recall kept some. `build` makes each call for the least of the route's models, the person map included, fills the context builder's `recall` slot, adds the search-first rule to the standing instructions when a store is open, and keeps the record of the first call in `turn_recall`. A store that is missing, down or slow gives nothing and one line in the log, within `knowledge.recall_timeout`. See [knowledge-recall.md](knowledge-recall.md).
 - A title is routed as its own kind of task: the model `chats.title_model` names, then the chat's own.

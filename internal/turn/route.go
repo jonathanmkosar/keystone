@@ -82,14 +82,13 @@ func (r *Runner) routed(ctx context.Context, s *tenant.Store, t row, kind routin
 		r.logf("turns: tenant %s: reading the registry: %v", s.TenantID(), err)
 		return none(&TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."})
 	}
-	// Nothing marks a turn's content as sensitive yet. Recall (P6-05) is
-	// what brings content from a sensitive space into a turn, and it sets
-	// this when it does.
-	const sensitive = false
+	// Fixed rule 3: a call that carries content from a sensitive space goes
+	// only to models that may read it, first or as a fallback (P6-05).
+	sensitive := r.sensitive(ctx, s, t, first != nil && first.m.MayReadSensitive())
 	route, err := routing.Plan(r.rules(ctx, s), routing.Ask{Kind: kind, Model: picked, Sensitive: sensitive}, usable)
 	if err != nil {
 		if errors.Is(err, routing.ErrSensitive) {
-			return none(&TurnError{Code: CodeSensitive, Message: "This turn holds content from a sensitive space, and none of this person's models is local or trusted, so it was not sent."})
+			return none(&TurnError{Code: CodeSensitive, Message: "This chat holds content from a sensitive space, and none of the models it could be sent to is local or trusted, so it was not sent. Pick a local or trusted model for it."})
 		}
 		return none(&TurnError{Code: CodeNoModel, Message: "No model in this person's registry can take this call."})
 	}

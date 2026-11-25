@@ -25,13 +25,16 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	if err != nil {
 		return seam.Request{}, err
 	}
-	profile, personMap := r.person(ctx, s, t, m)
+	mayRead := readsSensitive(p, m) // for the least of the route's models (P6-05)
+	profile, personMap := r.person(ctx, s, t, mayRead)
+	recalled, rule := r.recallFor(ctx, s, t, step, mayRead)
+	opts.SystemText = withRule(opts.SystemText, rule)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Tools: r.offered(ctx, s, m), // the tool loop's (P7-01)
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
 		MaxOutputTokens: maxOutput, ThinkingTokens: thinking,
 		Provider: p, Messages: messages,
-		Profile: profile, PersonMap: personMap,
+		Profile: profile, PersonMap: personMap, Recall: recalled,
 	})
 	if err != nil {
 		return seam.Request{}, err

@@ -33,6 +33,7 @@ type row struct {
 	actor     string
 	input     SendBody
 	stopAsked bool
+	recalled  *turnRecall // what recall found, once work has searched (P6-05)
 }
 
 const turnColumns = `id, chat_id, status, request_id, actor, input, model, user_message_id,

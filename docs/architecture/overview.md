@@ -38,6 +38,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
 | Settings routes and screens | `internal/settingsapi`, `web/app/src` | The routes behind the settings screens, and the screens: a person's own settings, the names of their secrets, their model registry and their profile. A secret's value goes in and is never returned, and a fixed rule is listed and never changed. | [settings-screens.md](settings-screens.md) |
 | Tool loop | `internal/tools`, `internal/tools/approval`, `internal/tools/builtin` | The registry of the tools a turn offers, filled by plain calls, and the one place a tool runs: recorded before and after, under a timeout, with a tool that breaks turned into an error result. The approval rule's test refuses every tool that changes something until approvals exist. Three built-in tools that only read: the time, search of the person's chats, and reading one. The turn calls the model again after each step, up to its step limit. | [tool-loop.md](tool-loop.md) |
+| Recall | `internal/knowledge/recall` | Searches the person's knowledge store with each message, keeps the hits over a threshold set for each adapter, and gives each call the pages and sources found, each saying where it came from, with a record of what was kept and dropped. Three lookups for the model. A guard for fixed rule 3: a call that is given sensitive content is routed only to models that may read it, and a chat that was sent some stays held to them. The lookups wait for the tool loop to offer them. | [knowledge-recall.md](knowledge-recall.md) |
 
 ## Parts still to come
 
@@ -121,5 +122,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0202 | [At the step limit a turn ends as done with a note, and the last calls are answered without running](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md) |
 | 0203 | [A tool runs beside the turn, stop does not wait for it, and every call still gets a stored result](decisions/0203-a-tool-runs-beside-the-turn-and-stop-does-not-wait.md) |
 | 0204 | [The chat screen writes each step's readable line from the tool's name, input and result](decisions/0204-the-screen-writes-the-steps-line.md) |
+| 0210 | [Recall searches once, before the route, and a call is built for the least of its route](decisions/0210-recall-searches-once-before-the-route.md) |
+| 0211 | [A chat that was sent sensitive content is held to models that may read it](decisions/0211-a-chat-sent-sensitive-content-is-held.md) |
+| 0212 | [Recall searches with the message's words, keeps by a threshold for each adapter, and fills each kind of model's room](decisions/0212-what-recall-searches-with-and-keeps.md) |
+| 0213 | [The lookups are plain values the tool loop wraps, and take the model's answer like recall](decisions/0213-the-lookups-are-plain-values.md) |
+| 0214 | [The search-first rule is a paragraph of the standing instructions, sent when a store is open](decisions/0214-the-search-first-rule-is-a-standing-instruction.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
