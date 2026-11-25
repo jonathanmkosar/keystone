@@ -121,6 +121,12 @@ func checkContextFit(root string) error {
 		return err
 	}
 	problems = append(problems, compacting...)
+	// The order for caching: cacheorder.go (P5-03).
+	ordering, err := cacheProblems(entries, o)
+	if err != nil {
+		return err
+	}
+	problems = append(problems, ordering...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}
