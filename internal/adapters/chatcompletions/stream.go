@@ -111,6 +111,9 @@ type wireUsage struct {
 	CompletionDetails *struct {
 		ReasoningTokens int `json:"reasoning_tokens"`
 	} `json:"completion_tokens_details"`
+	// PromptCacheHitTokens is how some endpoints, DeepSeek's among them,
+	// report the cached part of the prompt instead (P5-03).
+	PromptCacheHitTokens int `json:"prompt_cache_hit_tokens"`
 }
 
 // loose is text that an endpoint may send as a string, as null, or, for a
@@ -348,7 +351,8 @@ func (r *reply) finish() {
 }
 
 // count turns the endpoint's usage into the seam's. The format counts
-// cached input inside the prompt and reasoning inside the completion. When
+// cached input inside the prompt, as prompt_tokens_details.cached_tokens or
+// as prompt_cache_hit_tokens, and reasoning inside the completion. When
 // the endpoint reported nothing, the counts are a rough estimate from the
 // sizes, and are marked as one.
 func (r *reply) count() seam.Usage {
@@ -357,10 +361,12 @@ func (r *reply) count() seam.Usage {
 	}
 	prompt, completion := max(r.usage.PromptTokens, 0), max(r.usage.CompletionTokens, 0)
 	u := seam.Usage{InputTokens: prompt, OutputTokens: completion}
-	if d := r.usage.PromptDetails; d != nil {
-		u.CacheReadTokens = min(max(d.CachedTokens, 0), prompt)
-		u.InputTokens = prompt - u.CacheReadTokens
+	cached := r.usage.PromptCacheHitTokens
+	if d := r.usage.PromptDetails; d != nil && d.CachedTokens > 0 {
+		cached = d.CachedTokens
 	}
+	u.CacheReadTokens = min(max(cached, 0), prompt)
+	u.InputTokens = prompt - u.CacheReadTokens
 	if d := r.usage.CompletionDetails; d != nil {
 		u.ThinkingTokens = min(max(d.ReasoningTokens, 0), completion)
 	}

@@ -44,6 +44,6 @@ Never called: the real Anthropic API.
 Kept up to date at each commit, so another session can finish the item.
 
 1. ~~The seam's cache points and the builder's order, with tests; the fake's match; `docs/api/openapi.json` regenerated.~~
-2. The Anthropic adapter's marks from the points, with fixtures; the other adapters' cache tokens.
+2. ~~The Anthropic adapter's marks from the points, with fixtures; the other adapters' cache tokens.~~
 3. The proof in `internal/turn` and the step in `verify`.
 4. Write-up: `context.md`, `adapter-anthropic.md`, `seam.md`, the other adapters' docs, `usage.md`; decisions from 0330; the journal `docs/journal/2026-11-25-chats-007.md`; the item's status and result.
