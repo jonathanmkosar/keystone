@@ -58,8 +58,11 @@ const (
 	// PartRecall is recalled knowledge: Input.Recall. P6-05 fills it.
 	PartRecall Part = "recall"
 	// PartSummary is older history as a summary: Input.Summary. P5-02
-	// fills it.
+	// fills it. When it is sent, the turns it covers are not.
 	PartSummary Part = "summary"
+	// PartPinned is the messages of the chat the person pinned whose turns
+	// were not sent: Input.Pinned (P5-02). It is never left out.
+	PartPinned Part = "pinned"
 	// PartNote is one sentence that tells the model earlier turns were
 	// left out: Options.DroppedNote. It is sent only when some were.
 	PartNote Part = "note"
@@ -68,7 +71,7 @@ const (
 // Parts is every part, in the order a Record lists them.
 var Parts = []Part{
 	PartRules, PartTools, PartProfile, PartPersonMap, PartProject, PartStyle,
-	PartCurrent, PartAttached, PartRecent, PartRecall, PartSummary, PartNote,
+	PartCurrent, PartAttached, PartRecent, PartRecall, PartSummary, PartPinned, PartNote,
 }
 
 // Where a part is put in the request.
@@ -99,6 +102,19 @@ type Item struct {
 	Text string
 	// Pinned says the item is never left out.
 	Pinned bool
+}
+
+// Pin is a message of the chat the person pinned (P5-02). It is never left
+// out: when the turn it is in is sent, it is there already, and otherwise
+// its item is sent in the pinned part. Room for it is held as for every
+// part that is never left out.
+type Pin struct {
+	// Message is the index in Input.Messages of the pinned message. A pin
+	// whose message is not among them, -1, is always sent as its item.
+	Message int
+	// Item is what is sent when the message's turn is not: a label for the
+	// inspector and the text.
+	Item
 }
 
 // Input is everything one call is built from. Only Model, Budget, Options
@@ -143,6 +159,13 @@ type Input struct {
 	Recall []Item
 	// Summary is the summary of older history (P5-02).
 	Summary string
+	// SummaryCovers is how many of Messages, from the first, Summary
+	// stands for (P5-02). The turns that lie wholly inside them are not
+	// sent when the summary is. When it does not fit its share, they are
+	// packed as any other earlier turn.
+	SummaryCovers int
+	// Pinned is the messages of the chat the person pinned (P5-02).
+	Pinned []Pin
 }
 
 // Record is what one call was built from. The turn inspector (P5-04)
@@ -171,6 +194,14 @@ type Record struct {
 	// Recounts is how many times the request was packed again because the
 	// provider counted more than the estimate.
 	Recounts int `json:"recounts,omitempty"`
+	// TurnRoom is the room the earlier turns were packed in, in estimated
+	// tokens with no margin: what was left once the parts that are never
+	// left out and attachments were in, and recall and the summary were
+	// held their shares. Compaction (P5-02) measures against it.
+	TurnRoom int `json:"turn_room"`
+	// SummaryRoom is the most the summary could take in this call: its
+	// share of the open room, in estimated tokens with no margin.
+	SummaryRoom int `json:"summary_room"`
 	// Parts lists every part, in the order of Parts.
 	Parts []PartRecord `json:"parts"`
 	// Turns lists every turn of the branch, oldest first.
@@ -191,6 +222,9 @@ type PartRecord struct {
 	Dropped int `json:"dropped"`
 	// DroppedTokens is the estimate of what was left out.
 	DroppedTokens int `json:"dropped_tokens"`
+	// Covers is, for the summary, how many earlier turns it was sent in
+	// place of.
+	Covers int `json:"covers,omitempty"`
 	// Items lists the pieces of a part that holds several, in the order
 	// they were given.
 	Items []ItemRecord `json:"items,omitempty"`
@@ -202,6 +236,9 @@ type ItemRecord struct {
 	Tokens int    `json:"tokens"`
 	Kept   bool   `json:"kept"`
 	Pinned bool   `json:"pinned,omitempty"`
+	// InTurn says a pinned message was not sent as an item because the
+	// turn it is in was sent.
+	InTurn bool `json:"in_turn,omitempty"`
 }
 
 // TurnRecord is one turn of the branch: a message of the person's and
@@ -217,6 +254,9 @@ type TurnRecord struct {
 	Part Part `json:"part"`
 	// Kept says the turn was sent.
 	Kept bool `json:"kept"`
+	// Summarised says the turn was not sent because the summary was, in
+	// its place.
+	Summarised bool `json:"summarised,omitempty"`
 }
 
 // Part returns the record of one part.
@@ -323,7 +363,7 @@ type weights struct {
 	rules, profile, personMap, project, style int
 	tools                                     int
 	summary, note                             int
-	attached, recall                          []int
+	attached, recall, pinned                  []int
 	turns                                     []span
 }
 
@@ -352,6 +392,9 @@ func weigh(in Input) weights {
 		project: text(in.Project), style: text(in.Style),
 		summary: text(in.Summary), note: text(in.Options.DroppedNote),
 		attached: items(in.Attached), recall: items(in.Recall),
+	}
+	for _, p := range in.Pinned {
+		w.pinned = append(w.pinned, text(p.Text))
 	}
 	if len(in.Tools) > 0 {
 		w.tools = budget.Estimate(seam.Request{Tools: in.Tools}, in.Budget)
@@ -400,7 +443,43 @@ func Turns(messages []seam.Message) [][2]int {
 
 // pack chooses what goes into the request under target, which is in
 // estimated tokens with no margin, and writes the request and the record.
+//
+// A summary that stands for earlier turns is packed in their place. When
+// it could not be sent after all, which only shares that add up to more
+// than the open room can bring about, the call is packed again as if the
+// summary covered nothing, so no turn is ever lost without the note.
 func pack(in Input, w weights, target int) (seam.Request, Record) {
+	if req, rec, ok := packWith(in, w, target, true); ok {
+		return req, rec
+	}
+	req, rec, _ := packWith(in, w, target, false)
+	return req, rec
+}
+
+// coveredTurns is how many of turns, from the first, lie wholly inside the
+// first covers messages.
+func coveredTurns(turns []span, covers int) int {
+	n := 0
+	for n < len(turns) && turns[n].end <= covers {
+		n++
+	}
+	return n
+}
+
+// turnOf is the index of the turn message i is in, or -1.
+func turnOf(turns []span, i int) int {
+	for t, s := range turns {
+		if i >= s.first && i < s.end {
+			return t
+		}
+	}
+	return -1
+}
+
+// packWith is pack, with useSummary saying whether the summary may stand
+// for the turns it covers. ok is false when it was meant to and was not
+// sent.
+func packWith(in Input, w weights, target int, useSummary bool) (seam.Request, Record, bool) {
 	o := in.Options
 	cur := len(w.turns) - 1
 
@@ -417,6 +496,17 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 		if it.Pinned && it.Text != "" {
 			keepRecall[i] = true
 			left -= w.recall[i]
+		}
+	}
+	// A pinned message outside the current turn is held its room here.
+	// When its turn is sent below, the room is given back and the message
+	// is not sent a second time.
+	pinTurn, heldPin := make([]int, len(in.Pinned)), make([]bool, len(in.Pinned))
+	for i, p := range in.Pinned {
+		pinTurn[i] = turnOf(w.turns, p.Message)
+		if p.Text != "" && pinTurn[i] != cur {
+			heldPin[i] = true
+			left -= w.pinned[i]
 		}
 	}
 	// open is the room the other parts share. Each share below is a part
@@ -456,11 +546,19 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 	heldRecall := min(need(in.Recall, w.recall, keepRecall), share(o.RecallPercent))
 	heldSummary := min(w.summary, share(o.SummaryPercent))
 
+	// The turns the summary stands for. When it fits its share they are
+	// not sent, because it is, in their place: floor is the oldest turn
+	// that may be sent. When it does not fit they are packed as any other.
+	floor := 0
+	if useSummary && w.summary > 0 && w.summary <= share(o.SummaryPercent) {
+		floor = coveredTurns(w.turns[:cur], in.SummaryCovers)
+	}
+
 	// Earlier turns, from the newest back. The first one that does not fit
 	// ends the packing: no older turn is sent past a gap.
 	recent := func(room int) (from, used int) {
 		from = cur
-		for i := cur - 1; i >= 0; i-- {
+		for i := cur - 1; i >= floor; i-- {
 			if o.RecentTurnsMax > 0 && cur-i > o.RecentTurnsMax {
 				break
 			}
@@ -474,7 +572,7 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 	recentRoom := left - heldRecall - heldSummary
 	from, used := recent(recentRoom)
 	note := false
-	if from > 0 && w.note > 0 {
+	if from > floor && w.note > 0 {
 		// Turns were left out, so the note is sent, and has to fit too.
 		note = true
 		if used+w.note > recentRoom {
@@ -488,8 +586,23 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 	}
 	left -= used
 
+	// A pinned message whose turn was sent is there already.
+	sendPin := make([]bool, len(in.Pinned))
+	for i := range in.Pinned {
+		switch {
+		case !heldPin[i]:
+		case pinTurn[i] >= from && pinTurn[i] < cur:
+			left += w.pinned[i]
+		default:
+			sendPin[i] = true
+		}
+	}
+
 	left -= fill(in.Recall, w.recall, keepRecall, min(share(o.RecallPercent), left))
 	keepSummary := w.summary > 0 && w.summary <= min(share(o.SummaryPercent), left)
+	if floor > 0 && !keepSummary {
+		return seam.Request{}, Record{}, false
+	}
 
 	// The request. The standing start is first and never varies with the
 	// chat's length. What varies comes after it.
@@ -534,18 +647,34 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 	turnsOf := func(p Part, lo, hi int) PartRecord {
 		pr := PartRecord{Part: p, Place: PlaceMessages}
 		for i := lo; i < hi; i++ {
-			kept := i >= from
+			kept, summarised := i >= from, i < floor
 			turns = append(turns, TurnRecord{
 				First: w.turns[i].first, Messages: w.turns[i].end - w.turns[i].first,
-				Tokens: w.turns[i].tokens, Part: p, Kept: kept,
+				Tokens: w.turns[i].tokens, Part: p, Kept: kept, Summarised: summarised,
 			})
-			if kept {
+			switch {
+			case kept:
 				pr.Kept, pr.Tokens = pr.Kept+1, pr.Tokens+w.turns[i].tokens
-			} else {
+			case !summarised:
 				pr.Dropped, pr.DroppedTokens = pr.Dropped+1, pr.DroppedTokens+w.turns[i].tokens
 			}
 		}
 		pr.State = state(pr.Kept, pr.Dropped)
+		return pr
+	}
+	pinned := func() PartRecord {
+		pr := PartRecord{Part: PartPinned, Place: PlaceSystem}
+		for i, p := range in.Pinned {
+			if p.Text == "" {
+				continue
+			}
+			pr.Items = append(pr.Items, ItemRecord{Label: p.Label, Tokens: w.pinned[i], Kept: sendPin[i], Pinned: true, InTurn: !sendPin[i]})
+			if sendPin[i] {
+				system(p.Text)
+				pr.Kept, pr.Tokens = pr.Kept+1, pr.Tokens+w.pinned[i]
+			}
+		}
+		pr.State = state(pr.Kept, 0)
 		return pr
 	}
 
@@ -553,8 +682,15 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 	// are written before the current one.
 	earlier, current := turnsOf(PartRecent, 0, cur), turnsOf(PartCurrent, cur, cur+1)
 	noteText := ""
-	if from > 0 {
+	if from > floor {
 		noteText = o.DroppedNote
+	}
+	summary := func() PartRecord {
+		pr := one(PartSummary, in.Summary, w.summary, keepSummary)
+		if keepSummary {
+			pr.Covers = floor
+		}
+		return pr
 	}
 	// In the order of Parts. A system block is appended as its part is
 	// written, so the standing start comes first in the request too.
@@ -569,10 +705,11 @@ func pack(in Input, w weights, target int) (seam.Request, Record) {
 		many(PartAttached, in.Attached, w.attached, keepAttached),
 		earlier,
 		many(PartRecall, in.Recall, w.recall, keepRecall),
-		one(PartSummary, in.Summary, w.summary, keepSummary),
+		summary(),
+		pinned(),
 		one(PartNote, noteText, w.note, note),
 	}
-	return req, Record{Parts: parts, Turns: turns}
+	return req, Record{Parts: parts, Turns: turns, TurnRoom: max(recentRoom, 0), SummaryRoom: share(o.SummaryPercent)}, true
 }
 
 func state(kept, dropped int) string {

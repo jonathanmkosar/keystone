@@ -35,3 +35,14 @@ How it is proven:
 - `go test ./internal/turn`: a chat ten times its model's window, with two pinned messages, is answered turn after turn; every call fits, holds both pins, and after the first carries the summary in place of the oldest turns; the summary is extended, not made again; the summary calls have usage records of the kind `summary`; a failing summary model leaves the chat answered with the note and one log line; a held chat's summary goes to no hosted model.
 - `verify`, `context fit`: a step that grows a chat to ten times each fixture model's window, summarising with the fake provider's recorded summary as the turn would, and proves every call fits and every pinned message is in every call.
 
+### Left to do
+
+Kept up to date at each commit, so another session can finish the item.
+
+1. ~~The builder: `SummaryCovers`, `Pinned`, the `pinned` part, `TurnRoom`, `SummaryRoom`, `Summarised`, with tests (`internal/contextbuild/compaction_test.go`).~~
+2. `internal/compact`: options, `Plan`, the request and its cut to the summary model's window, reading the answer, `Save`/`List` over `chat_summaries`, `Usable` for rule 3; the migration with `chat_pins` too; `chat.Pin`/`chat.Pins`.
+3. `internal/turn/compact.go`: find the summary and pins for a call, start the summary job beside the turn, the job itself; the added lines in `context.go`, `route.go` (`used`), `runner.go` (one field), `routes.go` (pin routes) and `internal/turn/pins.go`; `docs/api/openapi.json` regenerated.
+4. Settings at the end of `settings/chats.json`; the recorded summary in `fixtures/test-tenant/turns/compaction.json`.
+5. Tests in `internal/turn`, and the `context fit` step in a new `tools/verify/compaction.go` (with its `fixedRuleGuards` init), called by one added line in `contextfit.go`.
+6. Write-up: `docs/architecture/compaction.md`, its `componentDocs` line and overview row, decisions from 0230, the journal `docs/journal/2026-11-25-chats-004.md`, the item's status and result.
+
