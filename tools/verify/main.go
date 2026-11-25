@@ -67,6 +67,8 @@ var componentDocs = map[string]string{
 
 	"internal/knowledge/personmap": "docs/architecture/knowledge-profile-and-map.md",
 	"internal/contextbuild":        "docs/architecture/context.md",
+	"internal/routing":             "docs/architecture/routing.md",
+	"internal/usage":               "docs/architecture/usage.md",
 }
 
 var checks = []check{
@@ -85,6 +87,7 @@ var checks = []check{
 	{"test tenant", checkTestTenant},
 	{"calls recorded", checkRecorded},
 	{"context fit", checkContextFit},
+	{"spend cap", checkSpendCap},
 }
 
 func main() {

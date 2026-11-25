@@ -108,3 +108,5 @@ Every type has JSON tags, and that JSON is how the format is stored and sent: in
 - What a call needs (vision, privacy, a cost ceiling) is part of routing, P3-08.
 - Cache markers on blocks come with caching, P5-03, and the Anthropic adapter.
 - Embedding calls get their own small request shape in P6-08.
+
+Since P3-08 there is one more kind, `spend_cap`: Keystone did not send the call, because it could take the tenant past its monthly spend cap ([usage.md](usage.md)). No provider gives it.

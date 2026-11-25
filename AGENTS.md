@@ -39,7 +39,7 @@ Finish every item the same way: tests, `go run ./tools/verify`, the part's doc u
 
 ## Where things stand on handoff, November 24, 2026
 
-- Done: P0-01 to P0-03 (layout, settings registry, scripts, stack decisions), P2-01 to P2-04 (tenants, sign-in, secrets, audit log and tenant settings), P3-01 and P3-03 (the model seam and the fake provider), P4-02 (the chat record) and P6-01 (the knowledge store interface). `verify` is green, 15 of 15, on Windows 11 with Go 1.26.
+- Done: P0-01 to P0-03 (layout, settings registry, scripts, stack decisions), P2-01 to P2-04 (tenants, sign-in, secrets, audit log and tenant settings), P3-01 and P3-03 (the model seam and the fake provider), P4-02 (the chat record) and P6-01 (the knowledge store interface). `verify` is green, 16 of 16, on Windows 11 with Go 1.26.
 - Ready now: P2-05 (the API shell), P3-02 (model registry), P6-02 (built-in knowledge store), P6-03 (Waymarks adapter). P2-05 unblocks the most: P4-01, P4-03 and P3-09 wait on it.
 - The store is `modernc.org/sqlite`, the same driver and version Waymarks uses (decision 0003). Follow Waymarks' choices unless a decision record says why not.
 - The look is decided. `design/README.md` has the mark and every colour. `design/screens/` has the mockups as reference markup. Build the interface from the tokens, and treat screens marked as drafts as provisional.

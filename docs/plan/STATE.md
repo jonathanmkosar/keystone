@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: being built: P3-08, routing, usage and a command to register a model (models), P5-01, the context builder (chats), and P6-04, the profile and map (knowledge). Then P7-01, the tool loop.
+Next: being built: P11-01, the settings screens (interface), P7-01, the tool loop (agents), and P6-05, recall (knowledge). The live checks of the three adapters wait on keys from the owner.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -10,10 +10,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Lane | In progress | Next |
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
-| models | P3-08, in its own worktree | nothing until P3-08 |
+| models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | nothing | P5-02, P5-04, P9-05 |
-| knowledge | nothing | P6-05, after P5-01 and P3-08 |
-| agents | nothing | P7-01, after P4-03 |
+| knowledge | P6-05, recall, in its own worktree | P6-06 |
+| agents | P7-01, the tool loop, in its own worktree | P7-02, P7-03, P8-01 |
 | interface | P11-01, the settings screens and their routes, in its own worktree | P7-01 with agents |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -43,6 +43,9 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Should a model that may not read sensitive content be told how many sensitive spaces were left out of the map (knowledge 004) | Yes, a number and no names | The line is there | Nothing |
 | The profile has no label and goes to every model, hosted ones included (knowledge 004) | Yes, with a sentence on the editing screen saying so | One profile for every model | Nothing built. It shapes the profile screen |
 | What the standing instructions say, and whether each person or only the admin may change them (chats 003) | Keep the two plain sentences, and let each person change their own | As recommended | Nothing |
+| At the monthly cap, should a chat fall back to a local model in the person's chain, or always stop (models 008, decision 0160) | Fall back, and name the model that wrote the reply | Falls back; the chain ships empty | Nothing |
+| Should a home-network model that forwards to a paid provider count against the cap (models 008, decision 0162) | Mark such a model trusted, which puts it under the cap | Local models are outside the cap | Nothing |
+| Is the cap's month a calendar month in UTC (models 008) | Yes | Yes | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -71,6 +74,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P4-04, the chat screen, provisional: the sidebar's chats, a new chat, a reply that streams in, the title, rename, star and delete. On November 25, 2026, on the merged server, the test tenant typed a message in the browser and the fake provider's reply streamed in. Stop, resume after a dropped stream, a reload mid-reply and a failed turn have run only against a stand-in server, because the recorded replies finish too fast to interrupt. No model picker, edit, retry or attachments yet.
 - P6-04, the profile and the map, provisional: a short text about the person, and a size-bounded outline of what their knowledge store holds, in two versions so a model that may not read sensitive content never sees a sensitive space. The turn puts both into every call (`internal/turn/person.go`). No route or screen edits the profile yet.
 - P5-01, the context builder: every chat call is packed under its model's window, starting with standing instructions, with the oldest turns dropped whole when a chat is too long, and a record kept of what each call was built from. The person's profile and the map of their knowledge store are now part of each call. Recall, summaries, project text and styles have named slots that are empty until their items land.
+- P3-08, routing and usage: a model chosen by the kind of task, a fallback chain that moves on only before any of a reply has been passed on, one usage record for each model call, and a monthly cap that stops a call to a model that is not local, with the `spend cap` check. `verify` is 16 of 16. `tools/tenant` gained `model`, `setting` and `usage` commands. No real endpoint has been called. Privacy routing is built and tested and has no caller until recall (P6-05) marks a call sensitive.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

@@ -1,6 +1,6 @@
 # P6-05. Recall
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge
 Depends on: P6-04, P5-01, P3-08, P3-09
 Owner gate: none

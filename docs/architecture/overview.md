@@ -34,6 +34,8 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Chats and turns | `internal/turn` | The routes a chat screen calls, and the runner behind them. A turn is a row in the tenant's database: it takes the person's message through the model seam, streams the reply as server-sent events a client can resume, can be stopped, waits its turn in a chat's queue, and is finished after a restart. The test tenant always gets the fake provider. | [turns.md](turns.md) |
 | Profile and map | `internal/knowledge/personmap` | The two short texts about a person that start every call: a profile in their own words, and a map of what their knowledge store holds, made from its catalog, held to a token limit and built again when the catalog changes. The map for a model that may not read sensitive content leaves every sensitive space out. Nothing calls it yet. | [knowledge-profile-and-map.md](knowledge-profile-and-map.md) |
 | Context builder | `internal/contextbuild` | Builds what one model call carries: the standing instructions, the current turn and as many earlier turns as fit the model's window, newest first and each one whole, with named slots for the parts later items bring. Returns a record of every part, kept and dropped, with its tokens, which the turn stores for the inspector. | [context.md](context.md) |
+| Routing | `internal/routing` | Decides which models one call may be sent to: a rule for each kind of task, sensitive content kept to local and trusted models, and a fallback chain that moves to the next model while nothing of a reply has been passed on. A guard for fixed rule 3. | [routing.md](routing.md) |
+| Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
 
 ## Parts still to come
 
@@ -105,5 +107,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0181 | [The map has two versions, and the open one names nothing from a sensitive space](decisions/0181-the-map-has-two-versions.md) |
 | 0182 | [The map is kept in the tenant's database under a key, and is not used when the store is down](decisions/0182-the-map-is-kept-and-keyed.md) |
 | 0183 | [The map is held to a token limit by giving up detail in a fixed order](decisions/0183-the-map-gives-up-detail-in-a-fixed-order.md) |
+| 0160 | [A call falls back on the endpoint's failures, on its window and on the cap, and never on the request's own](decisions/0160-a-capped-call-falls-back-to-a-local-model.md) |
+| 0161 | [The cap stops a call that could pass it, counted at the most the call could cost](decisions/0161-the-cap-stops-a-call-that-could-pass-it.md) |
+| 0162 | [The cap counts a calendar month in UTC, and every model that is not local](decisions/0162-the-cap-counts-a-utc-calendar-month.md) |
+| 0163 | [A route is one provider, and the turn's model stays the one that was asked for](decisions/0163-a-route-is-one-provider.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

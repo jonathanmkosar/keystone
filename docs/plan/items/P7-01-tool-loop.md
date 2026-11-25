@@ -1,6 +1,6 @@
 # P7-01. Tool loop
 
-Status: todo
+Status: doing (agents)
 Lane: agents + interface
 Depends on: P4-03
 Owner gate: Approval of the agent mockups (P1-05), for how steps are shown only.

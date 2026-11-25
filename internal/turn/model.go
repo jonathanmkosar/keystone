@@ -112,7 +112,7 @@ func (r *Runner) choice(ctx context.Context, s *tenant.Store, chatID string) (Mo
 // budget's guard. The test tenant gets the fake provider with its recorded
 // turns, whatever the turn named and whatever its registry holds. secrets
 // are the values the provider was built with, for the audit log to remove.
-func (r *Runner) open(ctx context.Context, s *tenant.Store, chatID, named string) (models.Model, seam.Provider, []string, *TurnError) {
+func (r *Runner) open(ctx context.Context, s *tenant.Store, t row, named string) (models.Model, seam.Provider, []string, *TurnError) {
 	broke := func(what string, err error) (models.Model, seam.Provider, []string, *TurnError) {
 		r.logf("turns: tenant %s: %s: %v", s.TenantID(), what, err)
 		return models.Model{}, nil, nil, &TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."}
@@ -130,7 +130,7 @@ func (r *Runner) open(ctx context.Context, s *tenant.Store, chatID, named string
 	}
 	name := named
 	if name == "" {
-		c, err := r.choice(ctx, s, chatID)
+		c, err := r.choice(ctx, s, t.ChatID)
 		if err != nil {
 			return broke("choosing a model", err)
 		}
@@ -139,7 +139,7 @@ func (r *Runner) open(ctx context.Context, s *tenant.Store, chatID, named string
 		}
 		name = c.Model.Name
 	}
-	return r.openNamed(ctx, s, name)
+	return r.routedChat(ctx, s, t, name)
 }
 
 // openNamed opens one model of the tenant's registry by name.
@@ -189,7 +189,7 @@ func (r *Runner) title(ctx context.Context, s *tenant.Store, t row, m models.Mod
 	title := ""
 	if m.Adapter != models.AdapterFake {
 		if name := r.setting(ctx, s, KeyTitleModel); name != "" && name != m.Name {
-			if tm, tp, ts, failure := r.openNamed(ctx, s, name); failure == nil {
+			if tm, tp, ts, failure := r.routedTitle(ctx, s, t, m.Name); failure == nil {
 				m, p, secrets = tm, tp, ts
 			}
 		}

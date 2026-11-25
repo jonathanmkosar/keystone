@@ -205,6 +205,55 @@
       "description": "How long the Chat Completions adapter waits before it sends a call again. The wait doubles with each attempt."
     },
     {
+      "key": "routing.summary_model",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The registry name of the model that writes summaries of a chat. Empty, or a name that is not in the registry, uses the chat's own model."
+    },
+    {
+      "key": "routing.memory_model",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The registry name of the model that runs the memory pass after a turn. Empty, or a name that is not in the registry, uses the chat's own model."
+    },
+    {
+      "key": "routing.embedding_model",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The registry name of the model that turns text into vectors. It must have the embedding capability."
+    },
+    {
+      "key": "routing.fallback_models",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "Registry names, separated by commas, of the models to try in order when the model a call was meant for fails before any of its reply arrived. Empty means a failed call is not sent to another model."
+    },
+    {
+      "key": "routing.max_fallbacks",
+      "type": "int",
+      "default": "2",
+      "scope": "install",
+      "description": "The most other models one call is sent to after the first one failed. Zero means none."
+    },
+    {
+      "key": "usage.monthly_cap_usd",
+      "type": "float",
+      "default": "100",
+      "scope": "tenant-admin",
+      "description": "The most one person may spend in a calendar month, in US dollars, on models that are not local. A call that could take the month past it is not sent. Zero stops every call that costs anything."
+    },
+    {
+      "key": "usage.cap_warn_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant-admin",
+      "description": "The share of the monthly cap, in percent, at which Keystone starts to warn that the cap is near."
+    },
+    {
       "key": "chat_completions.retry_wait_max",
       "type": "duration",
       "default": "8s",
