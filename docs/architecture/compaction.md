@@ -147,6 +147,8 @@ New files: `compact.go`, `compact_test.go`, `pins.go`.
 
 ## Not here yet
 
+Since P5-04 the turn inspector shows the summary each call was given, read only, and every pinned message with whether it was sent in its turn or on its own; a person can take a pinned message out of the chat's next turn, and the chat screen has a Pin action beside Copy on every message ([inspector.md](inspector.md)). The two items below on the inspector and the pin are built.
+
 - **Summaries in the turn inspector (P5-04).** The record says which turns the summary stood for (`Summarised`, and `Covers` on the summary part), and which pins were sent on their own. Nothing shows them yet, and no route returns a chat's summaries.
 - **The pin in the chat screen.** The routes exist; the screen is the interface lane's. A pin is not yet on the `Message` shape.
 - **Chat summaries for attaching and handing off (P5-05, P5-06).** These are summaries of the oldest turns of one branch, made for the window, not a summary of a whole chat. P5-05 can start from them.

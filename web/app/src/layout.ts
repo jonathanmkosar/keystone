@@ -77,12 +77,13 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
       const shown = m.blocks.filter((b) => b.type !== "tool_result");
       if (shown.length === 0) continue; // tool results only: part of the reply around it
       const files = shown.filter((b) => b.type === "image" || b.type === "file").map((b) => b.name || (b.type === "image" ? "Image" : "File"));
-      items.push({ kind: "user", key: "m" + m.id, text: textOf(shown), files });
+      items.push({ kind: "user", key: "m" + m.id, text: textOf(shown), files, id: m.id });
       anchor = String(m.id);
       reply = undefined;
       continue;
     }
     const into = open();
+    if (m.turn_id) into.turnId = m.turn_id; // for Inspect (P5-04)
     if (m.stop_reason === "step_limit") {
       // Keystone's note at the turn's step limit, not the model's words.
       into.parts.push({ kind: "limit", text: textOf(m.blocks) });
@@ -93,6 +94,7 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
       else if (b.type === "tool_call") addStep(into, toolStep(b.id ?? "", b.name ?? "a tool", inputOf(b.input)));
       else if (b.type === "text" && b.text) into.parts.push({ kind: "text", text: b.text });
     });
+    if (m.blocks.some((b) => b.type === "text" && b.text)) into.pinId = m.id; // the reply's last message with text, for Pin (P5-04)
     const ending = m.stop_reason ? endings[m.stop_reason] : undefined;
     if (ending) into.parts.push(ending);
   }

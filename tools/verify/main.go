@@ -81,6 +81,7 @@ var componentDocs = map[string]string{
 
 	"internal/backup":           "docs/architecture/backup.md",
 	"internal/knowledge/memory": "docs/architecture/memory-pass.md",
+	"internal/inspector":        "docs/architecture/inspector.md",
 }
 
 var checks = []check{

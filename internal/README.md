@@ -37,3 +37,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `backup` | core | The sealed file one tenant's backup is written to: the passphrase's key, chunks a cut or changed file cannot pass, and names that cannot leave the folder |
 | `compact` | chats | When a long chat's oldest turns are summarised and which, the summary request, the stored summaries, and whether one may go to a call |
 | `knowledge/memory` | knowledge | The memory pass: the request for an exchange's durable facts, reading the answer, where the facts may land, the queue of passes, the incognito flag and the memory reserve |
+| `inspector` | chats | The turn inspector's calls and totals from a turn's records, and what a person takes out of a chat's next turn |

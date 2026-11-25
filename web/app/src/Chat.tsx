@@ -6,6 +6,7 @@ import { useChats } from "./chats";
 import { Composer } from "./Composer";
 import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
+import { Inspector } from "./Inspector";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
 import { ModelPicker } from "./ModelPicker";
@@ -214,6 +215,7 @@ function OneChat({ id }: { id: string }) {
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>
       </div>
+      <Inspector chatId={id} />
     </div>
   );
 }

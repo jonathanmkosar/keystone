@@ -242,6 +242,13 @@ Since the approval policy (P7-02), added and nothing changed. `docs/api/openapi.
 - New sentences in `tool_result` for a call that was not run: declined by the person, not answered in time, stopped while it waited, set to never, or an approval already used.
 - A turn that was running when the server stopped, waiting for an answer, is put back in the queue and waits again, instead of being closed as `interrupted`.
 
+Since the turn inspector (P5-04), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the four routes of `InspectorRoutes` and their shapes, and every path and shape it had is the same. The whole of it is [inspector.md](inspector.md).
+
+- `GET /chats/{id}/turns/{turn}/inspect`: `InspectReply`, what went into each model call of the turn (the context builder's record of every part with its tokens, and the first words of each turn), each call's usage records and their total, the turn's recall record, the summaries its calls were given, the totals of every usage record of the turn, the chat's pins, and what the next turn leaves out.
+- `GET /chats/{id}/skips`: `SkipsReply`, what the chat's next turn leaves out.
+- `PUT /chats/{id}/skips/{kind}/{ref}` and `DELETE` on the same path, with no body: take a recalled page or source (`kind` `page` or `source`, `ref` its id in the knowledge store) or a pinned message (`kind` `message`) out of the chat's next turn only, or put it back. 400 `bad_request` for a kind or id that is not one, or a message that is not pinned; 404 `not_found` for a page or source no recent call of the chat was given.
+- Each model call of a turn now leaves out what the turn claimed: `build` in `context.go` calls `leaveOut` in `inspect.go` (decision [0271](decisions/0271-a-skip-is-used-by-the-next-turn-and-no-other.md)).
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.
