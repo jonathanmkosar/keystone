@@ -31,8 +31,9 @@ A `Request` is one model call:
 - `system`: the standing instructions, as text blocks. There is no system role.
 - `messages`, and the `tools` on offer. Each tool has a name, a description and a JSON Schema for its input.
 - `max_output_tokens` and `thinking_tokens`. Zero means the model's own limit, and no thinking.
+- `cache`, since P5-03, optional: the request's cache points. `start` is how many system blocks, from the first, are the standing start, the same on every call of a chat; `history` is how many messages, from the first, an earlier call of the chat sent too. An adapter whose provider caches only where it is told turns them into marks; the others ignore them. The context builder sets them ([caching.md](caching.md)).
 
-`ValidateRequest` also checks the tool calls across messages: every tool result answers a call in an earlier message, no call is answered twice, and no call id is used twice.
+`ValidateRequest` also checks the tool calls across messages: every tool result answers a call in an earlier message, no call is answered twice, and no call id is used twice. Cache points must lie inside the request.
 
 ## The stream
 
@@ -106,7 +107,7 @@ Every type has JSON tags, and that JSON is how the format is stored and sent: in
 ## Not here yet
 
 - What a call needs (vision, privacy, a cost ceiling) is part of routing, P3-08.
-- Cache markers on blocks come with caching, P5-03, and the Anthropic adapter.
+- Cache markers on blocks come with caching, P5-03, and the Anthropic adapter. Built since as the request's cache points, which say where the stable parts end and leave the marks to the adapter (decision [0331](decisions/0331-the-seam-carries-cache-points-and-the-anthropic-adapter-makes-four-marks.md)).
 - Embedding calls get their own small request shape in P6-08.
 
 Since P3-08 there is one more kind, `spend_cap`: Keystone did not send the call, because it could take the tenant past its monthly spend cap ([usage.md](usage.md)). No provider gives it.

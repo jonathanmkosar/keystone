@@ -1,6 +1,6 @@
 # P5-03. Prompt caching
 
-Status: doing (chats)
+Status: done
 Lane: chats
 Depends on: P5-01, P3-04
 Owner gate: none
@@ -46,4 +46,16 @@ Kept up to date at each commit, so another session can finish the item.
 1. ~~The seam's cache points and the builder's order, with tests; the fake's match; `docs/api/openapi.json` regenerated.~~
 2. ~~The Anthropic adapter's marks from the points, with fixtures; the other adapters' cache tokens.~~
 3. ~~The proof in `internal/turn` and the step in `verify`.~~
-4. Write-up: `context.md`, `adapter-anthropic.md`, `seam.md`, the other adapters' docs, `usage.md`; decisions from 0330; the journal `docs/journal/2026-11-25-chats-007.md`; the item's status and result.
+4. ~~Write-up: `caching.md`, `context.md`, `adapter-anthropic.md`, `seam.md`, the other adapters' docs, `usage.md`; decisions 0330 and 0331; the journal `docs/journal/2026-11-25-chats-007.md`; the item's status and result.~~
+
+### Result
+
+Done on November 25, 2026, on `chats/p5-03-prompt-caching`, in five commits: the plan, three build steps and the write-up. Described in `docs/architecture/caching.md`. Decisions 0330 and 0331.
+
+- Every chat call carries its parts in a fixed order with what changes least first: the tools by name, the standing start, the system blocks that change rarely, the earlier turns, and last recall (now at the start of the current message, before the person's words) and the current turn. The system text stays the same while a chat goes on, and so does every byte of its history. The builder's record keeps the order and the cache points.
+- `seam.Request.Cache` says where the standing start and the history end. The Anthropic adapter turns it into at most four marks: the end of the standing start, the end of the system blocks, the end of the history and the end of the last message. `anthropic.cache_control` turns them off.
+- Cache reads and writes from the Anthropic adapter, and reads from the Responses and Chat Completions adapters (in both forms Chat Completions endpoints report), are in the usage record, priced at the entry's cache prices, and in the inspector.
+- The proof passes: against a stand-in Anthropic server on this machine that caches as the API does, the second turn of a chat sends the first turn's call again byte for byte with its marks, and its usage record shows the cache read tokens and their price; with recall from a knowledge store the second turn still reads the standing start and the third the history. The order is proven stable across turns in `internal/contextbuild` and, for every fixture model, in `verify`'s `context fit`. `verify` is 20 of 20.
+- A trial merge with `reboot` at c5a5787 (P8-01 merged) had no conflicts and `verify` was 21 of 21 on it.
+
+Left: a real chat's second turn showing cache reads, which is part of the Anthropic adapter's live check (P3-04); a one-hour cache lifetime; `prompt_cache_key` for OpenAI; marks for an Anthropic model behind OpenRouter.

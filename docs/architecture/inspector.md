@@ -68,6 +68,8 @@ In the shell like every chat route ([turns.md](turns.md)), and in `docs/api/open
 | `pinned` | The ids of the chat's pinned messages now. |
 | `skips` | What the chat's next turn leaves out. |
 
+Since P5-03 each call's `context` also has `order`, the parts sent in the order the request carried them, and `cache`, its cache points; the `recall` part's place is `messages`. The panel already shows each call's cache reads on its usage line and the turn's reads and writes under its tiles ([caching.md](caching.md)).
+
 `PUT .../skips/...` refuses:
 
 - a kind or an id `Check` refuses, and a message that is not pinned, with 400 `bad_request`;

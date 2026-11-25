@@ -86,6 +86,8 @@ The seam's `start` event is sent with the first block or the stop, not when the 
 
 **Usage.** The provider's `input_tokens` includes what it read from its cache, and the seam's does not. So `InputTokens` is `input_tokens` less `cached_tokens`, `CacheReadTokens` is `cached_tokens`, `OutputTokens` is `output_tokens`, and `ThinkingTokens` is `reasoning_tokens`. The API reports no cache writes. A reply with no usage has zero counts and `Estimated` set, so whoever records it knows to count.
 
+**Caching.** The provider caches every prompt of 1024 tokens or more by its longest prefix, with no marks, so the adapter sends none and ignores a request's cache points. The context builder's fixed order keeps a chat's start the same from turn to turn, which is what that cache needs ([caching.md](caching.md)). `prompt_cache_key`, which keeps a chat's calls on the same machine, is not sent.
+
 **A reply with no end is a failure.** If the connection closes before `response.completed` or `response.incomplete`, the call ends with an `unavailable` error. A reply cut by the output limit part of the way through a function call also fails, because half a call cannot be run. What arrived before a failure has been passed on, and the seam's `Collector.Partial` keeps it.
 
 ## Errors

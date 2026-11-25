@@ -391,7 +391,7 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 ## Not here yet
 
 - Approvals are built (P7-02): a call that asks pauses the turn until the person answers ([approvals.md](approvals.md)).
-- Caching (P5-03). Since P5-02 the oldest turns of a long chat are summarised and the summary sent in their place (see "Compaction" below). A single message larger than the window still fails with `too_long`.
+- Caching (P5-03). Since P5-02 the oldest turns of a long chat are summarised and the summary sent in their place (see "Compaction" below). A single message larger than the window still fails with `too_long`. Since P5-03 each call keeps its start the same from turn to turn and carries cache points the Anthropic adapter marks; the runner's code did not change for it ([caching.md](caching.md)).
 - Uploads (P9-02). `blocks` takes image and file blocks, and the files behind a `ref` are not yet read by anything.
 - Removing old rows from `turn_events`. Every delta is a row and none is removed, except with its chat.
 - A turn left `running` by a second server on the same data folder is not noticed. One server for each data folder is assumed.
