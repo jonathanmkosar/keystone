@@ -1,6 +1,6 @@
 # P11-01. Settings screens
 
-Status: todo
+Status: doing (interface)
 Lane: interface
 Depends on: P2-04, P4-01
 Owner gate: Approval of the settings mockups (P1-07).

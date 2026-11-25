@@ -14,7 +14,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | chats | nothing | P5-02, P5-04, P9-05 |
 | knowledge | nothing | P6-05, after P5-01 and P3-08 |
 | agents | nothing | P7-01, after P4-03 |
-| interface | nothing | P7-01 with agents, P11-01 |
+| interface | P11-01, the settings screens and their routes, in its own worktree | P7-01 with agents |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## Waiting on the owner
