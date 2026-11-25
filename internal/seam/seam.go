@@ -105,6 +105,23 @@ type Request struct {
 	// ThinkingTokens is the most the model may spend on thinking. Zero
 	// means no thinking is asked for.
 	ThinkingTokens int `json:"thinking_tokens,omitempty"`
+	// Cache says where the parts of the request that repeat from one call
+	// of a chat to the next end (P5-03). Nil leaves it to the adapter.
+	Cache *Cache `json:"cache,omitempty"`
+}
+
+// Cache is a request's cache points. A provider that caches only where it
+// is told, as the Anthropic Messages API does, is told here; one that
+// caches every prefix by itself needs none of it. Both counts are from the
+// start, and the tools come before everything.
+type Cache struct {
+	// Start is how many system blocks, from the first, are the standing
+	// start: the same on every call of a chat.
+	Start int `json:"start"`
+	// History is how many messages, from the first, an earlier call of the
+	// same chat sent too, in the same order and the same bytes: the turns
+	// before the current one.
+	History int `json:"history"`
 }
 
 // Usage is the token count of one call. The four top counts do not overlap,
@@ -267,6 +284,9 @@ func ValidateRequest(r Request) error {
 	}
 	if len(r.Messages) == 0 {
 		return fmt.Errorf("a request needs at least one message")
+	}
+	if c := r.Cache; c != nil && (c.Start < 0 || c.Start > len(r.System) || c.History < 0 || c.History > len(r.Messages)) {
+		return fmt.Errorf("the cache points (%d system blocks, %d messages) are not inside the request", c.Start, c.History)
 	}
 	// calls maps a tool call's id to whether it has been answered.
 	calls := map[string]bool{}

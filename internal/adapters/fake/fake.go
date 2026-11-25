@@ -161,11 +161,20 @@ func (p *Provider) step(req seam.Request) (Step, error) {
 		}
 	}
 	user := fold(seam.Text(msgs[at]))
+	// The context builder puts recalled knowledge before the person's words
+	// in the same message (P5-03), so their own words are the message's
+	// last text block too.
+	own := ""
+	for _, b := range msgs[at].Blocks {
+		if b.Type == seam.BlockText {
+			own = fold(b.Text)
+		}
+	}
 	var system []string
 	for _, b := range req.System {
 		system = append(system, b.Text)
 	}
-	s, ok := p.match(user, fold(strings.Join(system, "\n")), req.Model)
+	s, ok := p.match(user, own, fold(strings.Join(system, "\n")), req.Model)
 	if !ok {
 		return Step{}, fmt.Errorf("no script answers a request whose last user text is %q", short(user))
 	}
@@ -177,10 +186,10 @@ func (p *Provider) step(req seam.Request) (Step, error) {
 
 // match picks the script whose conditions all hold. The one with the most
 // conditions wins, and a tie goes to the earlier script.
-func (p *Provider) match(user, system, model string) (Script, bool) {
+func (p *Provider) match(user, own, system, model string) (Script, bool) {
 	best, most := -1, -1
 	for i, s := range p.scripts {
-		if n, ok := s.When.holds(user, system, model); ok && n > most {
+		if n, ok := s.When.holds(user, own, system, model); ok && n > most {
 			best, most = i, n
 		}
 	}
@@ -191,11 +200,12 @@ func (p *Provider) match(user, system, model string) (Script, bool) {
 }
 
 // holds reports whether every condition that is set is met, and how many
-// are set.
-func (w When) holds(user, system, model string) (int, bool) {
+// are set. The whole text is user; own is its last text block, which the
+// whole text of a script may match as well.
+func (w When) holds(user, own, system, model string) (int, bool) {
 	n := 0
 	if t := fold(w.UserText); t != "" {
-		if user != t {
+		if user != t && own != t {
 			return 0, false
 		}
 		n++

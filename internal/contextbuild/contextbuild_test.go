@@ -98,9 +98,10 @@ func build(t *testing.T, in Input) (seam.Request, Record) {
 	return req, rec
 }
 
-// rebuild makes the request a record describes, from the input alone.
+// rebuild makes the request a record describes, from the input alone, in
+// the order of Layout (P5-03).
 func rebuild(in Input, rec Record) seam.Request {
-	req := seam.Request{Model: in.Model.Name, Tools: in.Tools, MaxOutputTokens: in.MaxOutputTokens, ThinkingTokens: in.ThinkingTokens}
+	req := seam.Request{Model: in.Model.Name, Tools: ByName(in.Tools), MaxOutputTokens: in.MaxOutputTokens, ThinkingTokens: in.ThinkingTokens}
 	text := map[Part]string{
 		PartRules: in.Options.SystemText, PartProfile: in.Profile, PartPersonMap: in.PersonMap,
 		PartProject: in.Project, PartStyle: in.Style, PartSummary: in.Summary, PartNote: in.Options.DroppedNote,
@@ -114,25 +115,44 @@ func rebuild(in Input, rec Record) seam.Request {
 	if items[PartPinned] == nil {
 		items[PartPinned] = []Item{}
 	}
-	for _, p := range rec.Parts {
-		if p.Place != PlaceSystem {
-			continue
-		}
+	sent := func(p PartRecord) []seam.Block {
+		var out []seam.Block
 		if list, ok := items[p.Part]; ok {
 			for i, it := range p.Items {
 				if it.Kept {
-					req.System = append(req.System, seam.Block{Type: seam.BlockText, Text: list[i].Text})
+					out = append(out, seam.Block{Type: seam.BlockText, Text: list[i].Text})
 				}
 			}
 		} else if p.Kept == 1 {
-			req.System = append(req.System, seam.Block{Type: seam.BlockText, Text: text[p.Part]})
+			out = append(out, seam.Block{Type: seam.BlockText, Text: text[p.Part]})
+		}
+		return out
+	}
+	start := 0
+	for _, part := range Layout {
+		p := rec.Part(part)
+		if p.Place != PlaceSystem {
+			continue
+		}
+		req.System = append(req.System, sent(p)...)
+		if part == PartStyle {
+			start = len(req.System)
 		}
 	}
+	history := 0
 	for _, turn := range rec.Turns {
-		if turn.Kept {
-			req.Messages = append(req.Messages, in.Messages[turn.First:turn.First+turn.Messages]...)
+		if !turn.Kept {
+			continue
 		}
+		if turn.Part == PartCurrent {
+			history = len(req.Messages)
+		}
+		req.Messages = append(req.Messages, in.Messages[turn.First:turn.First+turn.Messages]...)
 	}
+	if recall := sent(rec.Part(PartRecall)); len(recall) > 0 {
+		req.Messages[history].Blocks = append(recall, req.Messages[history].Blocks...)
+	}
+	req.Cache = &seam.Cache{Start: start, History: history}
 	return req
 }
 
@@ -339,10 +359,17 @@ func TestThePartsArePackedInTheirOrder(t *testing.T) {
 		system = append(system, bl.Text)
 	}
 	want := []string{o.SystemText, in.Profile, in.PersonMap, in.Project, in.Style,
-		in.Attached[0].Text, in.Attached[1].Text, in.Attached[2].Text,
-		in.Recall[0].Text, in.Recall[1].Text, in.Recall[2].Text, in.Summary}
+		in.Attached[0].Text, in.Attached[1].Text, in.Attached[2].Text, in.Summary}
 	if !reflect.DeepEqual(system, want) {
 		t.Fatalf("the system blocks are not in the fixed order:\n%q", system)
+	}
+	// Recall goes in the current message, before the person's words.
+	var current []string
+	for _, bl := range req.Messages[len(req.Messages)-1].Blocks {
+		current = append(current, bl.Text)
+	}
+	if want := []string{in.Recall[0].Text, in.Recall[1].Text, in.Recall[2].Text, "And what about Sunday?"}; !reflect.DeepEqual(current, want) {
+		t.Fatalf("the current message is not recall and then the person's words:\n%q", current)
 	}
 	if len(req.Tools) != 1 || rec.Part(PartTools).Tokens == 0 || rec.Part(PartTools).Place != PlaceTools {
 		t.Fatalf("the tools are not in the request and the record: %+v", rec.Part(PartTools))

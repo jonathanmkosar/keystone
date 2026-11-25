@@ -32,7 +32,9 @@ type Script struct {
 //
 // The text conditions ignore letter case and the spaces around the text.
 type When struct {
-	// UserText is the whole text of the last message the person wrote.
+	// UserText is the whole text of the last message the person wrote, or
+	// its last text block, which is the person's own words when recalled
+	// knowledge comes before them (P5-03).
 	UserText string `json:"user_text,omitempty"`
 	// UserTextContains is a part of that text.
 	UserTextContains string `json:"user_text_contains,omitempty"`
