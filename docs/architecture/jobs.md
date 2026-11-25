@@ -33,6 +33,8 @@ Two ways, through one function, `Runner.Start`:
 
 A start is refused when the text is empty, when the chat is a task's own work chat (a task does not start another), and when the person already has `agents.task_open_max` tasks waiting or running. A task runs on the model the chat it was started from would use next, and the test tenant's on its recorded turns.
 
+**A task in its own chat** (P8-03, `internal/jobs/inchat.go`): `Runner.StartIn` starts a task whose work chat is the chat it is started from, as a scheduled task's run is ([schedules.md](schedules.md)). Its first round's message is the task's words, in that chat. Its result is that chat's last reply, so when it is done no note is written and `note_message_id` is the reply; when it is stopped or fails, a note in the chat says so. One task works in a chat: a second `StartIn` returns the first. The same limit of open tasks applies, and the model is the one given, or the chat's own. `jobs.Read` reads one task, and `ErrNoTask`, `ErrTooMany` and `ErrInvalid` are the errors a caller outside the package tells apart. `deliver` and `noteText` in `runner.go` each gained a line for it.
+
 ## After a restart
 
 `Runner.Recover` runs once when the server starts, right after the turn runner's, for every tenant. The turn runner has already closed a round that was running as `failed` with `interrupted`, keeping the words it had streamed (decision 0142), and put a round that waited for an approval back in its chat's queue (decision 0222). Recover then starts a goroutine for every task that is waiting or running, and for every task that ended and whose note is not yet written:
@@ -186,5 +188,5 @@ In `settings/agents.json`. `jobs.ReadConfig` reads the install's, and `app.ReadC
 - **Retrying a provider's failure.** A round that fails with `overloaded` or `rate_limited` ends the task. A task does not wait and try again.
 - **A task's own model.** It runs on the model the chat it was started from would use next.
 - **The memory pass's incognito flag** (P6-06, built beside this). A task started from an incognito chat should have an incognito work chat, so its rounds get no memory pass. It is one call in `Runner.Start` once both are merged; the journal, agents 004, has it. A note runs no memory pass.
-- **Sub-agents** (P8-02), which run beside a turn and report to it, and **scheduled tasks** (P8-03), whose runs are chat turns.
+- **Sub-agents** (P8-02), which run beside a turn and report to it. Scheduled tasks (P8-03) are built: each run is a task in its own chat, as above.
 - A tool that ran in a round the stop cut short, and finished, is in the audit log; the model is told to check before doing anything again, and a changing call is never run twice (decision 0220), but a read-only one may be.

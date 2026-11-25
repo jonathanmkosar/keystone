@@ -263,6 +263,12 @@ Since connectors (P7-04), added and nothing changed. `docs/api/openapi.json` was
 - `GET /chats/{id}/connectors` and `PUT /chats/{id}/connectors/{name}` (`{"on": bool}`): the chat's tools menu. 404 `not_found` for a chat or a connector that is not in the person's record.
 - A turn may now call `load_tools` and a connector's tools, `<connector>_<tool>`, which stream as `tool_call` and `tool_result` as every tool does. `GET /tools` lists the connector tools the person's connectors last listed, and a policy can be set for each.
 
+Since scheduled tasks (P8-03), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the ten schedule routes and their shapes, and every path and shape it had is the same. Nothing in `internal/turn` changed. The whole of it is [schedules.md](schedules.md).
+
+- A chat may be a scheduled task's run: made by the scheduler with a title (the schedule's name and the date), its first turn sent by a background task under the task's own request id, with the schedule's prompt as the first message. Its turns stream and record like any turn, with the actor `schedule` in the audit log for a scheduled run and `person` for a run now. Its last reply is the task's result, with no note; a note with the stop reason `task` follows only when the run was stopped or failed.
+- `GET /chats/{id}/tasks` on a run's chat lists the run's task, whose `chat_id` and `work_chat_id` are both that chat.
+- Ten schedule routes under `/schedules`, in `internal/schedules`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.

@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-03 scheduled tasks and P12-02 Gmail and Calendar (agents). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P12-02 Gmail and Calendar (agents). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P5-04, the turn inspector | P5-05, P9-05 |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner), P6-07, P6-08 |
-| agents | P8-03 scheduled tasks, P12-02 Gmail and Calendar | P7-05 skills, P8-02 sub-agents |
+| agents | P12-02 Gmail and Calendar | P8-05 unattended spend, P7-05 skills, P8-02 sub-agents |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -23,7 +23,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P8-03 scheduled tasks | agents | `agents/p8-03-scheduled-tasks` |
 | P12-02 Gmail and Calendar | agents | `agents/p12-02-gmail-calendar` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
@@ -76,6 +75,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Chat recaps: keep the tool's name `search_chats`, recap after the first turn and every three more after two idle minutes, and give older chats recaps in a one-time sweep on a local model (chats 006) | Yes to all three | As built; older chats get a recap at their next turn | Nothing |
 | Who may add a connector that runs a program on this machine (agents 005) | The command line only for now; once there is an admin role, the admin from the browser too, never a regular person | Command line only | P7-04 |
 | Should a connector tool its server says only reads run without asking (agents 005) | Yes; any can be set to ask on Settings → Approvals | Yes | Nothing |
+| Scheduled tasks: one late run for several missed times; set `agents.time_zone` explicitly (America/Chicago); per-schedule budgets and pausing background tasks with P8-05; a morning brief after Gmail and Calendar (agents 006) | As listed | Built that way; the zone is the computer's | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -120,6 +120,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P5-03, prompt caching: every chat call is written in a fixed order (tools by name, the standing start, the parts that change rarely, earlier turns, then recall and the current message), so the start is byte-identical from turn to turn, and the Anthropic adapter marks up to four cache points. Recalled knowledge now goes in the person's message, before their words, not in the system text. Cache reads and writes are recorded in usage and cost and shown in the inspector. Checked live on November 25, 2026 with the owner's Claude Haiku 5.5: a second identical call read 18,440 cached tokens and cost a twelfth of the first.
 - P5-05, chat summaries and past-chat search: each chat gets a recap (summary, topics, decisions) after its first turn and every three more, once it has been idle two minutes, written by the summary model; the chat list carries it. The model's `search_chats` tool now searches titles, recaps and messages and returns each chat's recap and best passages, and `read_chat` returns the recap; both leave held chats out for a model that may not read sensitive content. The `past chats` check proves test-tenant questions about earlier chats are answered through the tool. `verify` is 22 of 22.
 - P7-04, connectors, provisional on the agent mockups and one owner question: MCP servers, local programs over stdio and remote servers over HTTPS, per person, with tokens in the vault. A chat is offered each connector tool by name, and `load_tools` gives the full definitions when needed; a tools menu in the composer switches connectors per chat; Settings → Connectors adds remote ones. A connector tool asks first unless its server says it only reads, and its results are outside content. Programs on this machine are added from the command line only (`go run ./tools/tenant connector add`). Only a test server has been reached.
+- P8-03, scheduled tasks: schedules (hourly, daily, weekdays, weekly on chosen days, or once) in the person's time zone (`agents.time_zone`, the computer's when empty), each run a background task in a chat titled by the schedule and date. Due times missed while the server was down make one late run, never one per slot. A switch pauses all of a person's schedules. The Scheduled screen at `/scheduled`, provisional on the mockups. The `scheduled tasks` check proves a missed run fires once after an outage. `verify` is 23 of 23.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

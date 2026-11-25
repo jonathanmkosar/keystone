@@ -110,7 +110,10 @@ function TaskCard({ chatId, task }: { chatId: string; task: Task }) {
         {where(task, own)}
       </p>
       <p className="task-link">
-        {own ? (
+        {task.chat_id === task.work_chat_id ? (
+          // A task in its own chat, as a scheduled run is (P8-03).
+          <>This chat is the task's own: its steps are here, and its last reply will be its result.</>
+        ) : own ? (
           <>
             This chat is the task's own. <Link to={`/chats/${task.chat_id}`}>Open the chat it was started from</Link>, where its result will be written.
           </>
@@ -193,7 +196,7 @@ export function TaskNote({ chatId, messageId, text }: { chatId: string; messageI
       <div className="task-note-head">
         <Icon name="agents" size={16} />
         <span>From a background task</span>
-        {task && (
+        {task && task.work_chat_id !== chatId && (
           <Link className="task-note-link" to={`/chats/${task.work_chat_id}`}>
             Open its chat
           </Link>

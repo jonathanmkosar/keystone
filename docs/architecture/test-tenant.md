@@ -72,6 +72,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/recaps.json` (P5-05) holds the chats' recorded recaps. It answers a request whose system text holds "summary, topics and decisions of one chat", words of the shipped `chats.recap_prompt`, with a recap for each of the three chats, for the questions below, for the chat held for sensitive content, and for anything else. `turns/past-chats.json` holds three questions about earlier chats, each answered by calling `search_chats`: the lighthouse walk, the ferry times, and sleep. `cases/past-chats.json` checks that the first two ask for the search, and `past-chats.json`, beside `tenant.json` and not loaded or embedded, holds what the `past chats` check expects. See [chat-summaries.md](chat-summaries.md).
 
+`turns/scheduled-task.json` (P8-03) holds one: "Write the morning harbour brief: today's date, and what my chats say about the lighthouse walk." reads the time with `current_time` and answers with the brief. Make a schedule with that prompt to see a run in the browser; the `scheduled tasks` check runs it after a simulated outage. See [schedules.md](schedules.md).
+
 ### A chat file
 
 ```json

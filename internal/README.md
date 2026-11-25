@@ -42,3 +42,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `inspector` | chats | The turn inspector's calls and totals from a turn's records, and what a person takes out of a chat's next turn |
 | `jobs` | agents | Background tasks: rounds of turns in a chat of their own, resumed after a restart, with a budget, the task routes, `start_background_task`, and the note of the result |
 | `recap` | chats | Each chat's recap (a summary, its topics and decisions): the request and the answer, when a chat is due, keeping and searching recaps, and fixed rule 3's answer for past chats |
+| `schedules` | agents | Scheduled tasks: schedules in the person's time zone, the scheduler that starts each run as a background task in a chat of its own, a missed run once, the pause switch, and the schedule routes |

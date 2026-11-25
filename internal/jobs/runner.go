@@ -591,6 +591,11 @@ func (r *Runner) deliver(ctx context.Context, s *tenant.Store, j row) {
 	if j.NoteMessageID != 0 {
 		return
 	}
+	// A task that worked in the chat it was started from (P8-03, inchat.go):
+	// a reply is its result, already in the chat.
+	if inPlace(j) && r.deliverInPlace(ctx, s, j) {
+		return
+	}
 	if j.noteTurnID == "" {
 		r.logf("tasks: %s task %s ended with no turn for its note", j.requestID, j.ID)
 		return
@@ -624,6 +629,9 @@ func (r *Runner) deliver(ctx context.Context, s *tenant.Store, j row) {
 
 // noteText is what a task's note says in the chat it was started from.
 func noteText(j row) string {
+	if inPlace(j) { // P8-03, inchat.go
+		return inPlaceNote(j)
+	}
 	switch j.Status {
 	case StatusDone:
 		if j.Result == "" {

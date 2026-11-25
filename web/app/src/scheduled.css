@@ -1,0 +1,411 @@
+/* The Scheduled screen (P8-03), from design/screens/Scheduled.html with the
+   tokens: copper is the accent where the draft had moss. */
+
+.sched {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.sched-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sched-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sched-zone {
+  margin: 0;
+  padding: 10px 28px 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.sched-zone-problem {
+  color: var(--err);
+}
+
+.sched-held {
+  margin: 12px 28px 0;
+  padding: 10px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.sched-body {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.sched-list {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-right: 1px solid var(--line);
+}
+
+.sched-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sched-row:hover {
+  background: var(--raised);
+}
+
+.sched-row.is-chosen {
+  border-color: var(--strong);
+  background: var(--raised);
+}
+
+.sched-row-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.sched-row-says {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.sched-row-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sched-mono {
+  color: var(--muted);
+  font: 13px/20px var(--font-mono);
+}
+
+.sched-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.sched-pill.is-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.sched-pill.is-bad {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.sched-pill.is-warn {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.sched-pill.is-busy {
+  border-color: var(--accent);
+  color: var(--softink);
+  animation: sched-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sched-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.sched-main {
+  flex: 999 1 520px;
+  min-width: 0;
+  padding: 24px 28px 48px;
+}
+
+.sched-detail,
+.sched-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 920px;
+}
+
+.sched-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sched-name {
+  margin: 0;
+  font: 600 24px/30px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.sched-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sched-next {
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.sched-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.sched-over {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font: 600 11px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+}
+
+.sched-prompt {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--sunk);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sched-small {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.sched-table-wrap {
+  position: relative;
+  overflow-x: auto;
+}
+
+.sched-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.sched-table th {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font: 600 11px/16px var(--font-sans);
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.sched-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.sched-table tbody tr:first-child {
+  background: var(--raised);
+}
+
+.sched-when {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sched-why {
+  margin-top: 4px;
+  max-width: 420px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.sched-open {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sched-hide {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.sched-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--err);
+  border-radius: 8px;
+  background: var(--raised);
+  font-size: 14px;
+}
+
+.sched-confirm p {
+  margin: 0;
+}
+
+.button-danger {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.sched-form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sched-form-row .field {
+  flex: 1 1 180px;
+}
+
+.sched-short {
+  max-width: 160px;
+}
+
+.sched-prompt-input {
+  min-height: 112px;
+  padding: 10px 12px;
+  line-height: 22px;
+  resize: vertical;
+}
+
+.sched-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sched-days legend {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.sched-day {
+  min-width: 48px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--strong);
+  border-radius: 8px;
+  background: var(--page);
+  color: var(--ink);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.sched-day.is-on {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on);
+}
+
+.sched-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.sched-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .sched-head,
+  .sched-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .sched-zone {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .sched-held {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .sched-list {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .sched-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Steps is the column a phone can do without. */
+  .sched-table th:nth-child(4),
+  .sched-table td:nth-child(4) {
+    display: none;
+  }
+
+  .sched-table th,
+  .sched-table td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sched-pill.is-busy {
+    animation: none;
+  }
+}

@@ -211,6 +211,55 @@
       "default": "Keystone was restarted while you were working on this task, and your last step was cut short. Carry on from where you stopped: check what was done before you do anything again. When it is finished, give the result in full.",
       "scope": "install",
       "description": "The message a background task's next round is sent with when a restart of Keystone cut the round before it short. The model reads it."
+    },
+    {
+      "key": "agents.time_zone",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "Your time zone, as an IANA name such as Europe/Lisbon or America/Chicago. Your scheduled tasks run at their times in it. Empty means the time zone of the computer Keystone runs on."
+    },
+    {
+      "key": "agents.schedules_paused",
+      "type": "bool",
+      "default": "false",
+      "scope": "tenant",
+      "description": "Holds every one of your scheduled tasks while it is on: none starts a run, and the times that pass meanwhile are not made up afterwards. A run already under way goes on, and Run now still runs one."
+    },
+    {
+      "key": "agents.schedule_poll",
+      "type": "duration",
+      "default": "30s",
+      "scope": "install",
+      "description": "How often Keystone looks for a scheduled task that is due, at the longest. It also looks when it starts, and when a schedule is made or changed."
+    },
+    {
+      "key": "agents.schedule_late_after",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "A scheduled run that starts more than this long after its time is marked late, with the reason."
+    },
+    {
+      "key": "agents.schedule_max",
+      "type": "int",
+      "default": "50",
+      "scope": "install",
+      "description": "The most scheduled tasks one person may have."
+    },
+    {
+      "key": "agents.schedule_prompt_max_chars",
+      "type": "int",
+      "default": "8000",
+      "scope": "install",
+      "description": "The most characters a scheduled task's prompt may have."
+    },
+    {
+      "key": "agents.schedule_runs_listed",
+      "type": "int",
+      "default": "30",
+      "scope": "install",
+      "description": "How many of a scheduled task's newest runs its page lists. Older runs are still chats in your record."
     }
   ]
 }

@@ -1020,3 +1020,136 @@ export async function followTask(chatId: string, taskId: string, lastEventId: st
   }
   return ended;
 }
+
+// ---------------------------------------------------------------------------
+// Scheduled tasks (P8-03). A schedule's every run is a background task that
+// works in a chat of its own; Scheduled.tsx draws them.
+// docs/architecture/schedules.md.
+// ---------------------------------------------------------------------------
+
+export type Recurrence = {
+  kind: "hourly" | "daily" | "weekdays" | "weekly" | "once";
+  /** HH:MM, for every kind but hourly. */
+  time?: string;
+  /** Minutes past the hour, for hourly. */
+  minute?: number;
+  /** mon … sun, for weekly. */
+  days?: string[];
+  /** YYYY-MM-DD, for once. */
+  date?: string;
+};
+
+/** One run of a schedule. Its times carry the person's zone's offset. */
+export type ScheduleRun = {
+  id: string;
+  schedule_id: string;
+  trigger: "schedule" | "now";
+  due: string;
+  started: string;
+  late: boolean;
+  late_reason?: "stopped" | "busy";
+  missed: number;
+  status: "starting" | "queued" | "running" | "done" | "stopped" | "failed" | "gone";
+  waiting: boolean;
+  progress?: string;
+  chat_id?: string;
+  task_id?: string;
+  error?: string;
+  steps: number;
+  spent_micros: number;
+  began?: string;
+  ended?: string;
+};
+
+export type Schedule = {
+  id: string;
+  name: string;
+  prompt: string;
+  recurrence: Recurrence;
+  /** The recurrence in words. */
+  says: string;
+  /** A registry name. Absent means a new chat's own model. */
+  model?: string;
+  incognito: boolean;
+  enabled: boolean;
+  /** The person's switch that holds every schedule is on. */
+  held: boolean;
+  /** The next due time, in the person's zone. Absent while paused or held, or once it has run. */
+  next?: string;
+  last_run?: ScheduleRun;
+  created: string;
+  updated: string;
+};
+
+export type ScheduleZone = { name?: string; label: string; problem?: string };
+
+export type SchedulesReply = { schedules: Schedule[]; paused: boolean; zone: ScheduleZone; max: number };
+
+export type ScheduleReply = { schedule: Schedule; runs: ScheduleRun[]; zone: ScheduleZone };
+
+export type ScheduleBody = {
+  name: string;
+  prompt: string;
+  recurrence: Recurrence;
+  model?: string;
+  incognito?: boolean;
+  enabled?: boolean;
+};
+
+const schedulesPath = "/api/v1/schedules";
+const schedulePath = (id: string) => `${schedulesPath}/${encodeURIComponent(id)}`;
+
+function schedulesFrom(data: unknown): SchedulesReply {
+  const d = data as Partial<SchedulesReply> | undefined;
+  if (!d || !Array.isArray(d.schedules) || typeof d.paused !== "boolean" || !d.zone) throw new ApiError("not-ready", 200);
+  return d as SchedulesReply;
+}
+
+function scheduleFrom(data: unknown): Schedule {
+  const s = data as Partial<Schedule> | undefined;
+  if (!s || typeof s.id !== "string" || typeof s.name !== "string" || !s.recurrence) throw new ApiError("not-ready", 200);
+  return s as Schedule;
+}
+
+/** The person's schedules, oldest first, with the switch and the zone. */
+export async function listSchedules(): Promise<SchedulesReply> {
+  return schedulesFrom(await call("GET", schedulesPath));
+}
+
+/** One schedule and its newest runs, newest first. */
+export async function getSchedule(id: string): Promise<ScheduleReply> {
+  const data = (await object("GET", schedulePath(id))) as Partial<ScheduleReply>;
+  if (!Array.isArray(data.runs) || !data.zone) throw new ApiError("not-ready", 200);
+  return { schedule: scheduleFrom(data.schedule), runs: data.runs, zone: data.zone };
+}
+
+export async function createSchedule(body: ScheduleBody): Promise<Schedule> {
+  return scheduleFrom(await call("POST", schedulesPath, body));
+}
+
+/** Replaces every field of a schedule. */
+export async function updateSchedule(id: string, body: ScheduleBody): Promise<Schedule> {
+  return scheduleFrom(await call("PUT", schedulePath(id), body));
+}
+
+/** Deletes a schedule and the record of its runs. Each run's chat stays. */
+export async function deleteSchedule(id: string): Promise<void> {
+  await call("DELETE", schedulePath(id));
+}
+
+/** Pauses or resumes one schedule. Resumed, nothing paused is made up. */
+export async function setScheduleEnabled(id: string, on: boolean): Promise<Schedule> {
+  return scheduleFrom(await call("POST", `${schedulePath(id)}/${on ? "resume" : "pause"}`));
+}
+
+/** Runs a schedule now, in a chat of its own. */
+export async function runScheduleNow(id: string): Promise<ScheduleRun> {
+  const run = (await call("POST", `${schedulePath(id)}/run`)) as Partial<ScheduleRun> | undefined;
+  if (!run || typeof run.id !== "string") throw new ApiError("not-ready", 200);
+  return run as ScheduleRun;
+}
+
+/** Turns the switch that holds every schedule on or off. */
+export async function holdSchedules(on: boolean): Promise<SchedulesReply> {
+  return schedulesFrom(await call("POST", `${schedulesPath}/${on ? "pause-all" : "resume-all"}`));
+}
