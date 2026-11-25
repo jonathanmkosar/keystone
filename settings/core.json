@@ -9,6 +9,69 @@
       "description": "The address and port Keystone listens on. The default is reachable from this machine only."
     },
     {
+      "key": "signin.password_iterations",
+      "type": "int",
+      "default": "600000",
+      "scope": "install",
+      "description": "How many rounds of PBKDF2-SHA-256 a password goes through before it is stored. More rounds make a stolen database slower to guess from. A stored password moves to the new count the next time its person signs in."
+    },
+    {
+      "key": "signin.password_min_length",
+      "type": "int",
+      "default": "12",
+      "scope": "install",
+      "description": "The fewest characters a new password may have."
+    },
+    {
+      "key": "signin.session_lifetime",
+      "type": "duration",
+      "default": "720h",
+      "scope": "install",
+      "description": "How long a sign-in lasts before the person must sign in again."
+    },
+    {
+      "key": "signin.failures_before_wait",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "How many wrong passwords in a row are taken before password sign-in makes the person wait."
+    },
+    {
+      "key": "signin.failure_wait",
+      "type": "duration",
+      "default": "1m",
+      "scope": "install",
+      "description": "How long password sign-in is refused after too many wrong passwords in a row."
+    },
+    {
+      "key": "signin.passkeys",
+      "type": "bool",
+      "default": "false",
+      "scope": "install",
+      "description": "Whether people may add passkeys and sign in with them. Off until the sign-in screen has proven them in a browser."
+    },
+    {
+      "key": "signin.passkey_rp_id",
+      "type": "string",
+      "default": "localhost",
+      "scope": "install",
+      "description": "The host name passkeys are bound to, which must be the host people reach Keystone by. Changing it makes every stored passkey unusable."
+    },
+    {
+      "key": "signin.passkey_origin",
+      "type": "string",
+      "default": "http://localhost:7900",
+      "scope": "install",
+      "description": "The address in the browser's bar when a passkey is used: scheme, host and port. A passkey answer from any other page is refused."
+    },
+    {
+      "key": "signin.passkey_challenge_lifetime",
+      "type": "duration",
+      "default": "5m",
+      "scope": "install",
+      "description": "How long a person has to answer a passkey prompt before it must be asked again."
+    },
+    {
       "key": "data.dir",
       "type": "string",
       "default": "data",
