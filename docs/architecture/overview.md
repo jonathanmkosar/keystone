@@ -70,5 +70,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0042 | [The OpenAPI document is built from the routes, and a copy is committed](decisions/0042-the-openapi-document-is-built-from-the-routes.md) |
 | 0130 | [A provider counts tokens through an optional interface, declared by the budget](decisions/0130-a-provider-counts-through-an-optional-interface.md) |
 | 0131 | [The estimate counts characters, and leans high](decisions/0131-the-estimate-counts-characters.md) |
+| 0150 | [The Markdown reader is written in the interface, not taken from a package](decisions/0150-the-markdown-reader-is-written-here.md) |
+| 0151 | [Replies that are arriving live outside the screens, and are read with fetch](decisions/0151-arriving-replies-live-outside-the-screens.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
