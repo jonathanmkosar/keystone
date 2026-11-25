@@ -16,6 +16,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/turn"
@@ -133,6 +134,7 @@ func routes(c Config, log *api.Log) []api.Route {
 		runner = turn.NewRunner(c.turnOptions(log))
 	}
 	all = append(all, turn.Routes(runner)...)
+	all = append(all, settingsapi.Routes()...)
 	return all
 }
 

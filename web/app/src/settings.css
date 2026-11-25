@@ -1,0 +1,424 @@
+/* The settings screens (P11-01). Every colour is a token. There is no
+   settings mockup yet, so the cards, tables and pills follow Admin.html and
+   the controls follow Theme.html. */
+
+.person-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 4px 8px 4px 4px;
+  margin-left: -4px;
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.person-link .ico {
+  color: var(--muted);
+}
+
+.person-link:hover,
+.person-link.active {
+  background: var(--raised);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.set-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.set-tab {
+  flex: none;
+  padding: 8px 12px 10px;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.set-tab:hover {
+  color: var(--ink);
+}
+
+.set-tab.active {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
+
+.set-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.set-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.set-heading {
+  margin: 0;
+  font: 600 20px/26px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.set-subheading {
+  margin: 0;
+  font: 600 15px/22px var(--font-sans);
+}
+
+.set-note,
+.set-hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.set-note {
+  font-size: 14px;
+  line-height: 22px;
+  max-width: 68ch;
+}
+
+.set-plain {
+  margin: 0;
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.set-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.set-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.set-card.set-stack {
+  padding: 20px;
+}
+
+.set-empty {
+  padding: 16px 20px;
+  font-size: 14px;
+}
+
+.set-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.set-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.set-wide {
+  grid-column: 1 / -1;
+}
+
+.set-text {
+  min-height: 96px;
+  padding: 10px 12px;
+  line-height: 22px;
+  resize: vertical;
+}
+
+.set-short {
+  width: 160px;
+}
+
+.set-mono {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.set-quiet {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.set-count {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.set-count.is-over {
+  color: var(--err);
+}
+
+.set-ok {
+  color: var(--ok);
+  font-size: 14px;
+}
+
+.set-small {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.set-theme {
+  max-width: 320px;
+}
+
+.set-theme .theme-option {
+  min-height: 38px;
+  font-size: 14px;
+}
+
+/* A row of a card: what it is on the left, what to do with it on the right. */
+
+.set-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.set-item:last-child {
+  border-bottom: 0;
+}
+
+.set-item-long {
+  flex-direction: column;
+}
+
+.set-item-long .set-control {
+  align-items: stretch;
+  align-self: stretch;
+  max-width: none;
+}
+
+.set-item-long .set-reset {
+  align-self: flex-start;
+}
+
+.set-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.set-item-title {
+  font-size: 15px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.set-control {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex: none;
+  max-width: 50%;
+}
+
+.set-control select.input {
+  min-width: 160px;
+}
+
+.set-value {
+  flex: none;
+  max-width: 40%;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.set-reset {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: 400 13px/20px var(--font-sans);
+  text-align: right;
+  text-decoration: underline;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.set-reset:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* A switch, as in Theme.html: a track, a knob, and the word. */
+
+.set-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.set-switch::before {
+  content: "";
+  order: -2;
+  width: 40px;
+  height: 22px;
+  border: 1px solid var(--strong);
+  border-radius: 11px;
+  background: var(--page);
+}
+
+.set-switch-knob {
+  order: -1;
+  width: 16px;
+  height: 16px;
+  margin-left: -45px;
+  margin-right: 21px;
+  border-radius: 8px;
+  background: var(--muted);
+  transition: margin 120ms ease;
+}
+
+.set-switch.is-on::before {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.set-switch.is-on .set-switch-knob {
+  margin-left: -27px;
+  margin-right: 3px;
+  background: var(--on);
+}
+
+.set-switch:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.set-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.set-pill {
+  display: inline-block;
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.set-pill.is-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.set-pill.is-bad {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.set-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.set-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding-top: 6px;
+}
+
+.set-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.set-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.set-summary {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.set-details[open] .set-summary {
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 760px) {
+  .settings {
+    padding: 24px 16px 60px;
+  }
+
+  .set-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .set-item {
+    flex-direction: column;
+  }
+
+  .set-control {
+    align-items: flex-start;
+    max-width: none;
+    align-self: stretch;
+  }
+
+  .set-value {
+    max-width: none;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .set-switch-knob {
+    transition: none;
+  }
+}

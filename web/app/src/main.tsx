@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import "virtual:tokens.css";
 import "./styles.css";
 import "./chat.css";
+import "./settings.css";
 import { App } from "./App";
 
 createRoot(document.getElementById("root")!).render(

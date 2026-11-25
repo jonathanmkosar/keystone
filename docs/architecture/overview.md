@@ -36,6 +36,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Context builder | `internal/contextbuild` | Builds what one model call carries: the standing instructions, the current turn and as many earlier turns as fit the model's window, newest first and each one whole, with named slots for the parts later items bring. Returns a record of every part, kept and dropped, with its tokens, which the turn stores for the inspector. | [context.md](context.md) |
 | Routing | `internal/routing` | Decides which models one call may be sent to: a rule for each kind of task, sensitive content kept to local and trusted models, and a fallback chain that moves to the next model while nothing of a reply has been passed on. A guard for fixed rule 3. | [routing.md](routing.md) |
 | Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
+| Settings routes and screens | `internal/settingsapi`, `web/app/src` | The routes behind the settings screens, and the screens: a person's own settings, the names of their secrets, their model registry and their profile. A secret's value goes in and is never returned, and a fixed rule is listed and never changed. | [settings-screens.md](settings-screens.md) |
 
 ## Parts still to come
 
@@ -111,5 +112,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0161 | [The cap stops a call that could pass it, counted at the most the call could cost](decisions/0161-the-cap-stops-a-call-that-could-pass-it.md) |
 | 0162 | [The cap counts a calendar month in UTC, and every model that is not local](decisions/0162-the-cap-counts-a-utc-calendar-month.md) |
 | 0163 | [A route is one provider, and the turn's model stays the one that was asked for](decisions/0163-a-route-is-one-provider.md) |
+| 0190 | [The settings routes act as the person, in a package of their own](decisions/0190-settings-routes-act-as-the-person.md) |
+| 0191 | [The General screen is drawn from the settings route, and the proof is a test of the route](decisions/0191-the-general-screen-is-drawn-from-the-route.md) |
+| 0192 | [The theme is a setting once a person has chosen one](decisions/0192-the-theme-is-a-setting-once-chosen.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

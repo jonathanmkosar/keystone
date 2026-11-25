@@ -120,6 +120,42 @@ The model picker (the composer's footnote names the model the chat will use, and
 - The screen has run against Keystone's own chat routes only briefly, on a build of the P4-03 branch made outside the repo: see the journal, interface 002. Listing, opening, sending, the streamed reply, the title, rename, star and delete ran there. The dropped stream, the reload in the middle of a reply, stop and a failed turn were seen only against a stand-in for the contract, because the test tenant's recorded replies end too soon to interrupt by hand.
 - New chat follows `Home.html`, which is a draft in the first round's colours.
 
+## The settings screens
+
+P11-01. The routes and the screens are described together in [settings-screens.md](settings-screens.md). This section is what they add to the app.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| Screens | `src/Settings.tsx` | The seven screens under `/settings`, with their tabs: Profile, Appearance, Models and keys, General, and three that say they are not built yet. |
+| Styles | `src/settings.css` | Cards, rows, forms, the switch and the pills. Built into `keystone.css` with the other two stylesheets. Every colour is a token. |
+| The way in | `src/Shell.tsx` | The person's name at the foot of the sidebar is a link to `/settings`. |
+| The theme | `src/App.tsx` | A theme chosen while signed in is also stored as the `appearance.theme` setting, and a stored theme is read at sign-in (decision [0192](decisions/0192-the-theme-is-a-setting-once-chosen.md)). |
+
+`/settings` and every path under it show these screens. A path under it that is no screen goes to `/settings/profile`.
+
+General has no code for any one setting. It draws a control for each setting `GET /api/v1/settings` marks `changeable`, chosen by the setting's type and options (decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md)).
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/settings` | `listSettings` | General, and the stored theme at sign-in. |
+| `PUT /api/v1/settings/{key}` | `setSetting` | A control on General, and the theme switch. |
+| `DELETE /api/v1/settings/{key}` | `resetSetting` | "Reset to default" on General. |
+| `GET /api/v1/secrets` | `listSecrets` | The stored key names. |
+| `PUT /api/v1/secrets/{name}` | `setSecret` | Storing a key. The answer is not read, and holds no value. |
+| `DELETE /api/v1/secrets/{name}` | `deleteSecret` | Removing a key. |
+| `GET /api/v1/models` | `listModels` | The models, and the choices the form offers. |
+| `POST /api/v1/models` | `addModel` | Adding a model. |
+| `PUT /api/v1/models/{name}` | `replaceModel` | Saving an edited model. |
+| `DELETE /api/v1/models/{name}` | `removeModel` | Removing a model. |
+| `GET /api/v1/profile` | `readProfile` | The profile's text and its limit. |
+| `PUT /api/v1/profile` | `writeProfile` | Saving the profile. |
+
+A refusal with a 4xx status other than 404 carries the server's words, and the screen shows them as a sentence. A 401 on any of these calls shows sign-in.
+
+The screens are provisional: there is no settings mockup, and three open owner questions shape them. [settings-screens.md](settings-screens.md) lists what rests on each.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

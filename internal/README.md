@@ -30,3 +30,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `contextbuild` | chats | Builds what one model call carries, under the model's window, and records every part of it |
 | `routing` | models | Which models a call may go to: task rules, the privacy filter and the fallback chain |
 | `usage` | models | A record for each model call, a month's sums, and the monthly spend cap |
+| `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |

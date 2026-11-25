@@ -69,6 +69,8 @@ var componentDocs = map[string]string{
 	"internal/contextbuild":        "docs/architecture/context.md",
 	"internal/routing":             "docs/architecture/routing.md",
 	"internal/usage":               "docs/architecture/usage.md",
+
+	"internal/settingsapi": "docs/architecture/settings-screens.md",
 }
 
 var checks = []check{

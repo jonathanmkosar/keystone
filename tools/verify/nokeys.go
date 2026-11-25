@@ -45,6 +45,7 @@ var keySurfaces = []struct {
 	{"the model registry", keysInTheRegistry},
 	{"the API", keysInTheAPI}, // in routes.go: every route's answers, the server's log and the audit log
 	{"the Anthropic adapter", keysInTheAnthropicAdapter},
+	{"the settings routes", keysInTheSettingsRoutes}, // in settingsroutes.go: a value stored through the API, and the routes that could hand it back
 }
 
 const keyCheckName = "provider.test"
