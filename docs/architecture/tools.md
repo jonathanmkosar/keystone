@@ -20,6 +20,8 @@ Since P3-09 it also loads the test tenant, in the step `the test tenant` after t
 
 `go run ./tools/tenant test` loads the test tenant into the data folder, as `rebuild` does, or brings it back to its fixtures: the password, a chat that was deleted, a chat whose fixture changed. It prints the tenant's id. It can be run twice ([test-tenant.md](test-tenant.md)).
 
+`go run ./tools/tenant model add | list | remove <tenant-id> [file.json or name]` adds an entry to a tenant's model registry, lists the registry and removes an entry (since P3-08). `add` reads one entry as JSON from a file, or from standard input when the file is `-`, and the registry checks it. An entry names the secret that holds its key and never holds the key, so no key is printed. `list` says when the vault does not hold a secret an entry names. The runbook is [adding-a-model.md](../runbooks/adding-a-model.md).
+
 ## verify
 
 `go run ./tools/verify` runs the standing checks. It needs no network and no keys. Nothing merges to `main` while it is red, and a check is never weakened to get to green.

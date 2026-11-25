@@ -17,6 +17,14 @@
 //
 // secret set reads the value from standard input, never from an argument,
 // and no command prints a value. See secret.go.
+//
+//	go run ./tools/tenant model add <tenant-id> entry.json
+//	go run ./tools/tenant model list <tenant-id>
+//	go run ./tools/tenant model remove <tenant-id> <name>
+//
+// model manages one tenant's model registry. An entry names the secret that
+// holds its key and never holds the key. See model.go and
+// docs/runbooks/adding-a-model.md.
 package main
 
 import (
@@ -47,6 +55,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       tenant [--data <folder>] password <tenant-id>   (the password is read from standard input)")
 		fmt.Fprintln(os.Stderr, "       "+secretUsage)
 		fmt.Fprintln(os.Stderr, "       "+testUsage)
+		fmt.Fprintln(os.Stderr, "       "+modelUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -96,6 +105,8 @@ func main() {
 		secretMain(dir, *keeper, args[1:])
 	case "test":
 		testMain(in)
+	case "model":
+		modelMain(dir, *keeper, args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)

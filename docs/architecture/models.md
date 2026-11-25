@@ -161,9 +161,13 @@ reply, err := seam.Call(ctx, p, seam.Request{Model: m.Name, Messages: messages})
 
 In `verify`: the `fixed rules` check lists `internal/models` as a guard for rule 3, and the `no keys in output` check has a surface for the registry ([tools.md](tools.md)).
 
+## Adding a model from the command line
+
+Since P3-08, `go run ./tools/tenant model add <tenant-id> <file.json|->` adds an entry, `model list <tenant-id>` lists the registry, and `model remove <tenant-id> <name>` removes one. They call `Decode`, `Add`, `List` and `Remove` and nothing else. The runbook [adding-a-model.md](../runbooks/adding-a-model.md) has an entry for each real adapter.
+
 ## Not here yet
 
-- Routes and a screen to add and change models. The functions are ready for the API (P2-05) and the settings screens (P11-01). There is no command for it either.
+- Routes and a screen to add and change models. The functions are ready for the API (P2-05) and the settings screens (P11-01). Since P3-08 there is a command, above.
 - Who may change a tenant's registry. The functions take no role, so the route decides. See the owner's question in the journal, models 003.
 - The three real adapters, P3-04 to P3-06. Their own fields, such as a gateway's certificate, are added to the entry when they are built.
 - Routing, the fallback chain and the call that is refused because of its class, P3-08. The budget, P3-07.
