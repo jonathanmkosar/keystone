@@ -39,12 +39,12 @@ const StopTask = "task"
 // model, and the turn fails with the error's kind when none is left.
 type Gate func(ctx context.Context, s *tenant.Store, turnID string, m models.Model, mostMicros int64) *seam.Error
 
-// gate is the monthly spend cap, then the caller's own gate (P8-01: a
-// background task's budget), as a route's gate.
-func (r *Runner) gate(s *tenant.Store, t row) func(context.Context, models.Model, seam.Request) *seam.Error {
-	capped := r.capGate(s)
+// optionGate is a route's gate: inner (the monthly spend cap), then the
+// caller's own gate, Options.Gate (P8-01: a background task's budget),
+// for the turn t.
+func (r *Runner) optionGate(s *tenant.Store, t row, inner func(context.Context, models.Model, seam.Request) *seam.Error) func(context.Context, models.Model, seam.Request) *seam.Error {
 	return func(ctx context.Context, m models.Model, req seam.Request) *seam.Error {
-		if e := capped(ctx, m, req); e != nil || r.o.Gate == nil || !usage.Counts(m.Class) {
+		if e := inner(ctx, m, req); e != nil || r.o.Gate == nil || !usage.Counts(m.Class) {
 			return e
 		}
 		return r.o.Gate(ctx, s, t.ID, m, mostCost(m, req, r.o.Config.Budget))
