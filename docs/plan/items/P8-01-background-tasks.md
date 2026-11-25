@@ -11,3 +11,34 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 ## Plan and result
 
+### Plan
+
+**The shape.** A background task is a job that works through ordinary turns. It is not a second runner beside the turns: every model call and tool call it makes is a turn's, so it streams, records, asks for approvals, survives a restart and is stopped the way a turn is.
+
+- A task has a chat of its own, its **work chat**, made when it starts and titled "Background task: …". Its first turn's message is the task; the person can open the work chat and watch every step, and answer its approval cards there. The chat it was started from stays free.
+- A task is **rounds**: each round is one turn of up to `chats.turn_max_steps` model calls. A round that ends at its step limit is followed by another, with `agents.task_continue_text` as its message, up to `agents.task_max_rounds`. A round the server's stop cut short (`interrupted`, decision 0142) is followed by one with `agents.task_resume_text`: the task resumes after a restart instead of failing. A round that ends with the model's answer finishes the task.
+- When the task ends (done, failed or stopped), Keystone writes its result as a note in the chat it was started from: an assistant message with the stop reason `task`, written by a turn of that chat that calls no model, taken in the chat's queue so it never lands in the middle of a turn. A person who reopens the chat sees it, and later turns read it.
+- **Fixed rules carry across.** A work chat starts marked as having read outside content when the chat it came from had, and held for sensitive content when that chat was; the note marks and holds the chat it lands in the same way when the work chat read outside content or was held. Marks are written before the first round can run, and before the note's chat can run another turn.
+- **Budget.** Every task has its own request id, so its model calls and tool calls read together in the audit log and the usage records. `agents.task_budget_usd` (a person's setting, $1 as shipped) is kept on the task; a call that could take the task past it is not sent, through the same gate as the monthly cap, so the chain falls back to a local model when it has one and otherwise the round fails with `spend_cap` and the task ends saying so. The monthly cap still applies first.
+- **Approvals.** Nothing new: a round's changing tool asks as any turn's does, its card is in the work chat, the task waits (shown as waiting on the task), and the wait survives a restart as P7-02 built it.
+- **Stop.** The stop route stops the current round's turn and ends the task as stopped. Stopping the round's turn in the work chat does the same. Deleting either chat stops the task.
+
+**The contract.** No existing route, request, reply or event changes shape. Added:
+
+- `GET /chats/{id}/tasks`: the tasks started from the chat or working in it. `POST /chats/{id}/tasks` (`{"text", "title"?}`): start one, 201 with the `Task`. `GET /chats/{id}/tasks/{task}`, `GET /chats/{id}/tasks/{task}/events` (a stream of `task` events, each the whole `Task`, then `end`), `POST /chats/{id}/tasks/{task}/stop`.
+- A tool, `start_background_task` (`title`, `task`), which changes something (it starts work that spends money), so it asks by default; its result is Keystone's own.
+- A message stop reason, `task`, on the note.
+
+**Server side.** A new package `internal/jobs` (task rows, the runner, the routes, the tool, the gate), one migration `20261125T151700_jobs.sql` (`jobs`, `job_events`, `job_turns`), settings in `settings/agents.json`, and in `internal/turn` one new file (`jobs.go`: send a turn without a client, read and stop one, wait for its news, run a goroutine the runner waits for, the note, the marks) with one line changed in `route.go` (the gate) and one field added to `Options`. Lines added in `internal/app` to make the jobs runner beside the turn runner, recover it after turns, add its routes and the tool.
+
+**Proof.**
+
+- `go test ./internal/jobs`: a task started by the route runs to its result and the note is in the chat; a task started by the tool, after the person approves the start; **a task whose round was cut short by a server stop resumes on the next server, finishes, and its result is in the chat**; a round at its step limit is followed by another; a changing tool in a task asks and does not run until approved; stop; the budget stops a paid call; another person reaches none of it; a chat that read outside content gives its task chat the mark.
+- `verify`: a standing check, `background tasks`, on the real server as the test tenant with recorded turns: a task's round is cut short by stopping the server, the second server resumes it, the task ends as done, its result is a `task` note in the chat it was started from, the task's calls are in the audit log under its request id, and another tenant cannot read or stop it. The route walks call the five routes like every other.
+
+**The screen.** A task card in the chat (new files `web/app/src/Tasks.tsx` and `tasks.css`): the title, where it is ("Step 5 · Searching your chats", "Waiting for your approval"), a link to its work chat, and Stop; it follows the task's stream, and when the task ends the chat is read again and the note is drawn as a reply of its own with the task's mark. Calls added at the end of `api.ts`, one line in `Chat.tsx`, a branch in `layout.ts` and `Conversation.tsx`.
+
+**What is left**, for a session that picks this up (updated at each commit):
+
+- Everything above.
+
