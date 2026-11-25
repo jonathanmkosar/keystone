@@ -190,6 +190,3902 @@
         "summary": "The signed-in person's audit log, oldest first, a page at a time."
       }
     },
+    "/api/v1/chats": {
+      "get": {
+        "parameters": [
+          {
+            "description": "true keeps starred chats only.",
+            "in": "query",
+            "name": "starred",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The most chats to return. The server.page_limit setting is the most and the default.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "How many chats to skip from the top of the list.",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chats": {
+                      "items": {
+                        "properties": {
+                          "active": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "busy": {
+                            "type": "boolean"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "starred": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "starred",
+                          "created",
+                          "active",
+                          "busy"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "more": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "chats",
+                    "more"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The person's chats, the one with the newest message first."
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat": {
+                      "properties": {
+                        "active": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "busy": {
+                          "type": "boolean"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "starred": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "starred",
+                        "created",
+                        "active",
+                        "busy"
+                      ],
+                      "type": "object"
+                    },
+                    "messages": {
+                      "items": {
+                        "properties": {
+                          "blocks": {
+                            "items": {
+                              "properties": {
+                                "content": {
+                                  "items": {
+                                    "properties": {
+                                      "content": {
+                                        "items": {
+                                          "properties": {
+                                            "content": {},
+                                            "data": {},
+                                            "id": {},
+                                            "input": {},
+                                            "is_error": {},
+                                            "media_type": {},
+                                            "name": {},
+                                            "ref": {},
+                                            "signature": {},
+                                            "text": {},
+                                            "type": {}
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "type": "object"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "data": {
+                                        "contentEncoding": "base64",
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "input": {},
+                                      "is_error": {
+                                        "type": "boolean"
+                                      },
+                                      "media_type": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "ref": {
+                                        "type": "string"
+                                      },
+                                      "signature": {
+                                        "type": "string"
+                                      },
+                                      "text": {
+                                        "type": "string"
+                                      },
+                                      "type": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "data": {
+                                  "contentEncoding": "base64",
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "input": {},
+                                "is_error": {
+                                  "type": "boolean"
+                                },
+                                "media_type": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "ref": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "parent_id": {
+                            "type": "integer"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "siblings": {
+                            "items": {
+                              "type": "integer"
+                            },
+                            "type": "array"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "role",
+                          "blocks",
+                          "created",
+                          "siblings"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "model": {
+                      "properties": {
+                        "model": {
+                          "properties": {
+                            "capabilities": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "class": {
+                              "type": "string"
+                            },
+                            "context_window": {
+                              "type": "integer"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "output_limit": {
+                              "type": "integer"
+                            },
+                            "test": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "label",
+                            "class",
+                            "capabilities",
+                            "context_window",
+                            "output_limit",
+                            "test"
+                          ],
+                          "type": "object"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "capabilities": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "context_window": {
+                                "type": "integer"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "output_limit": {
+                                "type": "integer"
+                              },
+                              "test": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "capabilities",
+                              "context_window",
+                              "output_limit",
+                              "test"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "source",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "turns": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message",
+                              "retryable"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_event_id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reply_message_id": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          },
+                          "user_message_id": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "status",
+                          "usage",
+                          "cost_micros",
+                          "created",
+                          "last_event_id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat",
+                    "messages",
+                    "model",
+                    "turns"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make a chat with no title and no messages. It takes no body."
+      }
+    },
+    "/api/v1/chats/search": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The words to look for. Every word must be in the same title or the same message.",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "hits": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "message_id": {
+                            "type": "integer"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "snippet": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "when": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "chat_id",
+                          "title",
+                          "snippet",
+                          "when"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "query": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "query",
+                    "hits"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Search the person's chats by the words of their titles and messages, on every branch."
+      }
+    },
+    "/api/v1/chats/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "deleted": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "deleted"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Delete a chat, with its messages, its turns and its files. A turn that is running in it is stopped first."
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat": {
+                      "properties": {
+                        "active": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "busy": {
+                          "type": "boolean"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "starred": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "starred",
+                        "created",
+                        "active",
+                        "busy"
+                      ],
+                      "type": "object"
+                    },
+                    "messages": {
+                      "items": {
+                        "properties": {
+                          "blocks": {
+                            "items": {
+                              "properties": {
+                                "content": {
+                                  "items": {
+                                    "properties": {
+                                      "content": {
+                                        "items": {
+                                          "properties": {
+                                            "content": {},
+                                            "data": {},
+                                            "id": {},
+                                            "input": {},
+                                            "is_error": {},
+                                            "media_type": {},
+                                            "name": {},
+                                            "ref": {},
+                                            "signature": {},
+                                            "text": {},
+                                            "type": {}
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "type": "object"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "data": {
+                                        "contentEncoding": "base64",
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "input": {},
+                                      "is_error": {
+                                        "type": "boolean"
+                                      },
+                                      "media_type": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "ref": {
+                                        "type": "string"
+                                      },
+                                      "signature": {
+                                        "type": "string"
+                                      },
+                                      "text": {
+                                        "type": "string"
+                                      },
+                                      "type": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "data": {
+                                  "contentEncoding": "base64",
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "input": {},
+                                "is_error": {
+                                  "type": "boolean"
+                                },
+                                "media_type": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "ref": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "parent_id": {
+                            "type": "integer"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "siblings": {
+                            "items": {
+                              "type": "integer"
+                            },
+                            "type": "array"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "role",
+                          "blocks",
+                          "created",
+                          "siblings"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "model": {
+                      "properties": {
+                        "model": {
+                          "properties": {
+                            "capabilities": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "class": {
+                              "type": "string"
+                            },
+                            "context_window": {
+                              "type": "integer"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "output_limit": {
+                              "type": "integer"
+                            },
+                            "test": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "label",
+                            "class",
+                            "capabilities",
+                            "context_window",
+                            "output_limit",
+                            "test"
+                          ],
+                          "type": "object"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "capabilities": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "context_window": {
+                                "type": "integer"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "output_limit": {
+                                "type": "integer"
+                              },
+                              "test": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "capabilities",
+                              "context_window",
+                              "output_limit",
+                              "test"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "source",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "turns": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message",
+                              "retryable"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_event_id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reply_message_id": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          },
+                          "user_message_id": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "status",
+                          "usage",
+                          "cost_micros",
+                          "created",
+                          "last_event_id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat",
+                    "messages",
+                    "model",
+                    "turns"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One chat: its current branch of messages, the model its next turn will use, and its turns that have not ended."
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "starred": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "active": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "busy": {
+                      "type": "boolean"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "starred": {
+                      "type": "boolean"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "starred",
+                    "created",
+                    "active",
+                    "busy"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Rename a chat, star it or clear its star."
+      }
+    },
+    "/api/v1/chats/{id}/model": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "model": {
+                      "properties": {
+                        "capabilities": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "class": {
+                          "type": "string"
+                        },
+                        "context_window": {
+                          "type": "integer"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "output_limit": {
+                          "type": "integer"
+                        },
+                        "test": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "label",
+                        "class",
+                        "capabilities",
+                        "context_window",
+                        "output_limit",
+                        "test"
+                      ],
+                      "type": "object"
+                    },
+                    "models": {
+                      "items": {
+                        "properties": {
+                          "capabilities": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "class": {
+                            "type": "string"
+                          },
+                          "context_window": {
+                            "type": "integer"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "output_limit": {
+                            "type": "integer"
+                          },
+                          "test": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "label",
+                          "class",
+                          "capabilities",
+                          "context_window",
+                          "output_limit",
+                          "test"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "reason": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "models"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Which model the chat's next turn will use, and the models a turn may name in its place."
+      }
+    },
+    "/api/v1/chats/{id}/select": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "message_id": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "message_id"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat": {
+                      "properties": {
+                        "active": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "busy": {
+                          "type": "boolean"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "starred": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "starred",
+                        "created",
+                        "active",
+                        "busy"
+                      ],
+                      "type": "object"
+                    },
+                    "messages": {
+                      "items": {
+                        "properties": {
+                          "blocks": {
+                            "items": {
+                              "properties": {
+                                "content": {
+                                  "items": {
+                                    "properties": {
+                                      "content": {
+                                        "items": {
+                                          "properties": {
+                                            "content": {},
+                                            "data": {},
+                                            "id": {},
+                                            "input": {},
+                                            "is_error": {},
+                                            "media_type": {},
+                                            "name": {},
+                                            "ref": {},
+                                            "signature": {},
+                                            "text": {},
+                                            "type": {}
+                                          },
+                                          "required": [
+                                            "type"
+                                          ],
+                                          "type": "object"
+                                        },
+                                        "type": "array"
+                                      },
+                                      "data": {
+                                        "contentEncoding": "base64",
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "input": {},
+                                      "is_error": {
+                                        "type": "boolean"
+                                      },
+                                      "media_type": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "ref": {
+                                        "type": "string"
+                                      },
+                                      "signature": {
+                                        "type": "string"
+                                      },
+                                      "text": {
+                                        "type": "string"
+                                      },
+                                      "type": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "type"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "data": {
+                                  "contentEncoding": "base64",
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "input": {},
+                                "is_error": {
+                                  "type": "boolean"
+                                },
+                                "media_type": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "ref": {
+                                  "type": "string"
+                                },
+                                "signature": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "parent_id": {
+                            "type": "integer"
+                          },
+                          "role": {
+                            "type": "string"
+                          },
+                          "siblings": {
+                            "items": {
+                              "type": "integer"
+                            },
+                            "type": "array"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "role",
+                          "blocks",
+                          "created",
+                          "siblings"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "model": {
+                      "properties": {
+                        "model": {
+                          "properties": {
+                            "capabilities": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "class": {
+                              "type": "string"
+                            },
+                            "context_window": {
+                              "type": "integer"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "output_limit": {
+                              "type": "integer"
+                            },
+                            "test": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "label",
+                            "class",
+                            "capabilities",
+                            "context_window",
+                            "output_limit",
+                            "test"
+                          ],
+                          "type": "object"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "capabilities": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "context_window": {
+                                "type": "integer"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "output_limit": {
+                                "type": "integer"
+                              },
+                              "test": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "capabilities",
+                              "context_window",
+                              "output_limit",
+                              "test"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "source",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "turns": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              },
+                              "retryable": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message",
+                              "retryable"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_event_id": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reply_message_id": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "stop_reason": {
+                            "type": "string"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          },
+                          "user_message_id": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "status",
+                          "usage",
+                          "cost_micros",
+                          "created",
+                          "last_event_id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat",
+                    "messages",
+                    "model",
+                    "turns"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Put a message on the chat's current branch: step to a sibling at a branch point, or open a search result."
+      }
+    },
+    "/api/v1/chats/{id}/turns": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "blocks": {
+                    "items": {
+                      "properties": {
+                        "content": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {},
+                                          "data": {},
+                                          "id": {},
+                                          "input": {},
+                                          "is_error": {},
+                                          "media_type": {},
+                                          "name": {},
+                                          "ref": {},
+                                          "signature": {},
+                                          "text": {},
+                                          "type": {}
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "data": {
+                          "contentEncoding": "base64",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "input": {},
+                        "is_error": {
+                          "type": "boolean"
+                        },
+                        "media_type": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "ref": {
+                          "type": "string"
+                        },
+                        "signature": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "edit_of": {
+                    "type": "integer"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "retry_of": {
+                    "type": "integer"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-keystone-events": [
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.",
+                    "event": "turn"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "blocks": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "parent_id": {
+                          "type": "integer"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "siblings": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "role",
+                        "blocks",
+                        "created",
+                        "siblings"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A message was written to the chat record: the person's own at the start, each assistant message when it is whole, each set of tool results. It replaces whatever the screen built from the deltas.",
+                    "event": "message"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A model call opens.",
+                    "event": "start"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a thinking block.",
+                    "event": "thinking"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a text block.",
+                    "event": "text"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "index": {
+                          "type": "integer"
+                        },
+                        "input": {},
+                        "name": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "id",
+                        "name",
+                        "input"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The model asks for a tool. Sent once, when the call is whole.",
+                    "event": "tool_call"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "content": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "is_error": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "is_error",
+                        "content"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "What a tool gave back.",
+                    "event": "tool_result"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model",
+                        "stop_reason",
+                        "usage",
+                        "cost_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The token count and cost of one model call, when it ends.",
+                    "event": "usage"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "chat_id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The chat was given its automatic title.",
+                    "event": "title"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn failed. An end event with the status failed follows.",
+                    "event": "error"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "Always the last event: the turn as it ended, with the status done, stopped or failed. The stream closes after it.",
+                    "event": "end"
+                  }
+                ]
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "cost_micros": {
+                      "type": "integer"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_event_id": {
+                      "type": "integer"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "reply_message_id": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "stop_reason": {
+                      "type": "string"
+                    },
+                    "usage": {
+                      "properties": {
+                        "cache_read_tokens": {
+                          "type": "integer"
+                        },
+                        "cache_write_tokens": {
+                          "type": "integer"
+                        },
+                        "estimated": {
+                          "type": "boolean"
+                        },
+                        "input_tokens": {
+                          "type": "integer"
+                        },
+                        "output_tokens": {
+                          "type": "integer"
+                        },
+                        "thinking_tokens": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "input_tokens",
+                        "output_tokens"
+                      ],
+                      "type": "object"
+                    },
+                    "user_message_id": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "status",
+                    "usage",
+                    "cost_micros",
+                    "created",
+                    "last_event_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One turn's state."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/events": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The id of the last event the client has, for a client that cannot set Last-Event-ID. The header wins when both are sent.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-keystone-events": [
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.",
+                    "event": "turn"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "blocks": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "parent_id": {
+                          "type": "integer"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "siblings": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "role",
+                        "blocks",
+                        "created",
+                        "siblings"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A message was written to the chat record: the person's own at the start, each assistant message when it is whole, each set of tool results. It replaces whatever the screen built from the deltas.",
+                    "event": "message"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A model call opens.",
+                    "event": "start"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a thinking block.",
+                    "event": "thinking"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a text block.",
+                    "event": "text"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "index": {
+                          "type": "integer"
+                        },
+                        "input": {},
+                        "name": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "id",
+                        "name",
+                        "input"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The model asks for a tool. Sent once, when the call is whole.",
+                    "event": "tool_call"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "content": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "is_error": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "is_error",
+                        "content"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "What a tool gave back.",
+                    "event": "tool_result"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model",
+                        "stop_reason",
+                        "usage",
+                        "cost_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The token count and cost of one model call, when it ends.",
+                    "event": "usage"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "chat_id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The chat was given its automatic title.",
+                    "event": "title"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn failed. An end event with the status failed follows.",
+                    "event": "error"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "Always the last event: the turn as it ended, with the status done, stopped or failed. The stream closes after it.",
+                    "event": "end"
+                  }
+                ]
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "A turn's stream, from the start or from after the event named by Last-Event-ID. It is how a client joins a turn it did not send, and how it comes back after a dropped connection."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/stop": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "cost_micros": {
+                      "type": "integer"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_event_id": {
+                      "type": "integer"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "reply_message_id": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "stop_reason": {
+                      "type": "string"
+                    },
+                    "usage": {
+                      "properties": {
+                        "cache_read_tokens": {
+                          "type": "integer"
+                        },
+                        "cache_write_tokens": {
+                          "type": "integer"
+                        },
+                        "estimated": {
+                          "type": "boolean"
+                        },
+                        "input_tokens": {
+                          "type": "integer"
+                        },
+                        "output_tokens": {
+                          "type": "integer"
+                        },
+                        "thinking_tokens": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "input_tokens",
+                        "output_tokens"
+                      ],
+                      "type": "object"
+                    },
+                    "user_message_id": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "status",
+                    "usage",
+                    "cost_micros",
+                    "created",
+                    "last_event_id"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Stop a turn. The model call is cancelled and what had streamed is kept. It takes no body. Stopping a turn that has ended changes nothing."
+      }
+    },
     "/api/v1/openapi.json": {
       "get": {
         "responses": {

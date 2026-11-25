@@ -27,6 +27,7 @@ var networkAllowed = map[string]string{
 	"internal/api":   "the API's handlers, served by the server; it opens no connection",
 	"internal/app":   "builds the API's handler from the settings; it opens no connection",
 	"tools/verify":   "calls the API's handlers in memory for the route walks; it opens no connection",
+	"internal/turn":  "the chat and turn routes' handlers, served by the server; it opens no connection",
 }
 
 // deadProxy is an address on this machine where nothing listens. The tests
