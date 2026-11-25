@@ -38,3 +38,9 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 **The screen.** An approval card under the reply, from the approved card in `MainDark.html`, in new files (`Approval.tsx`, `approval.css`), with one line in `Chat.tsx`. A small list of tools with a policy each on the Approvals settings screen, if it stays small.
 
+**What is left**, for a session that picks this up (updated at each commit):
+
+- In progress: `internal/tools/approval` (policy, `Decide`, `Answered`, `Covers`) is written with its tests; `internal/tools` has `Inside`, `Describe`, `Get`, `Summary` and runs a changing tool only with an approval that covers the call.
+- Next: the migration `tool_approvals`, `tool_policies`, `tool_outside`; `internal/turn/approvals.go`, `policies.go`, `approvalroutes.go`; the few lines in `runner.go` (resume in `work` and `place`, requeue in `recoverTenant`) and `store.go` (a `resume` field); the routes in `internal/app/app.go`; `agents.approval_timeout`; tests; the `approval` check's new parts in `tools/verify/approvals.go`; `docs/api/openapi.json`.
+- Then the card (`web/app/src/Approval.tsx`), the docs (`docs/architecture/approvals.md`, decisions from 0220), the journal agents 002, and the status.
+
