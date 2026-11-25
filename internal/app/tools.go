@@ -4,6 +4,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/builtin"
+	"github.com/jonathanmkosar/keystone/internal/tools/web"
 )
 
 // Tools returns the registry of the tools this server's turns may use,
@@ -13,6 +14,11 @@ import (
 func Tools(c Config) (*tools.Registry, error) {
 	r := tools.New()
 	if err := builtin.Add(r, builtin.Options{Limits: c.Turns.Limits, ReadChatMessages: c.Turns.ToolLoop.ReadChatMessages}); err != nil {
+		return nil, err
+	}
+	// Web search and fetch (P7-03): both only read, and both bring outside
+	// content into a turn.
+	if err := web.Add(r, c.Web); err != nil {
 		return nil, err
 	}
 	return r, nil

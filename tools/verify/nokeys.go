@@ -46,6 +46,7 @@ var keySurfaces = []struct {
 	{"the API", keysInTheAPI}, // in routes.go: every route's answers, the server's log and the audit log
 	{"the Anthropic adapter", keysInTheAnthropicAdapter},
 	{"the settings routes", keysInTheSettingsRoutes}, // in settingsroutes.go: a value stored through the API, and the routes that could hand it back
+	{"web search", keysInWebSearch},                  // in websearch.go: a search provider that repeats the key in its refusals and results
 }
 
 const keyCheckName = "provider.test"

@@ -75,6 +75,8 @@ var componentDocs = map[string]string{
 	"internal/tools/approval":   "docs/architecture/tool-loop.md",
 	"internal/tools/builtin":    "docs/architecture/tool-loop.md",
 	"internal/knowledge/recall": "docs/architecture/knowledge-recall.md",
+
+	"internal/tools/web": "docs/architecture/web-search.md",
 }
 
 var checks = []check{

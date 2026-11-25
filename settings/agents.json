@@ -35,6 +35,84 @@
       "default": "40",
       "scope": "install",
       "description": "The most messages the read_chat tool returns from one chat. A longer chat comes back as its last messages."
+    },
+    {
+      "key": "agents.web_search_endpoint",
+      "type": "string",
+      "default": "https://api.tavily.com/search",
+      "scope": "install",
+      "description": "The address web_search sends its searches to: Tavily's search API. The person's own key, stored as provider.tavily, goes with each search."
+    },
+    {
+      "key": "agents.web_search_depth",
+      "type": "string",
+      "default": "basic",
+      "options": ["basic", "advanced"],
+      "scope": "install",
+      "description": "Tavily's search depth. A basic search costs one Tavily credit and an advanced one two."
+    },
+    {
+      "key": "agents.web_search_results",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "How many results web_search returns when the model does not ask for a number."
+    },
+    {
+      "key": "agents.web_search_max_results",
+      "type": "int",
+      "default": "10",
+      "scope": "install",
+      "description": "The most results one web search may return, whatever number the model asks for. At most 20."
+    },
+    {
+      "key": "agents.web_search_snippet_chars",
+      "type": "int",
+      "default": "1400",
+      "scope": "install",
+      "description": "The most characters of each search result's text that the model reads."
+    },
+    {
+      "key": "agents.web_search_timeout",
+      "type": "duration",
+      "default": "15s",
+      "scope": "install",
+      "description": "How long one web search may take before it is given up, and the model is told it has no results."
+    },
+    {
+      "key": "agents.web_search_max_bytes",
+      "type": "int",
+      "default": "512000",
+      "scope": "install",
+      "description": "The most bytes of a search provider's answer that are read. A larger answer is not used."
+    },
+    {
+      "key": "agents.web_fetch_timeout",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long web_fetch may take to read one page, redirects included."
+    },
+    {
+      "key": "agents.web_fetch_max_bytes",
+      "type": "int",
+      "default": "2000000",
+      "scope": "install",
+      "description": "The most bytes of one page web_fetch reads. A longer page is read as far as this, and the model is told so."
+    },
+    {
+      "key": "agents.web_fetch_max_chars",
+      "type": "int",
+      "default": "12000",
+      "scope": "install",
+      "description": "The most characters of a page's readable text that web_fetch returns. A longer text is cut, with a line that says so."
+    },
+    {
+      "key": "agents.web_fetch_max_redirects",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "The most redirects web_fetch follows for one page. Each one is checked like the first address: only public addresses are read."
     }
   ]
 }

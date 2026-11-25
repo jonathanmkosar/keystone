@@ -20,6 +20,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
+	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/settings"
 )
@@ -58,6 +59,10 @@ type Config struct {
 	Tools *tools.Registry
 	// toolsPlaced is turnOptions' own mark.
 	toolsPlaced bool
+	// Web is what web_search and web_fetch run with (P7-03): settings in
+	// settings/agents.json. A caller may give Web.Searcher its own search
+	// provider, or point Web.SearchEndpoint somewhere else.
+	Web web.Options
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -82,6 +87,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 		return Config{}, err
 	}
 	if c.Turns, err = turn.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// The web tools' settings (P7-03), in settings/agents.json.
+	if c.Web, err = web.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {

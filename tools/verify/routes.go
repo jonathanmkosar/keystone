@@ -372,6 +372,12 @@ func checkRecorded(string) error {
 		return err
 	}
 	problems = append(problems, tooled...)
+	// So is a web search, whose answer cites what it returned (P7-03). See websearch.go.
+	searched, err := webSearchRecorded()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, searched...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

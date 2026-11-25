@@ -35,7 +35,7 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 **What is left**, for a session that picks this up (updated at each commit):
 
-- Next: the package, the tools and their tests; the settings; the registration; `outside.go`; the verify steps; commit.
-- Then: the screen, built and checked in a browser; commit.
-- Then: `docs/architecture/web-search.md`, the runbook section, decisions from 0250, the journal agents 003, the status; commit.
+- Done: the package, the tools and their tests; the settings; the registration; `outside.go`; the verify steps (`calls recorded` and `no keys in output`); a first `docs/architecture/web-search.md`. `verify` is 19 of 19.
+- Next: the screen (`steps.ts` rows, `citations.tsx`, the `[n]` branch in `Markdown.tsx`, a few lines in `Conversation.tsx`), built and checked in a browser on port 7951; commit.
+- Then: the screen's part in `web.md` and `web-search.md`, the runbook section, decisions 0250 to 0253 (linked from `web-search.md` already) with overview rows, the journal agents 003, the status; commit.
 
