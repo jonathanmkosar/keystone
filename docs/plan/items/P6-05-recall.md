@@ -37,6 +37,6 @@ Built:
 
 One thing goes past the plan above (decision 0210): each call is built for the least of its route's models, which closes a door the plan did not name, a hosted fallback behind a local model. The person map is built that way too, which `person.go` did not do before.
 
-Not delivered here: no model is offered the lookups until the tool loop (P7-01) registers them, which the journal tells the integrator how to do. The Waymarks threshold ships at 0 and has met only a fake. The recall check compares the share with a floor and keeps no history of it.
+Joined to the tool loop at the merge, on November 25, 2026 (`internal/turn/lookups.go`, with its tests). The Waymarks threshold ships at 0 and has met only a fake. The recall check compares the share with a floor and keeps no history of it.
 
 The doc is `docs/architecture/knowledge-recall.md`, the decisions are 0210 to 0214, and the journal entry is `docs/journal/2026-11-25-knowledge-005.md`, which has the owner's questions and the integrator's steps.

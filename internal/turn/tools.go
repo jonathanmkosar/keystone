@@ -134,7 +134,11 @@ func (r *Runner) toolStep(ctx context.Context, s *tenant.Store, t row, step int,
 			res = r.o.Tools.Decline(call, toolsOff)
 		default:
 			// After a stop this returns at once for each call that is left.
-			res = r.o.Tools.Run(ctx, call)
+			if l, ok := t.lookup(c.Name); ok {
+				res = runLookup(ctx, call, l) // a knowledge lookup (lookups.go)
+			} else {
+				res = r.o.Tools.Run(ctx, call)
+			}
 		}
 		if r.isClosing() {
 			return tail, false, nil, false

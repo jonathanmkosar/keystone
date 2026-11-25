@@ -101,7 +101,7 @@ Each has a `Name`, a `Description` written for the model, a JSON Schema in `Sche
 
 The lookups obey the same filter as recall, with the same plain answer. For a model that may not read sensitive content, a search leaves sensitive hits out and says how many, and a read of a sensitive page or source says only that this model may not read it, with no title and no space. The answer to pass is the least of the call's route, as above.
 
-No registry is built here, and nothing offers the lookups to a model yet. The tool loop (P7-01) wraps them. `Runner.knowledgeLookups` in `internal/turn/recall.go` returns them for one call, with the person's limits and the answer for the call's route. When a result says `Sensitive`, the tool loop calls `recall.Hold(ctx, tenantStore, turnID, chatID)`, so the chat is held as recall would hold it.
+No registry is built here. The turn offers the lookups as tools (`internal/turn/lookups.go`): a call that offers tools, for a person whose store opened, gets the three lookups made for the least of its route by `Runner.knowledgeLookups`, and the calls the model makes in reply run those same ones, through a registry of their own so they are recorded, timed and checked like every tool. Each lookup opens the store for itself. A result marked `Sensitive` holds the chat with `recall.Hold` before the model sees it, and is not given when the hold cannot be kept.
 
 The lookups and recall only read: nothing here calls `AddSource`. The store a turn opens is the whole store, and no view of it that cannot add is made (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
 
@@ -158,7 +158,6 @@ In `settings/knowledge.json`. The package exports each key as a constant, and `S
 
 ## Not here yet
 
-- **The lookups in a chat.** They are built and filtered, and nothing offers them to a model until the tool loop (P7-01) registers them. What the integrator registers is in the journal, `docs/journal/2026-11-25-knowledge-005.md`.
 - **Search by meaning.** Recall searches by words. The query vector is P6-08.
 - **The inspector.** The records are kept and `recall.Saved` reads them. The route and the screen are P5-04, which can also offer pinning or removing an item for the next turn.
 - **A threshold tuned on real scores.** Both ship at 0. The Waymarks adapter has met only a fake.

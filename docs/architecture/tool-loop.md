@@ -159,3 +159,7 @@ In `settings/agents.json`. `turn.ReadConfig` reads the install's, and the one a 
 - Running two calls of one reply side by side. They run one after another.
 - Sensitive chats. Nothing marks a chat as holding content from a sensitive space yet. When recall (P6-05) marks a turn sensitive, `search_chats` and `read_chat` must leave a marked chat out for a model that may not read sensitive content, or they would carry it into a turn with a hosted model (fixed rule 3). This is a question for the owner in the journal, agents 001.
 - A tool's own settings screen, and a list of tools a person can switch one by one.
+
+## The knowledge lookups
+
+The three knowledge lookups of recall (P6-05) are tools too, but not in the server's registry, because what a lookup may return depends on the call. Each call that offers tools, for a person whose knowledge store opened, also offers the lookups made for the least of its route, and the calls the model makes in reply run those same ones through a registry of their own. The code is `internal/turn/lookups.go`; the lookups themselves are in [knowledge-recall.md](knowledge-recall.md).

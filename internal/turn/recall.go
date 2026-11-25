@@ -15,6 +15,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tenantsettings"
+	"github.com/jonathanmkosar/keystone/internal/tools"
 )
 
 // This file joins recall (P6-05) to a turn. The person's knowledge store is
@@ -55,6 +56,9 @@ type turnRecall struct {
 	// unsaved says the record could not be kept. Without it a chat sent
 	// sensitive content would not be held, so none is sent.
 	unsaved bool
+	// lookups are the knowledge lookups the current model call offered, by
+	// name, made for the least of its route. See lookups.go.
+	lookups map[string]tools.Tool
 }
 
 // searchKnowledge searches the person's knowledge store with the turn's
