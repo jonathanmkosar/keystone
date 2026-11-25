@@ -42,6 +42,9 @@ var componentDocs = map[string]string{
 	"internal/knowledge":               "docs/architecture/knowledge.md",
 	"internal/knowledge/knowledgetest": "docs/architecture/knowledge.md",
 	"internal/adapters/fake": "docs/architecture/fake-provider.md",
+	"internal/audit":   "docs/architecture/audit.md",
+
+	"internal/tenantsettings": "docs/architecture/tenant-settings.md",
 }
 
 var checks = []check{
@@ -55,6 +58,7 @@ var checks = []check{
 	{"no secrets", checkSecrets},
 	{"offline", checkOffline},
 	{"tenant isolation", checkIsolation},
+	{"fixed rules", checkFixedRules},
 }
 
 func main() {

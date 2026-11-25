@@ -41,6 +41,20 @@ The plan's rule is that `verify` passes with no network and no keys, using the f
 - **The tests need no key and no network.** The check runs `go test ./...` a second time with a changed environment. Every variable whose name ends in `_KEY`, `_TOKEN`, `_SECRET` or `_PASSWORD` is removed. `GOPROXY` is `off`, so Go cannot download a module. `HTTP_PROXY` and `HTTPS_PROXY` point at a port on this machine where nothing listens, so a call that leaves the machine through Go's standard HTTP client fails at once, while a test server on this machine still answers. A test that needs a key or the internet passes the `tests` check on a machine that has them and fails here.
 
 What it does not prove yet: that a whole turn runs offline through the fake provider. There is no turn to run until P4-03. The test tenant (P3-09) and the turn API add that, and the adapters add their folders to the list.
+| fixed rules | No setting can switch off any of the four rules in the plan. See below. |
+
+The plan's other standing checks (tenant isolation, context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
+
+### The fixed rules check
+
+The code is in `tools/verify/fixedrules.go`. It proves four things on every run.
+
+1. `settings.FixedRules()` holds the plan's four rules, word for word and in order. Changing a rule means changing `PLAN.md` and the code together.
+2. No setting in the registry has a key under `rules.`, the part of the key space kept for the rules.
+3. No override path stores a value for a rule. The check makes a tenant in a temporary folder and tries each rule as a person, as the admin, and as a row written straight into the tenant's database. Each must be refused.
+4. The packages that enforce a rule cannot read a setting. `fixedRuleGuards` lists them for each rule. The check runs `go list -deps` on each one and fails if the settings registry or the tenant settings is among what it imports, itself or through another package.
+
+Today `internal/tenant` guards tenant isolation and `internal/audit` guards call recording. The approval rule and the sensitive content rule have no code yet. The item that builds each one adds its package to `fixedRuleGuards`, and adds a step to the check if the rule needs a proof of its own. Code that enforces a rule and code that reads settings therefore live in separate packages.
 
 ## doctor
 

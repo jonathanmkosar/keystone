@@ -112,6 +112,9 @@ func Validate(s Setting) error {
 	if !keyShape.MatchString(s.Key) {
 		return fmt.Errorf("setting %q: a key is lower-case words joined by dots, such as server.address", s.Key)
 	}
+	if IsFixedRule(s.Key) {
+		return fmt.Errorf("%s: keys under %s are kept for the fixed rules, which are not settings", s.Key, fixedPrefix)
+	}
 	if !slices.Contains(types, s.Type) {
 		return fmt.Errorf("%s: type %q is not one of %s", s.Key, s.Type, strings.Join(types, ", "))
 	}
