@@ -4,7 +4,7 @@ Folder: `internal/seam`
 
 Keystone's own shape for a model call and its streamed reply. Everything outside the adapters speaks this format. Each adapter translates it to and from one provider's format, so no provider's format leaks into chats, context, tools or the interface.
 
-Today the folder holds the format and the one interface every provider implements. The fake provider has its own doc, [fake-provider.md](fake-provider.md). The registry, the three adapters, routing, the budget and usage records arrive with P3-02 to P3-08.
+Today the folder holds the format and the one interface every provider implements. The fake provider has its own doc, [fake-provider.md](fake-provider.md). The registry has its own doc too, [models.md](models.md). The three adapters, routing, the budget and usage records arrive with P3-04 to P3-08.
 
 ## Content blocks
 

@@ -55,7 +55,9 @@ The code is in `tools/verify/fixedrules.go`. It proves four things on every run.
 3. No override path stores a value for a rule. The check makes a tenant in a temporary folder and tries each rule as a person, as the admin, and as a row written straight into the tenant's database. Each must be refused.
 4. The packages that enforce a rule cannot read a setting. `fixedRuleGuards` lists them for each rule. The check runs `go list -deps` on each one and fails if the settings registry or the tenant settings is among what it imports, itself or through another package.
 
-Today `internal/tenant` guards tenant isolation and `internal/audit` guards call recording. The approval rule and the sensitive content rule have no code yet. The item that builds each one adds its package to `fixedRuleGuards`, and adds a step to the check if the rule needs a proof of its own. Code that enforces a rule and code that reads settings therefore live in separate packages.
+Today `internal/tenant` guards tenant isolation and `internal/audit` guards call recording. The sensitive content rule is guarded by `internal/models`. The approval rule has no code yet. The item that builds each one adds its package to `fixedRuleGuards`, and adds a step to the check if the rule needs a proof of its own. Code that enforces a rule and code that reads settings therefore live in separate packages.
+
+Since P3-02, `internal/models` guards the sensitive content rule: the registry's classes are what the rule reads ([models.md](models.md)). Routing (P3-08) and recall (P6-05) add their own packages. The `no keys in output` check also has a surface for the model registry, in `tools/verify/models.go`: a key reaches an adapter's builder from the vault, and is looked for in every error, in the registry as listed, and in the data folder.
 
 ## doctor
 

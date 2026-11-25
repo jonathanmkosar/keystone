@@ -70,4 +70,4 @@ The value is read from standard input and never from an argument, which would st
 
 - The keychain and Secret Service keepers have been compiled and their shared code tested, but they have not been run on a Mac or a Linux desktop. They are provisional until they are.
 - Nothing rotates a data key or the master key.
-- The API does not read or write secrets yet. That comes with the model registry, P3-02.
+- The API does not read or write secrets yet. That comes with the registry routes, after P2-05.

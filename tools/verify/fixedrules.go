@@ -37,7 +37,7 @@ const module = "github.com/jonathanmkosar/keystone"
 var fixedRuleGuards = map[string][]string{
 	"rules.tenant_isolation":  {"internal/tenant"},
 	"rules.approval":          {}, // the approval policy, P7-02
-	"rules.sensitive_content": {}, // routing, P3-08, and recall, P6-05
+	"rules.sensitive_content": {"internal/models"},
 	"rules.call_recording":    {"internal/audit"},
 }
 

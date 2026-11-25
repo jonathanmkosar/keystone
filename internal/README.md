@@ -15,3 +15,5 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `chat` | chats | Chats, messages as a tree of branches, and search |
 | `knowledge` | knowledge | The knowledge store interface, the `none` adapter and the contract suite |
 | `knowledge/builtin` | knowledge | The built-in knowledge store, kept in the tenant's own database |
+| `models` | models | Each tenant's model registry, and the classes fixed rule 3 reads |
+| `adapters` | models | Turns a registry entry into a provider, with its key from the vault |

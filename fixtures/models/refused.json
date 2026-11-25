@@ -1,0 +1,105 @@
+{
+  "test_data": true,
+  "refused": [
+    {
+      "why": "is not a registry name",
+      "entry": {"name": "Example Large", "label": "Example Large", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "label is missing",
+      "entry": {"name": "no-label", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "the adapter \"telepathy\" is not one of fake, anthropic, responses, chat_completions",
+      "entry": {"name": "odd-adapter", "label": "Odd adapter", "adapter": "telepathy", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "the class is missing",
+      "entry": {"name": "no-class", "label": "No class", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}}
+    },
+    {
+      "why": "the class \"safe\" is not local, hosted or trusted",
+      "entry": {"name": "odd-class", "label": "Odd class", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "safe"}
+    },
+    {
+      "why": "takes no endpoint",
+      "entry": {"name": "fake-with-endpoint", "label": "Fake with an endpoint", "adapter": "fake", "endpoint": "http://127.0.0.1:9000", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "takes no key",
+      "entry": {"name": "fake-with-key", "label": "Fake with a key", "adapter": "fake", "key": "provider.one", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "so its class is local",
+      "entry": {"name": "fake-hosted", "label": "Fake marked hosted", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "endpoint is missing",
+      "entry": {"name": "no-endpoint", "label": "No endpoint", "adapter": "anthropic", "provider_model": "example-large-1", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "provider_model is missing",
+      "entry": {"name": "no-provider-model", "label": "No provider model", "adapter": "anthropic", "endpoint": "https://api.provider-one.example", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "endpoint must start with http:// or https://",
+      "entry": {"name": "odd-scheme", "label": "Odd scheme", "adapter": "responses", "endpoint": "ftp://api.provider-two.example/v1", "provider_model": "example-private-2", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "endpoint is not an address",
+      "entry": {"name": "no-host", "label": "No host", "adapter": "responses", "endpoint": "provider-two", "provider_model": "example-private-2", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "endpoint must not hold a user name or a password",
+      "entry": {"name": "key-in-address", "label": "Key in the address", "adapter": "responses", "endpoint": "https://someone:invented@api.provider-two.example/v1", "provider_model": "example-private-2", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "endpoint must not hold a query or a fragment",
+      "entry": {"name": "key-in-query", "label": "Key in the query", "adapter": "responses", "endpoint": "https://api.provider-two.example/v1?key=invented", "provider_model": "example-private-2", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "allowed only on this machine or the home network: use https",
+      "entry": {"name": "plain-http", "label": "Plain http", "adapter": "chat_completions", "endpoint": "http://api.provider-three.example/v1", "provider_model": "example-medium", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "the class is local and the endpoint is not on this machine or the home network",
+      "entry": {"name": "local-in-name-only", "label": "Local in name only", "adapter": "chat_completions", "endpoint": "https://api.provider-three.example/v1", "provider_model": "example-medium", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "never the key itself",
+      "entry": {"name": "key-not-a-name", "label": "Key that is not a name", "adapter": "chat_completions", "endpoint": "https://api.provider-three.example/v1", "provider_model": "example-medium", "key": "An Invented Value, Not A Name", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted"}
+    },
+    {
+      "why": "context_window is 0",
+      "entry": {"name": "no-window", "label": "No window", "adapter": "fake", "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "output_limit is 0",
+      "entry": {"name": "no-output", "label": "No output limit", "adapter": "fake", "context_window": 1000, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "output_limit is 2000, which is more than the context window of 1000",
+      "entry": {"name": "output-over-window", "label": "Output over the window", "adapter": "fake", "context_window": 1000, "output_limit": 2000, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "the capability \"telepathy\" is not one of tools, vision, files, thinking, embedding",
+      "entry": {"name": "odd-capability", "label": "Odd capability", "adapter": "fake", "context_window": 1000, "output_limit": 100, "capabilities": ["tools", "telepathy"], "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "the capability tools is listed twice",
+      "entry": {"name": "capability-twice", "label": "Capability twice", "adapter": "fake", "context_window": 1000, "output_limit": 100, "capabilities": ["tools", "tools"], "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "price.output must be zero or more",
+      "entry": {"name": "negative-price", "label": "Negative price", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": -1}, "class": "local"}
+    },
+    {
+      "why": "a field the registry does not know: \"trusted\"",
+      "entry": {"name": "unknown-field", "label": "Unknown field", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "hosted", "trusted": true}
+    },
+    {
+      "why": "the field context_window must be a",
+      "entry": {"name": "window-as-text", "label": "Window as text", "adapter": "fake", "context_window": "big", "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    }
+  ]
+}

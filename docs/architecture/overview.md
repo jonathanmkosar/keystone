@@ -21,6 +21,8 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Project scripts | `tools` | `rebuild`, `verify`, `doctor` and `snapshot`. | [tools.md](tools.md) |
 | Audit log | `internal/audit` | An append-only log in each tenant's database, kept free of keys, and the wrapper that records every API call before it runs. | [audit.md](audit.md) |
 | Tenant settings | `internal/tenantsettings` | A tenant's own values over the registry's defaults, limited by each setting's scope. The fixed rules cannot be stored. | [tenant-settings.md](tenant-settings.md) |
+| Model registry | `internal/models` | Each tenant's list of models: adapter, endpoint, context window, output limit, capabilities, price, and whether it is local, hosted or trusted. Refuses an entry that is not valid, with the reason. Guards fixed rule 3. | [models.md](models.md) |
+| Adapters | `internal/adapters` | Turns a registry entry into a provider that can be called, with the key read by name from the tenant's vault. The fake is the only adapter built. | [models.md](models.md) |
 
 ## Parts still to come
 
@@ -52,5 +54,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0060 | [The built-in knowledge store keeps its pages in the tenant's database](decisions/0060-built-in-store-in-the-tenant-database.md) |
 | 0061 | [A built-in search matches any word, with stemming, and adds a cosine to the word score](decisions/0061-built-in-search-any-word-and-cosine.md) |
 | 0062 | [The built-in store takes a vector of any model and size, and compares them in Go](decisions/0062-built-in-vectors-any-model.md) |
+| 0050 | [A model is a row in the tenant's database, holding the entry as checked JSON](decisions/0050-a-model-is-a-row-of-checked-json.md) |
+| 0051 | [The registry is a guard for rule 3, and `local` is checked against the address](decisions/0051-the-registry-guards-rule-three.md) |
+| 0052 | [An adapter's builder is passed in, and its key comes from the vault by name](decisions/0052-builders-are-passed-in.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

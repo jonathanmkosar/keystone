@@ -157,6 +157,6 @@ The `offline` check in `verify` ([tools.md](tools.md)) proves this package impor
 
 ## Not here yet
 
-- The fake is not wired into the binary. The model registry (P3-02) names it as an adapter, and the test tenant (P3-09) loads its scripts.
+- The fake is not wired into the binary. The model registry names it as an adapter, and `adapters.Fake` gives the builder for it ([models.md](models.md)). The test tenant (P3-09) loads its scripts.
 - A script that fails once and then works. That needs memory of earlier calls, and nothing needs it yet: a fallback goes to another model, which `model` covers.
 - Conditions on the tools offered or on what a tool returned.
