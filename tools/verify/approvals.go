@@ -44,6 +44,12 @@ import (
 //
 // The recorded turns are fixtures/test-tenant/turns/approvals.json.
 
+// The approval rule's package is described by the approval policy's doc
+// since P7-02, which links the tool loop's.
+func init() {
+	componentDocs["internal/tools/approval"] = "docs/architecture/approvals.md"
+}
+
 const (
 	logTool        = "write_harbour_log"
 	boardTool      = "read_notice_board"

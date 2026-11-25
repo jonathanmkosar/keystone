@@ -125,7 +125,7 @@ The server sends `default-src 'self'`. The chat screen has no inline script and 
 
 ### Not built yet
 
-The model picker (the composer's footnote names the model the chat will use, and that is all), edit and retry with the branch switcher, feedback, attachments, the tools menu, the thinking switch, the context meter, share, the turn inspector, citations, approval cards, sub-agent lanes, search, keyboard shortcuts beyond Enter and Escape, and motion beyond the mark that follows arriving text. A second message cannot be sent while a reply is arriving, though the server would queue it.
+The model picker (the composer's footnote names the model the chat will use, and that is all), edit and retry with the branch switcher, feedback, attachments, the tools menu, the thinking switch, the context meter, share, the turn inspector, citations, sub-agent lanes, search, keyboard shortcuts beyond Enter and Escape, and motion beyond the mark that follows arriving text. A second message cannot be sent while a reply is arriving, though the server would queue it.
 
 ### Provisional
 
@@ -168,6 +168,32 @@ Its calls, all in `src/api.ts`:
 A refusal with a 4xx status other than 404 carries the server's words, and the screen shows them as a sentence. A 401 on any of these calls shows sign-in.
 
 The screens are provisional: there is no settings mockup, and three open owner questions shape them. [settings-screens.md](settings-screens.md) lists what rests on each.
+
+## Approvals (P7-02)
+
+The approval card and the Approvals settings screen. The server's side, the rule and the routes are in [approvals.md](approvals.md). Provisional until the owner approves the agent mockups (P1-05).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The card | `src/Approval.tsx`, `src/approval.css` | Keeps the `approval` events of every stream the page reads, by chat, outside the screens, and draws a card under the conversation for each call that waits: the title, why it asks, the server's summary, what it will be sent (opened on request), and **Approve** and **Not now**. Once answered, a line says what was answered. A chat's cards are forgotten when its turn ends. From the approved card in `MainDark.html` and `MainLight.html`, built from the tokens. |
+| The waiting step | `src/Conversation.tsx` | The step row of a call that waits says what the model asked for, with "waiting for you", and does not pulse. |
+| Step words | `src/steps.ts` | `toolTitle` for the card's title, and "declined" for a call the person declined. |
+| The policy list | `src/ApprovalSettings.tsx` | `/settings/approvals`: every tool, whether it only reads and whether its result is Keystone's own, a select of always, ask and never, and "Reset to default". It replaces the placeholder. |
+| The way in | `src/Chat.tsx`, `src/api.ts`, `src/Settings.tsx` | One line in `Chat.tsx` draws the cards. One line in `api.ts`'s stream reader passes `approval` events to `onApproval`, and the calls are added at the end of the file. One route in `Settings.tsx`. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `POST /api/v1/chats/{id}/turns/{turn}/approvals/{approval}/approve` | `answerApproval` | Approve on a card. |
+| `POST /api/v1/chats/{id}/turns/{turn}/approvals/{approval}/decline` | `answerApproval` | Not now on a card. |
+| `GET /api/v1/tools` | `listToolPolicies` | The Approvals screen. |
+| `PUT /api/v1/tools/{name}/policy` | `setToolPolicy` | A policy chosen on that screen. |
+| `DELETE /api/v1/tools/{name}/policy` | `resetToolPolicy` | "Reset to default". |
+
+A reload in the middle of a wait joins the turn's stream from its first event, so the card comes back. A 409 on an answer says the call was already answered or its reply has ended. The screens have no inline script and no `style` attribute.
+
+Seen in a browser on November 25, 2026, against a server built from this branch on port 7931 with a harness that registered test tools: the card asking after outside content, the input opened, Approve, a card that came back after a reload, Not now leaving the row "declined", and the policy list setting a tool to always. In light and dark, and at phone width.
 
 ## The API it calls
 

@@ -39,6 +39,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Settings routes and screens | `internal/settingsapi`, `web/app/src` | The routes behind the settings screens, and the screens: a person's own settings, the names of their secrets, their model registry and their profile. A secret's value goes in and is never returned, and a fixed rule is listed and never changed. | [settings-screens.md](settings-screens.md) |
 | Tool loop | `internal/tools`, `internal/tools/approval`, `internal/tools/builtin` | The registry of the tools a turn offers, filled by plain calls, and the one place a tool runs: recorded before and after, under a timeout, with a tool that breaks turned into an error result. The approval rule's test refuses every tool that changes something until approvals exist. Three built-in tools that only read: the time, search of the person's chats, and reading one. The turn calls the model again after each step, up to its step limit. | [tool-loop.md](tool-loop.md) |
 | Recall | `internal/knowledge/recall` | Searches the person's knowledge store with each message, keeps the hits over a threshold set for each adapter, and gives each call the pages and sources found, each saying where it came from, with a record of what was kept and dropped. Three lookups for the model. A guard for fixed rule 3: a call that is given sensitive content is routed only to models that may read it, and a chat that was sent some stays held to them. The lookups wait for the tool loop to offer them. | [knowledge-recall.md](knowledge-recall.md) |
+| Approvals | `internal/tools/approval`, `internal/turn` (`approvals.go`, `policies.go`, `approvalroutes.go`), `web/app/src` | The approval policy, fixed rule 2: each person's policy for each tool (always, ask or never), a card in the chat for a call that asks, with the turn waiting until the person answers, also across a restart, and the rule that once a chat has read outside content every tool that changes something asks, whatever its policy. An approval covers one call and is used once. | [approvals.md](approvals.md) |
 
 ## Parts still to come
 
@@ -127,5 +128,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0212 | [Recall searches with the message's words, keeps by a threshold for each adapter, and fills each kind of model's room](decisions/0212-what-recall-searches-with-and-keeps.md) |
 | 0213 | [The lookups are plain values the tool loop wraps, and take the model's answer like recall](decisions/0213-the-lookups-are-plain-values.md) |
 | 0214 | [The search-first rule is a paragraph of the standing instructions, sent when a store is open](decisions/0214-the-search-first-rule-is-a-standing-instruction.md) |
+| 0220 | [The rule decides each call from values it is given, and an approval covers one call and is used once](decisions/0220-the-rule-decides-each-call-and-an-approval-covers-one-call.md) |
+| 0221 | [Outside content marks the chat, a tool brings it unless it says otherwise, and a knowledge source counts while a page does not](decisions/0221-outside-content-marks-the-chat.md) |
+| 0222 | [A step is decided whole before any call runs, and the turn waits in place, with the wait kept in the database](decisions/0222-a-step-is-decided-whole-and-the-wait-survives-a-restart.md) |
+| 0223 | [The person's answer is in the route's path, and each tool's policy is a table, not a setting](decisions/0223-the-answer-is-in-the-path-and-the-policy-is-a-table.md) |
+| 0224 | [The approval card is drawn from approval events kept outside the screens, and forgotten when the turn ends](decisions/0224-the-card-is-drawn-from-approval-events-kept-outside-the-screens.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

@@ -1,6 +1,6 @@
 # P7-02. Approval policy
 
-Status: doing (agents)
+Status: provisional
 Lane: agents + interface
 Depends on: P7-01
 Owner gate: Approval of the agent mockups (P1-05), for the approval cards only.
@@ -42,5 +42,16 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 - Done: the server side. `internal/tools/approval` (policy, `Decide`, `Answered`, `Covers`), `internal/tools` (`Inside`, `Describe`, `Get`, `Summary`), the migration `20261125T113000_tool_approvals.sql`, `internal/turn/approvals.go`, `policies.go`, `approvalroutes.go` and their tests, the lines in `runner.go`, `store.go`, `tools.go`, `lookups.go`, `internal/app/app.go`, `agents.approval_timeout`, the fixture `turns/approvals.json`, the `approval` check's new parts in `tools/verify/approvals.go`, and `docs/api/openapi.json`.
 - Done: the card (`web/app/src/Approval.tsx`, `approval.css`), the policy list (`ApprovalSettings.tsx` on `/settings/approvals`), a few lines in `Chat.tsx`, `api.ts`, `Conversation.tsx`, `steps.ts` and `Settings.tsx`, `web/dist/` rebuilt, and seen in a browser on port 7931.
-- Next: the docs (`docs/architecture/approvals.md` with its `componentDocs` lines and overview row, a section in `web.md`, `turns.md` "Changed since the contract", decisions from 0220), the journal agents 002, and `Status: provisional` with the Result.
+- Done: the docs, decisions 0220 to 0224, the journal agents 002, and the status. Nothing is left but the owner's gate.
+
+### Result
+
+Provisional on November 25, 2026. It waits on the owner gate, approval of the agent mockups (P1-05), for how the approval card looks, and builds to the recommended answer of the open question on knowledge store content (sources count, pages do not). Everything else in the scope is built, and the proof passes.
+
+- **Per-tool policy.** Always, ask or never, per person, in the tenant's `tool_policies` table, set by `PUT /api/v1/tools/{name}/policy` and on `/settings/approvals`. The default is always for a tool that only reads and ask for one that changes something. A tool set to never is not offered. The rule is `approval.Decide` in `internal/tools/approval`, which takes the policy as a value and reads no setting.
+- **Asking.** A call that asks gets a row in `tool_approvals` and an `approval` event; nothing of its step runs until the person approves or declines it through `POST …/approvals/{approval}/approve` or `/decline`, the turn is stopped, or `agents.approval_timeout` (24h) passes. The answer is in the audit log, in the path of the person's call. A waiting turn survives a restart and waits again. An approval covers one call and is used once.
+- **Outside content.** Once a chat has read outside content (a tool that is not marked `Inside`, a knowledge source, a search that names one, or a source recall gave a call), every tool that changes something asks, whatever its policy, for the rest of the turn and in later turns of the chat.
+- **The proof**, in `go test ./internal/turn` and in `verify`'s standing `approval` check on the real server: a tool set to always runs without asking in a chat that read nothing from outside, and asks after outside content, does not run while it waits, and runs once when approved. `verify` is 19 of 19.
+- **The card**, from the approved card in `MainDark.html`, in `web/app/src/Approval.tsx`, seen in a browser on port 7931 in light, dark and at phone width.
+- The contract: added only. One event, six routes, `docs/api/openapi.json` regenerated, listed in `turns.md` under "Changed since the contract". The doc is `docs/architecture/approvals.md`; decisions 0220 to 0224; the journal is agents 002, with three questions for the owner.
 
