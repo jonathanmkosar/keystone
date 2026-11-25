@@ -2,6 +2,13 @@
   "lane": "agents",
   "settings": [
     {
+      "key": "agents.approval_timeout",
+      "type": "duration",
+      "default": "24h",
+      "scope": "tenant",
+      "description": "How long a tool call waits for your approval before it is answered as not run. The turn waits with it, and goes on when you answer. From 1s to 720h."
+    },
+    {
       "key": "agents.tools_enabled",
       "type": "bool",
       "default": "true",

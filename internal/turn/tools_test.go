@@ -56,9 +56,12 @@ func (g *rig) serveTools(provider seam.Provider, reg *tools.Registry, tune func(
 	if err != nil {
 		g.t.Fatal(err)
 	}
+	for name, build := range g.extra {
+		set[name] = build
+	}
 	runner := NewRunner(Options{Install: g.install, Config: cfg, PageLimit: 50, TestProvider: provider, Adapters: set, Tools: reg})
 	runner.Recover()
-	h, err := api.Handler(api.Options{Install: g.install, MaxBodyBytes: 1 << 20, Heartbeat: time.Minute}, Routes(runner))
+	h, err := api.Handler(api.Options{Install: g.install, MaxBodyBytes: 1 << 20, Heartbeat: time.Minute}, append(Routes(runner), ApprovalRoutes(runner)...))
 	if err != nil {
 		g.t.Fatal(err)
 	}
@@ -345,21 +348,26 @@ func TestATurnEndsAtItsStepLimitWithANote(t *testing.T) {
 	}
 }
 
-// Fixed rule 2 in a turn: a tool that changes something is refused. Its
-// function never runs, the model is told why, and the turn goes on.
+// Fixed rule 2 in a turn: a tool that changes something does not run
+// without a person's approval. Since P7-02 it asks; declined, its function
+// never runs, the model is told why, and the turn goes on.
 func TestAToolThatChangesSomethingDoesNotRunInATurn(t *testing.T) {
 	g := newRig(t)
 	var ran atomic.Int32
 	sv := g.serveTools(nil, registry(t, counting("send_postcard", false, &ran, nil)), nil)
 	id := sv.newChat(g.test.ID)
-	events, _, requestID := sv.send(g.test.ID, id, `{"text":"Send a postcard to the lighthouse keeper."}`)
+	events, _, requestID := sv.sendAnswering(g.test.ID, id, `{"text":"Send a postcard to the lighthouse keeper."}`, "decline", func(Approval) {
+		if ran.Load() != 0 {
+			t.Errorf("a tool that changes something ran %d times while it waited for an answer", ran.Load())
+		}
+	})
 	if end := last(t, events); end.Status != StatusDone {
 		t.Fatalf("the turn ended as %+v", end)
 	}
 	if ran.Load() != 0 {
 		t.Fatalf("a tool that changes something ran %d times with no approval", ran.Load())
 	}
-	if r := results(t, events)["call_postcard"]; !r.IsError || !strings.Contains(said(r), "approvals are not built yet") {
+	if r := results(t, events)["call_postcard"]; !r.IsError || !strings.Contains(said(r), "approval") || !strings.Contains(said(r), "was not run") {
 		t.Errorf("the model was told %+v", r)
 	}
 	if entries := g.toolEntries(requestID); len(entries) != 2 || entries[0].Action != "send_postcard" || entries[1].Outcome != audit.OutcomeRefused {

@@ -91,7 +91,7 @@ func (r *Runner) offered(ctx context.Context, s *tenant.Store, m models.Model) [
 	if r.o.Tools == nil || !m.Has(models.CapTools) || !r.toolsOn(ctx, s) {
 		return nil
 	}
-	return r.o.Tools.Definitions()
+	return r.withoutNever(ctx, s, r.o.Tools.Definitions()) // a tool set never is not offered (P7-02)
 }
 
 // toolStep is what a turn does when a model call stops for tools. Every
@@ -100,9 +100,11 @@ func (r *Runner) offered(ctx context.Context, s *tenant.Store, m models.Model) [
 // the model is to be called again.
 //
 //   - A call is run through the registry, which records it in the audit
-//     log, lets only a tool that reads run, and turns a tool that fails,
-//     panics or runs too long into an error result. Each result is
-//     streamed as it comes.
+//     log, runs a tool that changes something only with an approval for
+//     that call, and turns a tool that fails, panics or runs too long into
+//     an error result. Each result is streamed as it comes.
+//   - Before any call runs, the approval policy decides each one, and the
+//     turn waits for the person's answer to those that ask (approvals.go).
 //   - When the person stops the turn, the tool's context ends. The calls
 //     that had not finished are stored as stopped, and the turn stops.
 //   - At the step limit no tool is run. Each call is answered with a
@@ -118,9 +120,18 @@ func (r *Runner) toolStep(ctx context.Context, s *tenant.Store, t row, step int,
 	}
 	atLimit := step >= r.o.Config.MaxSteps
 	on := r.toolsOn(ctx, s)
+	// The approval policy (P7-02, approvals.go): every call is decided, and
+	// those that ask are answered by the person, before any of them runs.
+	var plans []planned
+	if !atLimit && on {
+		var closing bool
+		if plans, closing = r.approveStep(ctx, s, t, step, tail, calls, say); closing {
+			return tail, false, nil, false
+		}
+	}
 
 	var results []seam.Block
-	for _, c := range calls {
+	for i, c := range calls {
 		call := tools.Call{
 			Store: s, RequestID: t.requestID, Actor: t.actor, ChatID: t.ChatID,
 			ID: c.ID, Name: c.Name, Input: c.Input,
@@ -134,11 +145,7 @@ func (r *Runner) toolStep(ctx context.Context, s *tenant.Store, t row, step int,
 			res = r.o.Tools.Decline(call, toolsOff)
 		default:
 			// After a stop this returns at once for each call that is left.
-			if l, ok := t.lookup(c.Name); ok {
-				res = runLookup(ctx, call, l) // a knowledge lookup (lookups.go)
-			} else {
-				res = r.o.Tools.Run(ctx, call)
-			}
+			res = r.runPlanned(ctx, s, t, call, plans[i])
 		}
 		if r.isClosing() {
 			return tail, false, nil, false

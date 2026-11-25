@@ -126,6 +126,7 @@ Once a stream is open the status is 200, and a failure is an `error` event.
 | `text` | `step`, `index`, `text` | More of a text block. |
 | `tool_call` | `step`, `index`, `id`, `name`, `input` | The model asks for a tool. Sent once, when the call is whole. `input` is a JSON object. |
 | `tool_result` | `id`, `is_error`, `content` | What the tool gave back. `id` is the call's. |
+| `approval` | `Approval` | Since P7-02: a tool call waits for the person's answer, or was answered. See [approvals.md](approvals.md). |
 | `usage` | `step`, `model`, `stop_reason`, `usage`, `cost_micros` | One model call ended. |
 | `title` | `chat_id`, `title` | The chat was given its automatic title. Only on a chat's first reply. |
 | `error` | `code`, `message`, `retryable` | The turn failed. An `end` with the status `failed` follows. |
@@ -231,6 +232,15 @@ Since the tool loop (P7-01), one value was added and one code retired. No route,
 - `stop_reason` on a `Message` and on a `Turn` may be `step_limit`. The message is the note a turn writes when its last allowed model call still asks for tools, with the text of `agents.step_limit_note`. The turn then ends as `done` with the same stop reason (decision [0202](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md)).
 - The `error` code `step_limit` is no longer sent.
 - `tool_result` now carries a tool's real result. It is an error result (`is_error: true`) when the tool failed, broke, ran too long, does not exist, changes something and has no approval, was declined at the step limit or with tools switched off, or was stopped. `tool_call` and `tool_result` are as they were.
+
+Since the approval policy (P7-02), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the routes and the event below, and every path and shape it had is the same. The whole of it is [approvals.md](approvals.md).
+
+- A stream event, `approval`, with an `Approval`: a tool call that needs the person's answer before it runs (`status` `pending`), sent again when it is answered (`approved`, `declined`, `expired` or `stopped`). A client keeps the newest by `id`. It comes after the `usage` event of the step whose calls ask, and before their `tool_result` events. A turn that waits stays `running`, and its stream stays open, with heartbeats.
+- `GET /chats/{id}/turns/{turn}/approvals`: `ApprovalsReply`, the turn's approvals.
+- `POST /chats/{id}/turns/{turn}/approvals/{approval}/approve` and `/decline`: the person's answer to one call, with no body. 404 `not_found`, 409 `answered` or `turn_ended`.
+- `GET /tools`, `PUT /tools/{name}/policy` and `DELETE /tools/{name}/policy`: each tool with the person's policy.
+- New sentences in `tool_result` for a call that was not run: declined by the person, not answered in time, stopped while it waited, set to never, or an approval already used.
+- A turn that was running when the server stopped, waiting for an answer, is put back in the queue and waits again, instead of being closed as `interrupted`.
 
 ## How a turn runs
 
@@ -367,16 +377,14 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
   - **Stop ends the model call**: a provider that waits in the middle of a reply sees its context end, the half reply is in the record as `stopped`, and the stream closes with `end`.
   - **A queued turn finishes after a restart**: a server is stopped with one turn in its model call and one waiting. A second server on the same folder runs the waiting turn to `done` and closes the other as `interrupted` with its words kept.
   - A tenant with no model gets `no_model` and no model call. A registry model is used. A model with no adapter is `model_unavailable`. A chat over the window is `too_long`. A model that is not the fake writes the title, and both calls are recorded with their cost. A branch with a stopped tool call and another model's thinking becomes a request the seam accepts.
-- The route walks in `verify` call the twelve routes like every other: `tenant isolation`, `calls recorded` and `no keys in output` ([tools.md](tools.md)).
+- The route walks in `verify` call the twelve routes like every other: `tenant isolation`, `calls recorded` and `no keys in output` ([tools.md](tools.md)). Since P7-02 they call the six approval routes of `ApprovalRoutes` the same way.
 - `calls recorded` also sends one message as the test tenant with the shipped settings and reads the audit log: the API call and the model call are each there before and after, under one request id, the model is `recorded-turns`, and the other tenant's log is empty. The code is in `tools/verify/turns.go`.
 - The tool loop's tests and checks, the test tenant's task of several steps among them, are in [tool-loop.md](tool-loop.md).
 
 ## Not here yet
 
-- Approvals (P7-02). Since the tool loop (P7-01) a turn runs tools that only read, and refuses every tool that changes something ([tool-loop.md](tool-loop.md)).
+- Approvals are built (P7-02): a call that asks pauses the turn until the person answers ([approvals.md](approvals.md)).
 - Caching (P5-03). Since P5-02 the oldest turns of a long chat are summarised and the summary sent in their place (see "Compaction" below). A single message larger than the window still fails with `too_long`.
-- Routing, fallbacks, usage records and the spend cap (P3-08). A failed call is not tried on another model. Cost is worked out from the entry's price and kept in the audit log and on the message.
-- The real adapters in the set. `app.Config.Adapters` is ready for them.
 - Uploads (P9-02). `blocks` takes image and file blocks, and the files behind a `ref` are not yet read by anything.
 - Removing old rows from `turn_events`. Every delta is a row and none is removed, except with its chat.
 - A turn left `running` by a second server on the same data folder is not noticed. One server for each data folder is assumed.

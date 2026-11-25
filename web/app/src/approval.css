@@ -1,0 +1,121 @@
+/* The approval card (P7-02), from the approved card in
+   design/screens/MainDark.html and MainLight.html. Every colour is a token. */
+
+.approvals {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  margin: 16px auto 0;
+}
+
+.approval {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--strong);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.approval.is-answered {
+  border-color: var(--line);
+}
+
+.approval-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.approval-title {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.approval-why {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.approval-summary {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.approval-toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: 400 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.approval-input {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--sunk);
+  font: 13px/20px var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.approval-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.approval-button {
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.approval-later {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.approval-later:hover {
+  color: var(--ink);
+}
+
+.approval-later:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.approval-state {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.approval-problem {
+  margin: 0;
+  color: var(--err);
+  font-size: 14px;
+}
+
+/* The policy for each tool, on the Approvals settings screen. */
+
+.policy-select {
+  width: 120px;
+}

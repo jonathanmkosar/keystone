@@ -111,7 +111,7 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/models` | Keys and models. See below. |
 | `/settings/general` | One control for every setting that is the person's to change. See "How General is drawn". |
 | `/settings/connectors` | Not built yet. Says it comes with P7-04 and P12-02. |
-| `/settings/approvals` | Not built yet. Says it comes with P7-02. |
+| `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
 | `/settings/spend` | Not built yet. Says it comes with P11-02, with the cap from P8-05. |
 
 The seven are tabs in a row under the title, and the row scrolls sideways on a phone.
@@ -186,7 +186,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 
 ## Not built yet
 
-- Connectors, approvals and spend. Each has a screen that says so.
+- Connectors and spend. Each has a screen that says so. Approvals has its list since P7-02.
 - Changing a password, passkeys, and the list of signed-in devices.
 - Changing the person's name, and a short name for the greeting.
 - An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.

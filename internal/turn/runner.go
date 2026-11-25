@@ -160,6 +160,10 @@ func (r *Runner) recoverTenant(tenantID string) error {
 		if err != nil {
 			return err
 		}
+		if r.requeuePaused(s, t) { // P7-02: a turn that waited for an approval waits again (approvals.go)
+			queued[o.chat] = true
+			continue
+		}
 		r.keepStreamed(s, t)
 		if _, err := finish(s, t.ID, StatusFailed, &TurnError{
 			Code: CodeInterrupted, Message: "Keystone stopped while this reply was being written. Send the message again to get a whole reply.", Retryable: true,
@@ -383,6 +387,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 	}
 	r.wake(key)
 
+	t.approvals = r.approvalState(s, t) // P7-02: a turn that paused for an approval goes on where it was
 	tail, written, failure := r.place(s, t)
 	if failure != nil {
 		return failure, false
@@ -401,6 +406,16 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 	}
 	reply := ""
 	for step := 1; ; step++ {
+		if t.approvals.resume != nil { // P7-02: the step the turn paused at is answered first (approvals.go)
+			var again bool
+			if step, tail, again, failure, stopped = r.resumeStep(ctx, s, &t, m, provider, say); failure != nil || stopped || r.isClosing() {
+				return failure, stopped
+			}
+			if !again {
+				break
+			}
+			continue
+		}
 		messages, err := r.branch(ctx, s, t.ChatID, tail, m.Name)
 		if err != nil {
 			return broke("reading the chat", err)
@@ -508,6 +523,9 @@ func (r *Runner) place(s *tenant.Store, t row) (tail int64, written *Message, fa
 		}
 		r.logf("turns: %s turn %s: writing the person's message: %v", t.requestID, t.ID, err)
 		return 0, nil, &TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."}
+	}
+	if t.approvals != nil && t.approvals.resume != nil {
+		return t.UserMessageID, nil, nil // P7-02: going on after a pause, the message is in the record
 	}
 	in := t.input
 	var parent int64

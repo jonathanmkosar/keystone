@@ -2,7 +2,7 @@
 
 Folders: `internal/tools`, `internal/tools/approval`, `internal/tools/builtin`, and the turn's side in `internal/turn/tools.go`
 
-A turn offers the model tools. When the model asks for one, the tool runs for the person whose turn it is, its result is appended to the chat, and the model is called again, until it answers or the turn reaches its step limit. Each step is streamed as it happens, kept in the chat record, and recorded in the audit log. A tool that changes something does not run: approvals are the next item (P7-02).
+A turn offers the model tools. When the model asks for one, the tool runs for the person whose turn it is, its result is appended to the chat, and the model is called again, until it answers or the turn reaches its step limit. Each step is streamed as it happens, kept in the chat record, and recorded in the audit log. A tool that changes something runs only under the approval policy (P7-02, [approvals.md](approvals.md)).
 
 Decisions [0200](decisions/0200-a-tool-is-data-and-a-function-in-a-registry.md) to [0204](decisions/0204-the-screen-writes-the-steps-line.md) say why it is built this way. The chat screen's side is under "On the screen" below, and in [web.md](web.md).
 
@@ -63,6 +63,8 @@ A tool that only reads runs. A tool that changes something runs only with an `ap
 > This tool changes something, and it was not run: a tool that changes something needs a person's approval, and approvals are not built yet.
 
 The package imports nothing of Keystone's. It is the first guard of the rule in `fixedRuleGuards`, so `verify` fails if it could ever read a setting (decision [0201](decisions/0201-a-changing-tool-is-refused-until-approvals.md)).
+
+**Since P7-02** the package holds the approval policy's rule too, `approval.Decide`, and the two ways an approval is made: by the person's standing policy and by their answer to one call. An approval covers one tool with one input, and `Registry.Run` checks it with `approval.CheckCall`. A refusal now reads "this tool changes something, and it was not run: a tool that changes something runs only with a person's approval". A tool also says whether its result is Keystone's own (`Inside`) and may say what a call will do for the approval card (`Describe`). The whole of it is [approvals.md](approvals.md).
 
 ## The built-in tools
 
@@ -154,7 +156,7 @@ In `settings/agents.json`. `turn.ReadConfig` reads the install's, and the one a 
 
 ## Not here yet
 
-- Approvals (P7-02): the policy for each tool, the card that asks, and the rule that a turn which read outside content asks for every side effect. Until then no tool that changes something runs.
+- Approvals are built since P7-02: the policy for each tool, the card that asks, and the rule that a chat which read outside content asks for every side effect ([approvals.md](approvals.md)).
 - Tools that change something, web search and fetch, connectors, skills and sub-agents (P7-03 to P7-07).
 - Running two calls of one reply side by side. They run one after another.
 - Sensitive chats. Nothing marks a chat as holding content from a sensitive space yet. When recall (P6-05) marks a turn sensitive, `search_chats` and `read_chat` must leave a marked chat out for a model that may not read sensitive content, or they would carry it into a turn with a hosted model (fixed rule 3). This is a question for the owner in the journal, agents 001.

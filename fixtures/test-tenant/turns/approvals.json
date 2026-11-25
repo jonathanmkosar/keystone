@@ -1,0 +1,95 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a note in the harbour log",
+      "when": { "user_text": "Note in the harbour log that the lamp was checked." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will write it in the harbour log." },
+                {
+                  "type": "tool_call",
+                  "id": "call_log",
+                  "name": "write_harbour_log",
+                  "input": { "entry": "The lamp was checked." }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 360, "output_tokens": 28 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The step above says whether the note went into the harbour log. Writing in it changes something, so it runs only as your approval policy allows." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 420, "output_tokens": 33 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the notice board, then a note in the harbour log",
+      "when": { "user_text": "Read the notice board at the harbour, then note in the harbour log what it says." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "First the notice board." },
+                {
+                  "type": "tool_call",
+                  "id": "call_board",
+                  "name": "read_notice_board",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 370, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Now the note." },
+                {
+                  "type": "tool_call",
+                  "id": "call_log",
+                  "name": "write_harbour_log",
+                  "input": { "entry": "The notice board says the evening ferry leaves at nine." }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 450, "output_tokens": 30 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The steps above say what the notice board held and whether the note went into the harbour log. The notice board is outside content, so writing in the log asked you first." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 520, "output_tokens": 38 }
+          }
+        }
+      ]
+    }
+  ]
+}

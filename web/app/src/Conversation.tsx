@@ -4,6 +4,7 @@
 // arriving into the items drawn here.
 
 import { useState } from "react";
+import { useWaitingFor } from "./Approval";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
 import { errorLabel, toolLine } from "./steps";
@@ -71,10 +72,14 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
   const sent = input !== "" && input !== "{}";
   const line = toolLine(step.name, input, step.result);
   const error = step.failed ? errorLabel(step.result) : undefined;
+  // A call that waits for the person's approval has not started (P7-02).
+  const waiting = useWaitingFor(step.id) && step.running;
   // A step that gave no result says what the model asked for, not what was done.
-  const label = step.running ? line.running : error ? line.asked : line.done;
-  const className = ["step", "step-tool", step.running ? "is-running" : ""].filter(Boolean).join(" ");
-  const end = step.running ? (
+  const label = waiting ? line.asked : step.running ? line.running : error ? line.asked : line.done;
+  const className = ["step", "step-tool", step.running && !waiting ? "is-running" : ""].filter(Boolean).join(" ");
+  const end = waiting ? (
+    <span className="step-meta">waiting for you</span>
+  ) : step.running ? (
     <span className="step-meta">running</span>
   ) : error ? (
     <span className={error.broke ? "step-tag step-tag-error" : "step-tag"}>{error.text}</span>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { ApiError, createChat, openChat, type Message, type ModelChoice, type Person } from "./api";
+import { Approvals } from "./Approval";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
 import { Conversation } from "./Conversation";
@@ -192,6 +193,7 @@ function OneChat({ id }: { id: string }) {
         ) : (
           <Conversation items={items} />
         )}
+        <Approvals chatId={id} />
       </div>
       <div className="composer-dock">
         <div className="composer-column">

@@ -34,6 +34,8 @@ type row struct {
 	input     SendBody
 	stopAsked bool
 	recalled  *turnRecall // what recall found, once work has searched (P6-05)
+	// approvals is the approval policy's state for the turn (P7-02).
+	approvals *turnApprovals
 }
 
 const turnColumns = `id, chat_id, status, request_id, actor, input, model, user_message_id,

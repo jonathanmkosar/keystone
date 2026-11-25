@@ -96,6 +96,12 @@ export function toolLine(name: string, input: string, result: string | undefined
   return { icon: "tool", running: `Using ${name}${tail}`, asked: `Use ${name}${tail}`, done: `Used ${name}${tail}`, meta: "" };
 }
 
+/** The title of an approval card (P7-02): what the model asks to do, for a tool this file knows, or "Run <name>". */
+export function toolTitle(name: string, input: string): string {
+  const describe = known[name];
+  return describe ? describe(parse(input), undefined).asked : `Run ${name}`;
+}
+
 /**
  * How a step that came back as an error is labelled. The record keeps only
  * the result's words, so the server's own sentences are read: a tool that
@@ -108,6 +114,7 @@ export function toolLine(name: string, input: string, result: string | undefined
 export function errorLabel(result: string | undefined): { text: string; broke: boolean } {
   const text = result ?? "";
   if (/turn was stopped/i.test(text)) return { text: "stopped", broke: false };
+  if (/\bdeclined\b/i.test(text)) return { text: "declined", broke: false }; // the person said no (P7-02)
   if (/\bwas not run\b|\bno tool was run\b/i.test(text)) return { text: "not run", broke: false };
   if (/^There is no tool named/.test(text)) return { text: "no such tool", broke: true };
   return { text: "failed", broke: true };
