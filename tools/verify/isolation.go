@@ -55,6 +55,7 @@ func checkIsolation(string) error {
 	for _, probe := range []func(in *tenant.Install, one, two *tenant.Store) ([]string, error){
 		storeProbes,
 		sessionProbes,
+		routeProbes, // in routes.go
 	} {
 		got, err := probe(in, one, two)
 		if err != nil {

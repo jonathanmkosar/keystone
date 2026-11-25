@@ -20,10 +20,19 @@ var version = "dev"
 const usage = `Keystone: your own agent workspace.
 
 Usage:
-  keystone serve [--address <host:port>]       serve the web interface
+  keystone serve [--address <host:port>] [--data <folder>]
+                                               serve the API and the web interface
   keystone settings [--json] [--lane <lane>]   print every setting, its default and who may change it
+  keystone openapi [--out <file>]              print the API's OpenAPI document
   keystone version                             print the version
   keystone help                                print this help
+
+As a client of a running server (each takes --server <address>):
+  keystone people                              list the people who can sign in
+  keystone signin <person-id>                  sign in; the password is read from standard input
+  keystone whoami                              say who is signed in
+  keystone signout                             sign out
+  keystone api <METHOD> <path> [<json> | -]    make any API call and print the answer, a stream as it arrives
 `
 
 func main() {
@@ -41,6 +50,10 @@ func run(args []string, out, errw io.Writer) int {
 		return runServe(args[1:], out, errw)
 	case "settings":
 		return runSettings(args[1:], out, errw)
+	case "openapi":
+		return runOpenAPI(args[1:], out, errw)
+	case "people", "signin", "signout", "whoami", "api":
+		return runClient(args[0], args[1:], os.Stdin, out, errw)
 	case "version":
 		fmt.Fprintln(out, "keystone", version)
 		return 0

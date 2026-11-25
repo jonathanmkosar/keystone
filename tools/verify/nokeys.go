@@ -43,6 +43,7 @@ var keySurfaces = []struct {
 	{"the secrets package", keysInThePackage},
 	{"the tenant command", keysInTheCommand},
 	{"the model registry", keysInTheRegistry},
+	{"the API", keysInTheAPI}, // in routes.go: every route's answers, the server's log and the audit log
 }
 
 const keyCheckName = "provider.test"

@@ -13,7 +13,7 @@ import (
 
 func TestHandlerServesTheEmbeddedPage(t *testing.T) {
 	rec := httptest.NewRecorder()
-	handler().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
+	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/", nil))
 	if rec.Code != http.StatusOK {
 		t.Fatalf("GET /: status %d", rec.Code)
 	}
@@ -31,7 +31,7 @@ func TestHandlerServesTheEmbeddedPage(t *testing.T) {
 func TestHandlerServesThePageFiles(t *testing.T) {
 	for path, want := range map[string]string{"/keystone.css": "text/css", "/mark.svg": "image/svg+xml"} {
 		rec := httptest.NewRecorder()
-		handler().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
 		if rec.Code != http.StatusOK || !strings.HasPrefix(rec.Header().Get("Content-Type"), want) {
 			t.Errorf("GET %s: status %d, content type %q", path, rec.Code, rec.Header().Get("Content-Type"))
 		}
@@ -40,12 +40,12 @@ func TestHandlerServesThePageFiles(t *testing.T) {
 
 func TestHandlerRefusesWhatItDoesNotServe(t *testing.T) {
 	rec := httptest.NewRecorder()
-	handler().ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/no-such-file", nil))
+	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/no-such-file", nil))
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("GET /no-such-file: status %d, want 404", rec.Code)
 	}
 	rec = httptest.NewRecorder()
-	handler().ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/", nil))
+	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/", nil))
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("POST /: status %d, want 405", rec.Code)
 	}
@@ -56,7 +56,7 @@ func TestServeListensAndStops(t *testing.T) {
 	defer cancel()
 	pr, pw := io.Pipe()
 	done := make(chan error, 1)
-	go func() { done <- serve(ctx, "127.0.0.1:0", pw) }()
+	go func() { done <- serve(ctx, "127.0.0.1:0", handler(nil), pw) }()
 
 	line, err := bufio.NewReader(pr).ReadString('\n')
 	if err != nil {
@@ -88,7 +88,7 @@ func TestServeListensAndStops(t *testing.T) {
 
 func TestServeRefusesABadAddress(t *testing.T) {
 	var out, errw strings.Builder
-	if code := run([]string{"serve", "--address", "not an address"}, &out, &errw); code != 1 {
+	if code := run([]string{"serve", "--address", "not an address", "--data", t.TempDir()}, &out, &errw); code != 1 {
 		t.Errorf("want exit 1, got %d (%s)", code, errw.String())
 	}
 }

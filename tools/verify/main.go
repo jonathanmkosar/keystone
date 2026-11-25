@@ -52,6 +52,8 @@ var componentDocs = map[string]string{
 	"internal/adapters":          "docs/architecture/models.md",
 	"internal/testtenant":        "docs/architecture/test-tenant.md",
 	"fixtures/test-tenant":       "docs/architecture/test-tenant.md",
+	"internal/api":               "docs/architecture/api.md",
+	"internal/app":               "docs/architecture/api.md",
 }
 
 var checks = []check{
@@ -68,6 +70,7 @@ var checks = []check{
 	{"fixed rules", checkFixedRules},
 	{"no keys in output", checkNoKeys},
 	{"test tenant", checkTestTenant},
+	{"calls recorded", checkRecorded},
 }
 
 func main() {
