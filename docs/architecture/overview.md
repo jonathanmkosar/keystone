@@ -147,5 +147,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0252 | [The web tools are off in a chat held for sensitive content](decisions/0252-web-tools-are-off-in-a-chat-held-for-sensitive-content.md) |
 | 0253 | [Outside content is marked in the tool's result, where the record keeps it](decisions/0253-outside-content-is-marked-in-the-result.md) |
 | 0300 | [A reply is set for the fonts people have: 17px, crisp serif text, sans semibold headings](decisions/0300-reading-text-for-the-fonts-people-have.md) |
+| 0301 | [The reading and interface fonts are bundled, Latin only](decisions/0301-the-reading-and-interface-fonts-are-bundled.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

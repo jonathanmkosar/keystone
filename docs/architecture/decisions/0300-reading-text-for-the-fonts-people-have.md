@@ -22,4 +22,4 @@ The chat mockups set a reply in Source Serif 4 at 18px on 30px lines, with headi
 
 - The screen no longer matches the mockup's sizes and heading face exactly. The mockups are drafts awaiting the owner's approval (P1-04), and this records why the build differs.
 - Bold phrases inside a paragraph still use Georgia's bold on systems without a semibold serif.
-- The real fix is to bundle Source Serif 4 and IBM Plex Sans, both under the SIL Open Font License, as files the binary serves, so every device draws the design's fonts with a true semibold. That reverses decision 0072 and needs the owner's go-ahead to fetch the font files.
+- The real fix was to bundle Source Serif 4 and IBM Plex Sans, and the owner agreed the same day: decision [0301](0301-the-reading-and-interface-fonts-are-bundled.md). The sizes here stay.
