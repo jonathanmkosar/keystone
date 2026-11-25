@@ -1,0 +1,59 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "what to bring to the lighthouse",
+      "when": { "user_text": "I want to walk to the old lighthouse on Saturday. What should I bring?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "For a day walk to the old lighthouse, bring:\n\n- Water, at least a litre for each person.\n- A windproof jacket. The headland is exposed even on a warm day.\n- Shoes with a good grip, because the last stretch is loose stone.\n- Something to eat at the top. There is no shop past the harbour.\n- A paper map of the headland, since the signal drops after the second gate." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 31, "output_tokens": 86 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "how long the lighthouse walk is",
+      "when": { "user_text": "How long is the walk there and back?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "By the harbour road it is about nine kilometres there and back. Allow three hours, with a stop at the top." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 132, "output_tokens": 27 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "how long the cliff path is",
+      "when": { "user_text": "How long is the walk if I take the cliff path instead?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The cliff path is shorter and slower: about seven kilometres there and back, and closer to four hours, because of the two climbs. Leave it for a dry day." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 136, "output_tokens": 38 }
+          }
+        }
+      ]
+    }
+  ]
+}

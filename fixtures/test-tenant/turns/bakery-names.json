@@ -1,0 +1,24 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "names for the bakery",
+      "when": { "user_text": "Suggest three names for a small bakery by the harbour." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "thinking", "text": "A small bakery by a harbour. Short names that say bread or morning, and one that says where it is.", "signature": "sig-test-0101" },
+                { "type": "text", "text": "Three names:\n\n1. **Tide and Crumb**\n2. **The Early Loaf**\n3. **Harbour Oven**\n\nThe second says the most about what a bakery is for." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 24, "output_tokens": 52, "thinking_tokens": 24 }
+          }
+        }
+      ]
+    }
+  ]
+}

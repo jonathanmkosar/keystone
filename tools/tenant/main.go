@@ -46,6 +46,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "usage: tenant [--data <folder>] add <name> | list")
 		fmt.Fprintln(os.Stderr, "       tenant [--data <folder>] password <tenant-id>   (the password is read from standard input)")
 		fmt.Fprintln(os.Stderr, "       "+secretUsage)
+		fmt.Fprintln(os.Stderr, "       "+testUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -93,6 +94,8 @@ func main() {
 		fmt.Printf("Password set for tenant %s. Every session it had is ended.\n", args[1])
 	case "secret":
 		secretMain(dir, *keeper, args[1:])
+	case "test":
+		testMain(in)
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)

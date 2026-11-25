@@ -8,6 +8,8 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 
 `go run ./tools/rebuild` takes a fresh checkout to a built, checked Keystone. Today it checks that Go is installed, builds `bin/keystone`, runs it once, starts it on a free port and fetches the embedded page over HTTP, opens the data folder and applies every tenant's migrations, runs `verify`, and prints the snapshot hash. Loading the test tenant is added by the item that builds it (P3-09). The first build on a machine downloads `modernc.org/sqlite`; after that everything runs offline.
 
+Since P3-09 it also loads the test tenant, in the step `the test tenant` after the data folder: an invented person with a known invented password, a few chats, and the fake provider for a model. The step prints the tenant's id and where the password is. Run again, it finds the same tenant and changes nothing. The `test_tenant.load` setting switches the step off. See [test-tenant.md](test-tenant.md).
+
 ## tenant
 
 `go run ./tools/tenant add "Name"` adds a tenant to the data folder and prints its id. `go run ./tools/tenant list` lists the tenants. `--data <folder>` names another data folder; without it the `data.dir` setting is used. It is a thin wrapper over `internal/tenant` ([tenants.md](tenants.md)).
@@ -15,6 +17,8 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 `go run ./tools/tenant password <tenant-id>` gives a tenant a password, or replaces the one it has, and ends every session that tenant had. It is how a person gets a password before any sign-in screen exists. The password is read from standard input, one line, and never from an argument, so it is not left in the shell's history. Typed at the prompt, it shows on the screen. It uses the shipped sign-in settings and `internal/signin` ([signin.md](signin.md)).
 
 `go run ./tools/tenant secret set | list | delete <tenant-id> [name]` stores, lists and removes a tenant's secrets. A value is read from standard input and never printed. `--keeper file` chooses the key file for a new install on a machine with no key store ([secrets.md](secrets.md)).
+
+`go run ./tools/tenant test` loads the test tenant into the data folder, as `rebuild` does, or brings it back to its fixtures: the password, a chat that was deleted, a chat whose fixture changed. It prints the tenant's id. It can be run twice ([test-tenant.md](test-tenant.md)).
 
 ## verify
 
@@ -34,6 +38,7 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 | tenant isolation | Two tenants are made in a throwaway data folder, and every way one could reach the other is tried: rows and files through the other's store handle, a handle opened by a path, and a session used on the other tenant, re-addressed to it, or with its row copied across. Each must be refused. The code is in `tools/verify/isolation.go`, and an item that adds a way to reach tenant data adds its tries there. |
 | fixed rules | No setting can switch off any of the four rules in the plan. See below. |
 | no keys in output | An invented value is stored as a tenant's secret, and then looked for in everything Keystone returned, printed or wrote while it held it. It may come back only from the call that asks for it by name. The code is in `tools/verify/nokeys.go`, and an item that adds a place a key could reach adds a line there. See [secrets.md](secrets.md). |
+| test tenant | Every JSON file under `fixtures/` says it is test data. The test tenant is loaded into a throwaway data folder beside an ordinary tenant, twice, and the second load changes nothing. The person signs in with the fixture's password, and the session resolves to the test tenant's own store. The test tenant is the one tenant marked as test data. Every use case under `fixtures/test-tenant/cases/` gives its expected result. The code is in `tools/verify/testtenant.go`, and an item adds a use case by adding a fixture. See [test-tenant.md](test-tenant.md). |
 
 The plan's other standing checks (context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 

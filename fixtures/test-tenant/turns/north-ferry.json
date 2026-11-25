@@ -1,0 +1,41 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "north ferry on Tuesday",
+      "when": { "user_text": "When does the north ferry leave on Tuesday?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Let me look at the timetable." },
+                {
+                  "type": "tool_call",
+                  "id": "call_1",
+                  "name": "lookup_timetable",
+                  "input": { "route": "north", "day": "Tuesday" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 240, "output_tokens": 38 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The north ferry leaves at 09:00 and at 11:30 on Tuesday. The 11:30 sailing does not run in rough weather." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 310, "output_tokens": 30 }
+          }
+        }
+      ]
+    }
+  ]
+}

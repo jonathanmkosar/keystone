@@ -1,0 +1,10 @@
+{
+  "test_data": true,
+  "title": "Planning the lighthouse walk",
+  "starred": true,
+  "messages": [
+    { "role": "user", "blocks": [ { "type": "text", "text": "I want to walk to the old lighthouse on Saturday. What should I bring?" } ] },
+    { "role": "user", "blocks": [ { "type": "text", "text": "How long is the walk there and back?" } ] },
+    { "edits": 2, "role": "user", "blocks": [ { "type": "text", "text": "How long is the walk if I take the cliff path instead?" } ] }
+  ]
+}

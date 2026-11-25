@@ -24,6 +24,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Tenant settings | `internal/tenantsettings` | A tenant's own values over the registry's defaults, limited by each setting's scope. The fixed rules cannot be stored. | [tenant-settings.md](tenant-settings.md) |
 | Model registry | `internal/models` | Each tenant's list of models: adapter, endpoint, context window, output limit, capabilities, price, and whether it is local, hosted or trusted. Refuses an entry that is not valid, with the reason. Guards fixed rule 3. | [models.md](models.md) |
 | Adapters | `internal/adapters` | Turns a registry entry into a provider that can be called, with the key read by name from the tenant's vault. The fake is the only adapter built. | [models.md](models.md) |
+| Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
 
 ## Parts still to come
 
@@ -61,5 +62,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0070 | [The design tokens become CSS variables when the interface is built](decisions/0070-design-tokens-become-css-at-build-time.md) |
 | 0071 | [Screens in the interface have real paths, and the server falls back to the page](decisions/0071-client-side-routes-are-real-paths.md) |
 | 0072 | [The interface names the design's fonts and does not bundle them yet](decisions/0072-fonts-are-named-not-bundled.md) |
+| 0080 | [The test tenant is marked in its own database, and its password is published](decisions/0080-the-test-tenant-is-marked-in-its-own-database.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

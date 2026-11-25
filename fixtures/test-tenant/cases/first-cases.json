@@ -1,0 +1,47 @@
+{
+  "test_data": true,
+  "cases": [
+    {
+      "name": "a recorded turn answers its question",
+      "kind": "turn",
+      "ask": "How long is the walk there and back?",
+      "expect": { "stop_reason": "end", "text_contains": ["nine kilometres", "three hours"] }
+    },
+    {
+      "name": "a recorded turn can ask for a tool",
+      "kind": "turn",
+      "ask": "When does the north ferry leave on Tuesday?",
+      "expect": { "stop_reason": "tool_call", "tool_calls": ["lookup_timetable"] }
+    },
+    {
+      "name": "a message with no recorded turn still gets an answer",
+      "kind": "turn",
+      "ask": "What is the tallest tree on the island?",
+      "expect": { "stop_reason": "end", "text_contains": ["fake provider"] }
+    },
+    {
+      "name": "search finds a chat by a word in a reply",
+      "kind": "search",
+      "query": "windproof",
+      "expect": { "titles": ["Planning the lighthouse walk"] }
+    },
+    {
+      "name": "search finds a chat by its title",
+      "kind": "search",
+      "query": "ferry",
+      "expect": { "titles": ["North ferry times"] }
+    },
+    {
+      "name": "the ferry chat ends with the answer that followed the tool",
+      "kind": "chat",
+      "title": "North ferry times",
+      "expect": { "messages": 4, "text_contains": ["09:00 and at 11:30"] }
+    },
+    {
+      "name": "the lighthouse chat shows its edited branch",
+      "kind": "chat",
+      "title": "Planning the lighthouse walk",
+      "expect": { "messages": 4, "starred": true, "branches": 2, "text_contains": ["cliff path is shorter"] }
+    }
+  ]
+}

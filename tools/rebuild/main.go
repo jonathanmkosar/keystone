@@ -58,6 +58,7 @@ func main() {
 		}},
 		{"it serves the page", func(string) (string, error) { return servesThePage(bin) }},
 		{"the data folder", dataFolder},
+		{"the test tenant", testTenant},
 		{"verify", func(r string) (string, error) {
 			out, err := project.Run(r, "go", "run", "./tools/verify")
 			if err == nil {

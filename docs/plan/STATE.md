@@ -9,7 +9,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | P2-05 and P3-09, each in its own worktree | P13-04 |
+| core | P2-05, in its own worktree | P13-04, held until the app runs |
 | models | P3-04, P3-05, P3-06 and P3-07, each in its own worktree | P3-08 |
 | chats | nothing | P4-03, after P2-05 and P3-09 |
 | knowledge | P6-03, in its own worktree | P6-04 |
@@ -28,6 +28,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | How the sign-in screen asks who is signing in. There are no user names (core 005) | The screen lists the people on the install and the person picks their own. Look again when phone access from outside is decided (P10-05) | The sign-in functions take the tenant's store, so either answer fits | Nothing built. It shapes the sign-in route in P2-05 and the screen in P4-01 |
 | Should the built-in knowledge store's pages be files a person can open, or is the database enough (knowledge 002, decision 0060) | The database is the truth, and Keystone exports to and imports from a Markdown folder on request | Rows only, no export | P6-02 |
 | Who may add, change and remove models in a person's registry: the admin only, or the person too (models 003) | The admin only. Marking a model trusted is a security choice. Each person still picks among their models and keeps their own keys | The registry functions take no role, so either answer fits | Nothing built. It shapes the registry routes and the models screen in P11-01 |
+| The test tenant's password is published in the repo, so anyone who can reach sign-in can be the test tenant (core 009) | Keep it on the home network, and switch `test_tenant.load` off before phone access from outside (P10-05) | Loaded by default | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -46,6 +47,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P6-02, the built-in knowledge store, provisional. Pages, sources and vectors are rows in the tenant's own database, and the store passes the whole contract suite with every capability. The Markdown folder in the item's scope is not built (decision 0060), and vectors are proven with test vectors only until P6-08.
 - P3-02, the model registry: each tenant's models as checked entries in its own database, a class on each that decides whether it may read sensitive content (the guard for fixed rule 3), and providers opened with keys from the vault. Only the fake adapter can be opened until P3-04 to P3-06.
 - P4-01, the web shell, provisional: a React and Vite app built from the draft tokens and compiled into the binary, with the frame, the theme switch, routing and a sign-in screen. Its four API paths are guesses until P2-05 is merged, and it has been seen only in the "server not ready" state.
+- P3-09, the test tenant: `rebuild` loads an invented person, "Test Person One", who can sign in and has three chats, and `verify` has the `test tenant` check, 13 of 13. Files, images and knowledge for it wait for P9-02 and later. Nothing yet ties the test tenant to the fake provider on a route: P4-03 does.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
