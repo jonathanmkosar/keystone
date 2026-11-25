@@ -341,10 +341,10 @@ function begin(chatId: string, live: Partial<Live>): Entry {
   return entry;
 }
 
-/** Sends a message to a chat and follows the reply. */
-export function send(chatId: string, text: string): void {
+/** Sends a message to a chat and follows the reply. `model` names the model to answer; absent means the chat's own. */
+export function send(chatId: string, text: string, model?: string): void {
   const entry = begin(chatId, { said: text });
-  void run(entry, (reader) => sendMessage(chatId, text, reader), true);
+  void run(entry, (reader) => sendMessage(chatId, text, reader, model), true);
 }
 
 /** Joins a turn that is already queued or running, from its first event. */

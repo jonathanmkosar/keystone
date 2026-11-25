@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { Icon } from "./Icon";
 
 /**
@@ -14,6 +14,7 @@ export function Composer({
   initial = "",
   onSend,
   onStop,
+  beside,
 }: {
   placeholder: string;
   /** A reply is arriving, so nothing can be sent and the button stops it. */
@@ -27,6 +28,8 @@ export function Composer({
   initial?: string;
   onSend: (text: string) => void;
   onStop?: () => void;
+  /** Drawn just before the send button: the model picker. */
+  beside?: ReactNode;
 }) {
   const [text, setText] = useState(initial);
   const area = useRef<HTMLTextAreaElement>(null);
@@ -82,6 +85,7 @@ export function Composer({
       />
       <div className="composer-row">
         <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
+        {beside}
         {busy ? (
           <button type="button" className="send-button is-stop" aria-label="Stop the reply" title="Stop" disabled={stopping || !onStop} onClick={onStop}>
             <Icon name="stop" />

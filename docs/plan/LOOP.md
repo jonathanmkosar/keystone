@@ -35,7 +35,7 @@ A session can stop at any moment: a usage limit, a closed window, a restart. Wor
 
 - **Claim with a branch name.** When an item is claimed, `STATE.md` records it under "In flight" with its lane branch, named `<lane>/<item id in lower case>-<words>`, such as `agents/p7-02-approvals`. `doctor` finds branches by that shape.
 - **Plan first.** The item's Plan section says what will be built and what is left, in a few lines, before any code. It is the brief a second session finishes from.
-- **Commit small, push the branch.** Commit each time `verify` is green, not only at the end, and push the lane branch to `origin` after every commit (`git push -u origin <branch>`). Only the integrator pushes `reboot`.
+- **Commit small, push the branch.** Commit each time `verify` is green, not only at the end, and push the lane branch to `origin` after every commit (`git push -u origin <branch>`). Only the integrator pushes `reboot`. If the session refuses a lane agent's push, the agent does not retry it or work around it and says so in its report: the commits stay in its worktree, which `doctor` shows, and reach `origin` when the branch is merged.
 - **Write up at once.** Docs, journal and status follow the build commit straight away, so a stop never leaves built code with no record.
 
 ## Resuming after a stop

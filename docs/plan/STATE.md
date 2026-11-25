@@ -14,7 +14,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | chats | P5-02, compaction, in its own worktree | P5-04, P9-05 |
 | knowledge | nothing | P6-06, the memory pass |
 | agents | P7-02 approvals and P7-03 web search, each in its own worktree | P8-01 |
-| interface | a model picker in the chat, finishing P4-04, in its own worktree | P11-02 |
+| interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## In flight
@@ -26,7 +26,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | P7-02 approval policy | agents | `agents/p7-02-approvals` |
 | P7-03 web search and fetch, Tavily first | agents | `agents/p7-03-web-search` |
 | P5-02 compaction | chats | `chats/p5-02-compaction` |
-| P4-04, the chat's model picker | interface | `interface/p4-04-model-picker` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
@@ -99,6 +98,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P7-01, the tool loop, provisional on the agent mockups (P1-05) for how steps look: a turn runs tools and calls the model again, up to a step limit, with each call and result recorded and shown in the chat. Three read-only tools so far: the date and time, search your chats, read a chat. Fixed rule 2 holds by construction: no tool that changes anything can run until approvals (P7-02) exist, and the new `approval` check proves it. `verify` is 17 of 17. Finished by a second session after the first ran out of usage.
 - P6-05, recall: each message searches the person's knowledge store and the best hits go into the call, labelled with where they came from; a sensitive hit never reaches a model that may not read it, and a chat that received one is held to local or trusted models from then on. The `recall` and `sensitive content` checks run on the test tenant with both stores. Finishing it found and closed a leak: a call was built for the first model of its route, so a hosted fallback could have received a local model's map. Each call is now built for the least of its route. A model that can use tools can also search the store and read its pages and sources itself, with the same filter and the same hold. `verify` is 19 of 19. Finished by a second session, and joined to the tool loop at the merge.
 - First real model calls, November 25, 2026: the owner added a person of his own with three models (Claude Sonnet 5.5 and Claude Haiku 5.5 through the Anthropic adapter, and Qwen 3.8 27B on his home-network gateway through the Chat Completions adapter, with the gateway's own certificate authority). One short plain answer from each came back through Keystone's adapters and his vault. This is the first part of the live checks of P3-04 and P3-06; tools, thinking budgets, caching and the other endpoints are still to check. The Responses adapter (P3-05) has not been called.
+- The chat's model picker (part of P4-04, still provisional on the mockups): the composer lists the person's models with a local, hosted or trusted mark; a model whose key is missing cannot be picked; a pick goes with the next message and the server keeps it as the chat's model. A chat held to local or trusted models is learned in the browser from a refused turn until the model route reports it (decision 0241).
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

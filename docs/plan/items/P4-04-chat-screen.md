@@ -50,3 +50,13 @@ Provisional because:
 - **The owner gate.** The tokens are a draft and the chat mockups wait for approval as a group (P1-04). New chat follows `Home.html`, a draft.
 - **Only part of it has met the real routes.** P4-03's routes arrived as this pass ended. Listing, opening, sending, streaming, the title, rename, the star and delete ran against them. Stop, a dropped stream, joining a turn after a reload and a failed turn ran only against the stand-in. Run them against the merged server, with a reply slow enough to interrupt.
 - **Scope left for a second pass.** The model picker, edit and retry with branch navigation, feedback, keyboard shortcuts and motion from the design system are in the item's scope and are not built. The list is in `web.md` under "Not built yet".
+
+### Result, the model picker, November 25, 2026
+
+Still provisional. The model picker from the item's scope is built: a menu in the composer, beside the send button, that lists the person's models by label with a mark for local, hosted or trusted, shows the one that will answer, and picks another for the chat. A model whose key is missing is shown and cannot be picked. In a chat the page knows is held to local or trusted models, the hosted ones cannot be picked. The new chat screen has one too. The footnote names the model that will answer.
+
+How the choice sticks: the server keeps it. The pick goes with the chat's next message as `model`, and from then on the chat's turns and its model route use the model of its last turn. Decisions 0240 (the pick) and 0241 (the held chat, which the model route does not report, learned from a refused turn and kept in the browser). `docs/architecture/web.md` has the section "The model picker". Journal: `docs/journal/2026-11-25-interface-004.md`.
+
+Proof so far: `npm run build`, `go run ./tools/rebuild` and `go run ./tools/verify` (19 of 19) are green. In a browser, against Keystone's own server, with an invented person and four invented models whose endpoints answer nothing: a pick on the new chat screen and in a chat went with the next message and the server then reported it as the chat's model; the next message named none; a model with no key was greyed; a chat held on the server was refused on a hosted model, and the picker then greyed the hosted models. As the test tenant: one entry, "Recorded turns (test data)", and a recorded reply. Light at desktop width, dark at phone width.
+
+Provisional because of the owner gate (the mockups show the button, not the menu), and because no model that replies has been picked yet. Edit and retry with branch navigation, feedback, keyboard shortcuts and motion are still not built.

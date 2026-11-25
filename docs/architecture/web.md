@@ -30,6 +30,7 @@ The web shell (P4-01), the frame every screen sits in, and the chat screen (P4-0
 | Screens | `src/pages.tsx` | The list of every chat, the placeholder for screens later items build, and the page-not-found screen. |
 | Chat | `src/Chat.tsx`, `src/Composer.tsx`, `src/Conversation.tsx`, `src/ChatTitle.tsx` | New chat, one chat's conversation, the box a message is written in, and the title with its menu. |
 | Chat state | `src/chats.tsx`, `src/turns.ts`, `src/layout.ts` | The list of chats, the replies that are arriving, and the step from messages to what is drawn. |
+| Model picker | `src/ModelPicker.tsx`, `src/modelPicks.ts`, `src/model-picker.css` | The menu in the composer that picks the model for a chat, and the picks and held chats it keeps. See "The model picker". The component imports its stylesheet, which is built into `keystone.css` with the others. |
 | Reading a reply | `src/Markdown.tsx`, `src/sse.ts` | A model's Markdown as React elements, and the reader for server-sent events. |
 | Theme | `src/theme.ts`, `src/ThemeSwitch.tsx`, `public/theme.js` | The choice of dark, light or follow the system. |
 | Mark and icons | `src/Mark.tsx`, `src/Icon.tsx` | The mark and the line icons, drawn as in the mockups. |
@@ -123,15 +124,70 @@ The stream is read with `fetch`, not `EventSource`: the first stream is the answ
 
 The server sends `default-src 'self'`. The chat screen has no inline script and no `style` attribute in its markup, and loads nothing from another site. One thing sets a style from script: the composer's height, set on the element as the text grows, which the policy allows.
 
+### The model picker
+
+The second pass of P4-04. The button sits in the composer's row just before the send button, as in `MainDark.html` and `MainLight.html`: the model's label and a chevron. The mockups do not draw the menu it opens, so the menu is built from the tokens like the chat's own menu, and opens upwards. On a phone it is as wide as the composer.
+
+**What it lists.** In a chat, the models the chat's model route returns (`GET /chats/{id}/model`, `models`), in its order, each by its label with a mark for its class: `local`, `hosted` or `trusted`. Local and trusted are marked in the "ok" colour, as on the Models and keys screen, because they may read sensitive content. A tick is on the model that will answer. A sentence at the foot says where that model comes from (this chat's last turn, the default setting, the first in the registry, or the test tenant), and a link goes to Models and keys.
+
+**What cannot be picked**, shown greyed with the reason under the label:
+
+- A model whose key is missing: `GET /api/v1/models` says `key_present` is false. Marked "key missing" in the error colour. If the model that will answer is one of these, the button shows a warning mark and says so.
+- In a chat that is held to local or trusted models, every hosted model: "Not for this chat: it holds content from a sensitive space, which only a local or trusted model may read." See "A held chat" below.
+
+**Keys.** Arrow keys move between the models that can be picked, Home and End go to the ends, Enter picks, Escape and a click outside close the menu.
+
+**The new chat.** There is no chat yet, so there is no model route. The picker reads `GET /api/v1/models` and the `chats.default_model` value from `GET /api/v1/settings`, and works out the server's choice in the server's own order (`choice` in `internal/turn/model.go`): the default when it names a model a chat can use, or else the first such model by name. A chat can use an entry the registry does not refuse and that is not an embedding model; the server also asks that its adapter is in the build, which all four are today. When the registry holds none, as for the test tenant, there is no picker on the new chat screen and the first message goes as before.
+
+**The test tenant.** Its model route answers with one model, "Recorded turns (test data)", and the source `test`. The picker shows that one entry, ticked, with a sentence that its replies are recorded test data whatever is picked. The server ignores a turn's `model` for it.
+
+**The footnote** under the composer names the model that will answer, as before, and now follows a pick at once: `src/Chat.tsx` reads it from the same store as the picker.
+
+#### How the choice sticks
+
+The server keeps it. A turn that names a `model` and opens it writes that name on the turn's row (`Runner.work` in `internal/turn/runner.go`, as the turn leaves the queue). The chat's next turn that names none, and the chat's model route, take the model of the chat's newest turn that has one (`lastModel` in `internal/turn/store.go`, source `chat`). So the browser keeps nothing for good, and the choice follows the chat to any browser. Decision [0240](decisions/0240-a-pick-goes-with-the-next-message.md).
+
+What the page does, in `src/modelPicks.ts`:
+
+1. A pick is kept for the chat, outside the screens (so it survives opening another chat), and the button and the footnote show it at once. Picking the model the server would use anyway takes the pick back.
+2. The next message names it: `POST /chats/{id}/turns` with `{"text", "model"}`. The pick is marked as sent.
+3. When that turn ends, the picker reads the model route again and lets the pick go. From then on the server's answer is what it shows. Messages after that name no model.
+4. A pick made on the new chat screen moves to the chat its first message makes, and goes with that message.
+
+What the server does with a named model, so what the person sees:
+
+- The model opens, whatever happens after: the chat keeps it. A reply that then fails at the provider (a wrong key, an endpoint that cannot be reached) still leaves the chat on that model, and the failure is shown under the reply.
+- The model does not open (`model_unavailable`) or the turn is refused as `sensitive`: no model is written on the turn, the chat stays on the model it had, and the picker goes back to it when it reads the route.
+- In a held chat whose fallback chain has a local or trusted model, a hosted pick is left out of the route and the fallback answers. The turn then records the fallback, and the picker shows it after the turn.
+
+#### A held chat
+
+A chat that was sent content from a sensitive space is held to local and trusted models for good ([knowledge-recall.md](knowledge-recall.md), decision [0211](decisions/0211-a-chat-sent-sensitive-content-is-held.md)). **The model route does not say so**: `ModelChoice` has no field for it, `reason` is set only when there is no model at all, and `source` says where the model came from. A held chat still lists its hosted models, and the server refuses a turn on one only when it is sent.
+
+So the page learns it from that refusal. When a turn of the chat fails, the picker reads the turn (`GET /chats/{id}/turns/{turn}`) and, if its error code is `sensitive`, marks the chat as held. A marked chat shows its hosted models as not available, with the reason, and a sentence in the menu. The mark is kept in the browser's local storage under `keystone.chats.held`, a list of chat ids, because a held chat stays held. Decision [0241](decisions/0241-a-held-chat-is-learned-from-a-refused-turn.md).
+
+What it cannot do: mark a chat before a turn has been refused, mark it in another browser, or notice a hosted pick that a local fallback answered without a refusal. The server can close all three by saying in `ModelChoice` that the chat is held: see "What comes next".
+
+#### Its calls
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/chats/{id}/model` | `chatModel` | The list and the current choice, when a chat opens, when the menu opens, and after each turn ends. |
+| `GET /api/v1/models` | `listModels` | Which models have their key stored, and the new chat's list. |
+| `GET /api/v1/settings` | `listSettings` | `chats.default_model`, for the new chat. |
+| `GET /api/v1/chats/{id}/turns/{turn}` | `getTurn` | Whether a failed turn was refused as `sensitive`. |
+| `POST /api/v1/chats/{id}/turns` | `sendMessage` | With `model` when a pick waits to be sent. |
+
 ### Not built yet
 
-The model picker (the composer's footnote names the model the chat will use, and that is all), edit and retry with the branch switcher, feedback, attachments, the tools menu, the thinking switch, the context meter, share, the turn inspector, citations, approval cards, sub-agent lanes, search, keyboard shortcuts beyond Enter and Escape, and motion beyond the mark that follows arriving text. A second message cannot be sent while a reply is arriving, though the server would queue it.
+Edit and retry with the branch switcher, feedback, attachments, the tools menu, the thinking switch, the context meter, share, the turn inspector, citations, approval cards, sub-agent lanes, search, keyboard shortcuts beyond Enter and Escape, and motion beyond the mark that follows arriving text. A second message cannot be sent while a reply is arriving, though the server would queue it.
 
 ### Provisional
 
 - The tokens are a draft, and the chat mockups wait for the owner's approval as a group (P1-04).
 - The screen has run against Keystone's own chat routes only briefly, on a build of the P4-03 branch made outside the repo: see the journal, interface 002. Listing, opening, sending, the streamed reply, the title, rename, star and delete ran there. The dropped stream, the reload in the middle of a reply, stop and a failed turn were seen only against a stand-in for the contract, because the test tenant's recorded replies end too soon to interrupt by hand.
 - New chat follows `Home.html`, which is a draft in the first round's colours.
+- The model picker's button follows the mockups. Its menu, the class marks, the greyed rows with their reasons and every sentence in it have no mockup. It has run against Keystone's own routes with invented models whose endpoints answer nothing, and with the test tenant; never with a model that replies. See the journal, interface 004.
 
 ## The settings screens
 
@@ -189,11 +245,13 @@ The chat screen's calls. The shapes are the contract's, and are not repeated her
 | `GET /api/v1/chats/{id}` | `openChat` | Opening a chat, and reading it again when a turn ends. |
 | `PATCH /api/v1/chats/{id}` | `renameChat`, `starChat` | The chat's menu. One field in each call. |
 | `DELETE /api/v1/chats/{id}` | `deleteChat` | The chat's menu. |
-| `POST /api/v1/chats/{id}/turns` | `sendMessage` | Sending a message with `{"text"}`, and reading the reply's stream. The turn's id is read from `X-Turn-Id`, or from the first `turn` event. |
+| `POST /api/v1/chats/{id}/turns` | `sendMessage` | Sending a message with `{"text"}`, and `{"text","model"}` when the person picked a model, and reading the reply's stream. The turn's id is read from `X-Turn-Id`, or from the first `turn` event. |
 | `GET /api/v1/chats/{id}/turns/{turn}/events` | `followTurn` | Coming back after a dropped stream, with `Last-Event-ID`, and joining a turn from its first event, with none. |
 | `POST /api/v1/chats/{id}/turns/{turn}/stop` | `stopTurn` | The stop button. |
 
-The contract's other routes are not called yet: `GET /chats/search`, `POST /chats/{id}/select`, `GET /chats/{id}/model` and `GET /chats/{id}/turns/{turn}`. Nor are `edit_of`, `retry_of`, `model` and `blocks` in the send body, or `starred`, `limit` and `offset` on the list.
+The model picker's calls are in its own section above: `GET /chats/{id}/model`, `GET /chats/{id}/turns/{turn}`, and `model` in the send body.
+
+The contract's other routes are not called yet: `GET /chats/search` and `POST /chats/{id}/select`. Nor are `edit_of`, `retry_of` and `blocks` in the send body, or `starred`, `limit` and `offset` on the list.
 
 `tenant` in the sign-in request is the tenant id of the person picked from the list. The session is an HttpOnly cookie the server sets; the page never sees or stores a token.
 
@@ -218,3 +276,7 @@ The app routes in the browser (decision [0071](decisions/0071-client-side-routes
 - Passkey sign-in in the browser, once `signin.passkeys` is proven (see [signin.md](signin.md)).
 - A standing check that rebuilds `web/dist/` where Node is present and fails if the result differs from what is committed (decision 0005).
 - Bundled font files.
+- For the model picker, three changes in the chats lane's `internal/turn`, none needed for it to work:
+  - Say in `ModelChoice` that the chat is held, and mark each model a held chat may not be sent to. The picker would then read it from the route, show it before any turn is refused and in every browser, and the mark in local storage could go.
+  - Answer a new chat's model choice from the server, for example `GET /chats/model` with no chat. The new chat screen would then stop working the choice out itself, and the test tenant would see its one model there too.
+  - Say `key_present` in `ModelInfo`, so the chat's own route is enough without reading the registry.

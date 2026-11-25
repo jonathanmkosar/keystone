@@ -190,7 +190,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 - Changing a password, passkeys, and the list of signed-in devices.
 - Changing the person's name, and a short name for the greeting.
 - An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.
-- The model picker in the chat. A model added here can be named in `chats.default_model` on General, and that is the only way to choose it from the browser today.
+- A default model picked from a list. `chats.default_model` on General is a text field for a model's registry name. A model added here can also be picked for one chat in the chat's composer, since P4-04's model picker ([web.md](web.md)).
 - Testing a key or a model from the screen. A wrong key is found when a chat uses the model.
 - `ca_cert` and the cache prices in the model form.
 

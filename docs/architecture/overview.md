@@ -127,5 +127,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0212 | [Recall searches with the message's words, keeps by a threshold for each adapter, and fills each kind of model's room](decisions/0212-what-recall-searches-with-and-keeps.md) |
 | 0213 | [The lookups are plain values the tool loop wraps, and take the model's answer like recall](decisions/0213-the-lookups-are-plain-values.md) |
 | 0214 | [The search-first rule is a paragraph of the standing instructions, sent when a store is open](decisions/0214-the-search-first-rule-is-a-standing-instruction.md) |
+| 0240 | [A picked model goes with the next message, and the server keeps it for the chat](decisions/0240-a-pick-goes-with-the-next-message.md) |
+| 0241 | [The picker learns that a chat is held from a refused turn, and keeps that in the browser](decisions/0241-a-held-chat-is-learned-from-a-refused-turn.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
