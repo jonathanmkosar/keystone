@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, NavLink, useLocation } from "react-router";
-import type { Person } from "./api";
+import { Link, NavLink, useLocation, useMatch } from "react-router";
+import type { Chat, Person } from "./api";
+import { titleOf, useChats } from "./chats";
+import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { Mark } from "./Mark";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -28,6 +30,17 @@ function titleFor(path: string): string {
   return place ? place.label : "Keystone";
 }
 
+// The sidebar shows this many recent chats. The rest are on the chats screen.
+const recentShown = 30;
+
+function ChatLink({ chat }: { chat: Chat }) {
+  return (
+    <NavLink to={`/chats/${chat.id}`} className="nav" title={chat.title || undefined}>
+      <span className={chat.title ? "nav-text" : "nav-text nav-untitled"}>{titleOf(chat)}</span>
+    </NavLink>
+  );
+}
+
 /** The frame every signed-in screen sits in: sidebar, header, main area. */
 export function Shell({
   person,
@@ -43,6 +56,10 @@ export function Shell({
   children: ReactNode;
 }) {
   const location = useLocation();
+  const openChat = useMatch("/chats/:id")?.params.id;
+  const { status, chats, more } = useChats();
+  const starred = chats.filter((c) => c.starred);
+  const recent = chats.filter((c) => !c.starred);
   const [open, setOpen] = useState(true);
   const [drawer, setDrawer] = useState(false);
 
@@ -77,15 +94,33 @@ export function Shell({
         </Link>
         <div className="nav-group">
           {places.map((p) => (
-            <NavLink key={p.to} to={p.to} className="nav">
+            <NavLink key={p.to} to={p.to} end className="nav">
               <Icon name={p.icon} />
               {p.label}
             </NavLink>
           ))}
         </div>
+        {starred.length > 0 && (
+          <div className="nav-group">
+            <div className="nav-heading">STARRED</div>
+            {starred.map((c) => (
+              <ChatLink key={c.id} chat={c} />
+            ))}
+          </div>
+        )}
         <div className="nav-group nav-grow">
           <div className="nav-heading">RECENTS</div>
-          <p className="nav-empty">No chats yet.</p>
+          {recent.slice(0, recentShown).map((c) => (
+            <ChatLink key={c.id} chat={c} />
+          ))}
+          {(recent.length > recentShown || more) && (
+            <Link to="/chats" className="nav nav-more">
+              All chats
+            </Link>
+          )}
+          {status === "ready" && recent.length === 0 && <p className="nav-empty">{starred.length > 0 ? "No other chats." : "No chats yet."}</p>}
+          {status === "loading" && <p className="nav-empty">Loading.</p>}
+          {status === "failed" && <p className="nav-empty">The chats could not be read.</p>}
         </div>
         <div className="sidebar-foot">
           <div className="person">
@@ -112,7 +147,7 @@ export function Shell({
             >
               <Icon name="sidebar" />
             </button>
-            <span className="header-title">{titleFor(location.pathname)}</span>
+            {openChat ? <ChatTitle id={openChat} /> : <span className="header-title">{titleFor(location.pathname)}</span>}
           </div>
         </header>
         <div className="content">{children}</div>
