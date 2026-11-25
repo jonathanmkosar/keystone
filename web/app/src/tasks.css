@@ -1,0 +1,144 @@
+/* Background tasks in the chat (P8-01): the card of a task under way, and
+   the note a task writes when it ends. There is no mockup yet (P1-05): the
+   card follows the approval card's shape, and every colour is a token. */
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 720px;
+  margin: 16px auto 0;
+}
+
+.task {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.task.is-waiting {
+  border-color: var(--strong);
+}
+
+.task-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.task-head > .ico {
+  flex: none;
+  color: var(--accent);
+}
+
+.task-kind {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.task-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task-stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.task-stop:hover {
+  border-color: var(--strong);
+  color: var(--ink);
+}
+
+.task-stop:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.task-where {
+  margin: 0;
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.task-where.is-running {
+  animation: working 1.4s ease-in-out infinite;
+}
+
+.task.is-waiting .task-where {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.task-link {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.task-link a,
+.task-note-link {
+  color: var(--link);
+}
+
+.task-problem {
+  margin: 0;
+  color: var(--err);
+  font-size: 13px;
+}
+
+/* The note: a reply of its own, marked as the task's. */
+
+.task-note {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 14px;
+  border-left: 2px solid var(--accent);
+}
+
+.task-note-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.task-note-head > .ico {
+  color: var(--accent);
+}
+
+.task-note-link {
+  margin-left: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-where.is-running {
+    animation: none;
+  }
+}

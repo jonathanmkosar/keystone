@@ -9,6 +9,7 @@ import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
 import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
+import { TaskNote } from "./Tasks";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -20,7 +21,9 @@ export type Part =
   | { kind: "error"; text: string }
   | { kind: "note"; text: string }
   // Keystone's own note at the end of a reply that reached the turn's step limit.
-  | { kind: "limit"; text: string };
+  | { kind: "limit"; text: string }
+  // A background task's note, with its result (P8-01, Tasks.tsx).
+  | { kind: "task"; text: string; messageId: number; chatId: string };
 
 export type Item =
   | { kind: "user"; key: string; text: string; files: string[] }
@@ -166,6 +169,7 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
             </p>
           );
         }
+        if (p.kind === "task") return <TaskNote key={i} chatId={p.chatId} messageId={p.messageId} text={p.text} />;
         if (p.kind === "limit") {
           return (
             <div key={i} className="reply-limit" role="note">
