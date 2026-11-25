@@ -27,6 +27,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
 | API shell | `internal/api`, `internal/app` | The HTTP API every client uses. Every route but sign-in sits inside one audit wrapper, gets its tenant's store from the session cookie, and is listed in the OpenAPI document. Server-sent events for streams. | [api.md](api.md) |
 | Token budget | `internal/budget` | Counts the tokens a call will use, with the provider's own count where it offers one and an estimate with a margin elsewhere, and refuses a call that cannot fit the model's window before it is sent. | [budget.md](budget.md) |
+| Responses adapter | `internal/adapters/responses` | Calls a model that speaks the OpenAI Responses API: streaming, function calls, reasoning, errors sorted into the seam's kinds, and retries. Proven on replayed exchanges; not yet checked against the real API. | [adapter-responses.md](adapter-responses.md) |
 
 ## Parts still to come
 
@@ -70,5 +71,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0042 | [The OpenAPI document is built from the routes, and a copy is committed](decisions/0042-the-openapi-document-is-built-from-the-routes.md) |
 | 0130 | [A provider counts tokens through an optional interface, declared by the budget](decisions/0130-a-provider-counts-through-an-optional-interface.md) |
 | 0131 | [The estimate counts characters, and leans high](decisions/0131-the-estimate-counts-characters.md) |
+| 0110 | [The Responses adapter stores nothing at the provider, and reasoning travels in the signature](decisions/0110-responses-stores-nothing-at-the-provider.md) |
+| 0111 | [For the Responses adapter a thinking budget becomes an effort, by two settings](decisions/0111-a-thinking-budget-becomes-an-effort.md) |
+| 0112 | [The Responses adapter retries a call only before any of its reply has been passed on](decisions/0112-a-call-is-retried-only-before-its-reply-begins.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

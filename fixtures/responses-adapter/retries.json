@@ -1,0 +1,73 @@
+{
+  "test_data": true,
+  "about": "Invented exchanges with an invented endpoint, written by hand from the public description of the Responses API. Nothing here was captured from a provider. The test allows two retries.",
+  "cases": [
+    {
+      "name": "busy-then-answer",
+      "note": "The provider is busy, then asks for a short wait, then answers. The caller sees one whole reply.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Is the North Ferry running?"}]}]},
+      "exchanges": [
+        {"status": 503, "body": {"error": {"message": "The server is overloaded.", "type": "server_error", "param": null, "code": null}}},
+        {"status": 429, "headers": {"Retry-After-Ms": "2"}, "body": {"error": {"message": "Rate limit reached for this invented account.", "type": "requests", "param": null, "code": "rate_limit_exceeded"}}},
+        {
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_040", "status": "in_progress"}},
+            {"type": "response.output_text.delta", "item_id": "msg_invented_040", "output_index": 0, "content_index": 0, "delta": "Yes, it is running."},
+            {"type": "response.completed", "response": {"id": "resp_invented_040", "status": "completed", "usage": {"input_tokens": 10, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 6, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 16}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Yes, it is running."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 10, "output_tokens": 6}
+      }
+    },
+    {
+      "name": "failed-before-it-spoke",
+      "note": "The reply fails after it was created and before it said anything, so it is sent again. The second try answers.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Is the North Ferry running?"}]}]},
+      "exchanges": [
+        {
+          "events": [
+            {"type": "response.created", "response": {"id": "resp_invented_041", "status": "in_progress"}},
+            {"type": "response.failed", "response": {"id": "resp_invented_041", "status": "failed", "error": {"code": "server_error", "message": "The invented server had a problem."}}}
+          ]
+        },
+        {
+          "events": [
+            {"type": "response.output_text.delta", "item_id": "msg_invented_042", "output_index": 0, "content_index": 0, "delta": "Yes."},
+            {"type": "response.completed", "response": {"id": "resp_invented_042", "status": "completed", "usage": {"input_tokens": 10, "input_tokens_details": {"cached_tokens": 0}, "output_tokens": 2, "output_tokens_details": {"reasoning_tokens": 0}, "total_tokens": 12}}}
+          ]
+        }
+      ],
+      "response": {
+        "model": "example-responses",
+        "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Yes."}]},
+        "stop_reason": "end",
+        "usage": {"input_tokens": 10, "output_tokens": 2}
+      }
+    },
+    {
+      "name": "gives-up",
+      "note": "Three failures in a row: the first call and two retries. The last error comes back.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Is the North Ferry running?"}]}]},
+      "exchanges": [
+        {"status": 500, "body": {"error": {"message": "The invented server had a problem.", "type": "server_error", "param": null, "code": null}}},
+        {"status": 502, "body": {"error": {"message": "Bad gateway."}}},
+        {"status": 500, "body": {"error": {"message": "The invented server had a problem.", "type": "server_error", "param": null, "code": null}}}
+      ],
+      "error": {"kind": "unavailable", "retryable": true, "message_has": "500"}
+    },
+    {
+      "name": "asked-to-wait-too-long",
+      "note": "The provider asks for a wait of thirty seconds, which is longer than the adapter is set to wait. The call fails at once so another model can be tried.",
+      "request": {"messages": [{"role": "user", "blocks": [{"type": "text", "text": "Is the North Ferry running?"}]}]},
+      "exchanges": [
+        {"status": 429, "headers": {"Retry-After": "30"}, "body": {"error": {"message": "Rate limit reached for this invented account.", "type": "requests", "param": null, "code": "rate_limit_exceeded"}}}
+      ],
+      "error": {"kind": "rate_limited", "retryable": true}
+    }
+  ]
+}

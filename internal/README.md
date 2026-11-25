@@ -21,3 +21,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `adapters` | models | Turns a registry entry into a provider, with its key from the vault |
 | `testtenant` | core | Loads the invented test tenant from `fixtures/test-tenant` |
 | `budget` | models | Counts a call's tokens and refuses one that cannot fit the model's window |
+| `adapters/responses` | models | The adapter for the OpenAI Responses API, over HTTP with the standard library |

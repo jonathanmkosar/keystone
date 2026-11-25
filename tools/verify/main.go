@@ -55,6 +55,8 @@ var componentDocs = map[string]string{
 	"internal/api":               "docs/architecture/api.md",
 	"internal/app":               "docs/architecture/api.md",
 	"internal/budget":            "docs/architecture/budget.md",
+
+	"internal/adapters/responses": "docs/architecture/adapter-responses.md",
 }
 
 var checks = []check{

@@ -63,6 +63,55 @@
       "default": "4000",
       "scope": "install",
       "description": "Tokens counted in an estimate for a file that is named by reference, whose size the estimate cannot see."
+    },
+    {
+      "key": "responses.max_retries",
+      "type": "int",
+      "default": "2",
+      "scope": "install",
+      "description": "How many times the Responses adapter sends a call again when it failed before any of the reply arrived and the failure is one that may pass. Zero sends each call once."
+    },
+    {
+      "key": "responses.retry_base_delay",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "How long the Responses adapter waits before its first retry. The wait doubles with each retry."
+    },
+    {
+      "key": "responses.retry_max_delay",
+      "type": "duration",
+      "default": "8s",
+      "scope": "install",
+      "description": "The longest the Responses adapter waits before a retry. When the provider asks for a longer wait, the call fails at once so another model can be tried."
+    },
+    {
+      "key": "responses.header_timeout",
+      "type": "duration",
+      "default": "60s",
+      "scope": "install",
+      "description": "How long the Responses adapter waits for a reply to begin before it gives up on the call."
+    },
+    {
+      "key": "responses.idle_timeout",
+      "type": "duration",
+      "default": "120s",
+      "scope": "install",
+      "description": "How long a streamed reply through the Responses adapter may send nothing before it is given up on."
+    },
+    {
+      "key": "responses.effort_medium_from",
+      "type": "int",
+      "default": "4096",
+      "scope": "install",
+      "description": "The thinking budget, in tokens, from which the Responses adapter asks for medium reasoning effort. A smaller budget asks for low."
+    },
+    {
+      "key": "responses.effort_high_from",
+      "type": "int",
+      "default": "16384",
+      "scope": "install",
+      "description": "The thinking budget, in tokens, from which the Responses adapter asks for high reasoning effort."
     }
   ]
 }
