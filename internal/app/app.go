@@ -16,6 +16,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/jobs"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
@@ -63,6 +64,13 @@ type Config struct {
 	// settings/agents.json. A caller may give Web.Searcher its own search
 	// provider, or point Web.SearchEndpoint somewhere else.
 	Web web.Options
+	// Jobs is what background tasks run with (P8-01), in
+	// settings/agents.json.
+	Jobs jobs.Config
+	// jobs works the background tasks. Handler, Open and Routes make it,
+	// before the turn runner, so the tool that starts a task can be given
+	// it, and bind it to the turn runner after.
+	jobs *jobs.Runner
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -91,6 +99,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// The web tools' settings (P7-03), in settings/agents.json.
 	if c.Web, err = web.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
+	// Background tasks' settings (P8-01), in settings/agents.json.
+	if c.Jobs, err = jobs.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -145,24 +157,35 @@ func routes(c Config, log *api.Log) []api.Route {
 		Routes:       func() []api.Route { return all },
 		Log:          log,
 	})...)
+	if c.jobs == nil {
+		c.jobs = c.newJobs(log) // background tasks (P8-01), before the turn runner and its tools
+	}
 	runner := c.runner
 	if runner == nil {
 		runner = turn.NewRunner(c.turnOptions(log))
 	}
+	c.jobs.Bind(runner)
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, settingsapi.Routes()...)
+	all = append(all, jobs.Routes(c.jobs)...) // background tasks' (P8-01)
 	return all
 }
 
 // Handler returns the handler for everything under /api/.
 func Handler(c Config) (http.Handler, error) {
 	log := api.NewLog(c.Log)
+	if c.jobs == nil {
+		c.jobs = c.newJobs(log) // background tasks (P8-01), before the turn runner and its tools
+	}
 	if c.runner == nil {
 		c.runner = turn.NewRunner(c.turnOptions(log))
 	}
 	// A turn that was waiting when the server last stopped runs now.
 	c.runner.Recover()
+	// Then a background task whose round the stop cut short goes on (P8-01).
+	c.jobs.Bind(c.runner)
+	c.jobs.Recover()
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,
@@ -193,6 +216,7 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 		if o.Tools = c.Tools; o.Tools == nil {
 			o.Tools = c.toolsOrNone(log)
 		}
+		o.Gate = jobs.Gate // a background task's budget (P8-01)
 		return o
 	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}
@@ -204,6 +228,7 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 // A caller that removes the data folder afterwards, as a check does, calls
 // it first.
 func Open(c Config) (http.Handler, func(), error) {
+	c.jobs = c.newJobs(api.NewLog(c.Log)) // background tasks (P8-01): closed with the turn runner
 	c.runner = turn.NewRunner(c.turnOptions(api.NewLog(c.Log)))
 	h, err := Handler(c)
 	if err != nil {

@@ -1,0 +1,170 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a background task asked for in a chat",
+      "when": { "user_text": "Find out in the background when the lighthouse walk should start." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will start a background task for that." },
+                {
+                  "type": "tool_call",
+                  "id": "call_start_task",
+                  "name": "start_background_task",
+                  "input": {
+                    "title": "When to start the lighthouse walk",
+                    "task": "Find what my chats say about the lighthouse walk, check today's date, and say when the walk should start."
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 380, "output_tokens": 46 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The step above says whether the background task started. If it did, it works in a chat of its own, and its result will be written here when it is done. You can carry on meanwhile." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 460, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the background task about the lighthouse walk",
+      "when": { "user_text": "Find what my chats say about the lighthouse walk, check today's date, and say when the walk should start." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "First your chats." },
+                {
+                  "type": "tool_call",
+                  "id": "call_task_search",
+                  "name": "search_chats",
+                  "input": { "query": "lighthouse" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 300, "output_tokens": 22 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Now the date." },
+                {
+                  "type": "tool_call",
+                  "id": "call_task_time",
+                  "name": "current_time",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 420, "output_tokens": 18 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Your chats plan the lighthouse walk from the harbour steps, and the steps above give today's date. Start in the morning, an hour before the tide turns, so the causeway is still dry on the way out." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 520, "output_tokens": 44 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a background task that waits for the tide table",
+      "when": { "user_text": "Wait for the tide table, then say when the tide turns." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will wait for the tide table." },
+                {
+                  "type": "tool_call",
+                  "id": "call_tide",
+                  "name": "wait_for_tide",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 280, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The tide turns at six this evening." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 340, "output_tokens": 12 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a background task resumes after a restart",
+      "when": { "user_text_contains": "Keystone was restarted while you were working on this task" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Carrying on after the restart: the tide turns at six this evening, so the lighthouse walk can start at five." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 28 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a background task carries on after its step limit",
+      "when": { "user_text_contains": "Carry on with the task from where you stopped" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "That was the last of it: the steps above hold the whole answer." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 16 }
+          }
+        }
+      ]
+    }
+  ]
+}

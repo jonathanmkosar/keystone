@@ -42,6 +42,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Recall | `internal/knowledge/recall` | Searches the person's knowledge store with each message, keeps the hits over a threshold set for each adapter, and gives each call the pages and sources found, each saying where it came from, with a record of what was kept and dropped. Three lookups for the model. A guard for fixed rule 3: a call that is given sensitive content is routed only to models that may read it, and a chat that was sent some stays held to them. The lookups wait for the tool loop to offer them. | [knowledge-recall.md](knowledge-recall.md) |
 | Compaction | `internal/compact` | Keeps a long chat inside its model's window: past a share of the room for earlier turns, the oldest are summarised beside the turn by the model routing gives the summary task, extending the summary before, and later calls carry the summary in their place. Keeps the summaries with the chat, and the messages a person pinned are never left out. A guard for fixed rule 3: the summary of a held chat is made and sent only where the chat may go. | [compaction.md](compaction.md) |
 | Approvals | `internal/tools/approval`, `internal/turn` (`approvals.go`, `policies.go`, `approvalroutes.go`), `web/app/src` | The approval policy, fixed rule 2: each person's policy for each tool (always, ask or never), a card in the chat for a call that asks, with the turn waiting until the person answers, also across a restart, and the rule that once a chat has read outside content every tool that changes something asks, whatever its policy. An approval covers one call and is used once. | [approvals.md](approvals.md) |
+| Background tasks | `internal/jobs`, `internal/turn/jobs.go`, `web/app/src` | Work a person or a model starts in a chat that goes on by itself: rounds of ordinary turns in a chat of its own, with no client, resumed with a new round after a restart, stopped like a turn, asking for approvals like a turn, held to a budget of its own, and ending with a note of its result in the chat it was started from. A chat's marks for outside and sensitive content go with the task both ways. | [jobs.md](jobs.md) |
 
 ## Parts still to come
 
@@ -146,5 +147,11 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0251 | [web_fetch checks the address it connects to, after resolving the name and on every redirect](decisions/0251-web-fetch-checks-the-address-it-connects-to.md) |
 | 0252 | [The web tools are off in a chat held for sensitive content](decisions/0252-web-tools-are-off-in-a-chat-held-for-sensitive-content.md) |
 | 0253 | [Outside content is marked in the tool's result, where the record keeps it](decisions/0253-outside-content-is-marked-in-the-result.md) |
+| 0290 | [A background task works through turns of a chat of its own, in rounds](decisions/0290-a-task-works-through-turns-of-a-chat-of-its-own.md) |
+| 0291 | [A task resumes after a restart with a new round, and its note is written once](decisions/0291-a-task-resumes-with-a-new-round.md) |
+| 0292 | [A task's result is a note, written by a turn that calls no model, in the chat's queue](decisions/0292-the-result-is-a-note-written-in-the-chats-queue.md) |
+| 0293 | [A task has its own request id, and its budget is a gate the turn runner asks](decisions/0293-a-task-has-its-own-request-id-and-budget.md) |
+| 0294 | [A chat's marks go with its task, both ways](decisions/0294-a-chats-marks-go-with-its-task-both-ways.md) |
+| 0295 | [Starting a task changes something, so it asks; and a task starts no other](decisions/0295-starting-a-task-asks-and-a-task-starts-no-other.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

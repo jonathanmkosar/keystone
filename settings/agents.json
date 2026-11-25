@@ -120,6 +120,41 @@
       "default": "5",
       "scope": "install",
       "description": "The most redirects web_fetch follows for one page. Each one is checked like the first address: only public addresses are read."
+    },
+    {
+      "key": "agents.task_budget_usd",
+      "type": "float",
+      "default": "1",
+      "scope": "tenant",
+      "description": "The most one background task may spend, in US dollars, on models that are not local. A call that could take the task past it is not sent: the task goes on with a local model if your fallback chain has one, and otherwise stops and says so. The monthly cap still applies to every call."
+    },
+    {
+      "key": "agents.task_max_rounds",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "The most rounds one background task may take. A round is one turn of its chat, of up to chats.turn_max_steps model calls; a round that ends at its step limit, or that a restart cut short, is followed by another until this many have run."
+    },
+    {
+      "key": "agents.task_open_max",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "The most background tasks one person may have waiting or running at once. Starting another is refused until one ends."
+    },
+    {
+      "key": "agents.task_continue_text",
+      "type": "string",
+      "default": "Carry on with the task from where you stopped. When it is finished, give the result in full: it is what the person will read.",
+      "scope": "install",
+      "description": "The message a background task's next round is sent with when the round before it reached the step limit. The model reads it."
+    },
+    {
+      "key": "agents.task_resume_text",
+      "type": "string",
+      "default": "Keystone was restarted while you were working on this task, and your last step was cut short. Carry on from where you stopped: check what was done before you do anything again. When it is finished, give the result in full.",
+      "scope": "install",
+      "description": "The message a background task's next round is sent with when a restart of Keystone cut the round before it short. The model reads it."
     }
   ]
 }

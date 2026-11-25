@@ -40,5 +40,6 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 **What is left**, for a session that picks this up (updated at each commit):
 
-- Everything above.
+- Done: the server side. `internal/jobs` (rows, runner, routes, tool, gate) and its tests, the migration `20261125T151700_jobs.sql` (`jobs` and `job_events`: the rounds are found from the turns by the task's request id, so `job_turns` was not needed), `internal/turn/jobs.go`, the one line in `route.go` and the `Gate` field in `config.go`, the lines in `internal/app`, five settings, the fixture `turns/background-task.json`, the `background tasks` check in `tools/verify/jobs.go`, `docs/api/openapi.json`, `docs/architecture/jobs.md` and decisions 0290 to 0295.
+- Left: the screen (`Tasks.tsx`, `tasks.css`, calls in `api.ts`, a line in `Chat.tsx`, a branch in `layout.ts` and `Conversation.tsx`, `web/dist/` rebuilt, seen in a browser on port 7971), then the lines in `turns.md`, `web.md`, `tools.md`, `test-tenant.md` and `internal/README.md`, the journal, and the status.
 

@@ -100,6 +100,7 @@ var checks = []check{
 	{"approval", checkApproval},
 	{"recall", checkRecall},
 	{"sensitive content", checkSensitive},
+	{"background tasks", checkBackgroundTasks},
 }
 
 func main() {

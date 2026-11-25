@@ -21,6 +21,15 @@ func Tools(c Config) (*tools.Registry, error) {
 	if err := web.Add(r, c.Web); err != nil {
 		return nil, err
 	}
+	// Background tasks (P8-01): a model may start one. Starting one
+	// changes something, so it asks unless the person sets it to always.
+	// A caller with no task runner, such as a check that makes its own
+	// registry from Defaults, gets no such tool.
+	if c.jobs != nil {
+		if err := c.jobs.AddTool(r); err != nil {
+			return nil, err
+		}
+	}
 	return r, nil
 }
 
