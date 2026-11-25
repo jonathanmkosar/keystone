@@ -1,6 +1,6 @@
 # P4-03. Streaming turns
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P2-05, P3-03, P3-09, P4-02
 Owner gate: none

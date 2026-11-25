@@ -21,6 +21,48 @@
       "default": "50",
       "scope": "install",
       "description": "The most models one person's registry may hold. Adding one more is refused."
+    },
+    {
+      "key": "budget.chars_per_token",
+      "type": "float",
+      "default": "3",
+      "scope": "install",
+      "description": "How many characters of text count as one token when Keystone estimates a call's size because the provider offers no count. Lower counts more tokens, which is the safe side."
+    },
+    {
+      "key": "budget.margin_percent",
+      "type": "int",
+      "default": "15",
+      "scope": "install",
+      "description": "The safety margin added to an estimated token count, as a percentage of it. A provider's own count gets no margin."
+    },
+    {
+      "key": "budget.message_tokens",
+      "type": "int",
+      "default": "4",
+      "scope": "install",
+      "description": "Tokens counted for each message in an estimate, for its role and framing, on top of its content."
+    },
+    {
+      "key": "budget.tool_tokens",
+      "type": "int",
+      "default": "12",
+      "scope": "install",
+      "description": "Tokens counted for each tool offered in an estimate, on top of its name, description and schema."
+    },
+    {
+      "key": "budget.image_tokens",
+      "type": "int",
+      "default": "1600",
+      "scope": "install",
+      "description": "Tokens counted for each image in an estimate, whatever its size."
+    },
+    {
+      "key": "budget.ref_file_tokens",
+      "type": "int",
+      "default": "4000",
+      "scope": "install",
+      "description": "Tokens counted in an estimate for a file that is named by reference, whose size the estimate cannot see."
     }
   ]
 }

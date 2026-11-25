@@ -1,7 +1,7 @@
 # State
 
 Phase: 0, foundations, and 1, design. The build has started.
-Next: being built: P2-05 and P3-09 (core), P3-04 to P3-07 (models) and P6-03 (knowledge). P4-03 and P4-04 open when P2-05 and P3-09 are merged, and that is the path to a running chat.
+Next: being built: P4-03, the chat turn (chats), P3-04 to P3-06 (models) and P6-03 (knowledge). P4-04, the chat screen, follows P4-03 and is the last step to a chat that runs in the browser.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -9,9 +9,9 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | P2-05, in its own worktree | P13-04, held until the app runs |
-| models | P3-04, P3-05, P3-06 and P3-07, each in its own worktree | P3-08 |
-| chats | nothing | P4-03, after P2-05 and P3-09 |
+| core | nothing | P13-04, held until the app runs |
+| models | P3-04, P3-05 and P3-06, each in its own worktree | P3-08 |
+| chats | P4-03, in its own worktree | P5-01 |
 | knowledge | P6-03, in its own worktree | P6-04 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing. P4-01 is wired to the real API when P2-05 is merged | P4-04, after P4-03 |
@@ -48,6 +48,8 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P3-02, the model registry: each tenant's models as checked entries in its own database, a class on each that decides whether it may read sensitive content (the guard for fixed rule 3), and providers opened with keys from the vault. Only the fake adapter can be opened until P3-04 to P3-06.
 - P4-01, the web shell, provisional: a React and Vite app built from the draft tokens and compiled into the binary, with the frame, the theme switch, routing and a sign-in screen. Its four API paths are guesses until P2-05 is merged, and it has been seen only in the "server not ready" state.
 - P3-09, the test tenant: `rebuild` loads an invented person, "Test Person One", who can sign in and has three chats, and `verify` has the `test tenant` check, 13 of 13. Files, images and knowledge for it wait for P9-02 and later. Nothing yet ties the test tenant to the fake provider on a route: P4-03 does.
+- P2-05, the API shell: routes under `/api/v1/` inside one audit wrapper, the session in a cookie the page cannot read, server-sent events, the OpenAPI document, the command-line client, and route walks in `verify` (`calls recorded`). The web shell is wired to it: on November 25, 2026 the test tenant signed in through the browser, the frame loaded, and a reload on `/chats` kept the page.
+- P3-07, the token budget: a request that cannot fit a model's window is refused before it is sent, with the `context fit` check. `verify` is 15 of 15. Every model is estimated until the adapters count for themselves.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
@@ -59,7 +61,6 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - Four of the six wave 4 sessions stopped after committing their code and before their write-up (P2-03, P2-04, P3-03, P6-01). The integrator wrote their journal entries, and for P2-03 and P6-01 the missing docs and decision records, from the code and the plans. Those entries say so.
 - Two lanes were each green alone and red together: P2-03 had the tenant package read a setting, which P2-04's fixed rules check refuses. It was fixed in the code at the merge (core 006). Expect this at every wide merge, and run `verify` after each branch.
 - `verify` does not check that links inside the docs lead somewhere. Two dead links got through and were fixed by hand (knowledge 001).
-- No API route exists yet, so "every API call is recorded" and "every route resolves its tenant" are proven for the wrappers and not for routes. P2-05 adds both walks.
 - Scripts and computer use are out of this build (see PLAN.md).
 
 ## Carry forward

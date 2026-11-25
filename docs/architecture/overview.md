@@ -26,6 +26,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Adapters | `internal/adapters` | Turns a registry entry into a provider that can be called, with the key read by name from the tenant's vault. The fake is the only adapter built. | [models.md](models.md) |
 | Test tenant | `internal/testtenant`, `fixtures/test-tenant` | An invented person with a published password, a few chats and recorded model turns, loaded by `rebuild` and safe to load twice. It is told from a real tenant by a mark in its own database. | [test-tenant.md](test-tenant.md) |
 | API shell | `internal/api`, `internal/app` | The HTTP API every client uses. Every route but sign-in sits inside one audit wrapper, gets its tenant's store from the session cookie, and is listed in the OpenAPI document. Server-sent events for streams. | [api.md](api.md) |
+| Token budget | `internal/budget` | Counts the tokens a call will use, with the provider's own count where it offers one and an estimate with a margin elsewhere, and refuses a call that cannot fit the model's window before it is sent. | [budget.md](budget.md) |
 
 ## Parts still to come
 
@@ -67,5 +68,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0040 | [Every route sits inside one audit wrapper, and the doors are a short list](decisions/0040-one-wrap-and-a-short-list-of-doors.md) |
 | 0041 | [The session travels in one cookie, for the browser and the command line alike](decisions/0041-the-session-travels-in-one-cookie.md) |
 | 0042 | [The OpenAPI document is built from the routes, and a copy is committed](decisions/0042-the-openapi-document-is-built-from-the-routes.md) |
+| 0130 | [A provider counts tokens through an optional interface, declared by the budget](decisions/0130-a-provider-counts-through-an-optional-interface.md) |
+| 0131 | [The estimate counts characters, and leans high](decisions/0131-the-estimate-counts-characters.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
