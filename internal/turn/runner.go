@@ -22,10 +22,6 @@ import (
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
-// noTools is what a tool call is answered with until the tool loop (P7-01)
-// runs tools.
-const noTools = "No tool was run. This build of Keystone has no tool loop yet."
-
 // Runner serves the chat and turn routes and works the turns.
 //
 // It keeps nothing a restart would lose: a turn and its events are rows in
@@ -402,9 +398,6 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 	}
 	reply := ""
 	for step := 1; ; step++ {
-		if step > r.o.Config.MaxSteps {
-			return &TurnError{Code: CodeStepLimit, Message: fmt.Sprintf("The model asked for tools %d times in one turn, which is the most a turn allows.", r.o.Config.MaxSteps)}, false
-		}
 		messages, err := r.branch(ctx, s, t.ChatID, tail, m.Name)
 		if err != nil {
 			return broke("reading the chat", err)
@@ -452,20 +445,15 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 		if out.resp.StopReason != seam.StopToolCall || len(calls) == 0 {
 			break
 		}
-		// There is no tool loop yet. Each call is answered with an error
-		// the model can read, so the record stays one any provider takes.
-		var results []seam.Block
-		for _, c := range calls {
-			res := seam.Block{Type: seam.BlockToolResult, ID: c.ID, IsError: true, Content: []seam.Block{{Type: seam.BlockText, Text: noTools}}}
-			results = append(results, res)
-			say(EventToolResult, ToolResultEvent{ID: res.ID, IsError: res.IsError, Content: res.Content})
+		// The tool loop (P7-01, tools.go): every call is answered and the
+		// model is called again, until the turn's step limit.
+		var again bool
+		if tail, again, failure, stopped = r.toolStep(ctx, s, t, step, tail, calls, say); failure != nil || stopped || r.isClosing() {
+			return failure, stopped
 		}
-		msg, err := r.store(s, t, tail, seam.RoleUser, results, meta{})
-		if err != nil {
-			return broke("storing the tool results", err)
+		if !again {
+			break
 		}
-		tail = msg.ID
-		say(EventMessage, msg)
 	}
 
 	if title, ok := r.title(ctx, s, t, m, provider, secrets, reply); ok {

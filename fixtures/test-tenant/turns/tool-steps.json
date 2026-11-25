@@ -1,0 +1,94 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a task of several steps",
+      "when": { "user_text": "What have I asked you about the lighthouse, and what is the date today?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will look through your chats first." },
+                {
+                  "type": "tool_call",
+                  "id": "call_search",
+                  "name": "search_chats",
+                  "input": { "query": "lighthouse" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 410, "output_tokens": 31 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Now the date." },
+                {
+                  "type": "tool_call",
+                  "id": "call_time",
+                  "name": "current_time",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 18 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "You asked about the lighthouse in one chat, **Planning the lighthouse walk**: what to bring, and how long the walk is by the harbour road and by the cliff path.\n\nThe date and the time are in the second step above. This reply is a recorded turn, so it ran both tools for real and cannot read out what they returned." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 590, "output_tokens": 64 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a tool that would change something",
+      "when": { "user_text": "Send a postcard to the lighthouse keeper." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_postcard",
+                  "name": "send_postcard",
+                  "input": { "to": "The lighthouse keeper", "message": "Thank you for the light." }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 380, "output_tokens": 26 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "No postcard was sent. Keystone did not run the tool: nothing that sends or changes something runs without your approval, and this build has no tool that sends post." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 440, "output_tokens": 37 }
+          }
+        }
+      ]
+    }
+  ]
+}

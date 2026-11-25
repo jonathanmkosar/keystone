@@ -48,6 +48,14 @@ func init() {
 	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/knowledge/personmap")
 }
 
+// The tool loop (P7-01) gives the approval rule its code: the rule's test
+// in internal/tools/approval, and the registry in internal/tools, which is
+// the only place a tool runs and asks that test first. The approval policy
+// itself (P7-02) adds to the first.
+func init() {
+	fixedRuleGuards["rules.approval"] = append(fixedRuleGuards["rules.approval"], "internal/tools/approval", "internal/tools")
+}
+
 // settingsPackages are the ways to read a setting's value.
 var settingsPackages = []string{module + "/settings", module + "/internal/tenantsettings"}
 

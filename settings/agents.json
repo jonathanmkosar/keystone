@@ -1,0 +1,40 @@
+{
+  "lane": "agents",
+  "settings": [
+    {
+      "key": "agents.tools_enabled",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether a chat turn offers the model tools. When it is off no tool is offered, and a tool a model asks for anyway is answered with a refusal."
+    },
+    {
+      "key": "agents.tool_timeout",
+      "type": "duration",
+      "default": "60s",
+      "scope": "install",
+      "description": "How long one tool may run in a turn. A tool that runs longer is stopped, and the model is told it gave no result."
+    },
+    {
+      "key": "agents.tool_result_max_chars",
+      "type": "int",
+      "default": "20000",
+      "scope": "install",
+      "description": "The most characters of one tool's result that are kept and sent back to the model. A longer result is cut, with a line that says so. Zero keeps every result whole."
+    },
+    {
+      "key": "agents.step_limit_note",
+      "type": "string",
+      "default": "Keystone stopped here, because this reply reached the most steps one turn may take. Send another message to carry on from this point.",
+      "scope": "install",
+      "description": "What a reply ends with when a turn reaches chats.turn_max_steps while the model is still asking for tools. The person reads it in the chat, and the model reads it in later turns."
+    },
+    {
+      "key": "agents.read_chat_max_messages",
+      "type": "int",
+      "default": "40",
+      "scope": "install",
+      "description": "The most messages the read_chat tool returns from one chat. A longer chat comes back as its last messages."
+    }
+  ]
+}

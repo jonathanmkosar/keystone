@@ -37,6 +37,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Routing | `internal/routing` | Decides which models one call may be sent to: a rule for each kind of task, sensitive content kept to local and trusted models, and a fallback chain that moves to the next model while nothing of a reply has been passed on. A guard for fixed rule 3. | [routing.md](routing.md) |
 | Usage and the spend cap | `internal/usage` | One append-only record for each model call, with its tokens and its cost, summed by month for a tenant. The monthly cap stops a call to a model that is not local when it could take the month past the cap, and warns near it. | [usage.md](usage.md) |
 | Settings routes and screens | `internal/settingsapi`, `web/app/src` | The routes behind the settings screens, and the screens: a person's own settings, the names of their secrets, their model registry and their profile. A secret's value goes in and is never returned, and a fixed rule is listed and never changed. | [settings-screens.md](settings-screens.md) |
+| Tool loop | `internal/tools`, `internal/tools/approval`, `internal/tools/builtin` | The registry of the tools a turn offers, filled by plain calls, and the one place a tool runs: recorded before and after, under a timeout, with a tool that breaks turned into an error result. The approval rule's test refuses every tool that changes something until approvals exist. Three built-in tools that only read: the time, search of the person's chats, and reading one. The turn calls the model again after each step, up to its step limit. | [tool-loop.md](tool-loop.md) |
 
 ## Parts still to come
 
@@ -115,5 +116,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0190 | [The settings routes act as the person, in a package of their own](decisions/0190-settings-routes-act-as-the-person.md) |
 | 0191 | [The General screen is drawn from the settings route, and the proof is a test of the route](decisions/0191-the-general-screen-is-drawn-from-the-route.md) |
 | 0192 | [The theme is a setting once a person has chosen one](decisions/0192-the-theme-is-a-setting-once-chosen.md) |
+| 0200 | [A tool is data and a function in a registry made by plain calls, and the registry is the one place a tool runs](decisions/0200-a-tool-is-data-and-a-function-in-a-registry.md) |
+| 0201 | [Until approvals exist, a tool that changes something is refused, and an approval is a value only its own package can make](decisions/0201-a-changing-tool-is-refused-until-approvals.md) |
+| 0202 | [At the step limit a turn ends as done with a note, and the last calls are answered without running](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md) |
+| 0203 | [A tool runs beside the turn, stop does not wait for it, and every call still gets a stored result](decisions/0203-a-tool-runs-beside-the-turn-and-stop-does-not-wait.md) |
+| 0204 | [The chat screen writes each step's readable line from the tool's name, input and result](decisions/0204-the-screen-writes-the-steps-line.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

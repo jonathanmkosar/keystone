@@ -27,6 +27,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	}
 	profile, personMap := r.person(ctx, s, t, m)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
+		Tools: r.offered(ctx, s, m), // the tool loop's (P7-01)
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
 		MaxOutputTokens: maxOutput, ThinkingTokens: thinking,
 		Provider: p, Messages: messages,

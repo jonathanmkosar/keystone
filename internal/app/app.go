@@ -19,6 +19,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/settings"
 )
@@ -51,6 +52,12 @@ type Config struct {
 	Adapters adapters.Set
 	// runner works the turns. Handler and Open make it.
 	runner *turn.Runner
+	// Tools are the tools a turn may offer a model and run. It is not a
+	// setting: whoever starts the server may make the registry. Nil means
+	// the built-in tools, as Tools returns them.
+	Tools *tools.Registry
+	// toolsPlaced is turnOptions' own mark.
+	toolsPlaced bool
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -167,6 +174,17 @@ func OpenAPI() ([]byte, error) {
 
 // turnOptions is what the runner of chats and turns is made with.
 func (c Config) turnOptions(log *api.Log) turn.Options {
+	// The tool loop's lines (P7-01). They are added ahead of the line
+	// below and change nothing in it: the options are made as before, and
+	// then given the tools. An integrator may fold this into one literal.
+	if !c.toolsPlaced {
+		c.toolsPlaced = true
+		o := c.turnOptions(log)
+		if o.Tools = c.Tools; o.Tools == nil {
+			o.Tools = c.toolsOrNone(log)
+		}
+		return o
+	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}
 }
 

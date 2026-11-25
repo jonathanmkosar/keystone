@@ -58,6 +58,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 | `chats/*.json` | One chat each. Loaded in order of file name, so the last file is the newest chat. |
 | `cases/*.json` | Use cases and their expected results. |
 
+`turns/tool-steps.json` (P7-01) holds two turns that use tools: a task of several steps, in which the model searches the person's chats, then reads the time, then answers, and a call to `send_postcard`, a tool that would change something. They are typed into a new chat as they are written there. See [tool-loop.md](tool-loop.md).
+
 ### A chat file
 
 ```json

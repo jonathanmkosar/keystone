@@ -31,3 +31,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `routing` | models | Which models a call may go to: task rules, the privacy filter and the fallback chain |
 | `usage` | models | A record for each model call, a month's sums, and the monthly spend cap |
 | `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |
+| `tools` | agents | The tool registry and the one place a tool runs; `tools/approval`, the test for fixed rule 2; `tools/builtin`, the tools that come with Keystone |

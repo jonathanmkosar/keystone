@@ -70,7 +70,10 @@ var componentDocs = map[string]string{
 	"internal/routing":             "docs/architecture/routing.md",
 	"internal/usage":               "docs/architecture/usage.md",
 
-	"internal/settingsapi": "docs/architecture/settings-screens.md",
+	"internal/settingsapi":    "docs/architecture/settings-screens.md",
+	"internal/tools":          "docs/architecture/tool-loop.md",
+	"internal/tools/approval": "docs/architecture/tool-loop.md",
+	"internal/tools/builtin":  "docs/architecture/tool-loop.md",
 }
 
 var checks = []check{
@@ -90,6 +93,7 @@ var checks = []check{
 	{"calls recorded", checkRecorded},
 	{"context fit", checkContextFit},
 	{"spend cap", checkSpendCap},
+	{"approval", checkApproval},
 }
 
 func main() {

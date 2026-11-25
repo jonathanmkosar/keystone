@@ -1,6 +1,6 @@
 # P7-01. Tool loop
 
-Status: doing (agents)
+Status: provisional
 Lane: agents + interface
 Depends on: P4-03
 Owner gate: Approval of the agent mockups (P1-05), for how steps are shown only.
@@ -12,3 +12,35 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 ## Plan and result
 
+### Plan
+
+**The contract.** No route changes. The stream keeps `tool_call` and `tool_result` exactly as they are. One value is added: a message's and a turn's `stop_reason` may be `step_limit`, on the note a turn writes when it reaches the step limit. The turn then ends `done`, and the error code `step_limit` is no longer sent.
+
+**Server side.**
+
+1. `internal/tools/approval`: the test for fixed rule 2. `Check(changes, approval)` lets a tool that only reads run, and refuses one that changes something unless it is given an approval. Nothing can make an approval until P7-02, so a changing tool cannot run. The package imports nothing of Keystone's, and is a guard in `fixedRuleGuards["rules.approval"]`.
+2. `internal/tools`: the registry. A tool is a name, a description, a JSON schema, `ReadOnly`, and a function that runs for one tenant's store with a context. `New()` makes a registry, `Add` registers a tool by a plain call, `Definitions` is what a model is offered, and `Run` is the only way a tool runs: it writes the audit entry before and after, asks `approval.Check`, turns a failure, a panic or a timeout into an error result, and returns when the context is cancelled. It reads no setting, and is the second guard.
+3. `internal/tools/builtin`: three tools that only read: `current_time`, `search_chats` and `read_chat`.
+4. `internal/turn`: the registry comes in `Options.Tools`. The tools on offer go into the context builder's `Tools` slot. A tool call is run through `Registry.Run`, its result is streamed and stored, and the model is called again, up to `chats.turn_max_steps`. At the limit the calls are answered, a note is written as the turn's last message, and the turn ends `done`. Stop cancels the tool, and the calls that did not finish are stored as stopped.
+5. `internal/app`: the registry is made and the built-in tools are added where the server is put together.
+6. Settings in a new `settings/agents.json`: whether tools are offered, how long one tool may run, how much of a result is kept, the note at the step limit, and how many messages `read_chat` returns.
+
+**Proof.**
+
+- `go test ./internal/tools/...`: the gate, the registry, a failing tool, a panicking tool, a slow tool, a cancelled tool, the audit entries, and the three tools against two tenants.
+- `go test ./internal/turn`: the test tenant's scripted task (`fixtures/test-tenant/turns/tool-steps.json`: search the chats, read the time, answer) completes with each step in the stream, the record and the audit log; the step limit ends a turn with its note; stop cancels a running tool; a changing tool is refused and never runs.
+- `verify`: `calls recorded` runs the scripted task on the real server and reads the audit log for each tool call; a new check, `approval`, registers a changing tool on the real server, has the model call it, and fails if it ran.
+
+**The screen.** The chat screen already draws tool steps from the same events. It gains a readable line for each step (what the tool is doing and to what, from its name and input), the running state, the result collapsed by default, and the step limit's note. Built from the tokens, from the approved `MainDark.html` step rows.
+
+
+### Result
+
+Provisional on November 25, 2026. It waits on the owner gate: approval of the agent mockups (P1-05), for how the steps look. Everything else in the scope is built. It was finished by a second session, after the first stopped partway.
+
+- `internal/tools` is the registry and the one place a tool runs, `internal/tools/approval` is fixed rule 2's test, and `internal/tools/builtin` has three tools that only read: `current_time`, `search_chats` and `read_chat`. The server's registry is made in `internal/app/tools.go`. The doc is `docs/architecture/tool-loop.md`.
+- The turn's side is `internal/turn/tools.go`: the tools on offer go into the context builder's `Tools` slot, each call is run and its result streamed and stored, and the model is called again up to `chats.turn_max_steps`. At the limit the turn ends as `done` with a note, with the stop reason `step_limit`. Stop cancels a running tool. A tool that fails or panics is an error result.
+- Every tool that changes something is refused until approvals (P7-02). A new standing check, `approval`, proves it on the real server, and the two packages are the rule's guards in `fixedRuleGuards`.
+- The proof holds. The test tenant's scripted task (`fixtures/test-tenant/turns/tool-steps.json`: search the chats, read the time, answer) completes in `go test ./internal/turn` and in `verify`'s `calls recorded`, with each step in the stream, the record and the audit log. In a browser each step rendered as a readable row, running and then answered, collapsed until opened, and the same after a reload. `verify` is 17 of 17.
+- The contract: no route or event changed shape. `stop_reason` may now be `step_limit`, and the error code `step_limit` is no longer sent. `docs/api/openapi.json` was regenerated and is unchanged. Listed in `turns.md` under "Changed since the contract".
+- Five settings in a new `settings/agents.json`. Decisions 0200 to 0204. The journal is agents 001, with three questions for the owner.

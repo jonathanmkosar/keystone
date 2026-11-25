@@ -339,6 +339,55 @@
   overflow-wrap: anywhere;
 }
 
+/* A tool step: the readable line takes the room, and what came back sits on
+   the right, as in the approved step rows of MainDark.html. */
+.step-tool {
+  padding: 7px 0;
+  line-height: 22px;
+}
+
+.step-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.step-meta {
+  flex: none;
+  color: var(--muted);
+  font: 13px var(--font-mono);
+}
+
+.step-tool .step-tag {
+  flex: none;
+}
+
+.step-tool .ico {
+  flex: none;
+}
+
+.step-name {
+  margin: 2px 0 6px;
+  font: 13px/20px var(--font-mono);
+}
+
+.reply-limit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px dashed var(--strong);
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.reply-limit .ico {
+  flex: none;
+  margin-top: 3px;
+}
+
 .reply-text {
   font: 400 18px/30px var(--font-read);
   overflow-wrap: anywhere;

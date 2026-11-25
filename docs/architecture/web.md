@@ -84,9 +84,22 @@ P4-04, built against the P4-03 contract in [turns.md](turns.md). It is provision
 - A person's message is a bubble on the right. Files and images in it are shown by name.
 - The record keeps a tool's results in a message with the role `user`, and a reply that used tools is several assistant messages. On the screen that is one reply: its steps in order, then its text.
 - A thinking block is a step that opens to show the thinking. A reply that this page watched arrive says how long the thinking took; one read from the record says only that it thought, because the record does not keep the time. A model that kept its thinking to itself gets a step with nothing to open.
-- A tool call is a step that opens to show what was sent and what came back.
+- A tool call is a step with a readable line, that opens to show what was sent and what came back. See "Tool steps" below.
 - Text is read as Markdown by `src/Markdown.tsx`: paragraphs, headings, lists, quotes, rules, tables, code blocks with a copy button, and inside a line code, bold, italic, struck text and links. It builds React elements and never sets HTML from text. A link opens in a new tab, and only an `http`, `https` or `mailto` address becomes one. A code block with no closing fence runs to the end, which is what a reply looks like part of the way through.
 - A stored reply that did not end by the model finishing says so under its text: the person stopped it, it broke off, it reached the length limit, or the model declined.
+
+### Tool steps (P7-01)
+
+Since the tool loop a reply's tools really run, and each step is drawn as it happens ([tool-loop.md](tool-loop.md)):
+
+- **A readable line.** `src/steps.ts` turns a call's name, input and result into a sentence: "Searching your chats for “lighthouse”" while it runs, "Searched your chats for “lighthouse”" with "3 matches" on the right once it has answered, "Read “Planning the lighthouse walk”", "Checked the date and time". A tool with no words of its own reads "Used <name>: " and the first plain values it was sent. Decision [0204](decisions/0204-the-screen-writes-the-steps-line.md).
+- **Running.** From its `tool_call` event to its `tool_result`, the row is in the present tense, pulses as thinking does, and says "running" on the right.
+- **No result.** A row whose result is an error says what the model asked for, with a tag: "not run" or "stopped" in the plain tag, "failed" or "no such tool" in the error colour.
+- **Collapsed by default.** A row opens to show the tool's name, what it was sent and what came back.
+- **The step limit.** The note a turn writes at its step limit (a message with the stop reason `step_limit`) is drawn in a dashed box with the stop mark, as Keystone's words and not the model's.
+- A reply's text between steps stays between them, in the order it was written.
+
+It is drawn from the record, so a reload shows the same. Built from the tokens in `src/chat.css`, after the approved step rows of `MainDark.html`. Provisional until the owner approves the agent mockups (P1-05): the running row, the rows with no result, the open body and the step limit's note have no mockup.
 
 ### A turn, from send to end
 

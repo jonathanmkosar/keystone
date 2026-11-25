@@ -50,7 +50,7 @@ Every path starts with `/api/v1`. `{id}` is a chat's id, sixteen hex characters.
 | `siblings` | The ids of every message with the same parent, this one included, oldest first. More than one means a "2 of 3" switcher belongs here. Step with `POST /chats/{id}/select`. |
 | `turn_id` | The turn that wrote it. Absent on a message no turn wrote. |
 | `model` | On an assistant message: the registry name of the model that wrote it. |
-| `stop_reason` | On an assistant message: `end`, `tool_call`, `max_tokens` or `refused` from the model, `stopped` when the person stopped it, `failed` when the call broke off. |
+| `stop_reason` | On an assistant message: `end`, `tool_call`, `max_tokens` or `refused` from the model, `stopped` when the person stopped it, `failed` when the call broke off, `step_limit` on the note a turn writes when it reaches its step limit. |
 | `usage`, `cost_micros` | On an assistant message: the token count of the call that wrote it, and its cost in millionths of a US dollar. |
 
 **`ChatReply`**: `chat`, `messages`, `model` (a `ModelChoice`) and `turns`. `turns` holds the chat's turns that have not ended, oldest first. A screen that opens a chat and finds one reads its events to join the stream.
@@ -85,7 +85,7 @@ Every path starts with `/api/v1`. `{id}` is a chat's id, sixteen hex characters.
 | `model` | The model that answers. Set when the turn leaves the queue. |
 | `user_message_id` | The person's message, once it is in the record. |
 | `reply_message_id` | The last assistant message the turn wrote. |
-| `stop_reason` | The model's last stop reason. |
+| `stop_reason` | The model's last stop reason, or `step_limit` for a turn that reached its step limit and ended as `done`. |
 | `error` | On a failed turn, a `TurnError`: `code`, `message`, `retryable`. |
 | `usage`, `cost_micros` | The sum over the turn's model calls. |
 | `created`, `started`, `ended` | |
@@ -138,7 +138,7 @@ The codes of an `error` event:
 | `model_unavailable` | The model cannot be opened: its adapter is not in this build, its key is not in the vault, or its entry is refused. |
 | `too_long` | The chat does not fit the model's context window. |
 | `auth`, `rate_limited`, `overloaded`, `invalid`, `unavailable`, `other` | The provider's failure, by the seam's kinds. |
-| `step_limit` | The model asked for tools more times than `chats.turn_max_steps`. |
+| `step_limit` | Not sent since the tool loop (P7-01): a turn at `chats.turn_max_steps` ends as `done` with a note. A turn an earlier build ended may still hold it. |
 | `interrupted` | Keystone stopped while the turn was running. |
 | `failed` | The turn failed inside Keystone. The reason is in the server's log. |
 
@@ -223,6 +223,12 @@ No route, request, reply or event changed shape between the contract commit and 
 - The title in the worked example was one word too long. The fake provider writes no title, so the test tenant's titles are the first `chats.title_derived_words` words of the message, six as shipped.
 - A turn's `usage` and `cost_micros` count its chat calls. The title call is recorded in the audit log and is not added to the turn.
 
+Since the tool loop (P7-01), one value was added and one code retired. No route, request, reply or event changed shape, and `docs/api/openapi.json` was regenerated and is the same file, because it lists `stop_reason` as a string:
+
+- `stop_reason` on a `Message` and on a `Turn` may be `step_limit`. The message is the note a turn writes when its last allowed model call still asks for tools, with the text of `agents.step_limit_note`. The turn then ends as `done` with the same stop reason (decision [0202](decisions/0202-the-step-limit-ends-a-turn-with-a-note.md)).
+- The `error` code `step_limit` is no longer sent.
+- `tool_result` now carries a tool's real result. It is an error result (`is_error: true`) when the tool failed, broke, ran too long, does not exist, changes something and has no approval, was declined at the step limit or with tools switched off, or was stopped. `tool_call` and `tool_result` are as they were.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.
@@ -238,7 +244,7 @@ Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](dec
 3. The request is built by the context builder ([context.md](context.md)) from the branch that ends at that message: the standing instructions from `chats.context_system_text`, the current turn, and as many earlier turns as fit the model's window, with `chats.turn_max_output_tokens` and `chats.turn_thinking_tokens`. What the call was built from is stored in `turn_contexts`.
 4. The provider's `Stream` is called. Each seam event goes through a `seam.Collector` and is written as a row in `turn_events`: text and thinking as they arrive, a tool call when it is whole.
 5. The reply is appended to the record, with the model, the stop reason, the usage and the cost in `turn_messages`.
-6. If the model stopped for a tool, each call is answered, the results are appended as a message, and step 3 runs again, up to `chats.turn_max_steps` times. There is no tool loop yet (P7-01), so every call is answered with an error the model can read (decision [0143](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md)).
+6. If the model stopped for a tool, each call is run, the results are appended as a message, and step 3 runs again, up to `chats.turn_max_steps` model calls. At the limit the last calls are answered without running and the turn ends as `done` with a note. The tool loop is [tool-loop.md](tool-loop.md).
 7. A chat with no title gets one.
 8. The turn is closed with `end`.
 
@@ -360,10 +366,11 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
   - A tenant with no model gets `no_model` and no model call. A registry model is used. A model with no adapter is `model_unavailable`. A chat over the window is `too_long`. A model that is not the fake writes the title, and both calls are recorded with their cost. A branch with a stopped tool call and another model's thinking becomes a request the seam accepts.
 - The route walks in `verify` call the twelve routes like every other: `tenant isolation`, `calls recorded` and `no keys in output` ([tools.md](tools.md)).
 - `calls recorded` also sends one message as the test tenant with the shipped settings and reads the audit log: the API call and the model call are each there before and after, under one request id, the model is `recorded-turns`, and the other tenant's log is empty. The code is in `tools/verify/turns.go`.
+- The tool loop's tests and checks, the test tenant's task of several steps among them, are in [tool-loop.md](tool-loop.md).
 
 ## Not here yet
 
-- Tools. A tool call is answered with an error until the tool loop (P7-01), which also brings approvals. The `tool_call` and `tool_result` events are already in the stream.
+- Approvals (P7-02). Since the tool loop (P7-01) a turn runs tools that only read, and refuses every tool that changes something ([tool-loop.md](tool-loop.md)).
 - Compaction and caching (P5-02, P5-03). The context builder (P5-01) leaves the oldest turns out of a chat that outgrows its model's window. Nothing stands in for them yet but one sentence that tells the model. A single message larger than the window still fails with `too_long`.
 - Routing, fallbacks, usage records and the spend cap (P3-08). A failed call is not tried on another model. Cost is worked out from the entry's price and kept in the audit log and on the message.
 - The real adapters in the set. `app.Config.Adapters` is ready for them.

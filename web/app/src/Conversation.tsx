@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
+import { errorLabel, toolLine } from "./steps";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -15,7 +16,9 @@ export type Part =
   | { kind: "steps"; steps: Step[] }
   | { kind: "text"; text: string }
   | { kind: "error"; text: string }
-  | { kind: "note"; text: string };
+  | { kind: "note"; text: string }
+  // Keystone's own note at the end of a reply that reached the turn's step limit.
+  | { kind: "limit"; text: string };
 
 export type Item =
   | { kind: "user"; key: string; text: string; files: string[] }
@@ -59,34 +62,54 @@ function pretty(json: string): string {
   }
 }
 
+// One tool call: a readable line of what it is doing or did, a few words on
+// the right about what came back, and, opened, what it was sent and what it
+// gave back. It is closed until the person opens it. steps.ts writes the line.
 function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
   const [open, setOpen] = useState(false);
   const input = step.input.trim();
-  const hasBody = (input !== "" && input !== "{}") || step.result !== undefined;
-  const label = step.running ? `Using ${step.name}` : `Used ${step.name}`;
-  const tag = step.failed ? <span className="step-tag step-tag-error">failed</span> : null;
-  if (!hasBody) {
-    return (
-      <div className={step.running ? "step is-running" : "step"}>
-        <Icon name="tool" size={16} />
+  const sent = input !== "" && input !== "{}";
+  const line = toolLine(step.name, input, step.result);
+  const error = step.failed ? errorLabel(step.result) : undefined;
+  // A step that gave no result says what the model asked for, not what was done.
+  const label = step.running ? line.running : error ? line.asked : line.done;
+  const className = ["step", "step-tool", step.running ? "is-running" : ""].filter(Boolean).join(" ");
+  const end = step.running ? (
+    <span className="step-meta">running</span>
+  ) : error ? (
+    <span className={error.broke ? "step-tag step-tag-error" : "step-tag"}>{error.text}</span>
+  ) : line.meta !== "" ? (
+    <span className="step-meta">{line.meta}</span>
+  ) : null;
+  const body = (
+    <>
+      <Icon name={line.icon} size={16} />
+      <span className="step-label" title={step.name}>
         {label}
-        {tag}
+      </span>
+      {end}
+    </>
+  );
+  if (!sent && step.result === undefined) {
+    return (
+      <div className={className} role={step.running ? "status" : undefined}>
+        {body}
       </div>
     );
   }
   return (
     <>
-      <button type="button" className={step.running ? "step step-button is-running" : "step step-button"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <Icon name="tool" size={16} />
-        {label}
-        {tag}
-        <span className={open ? "step-caret step-caret-end is-open" : "step-caret step-caret-end"}>
+      <button type="button" className={className + " step-button"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        {body}
+        <span className={open ? "step-caret is-open" : "step-caret"}>
           <Icon name="caret" size={16} />
         </span>
       </button>
       {open && (
         <div className="step-body">
-          {input !== "" && input !== "{}" && (
+          <div className="step-heading">Tool</div>
+          <div className="step-name">{step.name}</div>
+          {sent && (
             <>
               <div className="step-heading">Sent</div>
               <pre className="step-pre">{pretty(input)}</pre>
@@ -135,6 +158,14 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
             <p key={i} className="reply-note">
               {p.text}
             </p>
+          );
+        }
+        if (p.kind === "limit") {
+          return (
+            <div key={i} className="reply-limit" role="note">
+              <Icon name="stop" size={16} />
+              <span>{p.text}</span>
+            </div>
           );
         }
         return (
