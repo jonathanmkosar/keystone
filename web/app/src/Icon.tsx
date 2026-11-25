@@ -58,6 +58,13 @@ const shapes = {
       <path d="M4 20v-5h5" />
     </>
   ),
+  settings: (
+    <>
+      <path d="M4 7h9M17 7h3M4 17h3M11 17h9" />
+      <circle cx="15" cy="7" r="2" />
+      <circle cx="9" cy="17" r="2" />
+    </>
+  ),
   send: <path d="M12 19V5M6 11l6-6 6 6" />,
   stop: <rect x="7" y="7" width="10" height="10" rx="2" />,
   copy: (

@@ -562,7 +562,7 @@ func listModels(w http.ResponseWriter, r *http.Request, c api.Call) {
 func refuseModel(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case errors.Is(err, models.ErrInvalid):
-		api.Error(w, r, http.StatusBadRequest, "bad_model", err.Error())
+		api.Error(w, r, http.StatusBadRequest, "bad_model", strings.TrimPrefix(err.Error(), models.ErrInvalid.Error()+": "))
 	case errors.Is(err, models.ErrExists):
 		api.Error(w, r, http.StatusConflict, "exists", "a model of that name is already there")
 	case errors.Is(err, models.ErrFull):

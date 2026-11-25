@@ -26,6 +26,7 @@ function initials(name: string): string {
 
 function titleFor(path: string): string {
   if (path === "/") return "New chat";
+  if (path === "/settings" || path.startsWith("/settings/")) return "Settings";
   const place = places.find((p) => p.to === path);
   return place ? place.label : "Keystone";
 }
@@ -124,10 +125,13 @@ export function Shell({
         </div>
         <div className="sidebar-foot">
           <div className="person">
-            <span className="avatar" aria-hidden="true">
-              {initials(person.name)}
-            </span>
-            <span className="person-name">{person.name}</span>
+            <NavLink to="/settings" className="person-link" title="Settings">
+              <span className="avatar" aria-hidden="true">
+                {initials(person.name)}
+              </span>
+              <span className="person-name">{person.name}</span>
+              <Icon name="settings" size={16} />
+            </NavLink>
             <button type="button" className="icon-button" aria-label="Sign out" title="Sign out" onClick={onSignOut}>
               <Icon name="signout" />
             </button>

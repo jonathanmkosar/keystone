@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
-import { ApiError, me, signOut, type Person } from "./api";
+import { ApiError, listSettings, me, setSetting, signOut, type Person } from "./api";
 import { Shell } from "./Shell";
 import { NotReady, SignIn } from "./SignIn";
 import { ChatPage, Start } from "./Chat";
 import { ChatsProvider } from "./chats";
 import { Chats, Missing, Soon } from "./pages";
-import { useTheme } from "./theme";
+import { Settings } from "./Settings";
+import { useTheme, type ThemeChoice } from "./theme";
+
+// The setting that holds a person's theme, so it follows them to another
+// browser. The browser's own copy is what the page wears before sign-in.
+const themeSetting = "appearance.theme";
 
 type Session =
   | { state: "loading" }
@@ -41,6 +46,37 @@ export function App() {
     await check();
   }, [check]);
 
+  // At sign-in, a theme the person chose on any browser replaces this
+  // browser's. A person who never chose one keeps what this browser has.
+  const signedIn = session.state === "signed-in";
+  useEffect(() => {
+    if (!signedIn) return;
+    let live = true;
+    listSettings().then(
+      ({ settings }) => {
+        const kept = settings.find((s) => s.key === themeSetting);
+        if (live && kept?.overridden && (kept.value === "dark" || kept.value === "light" || kept.value === "system")) setTheme(kept.value);
+      },
+      () => {
+        // The theme is a comfort. The browser's own choice stands.
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [signedIn, setTheme]);
+
+  // A choice made while signed in is worn at once and kept with the settings.
+  const chooseTheme = useCallback(
+    (choice: ThemeChoice) => {
+      setTheme(choice);
+      setSetting(themeSetting, choice).catch(() => {
+        // Still worn here, and kept in this browser.
+      });
+    },
+    [setTheme],
+  );
+
   if (session.state === "loading") {
     return (
       <div className="center-page" aria-busy="true">
@@ -71,7 +107,7 @@ export function App() {
 
   return (
     <ChatsProvider onSignedOut={check}>
-      <Shell person={session.person} theme={theme} onTheme={setTheme} onSignOut={leave}>
+      <Shell person={session.person} theme={theme} onTheme={chooseTheme} onSignOut={leave}>
         <Routes>
           <Route path="/" element={<Start person={session.person} />} />
           <Route path="/signin" element={<Navigate to="/" replace />} />
@@ -82,6 +118,10 @@ export function App() {
           <Route path="/artifacts" element={<Soon title="Artifacts" />} />
           <Route path="/agents" element={<Soon title="Agents" />} />
           <Route path="/scheduled" element={<Soon title="Scheduled" />} />
+          <Route
+            path="/settings/*"
+            element={<Settings person={session.person} theme={theme} onTheme={chooseTheme} onThemeKept={setTheme} onSignedOut={check} />}
+          />
           <Route path="*" element={<Missing />} />
         </Routes>
       </Shell>

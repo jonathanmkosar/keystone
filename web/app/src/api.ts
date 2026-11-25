@@ -70,7 +70,7 @@ async function errorFrom(res: Response): Promise<ApiError> {
   return new ApiError(kindOf(res.status, code), res.status, code, said);
 }
 
-type Method = "GET" | "POST" | "PATCH" | "DELETE";
+type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 function headersFor(body: unknown, accept = "application/json"): Record<string, string> {
   return body === undefined ? { Accept: accept } : { Accept: accept, "Content-Type": "application/json" };
@@ -362,4 +362,170 @@ export function followTurn(chatId: string, turnId: string, lastEventId: string, 
 /** Stops a turn. What had streamed is kept, and the stream ends with `end`. */
 export async function stopTurn(chatId: string, turnId: string): Promise<void> {
   await call("POST", `${turnPath(chatId, turnId)}/stop`);
+}
+
+// The settings screens (P11-01). The routes are described in
+// docs/architecture/settings-screens.md.
+
+const settingsPaths = {
+  settings: "/api/v1/settings",
+  secrets: "/api/v1/secrets",
+  models: "/api/v1/models",
+  profile: "/api/v1/profile",
+};
+
+/** A call whose answer must be a JSON object. */
+async function object(method: Method, path: string, body?: unknown): Promise<Record<string, unknown>> {
+  const data = await call(method, path, body);
+  if (typeof data !== "object" || data === null || Array.isArray(data)) throw new ApiError("not-ready", 200);
+  return data as Record<string, unknown>;
+}
+
+export type SettingType = "bool" | "int" | "float" | "string" | "duration";
+
+/** One setting as it stands for the signed-in person. Values are text, read as the type says. */
+export type Setting = {
+  key: string;
+  lane: string;
+  type: SettingType;
+  default: string;
+  /** The values a string setting may take. Empty means any. */
+  options: string[];
+  scope: "install" | "tenant-admin" | "tenant";
+  description: string;
+  value: string;
+  /** The value is the person's own and not the default. */
+  overridden: boolean;
+  /** The signed-in person may change it. */
+  changeable: boolean;
+};
+
+/** One of the four fixed rules. It is not a setting and has no value. */
+export type FixedRule = { key: string; rule: string };
+
+function isSetting(v: unknown): v is Setting {
+  if (typeof v !== "object" || v === null) return false;
+  const s = v as Record<string, unknown>;
+  return (
+    typeof s.key === "string" &&
+    typeof s.lane === "string" &&
+    typeof s.type === "string" &&
+    typeof s.default === "string" &&
+    Array.isArray(s.options) &&
+    typeof s.description === "string" &&
+    typeof s.value === "string" &&
+    typeof s.overridden === "boolean" &&
+    typeof s.changeable === "boolean"
+  );
+}
+
+function settingFrom(data: unknown): Setting {
+  if (!isSetting(data)) throw new ApiError("not-ready", 200);
+  return data;
+}
+
+/** Every setting, with the person's own values, and the fixed rules. */
+export async function listSettings(): Promise<{ settings: Setting[]; rules: FixedRule[] }> {
+  const data = await object("GET", settingsPaths.settings);
+  if (!Array.isArray(data.settings) || !data.settings.every(isSetting)) throw new ApiError("not-ready", 200);
+  const rules = Array.isArray(data.rules) ? (data.rules as FixedRule[]) : [];
+  return { settings: data.settings, rules };
+}
+
+/** Stores the person's own value for a setting. */
+export async function setSetting(key: string, value: string): Promise<Setting> {
+  return settingFrom(await call("PUT", `${settingsPaths.settings}/${encodeURIComponent(key)}`, { value }));
+}
+
+/** Removes the person's own value, so the default is back. */
+export async function resetSetting(key: string): Promise<Setting> {
+  return settingFrom(await call("DELETE", `${settingsPaths.settings}/${encodeURIComponent(key)}`));
+}
+
+/** The name of a stored secret. The server never sends a value, so there is no field for one. */
+export type SecretName = { name: string; used_by: string[] };
+
+/** The names of the person's stored secrets. */
+export async function listSecrets(): Promise<SecretName[]> {
+  const data = await object("GET", settingsPaths.secrets);
+  if (!Array.isArray(data.secrets)) throw new ApiError("not-ready", 200);
+  return data.secrets as SecretName[];
+}
+
+/** Stores a secret under a name. The value is sent and never read back. */
+export async function setSecret(name: string, value: string): Promise<void> {
+  await call("PUT", `${settingsPaths.secrets}/${encodeURIComponent(name)}`, { value });
+}
+
+export async function deleteSecret(name: string): Promise<void> {
+  await call("DELETE", `${settingsPaths.secrets}/${encodeURIComponent(name)}`);
+}
+
+/** A model registry entry, as docs/architecture/models.md describes it. key is a secret's name, never the secret. */
+export type ModelEntry = {
+  name: string;
+  label: string;
+  adapter: string;
+  endpoint?: string;
+  provider_model?: string;
+  key?: string;
+  context_window: number;
+  output_limit: number;
+  capabilities?: string[];
+  price: { input: number; output: number; cache_read?: number; cache_write?: number };
+  class: string;
+  ca_cert?: string;
+};
+
+export type RegisteredModel = {
+  entry: ModelEntry;
+  /** A secret with the entry's key name is stored. */
+  key_present: boolean;
+  may_read_sensitive: boolean;
+  /** Why a stored entry is refused today. Such a row has only its name. */
+  problem?: string;
+};
+
+export type ModelRegistry = {
+  models: RegisteredModel[];
+  adapters: { name: string; speaks: string; in_process: boolean }[];
+  classes: string[];
+  capabilities: string[];
+  max: number;
+};
+
+export async function listModels(): Promise<ModelRegistry> {
+  const data = await object("GET", settingsPaths.models);
+  if (!Array.isArray(data.models) || !Array.isArray(data.adapters) || !Array.isArray(data.classes) || !Array.isArray(data.capabilities)) {
+    throw new ApiError("not-ready", 200);
+  }
+  return data as unknown as ModelRegistry;
+}
+
+export async function addModel(entry: ModelEntry): Promise<void> {
+  await call("POST", settingsPaths.models, entry);
+}
+
+export async function replaceModel(entry: ModelEntry): Promise<void> {
+  await call("PUT", `${settingsPaths.models}/${encodeURIComponent(entry.name)}`, entry);
+}
+
+export async function removeModel(name: string): Promise<void> {
+  await call("DELETE", `${settingsPaths.models}/${encodeURIComponent(name)}`);
+}
+
+/** The short text about the person that starts every call to a model. */
+export type Profile = { text: string; updated?: string; max_chars: number };
+
+function profileFrom(data: Record<string, unknown>): Profile {
+  if (typeof data.text !== "string" || typeof data.max_chars !== "number") throw new ApiError("not-ready", 200);
+  return data as unknown as Profile;
+}
+
+export async function readProfile(): Promise<Profile> {
+  return profileFrom(await object("GET", settingsPaths.profile));
+}
+
+export async function writeProfile(text: string): Promise<Profile> {
+  return profileFrom(await object("PUT", settingsPaths.profile, { text }));
 }

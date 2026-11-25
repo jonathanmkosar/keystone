@@ -99,6 +99,79 @@ The test tenant's model is in no registry (decision [0144](decisions/0144-the-te
 
 The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-map.md), decision [0180](decisions/0180-the-profile-is-one-text.md)). `PUT` trims it, makes its line ends plain and refuses one longer than `max_chars` with the code `too_long`. A text that is not plain text is refused with `bad_text`.
 
+## The screens
+
+`web/app/src/Settings.tsx` and `settings.css`. They are reached from the person's name at the foot of the sidebar, which is a link to `/settings`. Every server call they make is in `src/api.ts`, as for the rest of the app ([web.md](web.md)).
+
+| Path | Screen |
+| --- | --- |
+| `/settings` | Goes to `/settings/profile`. |
+| `/settings/profile` | The person's name, which cannot be changed yet, and the profile's text with a count against its limit. A sentence says the profile goes to every model, hosted ones too. |
+| `/settings/appearance` | The theme switch: dark, light or system. |
+| `/settings/models` | Keys and models. See below. |
+| `/settings/general` | One control for every setting that is the person's to change. See "How General is drawn". |
+| `/settings/connectors` | Not built yet. Says it comes with P7-04 and P12-02. |
+| `/settings/approvals` | Not built yet. Says it comes with P7-02. |
+| `/settings/spend` | Not built yet. Says it comes with P11-02, with the cap from P8-05. |
+
+The seven are tabs in a row under the title, and the row scrolls sideways on a phone.
+
+### Models and keys
+
+**Keys.** The stored names, each with the models that use it and a Remove button that asks once more. Below, a form with a name and a key. The key's field is a password field, it is emptied after every try, and the page keeps no copy: there is nothing to show again, because the server sends none back.
+
+**Models.** One row for each: the label, the registry name, the adapter, the provider's model name, the window, the class, and whether the key it names is stored or missing. Edit and Remove are on each row. A stored entry the registry refuses today is shown with the reason and can only be removed.
+
+The form adds a model or changes one: name, label, adapter, class, endpoint, model name, key name, context window, output limit, the two prices and the capabilities. The adapters, classes and capabilities come from `GET /api/v1/models`, so the form offers what the server takes. The key name field suggests the stored names. Choosing the `fake` adapter hides the endpoint, the model name and the key, and fixes the class at `local`, as the registry requires. Each class has a sentence under it saying what it means for sensitive content. A refusal is the registry's own reason, shown above the lists.
+
+The form does not show `ca_cert`, `cache_read` or `cache_write`. An edit keeps the values an entry already has. The command line sets them ([adding-a-model.md](../runbooks/adding-a-model.md)).
+
+### How General is drawn
+
+General is generated from `GET /api/v1/settings` and has no code for any one setting. `Settings.tsx` names no setting key in that screen.
+
+1. It keeps the settings whose `changeable` is true and groups them by `lane`, in order of lane and then key.
+2. Each becomes a row: a title made from the key, the key itself, the registry's `description`, a control, and either the word "Default" or a "Reset to default" link that names the default.
+3. The control is chosen by `type` and `options` alone:
+
+| The setting | The control | Kept when |
+| --- | --- | --- |
+| `bool` | A switch | It is clicked |
+| has `options` | A select of the options | One is chosen |
+| `int`, `float` | A number field | The person leaves the field or presses Enter |
+| `duration` | A text field, with a hint on the form `30s`, `5m`, `1h` | The same |
+| `string` | A text field, or a text box of several lines when the default or the value is longer than 60 characters | The same |
+
+A change is one `PUT`, and a reset is one `DELETE`. The row then shows what the server answered. A refusal is shown under the row in the server's words.
+
+So a setting added to the registry with the `tenant` scope has a control the next time the screen is opened, with no change to the interface. That is the item's proof, and "The proof" below says how it is checked.
+
+Under the controls are two more lists. "Set for the whole install" holds every setting that is not the person's to change, with its value, closed until opened. "Fixed rules" holds the four rules, each marked "Always on", with no control.
+
+### The theme
+
+`appearance.theme` is a setting like any other, and it has a control on General. It is also what the theme switch sets, on Appearance and in the sidebar. Decision [0192](decisions/0192-the-theme-is-a-setting-once-chosen.md) says how the setting and the browser's own copy fit together:
+
+- A choice made while signed in is worn at once, kept in the browser as before, and stored as the person's `appearance.theme`.
+- At sign-in, the page reads the settings. A theme the person has stored replaces the browser's. A person who has stored none keeps what the browser has.
+- Before sign-in the page wears the browser's copy, which `public/theme.js` applies before it paints.
+
+### The content security policy
+
+The screens have no inline script and no `style` attribute, and load nothing from another site. No package was added.
+
+## The proof
+
+The item's proof is "every overridable setting in the registry has a control". Because General is drawn from the route and from nothing else, the proof is a test of the route, `TestEveryOverridableSettingHasAControl` in `internal/settingsapi`, run by the `tests` check on every `verify`. On the real registry it shows that:
+
+- every setting in the registry is in the route's answer, with the registry's type, default, lane, scope and description;
+- every setting a person may change, by `tenantsettings.MayChange`, is marked `changeable`, has one of the five types the table above has a control for, and can be stored with each value its control offers and then reset, through the routes;
+- every other setting is not marked `changeable`, and a write to it is refused;
+- no fixed rule is in the list of settings, the four are listed apart word for word, and a write or a reset on a rule's key is refused;
+- when it is done, nothing is stored.
+
+Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) says why the proof is a test of the route and not a list kept by hand. The screen's side of it, that each `changeable` setting gets a row, was checked in a browser by comparing the rows on the page with the route's answer: 24 of 24 on November 25, 2026. Nothing checks that on every `verify`: the app has no tests of its own yet.
+
 ## Checked by
 
 - `go test ./internal/settingsapi`.
@@ -109,3 +182,22 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
   - The profile is read, written, cleared, held to its limit, and is the person's own.
 - The `no keys in output` check has a walk of its own for these routes, `tools/verify/settingsroutes.go`. It stores an invented value through `PUT /api/v1/secrets/{name}`, then calls the routes that could hand it back, and sends the value where it does not belong: as a secret's name, a model's key name and endpoint, a setting's value. The value must be in no answer, not in the server's log, and in no file of the data folder.
 - The route walks in `tenant isolation`, `calls recorded` and `no keys in output` reach these routes with every other, because they read `app.Routes` ([tools.md](tools.md)).
+- In a browser, as the test tenant, on a server started from this branch with a data folder of its own. The journal, interface 003, lists what was done there and what was not.
+
+## Not built yet
+
+- Connectors, approvals and spend. Each has a screen that says so.
+- Changing a password, passkeys, and the list of signed-in devices.
+- Changing the person's name, and a short name for the greeting.
+- An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.
+- The model picker in the chat. A model added here can be named in `chats.default_model` on General, and that is the only way to choose it from the browser today.
+- Testing a key or a model from the screen. A wrong key is found when a chat uses the model.
+- `ca_cert` and the cache prices in the model form.
+
+## Provisional
+
+- **The owner gate.** There is no settings mockup. `Admin.html` is a draft in the first round's colours and shows the admin's screens, not a person's. The cards, rows and pills follow it, the controls follow `Theme.html`, and the colours are the tokens. The tabs, the forms and every sentence on the screens were chosen without a mockup.
+- **Who may change a model registry.** The owner's open question (`STATE.md`, models 003) is recommended as "the admin only". There is no admin role, so the routes and the screen let the signed-in person add, change and remove their own models, and mark one `trusted`. If the answer is the admin only, the three writing routes get a role check and the form goes to the admin's screen. The list stays.
+- **Standing instructions.** `chats.context_system_text` has the `tenant` scope, so it has a control on General, as the owner's open question (chats 003) recommends. If the answer is the admin only, the setting's scope changes in `settings/chats.json` and the control goes with it, with no change here.
+- **The profile goes to every model.** The screen says so in a sentence, as the open question (knowledge 004) recommends.
+- **Install settings are shown to every person.** A person sees the value of every setting, the admin's too, and none of them holds a secret. See "For the owner" in the journal.
