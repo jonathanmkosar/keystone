@@ -1,6 +1,6 @@
 # P3-08. Routing, fallbacks, usage and the spend cap
 
-Status: todo
+Status: doing (models)
 Lane: models
 Depends on: P3-03, P3-04, P3-05, P3-06, P3-07
 Owner gate: none

@@ -25,3 +25,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `adapters/responses` | models | The adapter for the OpenAI Responses API, over HTTP with the standard library |
 | `knowledge/waymarks` | knowledge | The Waymarks adapter: a client of one Waymarks instance for each tenant |
 | `adapters/chatcompletions` | models | The adapter for OpenRouter, LiteLLM, Ollama and the Mac mini gateway |
+| `turn` | chats | Runs a turn: the message, the model call, the stream, stop and restart |

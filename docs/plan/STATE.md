@@ -1,7 +1,7 @@
 # State
 
 Phase: 0, foundations, and 1, design. The build has started.
-Next: being built: P4-03, the chat turn (chats), P3-04 to P3-06 (models) and P6-03 (knowledge). P4-04, the chat screen, follows P4-03 and is the last step to a chat that runs in the browser.
+Next: being built: P4-04, the chat screen (interface), the last step to a chat in the browser, and P3-08, routing and usage (models). Then P5-01, P6-04 and P7-01.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -10,8 +10,8 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Lane | In progress | Next |
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
-| models | nothing | P3-08, routing and usage, now ready |
-| chats | P4-03, in its own worktree | P5-01 |
+| models | P3-08, in its own worktree | nothing until P3-08 |
+| chats | nothing | P5-01, now ready |
 | knowledge | nothing | P6-04 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing. P4-01 is wired to the real API when P2-05 is merged | P4-04, after P4-03 |
@@ -36,6 +36,9 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | The Mac mini gateway's address, key and certificate authority file, and an OpenRouter key and model name, for the live checks of the Chat Completions adapter (models 006) | Keys go in a tenant's vault; the certificate is a path in the registry entry | Tested against hand-written exchanges only | P3-06 |
 | Should a model's registry entry say how it thinks (adaptive or a token budget), and should the thinking control be a depth and not a token count (models 004) | Yes to both, decided with the live check | Adaptive by default, a budget for the models a setting names | Nothing built on it yet |
 | Tool calls from Chat Completions endpoints are held until the reply ends, then sent whole (models 006, decision 0121) | Leave as is | Held | Nothing |
+| A turn that was mid-reply when the server stopped: run it again, or close it as failed with a retry (chats 002, decision 0142) | Close it as failed and keep the words that arrived. Running it again pays for the call twice unasked | Closed as failed | Nothing |
+| A message sent while a reply is streaming in the same chat: queue it or refuse it (chats 002) | Queue, up to five | Queued | Nothing |
+| How a model call the person stopped is recorded in the audit log, which has no "stopped" outcome (chats 002) | As ok, with a stopped mark and the partial reply | As recommended | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -60,6 +63,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P3-05, the OpenAI Responses adapter, provisional: built and tested against hand-written exchanges, never against the real API.
 - P6-03, the Waymarks adapter, provisional: it passes the whole contract suite against a fake Waymarks written from Waymarks' own source, and has never called a real one. Both knowledge adapters are compiled into the binary.
 - P3-04, the Anthropic Messages adapter, and P3-06, the Chat Completions adapter, both provisional: built and tested against hand-written exchanges, never against a real endpoint. With P3-05 that is all three real adapters. None is in the server's set of builders yet: the chat turn (P4-03) is where a provider is opened.
+- P4-03, streaming turns: twelve chat and turn routes, a turn that streams over server-sent events, stop, resume after a dropped connection, and turns kept in the database so a queued one finishes after a restart. On November 25, 2026 a message sent to the running server as the test tenant streamed a reply from the fake provider. The server starts with the three real adapters; no tenant has a real model registered yet, because nothing but code adds one.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
