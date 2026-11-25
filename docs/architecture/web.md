@@ -261,6 +261,29 @@ A reload in the middle of a wait joins the turn's stream from its first event, s
 
 Seen in a browser on November 25, 2026, against a server built from this branch on port 7931 with a harness that registered test tools: the card asking after outside content, the input opened, Approve, a card that came back after a reload, Not now leaving the row "declined", and the policy list setting a tool to always. In light and dark, and at phone width.
 
+## The turn inspector and pins (P5-04)
+
+The panel that shows what went into a turn, and Pin beside Copy on every message. The server's side and the panel's contents are in [inspector.md](inspector.md). Provisional until the inspector mockup (P1-06): there is none, so it is built from the tokens and the patterns of the chat screen (decision [0273](decisions/0273-the-inspector-is-a-panel-opened-from-a-reply.md)).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The panel | `src/Inspector.tsx`, `src/inspector.css` | Keeps which turn is open, outside the screens, and draws the panel on the right: the turn's totals, what the next message leaves out, each call's parts with their tokens, the summary read only, usage, and what recall found. Leave out next turn, Put back and Unpin. Closes with Escape. |
+| The actions | `src/MessageActions.tsx` | Pin and Inspect beside Copy on a reply, Copy and Pin under a person's message. |
+| Pins | `src/pins.ts` | A chat's pinned messages, by chat, outside the screens, read the first time a screen asks. |
+| The way in | `src/Conversation.tsx`, `src/layout.ts`, `src/Chat.tsx`, `src/Icon.tsx`, `src/api.ts` | A reply item carries its turn and the message a pin goes on, and a person's item its id; the actions are drawn beside Copy; one line in `Chat.tsx` draws the panel; three icons (layers, pin, close); the calls at the end of `api.ts`. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/chats/{id}/turns/{turn}/inspect` | `inspectTurn` | Opening the panel, and reading it again when a turn of the chat ends. |
+| `GET /api/v1/chats/{id}/pins` | `listPins` | A chat's pins, the first time its screen shows a message. |
+| `PUT` and `DELETE /api/v1/chats/{id}/pins/{message}` | `setPin` | Pin, and Unpin in the panel. |
+| `PUT` and `DELETE /api/v1/chats/{id}/skips/{kind}/{ref}` | `setSkip` | Leave out next turn, and Put back. |
+| `GET /api/v1/chats/{id}/skips` | `listSkips` | Not called yet: the inspect route returns the skips. |
+
+The bar that shows how full a call was is a `progress` element, so no style is set from script. Seen in a browser on November 25, 2026: see "Checked by" in [inspector.md](inspector.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

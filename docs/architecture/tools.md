@@ -51,6 +51,8 @@ Added with the API shell (P2-05), in `tools/verify/routes.go`. They call every r
 - **`calls recorded`.** The check in the table above. Model calls and tool calls join it with the items that make them.
 - **In `no keys in output`.** A stored secret is sent to every route as a wrong password, in the query string, in two headers and in the body. It is then looked for in every answer, the server's log, the audit log and the data folder. Anything shaped like a session token is looked for in the same places.
 
+Since P5-04 the walks call the four routes of the turn inspector too (`InspectorRoutes`, [inspector.md](inspector.md)), with no new code: they are in `app.Routes`.
+
 `tools/verify`, `internal/api` and `internal/app` are on the list of folders that may import a network package, because they hold or call HTTP handlers. None opens a connection.
 | context fit | For every entry in `fixtures/models/examples.json`, with the shipped settings: a request estimated under the window is accepted and one over it is refused with the number of tokens over; a provider's own count is believed over the estimate, to the token; and an entry that names the fake adapter is called through the fake provider behind the guard, where the request that fits is answered and the one that does not is refused as `too_long` and never sent. The code is in `tools/verify/contextfit.go`. Packing the largest test chat under each window joins it with the context builder (P5-01). See [budget.md](budget.md). |
 

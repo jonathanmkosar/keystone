@@ -101,6 +101,8 @@ A `PartRecord` has the part's name, its place (`system`, `tools` or `messages`),
 
 Since P5-02 the record also has `TurnRoom`, the room the earlier turns were packed in, and `SummaryRoom`, the most the summary could take, both in estimated tokens with no margin; compaction measures against them ([compaction.md](compaction.md)). A `TurnRecord` says `summarised` when the summary was sent in its place, and such turns are counted neither kept nor dropped in the `recent` part. The `summary` part's `covers` is how many turns it was sent in place of. The `pinned` part lists every pin, each `kept` when it was sent on its own and `in_turn` when its turn was sent.
 
+Since P5-04 an `Item` also has a `Ref`, the turn inspector's name for it (`page:7`, `source:3`, `message:42`), and `Removed`, which the person sets from the inspector for one turn. A removed item is not sent and takes no room, even when it is pinned, and its `ItemRecord` says `removed` with the tokens it would have taken; a `PartRecord` counts such items in `removed`, apart from kept and dropped, and a part whose items were all removed is `dropped`. A removed pin is held no room and not sent on its own; when its turn is sent it is in the call in its turn, and its record says `in_turn`. `Input.SummaryRef` names the summary, and the summary part carries it as `ref`. See [inspector.md](inspector.md) and decision [0272](decisions/0272-a-removed-item-is-marked-and-recorded-and-never-moves-a-call.md).
+
 Part and turn tokens are estimates with no margin. `Tokens` is the count the budget checks.
 
 The record is the request: the tests put the request together again from the record and the input alone and compare the two.
@@ -142,7 +144,7 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 - Every slot but the rules, the tools, the current turn, the earlier turns, the profile, the person map, recall, the summary and pinned messages is empty: attachments and attached chats (P5-06), project (P9-01), style (P9-05).
 - Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
 - Cache marks on the standing start (P5-03). The varying system blocks sit after the standing start today. P5-03 may move them into the messages if a provider's cache needs the whole system text to stay the same.
-- The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them.
+- The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them. Built since: `GET /chats/{id}/turns/{turn}/inspect` returns them with each call's usage records ([inspector.md](inspector.md)).
 - Tool definitions as names only until one is needed (P7-01 with P7-05).
 - A relevance threshold for recall is the recall item's own (P6-05): the builder takes the items it is given.
 - A current turn that outgrows the window on its own, as a long run of tool calls could, is refused whole. Trimming inside a turn is the tool loop's question.

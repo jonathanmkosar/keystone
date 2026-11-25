@@ -1,6 +1,6 @@
 # P5-04. Turn inspector
 
-Status: doing (chats)
+Status: provisional
 Lane: chats + interface
 Depends on: P5-01
 Owner gate: Approval of the inspector mockup (P1-06), for the screen only.
@@ -45,4 +45,16 @@ Kept up to date at each commit, so another session can finish the item.
 2. ~~`internal/inspector`: calls and totals, skips and the migration, `LeaveOut`, with tests; its `componentDocs` line and a stub doc.~~
 3. ~~`internal/turn`: the glue in `build`, the routes, `InspectorRoutes` in `internal/app`, tests; `docs/api/openapi.json`.~~
 4. ~~The screen: pins and the inspector panel, `web/dist/` rebuilt, seen in a browser on port 7961.~~
-5. Write-up: `docs/architecture/inspector.md`, the overview row, lines in `context.md`, `turns.md`, `compaction.md`, `knowledge-recall.md`, `web.md`; decisions from 0270; the journal `docs/journal/2026-11-25-chats-005.md`; the item's status and result.
+5. ~~Write-up: `docs/architecture/inspector.md`, the overview row, lines in `context.md`, `turns.md`, `compaction.md`, `knowledge-recall.md`, `web.md`; decisions from 0270; the journal `docs/journal/2026-11-25-chats-005.md`; the item's status and result.~~
+
+### Result
+
+Provisional on November 25, 2026, on `chats/p5-04-turn-inspector`, in five commits: the plan, three build steps and the write-up. The server side is done; the screen waits on the inspector mockup (P1-06).
+
+- `internal/inspector`, described in `docs/architecture/inspector.md`. Decisions 0270 to 0273.
+- `GET /chats/{id}/turns/{turn}/inspect` returns, for one turn, each model call with every part it was built from and its tokens, the first words of each earlier turn, the call's usage records and their total, the turn's recall record with the source of each hit, the summaries its calls were given (read only), the totals of every usage record of the turn, the chat's pins and what its next turn leaves out.
+- `GET`, `PUT` and `DELETE /chats/{id}/skips/...` take a recalled page or source, or a pinned message, out of the chat's next turn only. The next turn's first call claims them, every call of that turn leaves them out, and the turn after does not. The context builder records a removed item as removed. Where a call may go is never changed by it.
+- The chat screen has Pin beside Copy on every message, and Inspect on every reply, which opens the panel. Built from the tokens, provisional.
+- The proof passes: the inspector's totals equal the turn's usage records on a fallback turn, a paid turn and a turn of three tool steps; a recalled page and a pinned message, each taken out through the routes, are absent from the next turn's request in the audit log and back in the turn after. `verify` is 19 of 19. Seen in a browser on port 7961 as the test tenant.
+
+Left: the screen's approval with the mockup; showing each part's text, which the audit log holds; correcting a summary.
