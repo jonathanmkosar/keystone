@@ -1,6 +1,6 @@
 # P7-03. Web search and fetch
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-01
 Owner gate: none
