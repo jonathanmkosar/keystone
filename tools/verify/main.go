@@ -36,6 +36,9 @@ var componentDocs = map[string]string{
 	"tools/snapshot":   "docs/architecture/tools.md",
 	"tools/rebuild":    "docs/architecture/tools.md",
 	"web":              "docs/architecture/web.md",
+
+	"internal/knowledge":               "docs/architecture/knowledge.md",
+	"internal/knowledge/knowledgetest": "docs/architecture/knowledge.md",
 }
 
 var checks = []check{

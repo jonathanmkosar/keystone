@@ -1,0 +1,13 @@
+{
+  "lane": "knowledge",
+  "settings": [
+    {
+      "key": "knowledge.adapter",
+      "type": "string",
+      "default": "none",
+      "options": ["none"],
+      "scope": "tenant",
+      "description": "The knowledge store Keystone remembers in. With none, Keystone keeps your chats and remembers nothing between them."
+    }
+  ]
+}
