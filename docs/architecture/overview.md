@@ -8,6 +8,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | --- | --- | --- | --- |
 | Command line | `cmd/keystone` | The binary. Serves the embedded web page, and prints the settings registry and the version. | [cli.md](cli.md) |
 | Tenants | `internal/tenant` | The tenant registry in `keystone.json`, and a store handle that reaches one tenant's database and folders and nothing else. | [tenants.md](tenants.md) |
+| Sign-in | `internal/signin` | Passwords, passkeys and sessions, kept in each tenant's own database. Turns a session token into the one tenant's store. No routes yet. | [signin.md](signin.md) |
 | Web interface | `web` | The built interface, compiled into the binary. A placeholder page until P4-01. | [web.md](web.md) |
 | Settings registry | `settings` | Every value someone may change: its default, its type, and who may change it. | [settings.md](settings.md) |
 | Model seam | `internal/seam` | Keystone's own format for a model call and its streamed reply: content blocks, stream events and usage. The format only, so far. | [seam.md](seam.md) |
@@ -32,9 +33,11 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0004 | [The API is HTTP with JSON, and server-sent events for streams](decisions/0004-http-json-sse.md) |
 | 0005 | [The web interface is React and Vite, with its built files committed and embedded](decisions/0005-web-built-files-committed.md) |
 | 0006 | [Secrets are encrypted per tenant, under a master key the operating system holds](decisions/0006-secrets-wrapped-by-the-os.md) |
+| 0007 | [A session token names its tenant](decisions/0007-a-session-token-names-its-tenant.md) |
 | 0010 | [A content block is one struct with a type field](decisions/0010-one-block-type.md) |
 | 0020 | [Messages are a tree, and each parent remembers its current child](decisions/0020-messages-are-a-tree.md) |
 | 0011 | [The fake provider finds its script from the request alone](decisions/0011-fake-scripts-matched-by-the-request.md) |
 | 0015 | [A provider streams through a callback](decisions/0015-a-provider-streams-through-a-callback.md) |
+| 0012 | [Passkeys are checked with the standard library, without a CBOR reader](decisions/0012-passkeys-without-a-cbor-reader.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

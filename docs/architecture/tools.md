@@ -12,6 +12,8 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 
 `go run ./tools/tenant add "Name"` adds a tenant to the data folder and prints its id. `go run ./tools/tenant list` lists the tenants. `--data <folder>` names another data folder; without it the `data.dir` setting is used. It is a thin wrapper over `internal/tenant` ([tenants.md](tenants.md)).
 
+`go run ./tools/tenant password <tenant-id>` gives a tenant a password, or replaces the one it has, and ends every session that tenant had. It is how a person gets a password before any sign-in screen exists. The password is read from standard input, one line, and never from an argument, so it is not left in the shell's history. Typed at the prompt, it shows on the screen. It uses the shipped sign-in settings and `internal/signin` ([signin.md](signin.md)).
+
 ## verify
 
 `go run ./tools/verify` runs the standing checks. It needs no network and no keys. Nothing merges to `main` while it is red, and a check is never weakened to get to green.
@@ -27,6 +29,7 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 | docs | Every folder with Go code has a doc, the plan files are present, and every decision record is linked from the overview. |
 | no secrets | Nothing in the repo is shaped like a real key. |
 | offline | Only the listed folders import a network package, and the tests pass with no keys and no way out to the network. |
+| tenant isolation | Two tenants are made in a throwaway data folder, and every way one could reach the other is tried: rows and files through the other's store handle, a handle opened by a path, and a session used on the other tenant, re-addressed to it, or with its row copied across. Each must be refused. The code is in `tools/verify/isolation.go`, and an item that adds a way to reach tenant data adds its tries there. |
 
 The plan's other standing checks (tenant isolation, context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 
