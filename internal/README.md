@@ -28,3 +28,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `turn` | chats | Runs a turn: the message, the model call, the stream, stop and restart |
 | `knowledge/personmap` | knowledge | The person's profile and the map of their knowledge store, in the two versions fixed rule 3 needs |
 | `contextbuild` | chats | Builds what one model call carries, under the model's window, and records every part of it |
+| `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |

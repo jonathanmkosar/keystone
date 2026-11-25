@@ -4086,6 +4086,619 @@
         "summary": "Stop a turn. The model call is cancelled and what had streamed is kept. It takes no body. Stopping a turn that has ended changes nothing."
       }
     },
+    "/api/v1/models": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adapters": {
+                      "items": {
+                        "properties": {
+                          "in_process": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "speaks": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "speaks",
+                          "in_process"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "capabilities": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "classes": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "max": {
+                      "type": "integer"
+                    },
+                    "models": {
+                      "items": {
+                        "properties": {
+                          "entry": {
+                            "properties": {
+                              "adapter": {
+                                "type": "string"
+                              },
+                              "ca_cert": {
+                                "type": "string"
+                              },
+                              "capabilities": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "context_window": {
+                                "type": "integer"
+                              },
+                              "endpoint": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "output_limit": {
+                                "type": "integer"
+                              },
+                              "price": {
+                                "properties": {
+                                  "cache_read": {
+                                    "type": "number"
+                                  },
+                                  "cache_write": {
+                                    "type": "number"
+                                  },
+                                  "input": {
+                                    "type": "number"
+                                  },
+                                  "output": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "input",
+                                  "output"
+                                ],
+                                "type": "object"
+                              },
+                              "provider_model": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "adapter",
+                              "context_window",
+                              "output_limit",
+                              "price",
+                              "class"
+                            ],
+                            "type": "object"
+                          },
+                          "key_present": {
+                            "type": "boolean"
+                          },
+                          "may_read_sensitive": {
+                            "type": "boolean"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "entry",
+                          "key_present",
+                          "may_read_sensitive"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "models",
+                    "adapters",
+                    "classes",
+                    "capabilities",
+                    "max"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The person's model registry. Each entry names its key and says whether a secret of that name is stored. Never the key."
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "adapter": {
+                    "type": "string"
+                  },
+                  "ca_cert": {
+                    "type": "string"
+                  },
+                  "capabilities": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "class": {
+                    "type": "string"
+                  },
+                  "context_window": {
+                    "type": "integer"
+                  },
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "output_limit": {
+                    "type": "integer"
+                  },
+                  "price": {
+                    "properties": {
+                      "cache_read": {
+                        "type": "number"
+                      },
+                      "cache_write": {
+                        "type": "number"
+                      },
+                      "input": {
+                        "type": "number"
+                      },
+                      "output": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "input",
+                      "output"
+                    ],
+                    "type": "object"
+                  },
+                  "provider_model": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label",
+                  "adapter",
+                  "context_window",
+                  "output_limit",
+                  "price",
+                  "class"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "entry": {
+                      "properties": {
+                        "adapter": {
+                          "type": "string"
+                        },
+                        "ca_cert": {
+                          "type": "string"
+                        },
+                        "capabilities": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "class": {
+                          "type": "string"
+                        },
+                        "context_window": {
+                          "type": "integer"
+                        },
+                        "endpoint": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "output_limit": {
+                          "type": "integer"
+                        },
+                        "price": {
+                          "properties": {
+                            "cache_read": {
+                              "type": "number"
+                            },
+                            "cache_write": {
+                              "type": "number"
+                            },
+                            "input": {
+                              "type": "number"
+                            },
+                            "output": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "input",
+                            "output"
+                          ],
+                          "type": "object"
+                        },
+                        "provider_model": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "label",
+                        "adapter",
+                        "context_window",
+                        "output_limit",
+                        "price",
+                        "class"
+                      ],
+                      "type": "object"
+                    },
+                    "key_present": {
+                      "type": "boolean"
+                    },
+                    "may_read_sensitive": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "entry",
+                    "key_present",
+                    "may_read_sensitive"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Add a model to the person's registry."
+      }
+    },
+    "/api/v1/models/{name}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Remove a model from the person's registry."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "adapter": {
+                    "type": "string"
+                  },
+                  "ca_cert": {
+                    "type": "string"
+                  },
+                  "capabilities": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "class": {
+                    "type": "string"
+                  },
+                  "context_window": {
+                    "type": "integer"
+                  },
+                  "endpoint": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "output_limit": {
+                    "type": "integer"
+                  },
+                  "price": {
+                    "properties": {
+                      "cache_read": {
+                        "type": "number"
+                      },
+                      "cache_write": {
+                        "type": "number"
+                      },
+                      "input": {
+                        "type": "number"
+                      },
+                      "output": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "input",
+                      "output"
+                    ],
+                    "type": "object"
+                  },
+                  "provider_model": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "label",
+                  "adapter",
+                  "context_window",
+                  "output_limit",
+                  "price",
+                  "class"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "entry": {
+                      "properties": {
+                        "adapter": {
+                          "type": "string"
+                        },
+                        "ca_cert": {
+                          "type": "string"
+                        },
+                        "capabilities": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "class": {
+                          "type": "string"
+                        },
+                        "context_window": {
+                          "type": "integer"
+                        },
+                        "endpoint": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "output_limit": {
+                          "type": "integer"
+                        },
+                        "price": {
+                          "properties": {
+                            "cache_read": {
+                              "type": "number"
+                            },
+                            "cache_write": {
+                              "type": "number"
+                            },
+                            "input": {
+                              "type": "number"
+                            },
+                            "output": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "input",
+                            "output"
+                          ],
+                          "type": "object"
+                        },
+                        "provider_model": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "label",
+                        "adapter",
+                        "context_window",
+                        "output_limit",
+                        "price",
+                        "class"
+                      ],
+                      "type": "object"
+                    },
+                    "key_present": {
+                      "type": "boolean"
+                    },
+                    "may_read_sensitive": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "entry",
+                    "key_present",
+                    "may_read_sensitive"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Replace the entry for one model."
+      }
+    },
     "/api/v1/openapi.json": {
       "get": {
         "responses": {
@@ -4104,6 +4717,274 @@
           }
         },
         "summary": "This document."
+      }
+    },
+    "/api/v1/profile": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "max_chars": {
+                      "type": "integer"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "max_chars"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The person's profile: the short text about them that starts every call to a model."
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "text"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "max_chars": {
+                      "type": "integer"
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "max_chars"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Replace the person's profile. An empty text clears it."
+      }
+    },
+    "/api/v1/secrets": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "secrets": {
+                      "items": {
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "used_by": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "used_by"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "secrets"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The names of the person's stored secrets, and the models that use each. Never a value."
+      }
+    },
+    "/api/v1/secrets/{name}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Remove one stored secret."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "used_by": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "used_by"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Store a secret, such as a provider key, under a name. The answer holds the name and never the value."
       }
     },
     "/api/v1/session": {
@@ -4305,6 +5186,306 @@
         "security": [],
         "summary": "Sign in with a password. The session token comes back in a cookie the page's scripts cannot read, and never in the body.",
         "x-keystone-door": true
+      }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "rules": {
+                      "items": {
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "rule": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "rule"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "settings": {
+                      "items": {
+                        "properties": {
+                          "changeable": {
+                            "type": "boolean"
+                          },
+                          "default": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "lane": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "overridden": {
+                            "type": "boolean"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "lane",
+                          "type",
+                          "default",
+                          "options",
+                          "scope",
+                          "description",
+                          "value",
+                          "overridden",
+                          "changeable"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "settings",
+                    "rules"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every setting as it stands for the person: its value, default, type, options, scope and description, and whether the person may change it. The fixed rules are listed apart."
+      }
+    },
+    "/api/v1/settings/{key}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "changeable": {
+                      "type": "boolean"
+                    },
+                    "default": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "lane": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "overridden": {
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "lane",
+                    "type",
+                    "default",
+                    "options",
+                    "scope",
+                    "description",
+                    "value",
+                    "overridden",
+                    "changeable"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Remove the person's own value, so the setting goes back to its default."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "changeable": {
+                      "type": "boolean"
+                    },
+                    "default": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "key": {
+                      "type": "string"
+                    },
+                    "lane": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "overridden": {
+                      "type": "boolean"
+                    },
+                    "scope": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "updated": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "lane",
+                    "type",
+                    "default",
+                    "options",
+                    "scope",
+                    "description",
+                    "value",
+                    "overridden",
+                    "changeable"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Store the person's own value for one setting. Refused for a setting that is not theirs to change, and for a fixed rule."
       }
     },
     "/api/v1/signin/people": {

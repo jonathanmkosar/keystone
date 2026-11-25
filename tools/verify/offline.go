@@ -36,6 +36,7 @@ var networkAllowed = map[string]string{
 
 	"internal/adapters/chatcompletions": "calls the endpoint in a model's registry entry; its tests call servers on this machine only",
 	"internal/turn":                     "the chat and turn routes' handlers, served by the server; it opens no connection",
+	"internal/settingsapi":              "the settings routes' handlers, served by the server; it opens no connection",
 }
 
 // deadProxy is an address on this machine where nothing listens. The tests
