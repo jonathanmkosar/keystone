@@ -64,6 +64,34 @@
       "default": "100",
       "scope": "install",
       "description": "The most pages the built-in knowledge store lists at once as needing a vector, from 1 to 10000."
+    },
+    {
+      "key": "knowledge.profile_max_chars",
+      "type": "int",
+      "default": "2000",
+      "scope": "install",
+      "description": "The longest a person's profile may be, in characters, from 1 to 20000. The profile starts every call to a model, so a longer one costs more on every message."
+    },
+    {
+      "key": "knowledge.map_max_tokens",
+      "type": "int",
+      "default": "600",
+      "scope": "tenant",
+      "description": "The most room the map of your knowledge store may take at the start of a call, in tokens, from 0 to 20000. A map that would be larger shows fewer titles, then fewer kinds of page, then fewer spaces. With 0 no map is sent."
+    },
+    {
+      "key": "knowledge.map_titles_per_kind",
+      "type": "int",
+      "default": "3",
+      "scope": "tenant",
+      "description": "How many page titles the map of your knowledge store shows under each kind of page, from 0 to 20. With 0 it shows the kinds and their counts alone."
+    },
+    {
+      "key": "knowledge.map_title_max_chars",
+      "type": "int",
+      "default": "60",
+      "scope": "install",
+      "description": "The longest a space's name, a kind of page or a page title is shown in the map of a knowledge store, in characters, from 8 to 200. A longer one is cut."
     }
   ]
 }

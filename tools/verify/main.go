@@ -64,6 +64,8 @@ var componentDocs = map[string]string{
 
 	"internal/adapters/chatcompletions": "docs/architecture/adapter-chat-completions.md",
 	"internal/turn":                     "docs/architecture/turns.md",
+
+	"internal/knowledge/personmap": "docs/architecture/knowledge-profile-and-map.md",
 }
 
 var checks = []check{
