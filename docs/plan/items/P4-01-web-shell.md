@@ -1,6 +1,6 @@
 # P4-01. Web shell
 
-Status: doing (interface)
+Status: provisional
 Lane: interface
 Depends on: P2-05
 Owner gate: Approval of the design system (P1-02) and the chat mockups (P1-04).
@@ -45,3 +45,13 @@ How it will be proven:
 - The server sends `Content-Security-Policy: default-src 'self'`, so the app uses no inline script and no inline style attribute, and loads nothing from another site.
 
 Not in this pass: bundled font files (the font stacks name the design's fonts and fall back to system fonts), passkeys in the browser, a standing check that the built files match the source, and tests of the app itself.
+
+### Result
+
+Provisional. The shell is built and the binary serves it: the frame, the theme switch, real-path routing, the sign-in screen and the "server not ready" state. It waits on three things.
+
+- The owner's approval of the design system (P1-02) and the chat mockups (P1-04): the tokens are a draft.
+- The API shell (P2-05): the four paths in `web/app/src/api.ts` are guesses, and the server needs the fallback to `index.html` for client-side routes. Both are written out in `docs/journal/2026-11-24-interface-001.md`.
+- Proof against a real server: sign-in, sign-out and the signed-in frame have only been seen in the "not ready" state.
+
+Font files are not bundled yet (decision 0072), and the standing check that the built files match the source is still to be added to `tools/verify` (decision 0005).
