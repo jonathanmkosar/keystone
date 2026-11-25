@@ -18,3 +18,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `models` | models | Each tenant's model registry, and the classes fixed rule 3 reads |
 | `adapters` | models | Turns a registry entry into a provider, with its key from the vault |
 | `testtenant` | core | Loads the invented test tenant from `fixtures/test-tenant` |
+| `adapters/chatcompletions` | models | The adapter for OpenRouter, LiteLLM, Ollama and the Mac mini gateway |

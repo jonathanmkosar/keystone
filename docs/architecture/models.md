@@ -42,6 +42,7 @@ Two packages share the work:
 | `capabilities` | Any of `tools`, `vision`, `files`, `thinking`, `embedding`. |
 | `price` | US dollars for a million tokens: `input`, `output`, and `cache_read` and `cache_write` where the provider has them. A local model costs nothing. |
 | `class` | `local`, `hosted` or `trusted`. See below. |
+| `ca_cert` | Optional. One certificate authority to trust for this entry's `https` endpoint, as PEM text or the path of a PEM file. Added with the Chat Completions adapter, which reads it: [adapter-chat-completions.md](adapter-chat-completions.md). |
 
 `fixtures/models/examples.json` has an entry for each adapter and each class.
 
@@ -85,6 +86,7 @@ A model on a machine you trust that has some other name is marked `trusted`. The
 - A `key` that is not shaped like a secret's name.
 - A context window or an output limit of zero or less, or an output limit above the context window.
 - A price below zero.
+- A `ca_cert` on the `fake` adapter or on an `http` endpoint, one that holds a private key, one longer than 32,000 characters, or a path that is not one line. The value is never repeated in the reason.
 
 A reason never repeats the endpoint or the `key` field, in case a key was pasted into one of them.
 
