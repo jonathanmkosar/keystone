@@ -38,6 +38,12 @@ var networkAllowed = map[string]string{
 	"internal/turn":                     "the chat and turn routes' handlers, served by the server; it opens no connection",
 }
 
+// The recall and sensitive content checks (P6-05) serve a fake Waymarks on
+// this machine, and the Waymarks adapter calls it there.
+func init() {
+	networkAllowed["tools/verify"] += "; the recall and sensitive content checks serve a fake Waymarks on this machine and call nothing else"
+}
+
 // deadProxy is an address on this machine where nothing listens. The tests
 // are run with it as their proxy, so a call that leaves the machine through
 // the standard HTTP client fails at once. Calls to this machine skip the

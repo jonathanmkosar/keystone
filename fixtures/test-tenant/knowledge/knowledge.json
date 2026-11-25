@@ -1,0 +1,42 @@
+{
+  "test_data": true,
+  "about": "Invented knowledge for the recall and sensitive content checks in verify (P6-05). Every page, source and name is made up. The checks put it into the built-in store and into a fake Waymarks on this machine. The loader does not read this folder.",
+  "spaces": [
+    { "name": "garden", "label": "normal" },
+    { "name": "home", "label": "normal" },
+    { "name": "health", "label": "sensitive" }
+  ],
+  "pages": [
+    { "space": "garden", "path": "plants/apple-tree", "title": "Apple tree", "kind": "plant", "body": "The apple tree by the gate is pruned in February, before the buds open." },
+    { "space": "garden", "path": "plants/borage", "title": "Borage", "kind": "plant", "body": "Borage seeds itself along the path. The bees like its blue flowers." },
+    { "space": "garden", "path": "plants/chives", "title": "Chives", "kind": "plant", "body": "The chives are divided every third spring and planted out by the kitchen door." },
+    { "space": "garden", "path": "plants/runner-beans", "title": "Runner beans", "kind": "plant", "body": "Runner beans go in the north bed after the last frost. They climb the hazel poles and want water every evening in July." },
+    { "space": "garden", "path": "plants/tomatoes", "title": "Tomatoes", "kind": "plant", "body": "Tomatoes stay in the greenhouse until June. Pinch out the side shoots each week." },
+    { "space": "home", "path": "projects/attic-boards", "title": "Attic boards", "kind": "project", "body": "The attic boards were laid in the spring. Six boards are left in the shed." },
+    { "space": "home", "path": "projects/bathroom-tiles", "title": "Bathroom tiles", "kind": "project", "body": "Two of the bathroom tiles by the bath are cracked. Spare tiles are in the attic." },
+    { "space": "home", "path": "projects/garden-gate", "title": "Garden gate", "kind": "project", "body": "The garden gate sticks after rain. The top hinge wants a new screw." },
+    { "space": "home", "path": "projects/shed-roof", "title": "Shed roof", "kind": "project", "body": "The shed roof needs new felt before winter: two rolls of felt and a tin of adhesive." },
+    { "space": "health", "path": "notes/sleep", "title": "Sleep notes", "kind": "note", "body": "Melatonin helped with the insomnia in March. The clinic suggested no screens after nine." }
+  ],
+  "sources": [
+    { "space": "home", "name": "boiler-visit.txt", "origin": "a note left by the engineer", "dated": "2026-10-02", "text": "The boiler engineer set the pressure to 1.2 bar and said to top it up when it falls below 1." },
+    { "space": "health", "name": "clinic-letter.txt", "origin": "a letter", "dated": "2026-03-14", "text": "The clinic letter confirms the insomnia review and a follow-up appointment in May." }
+  ],
+  "recall": {
+    "floor": 1,
+    "questions": [
+      { "ask": "When do the runner beans go in?", "answer": "north bed after the last frost", "unnamed": "Runner beans" },
+      { "ask": "How much felt does the shed roof need?", "answer": "two rolls of felt", "unnamed": "Shed roof" },
+      { "ask": "What pressure did the boiler engineer set?", "answer": "1.2 bar" }
+    ],
+    "nothing": [
+      "What is the capital of a country far away?",
+      "Can you write a short poem about the sea?"
+    ]
+  },
+  "sensitive": {
+    "ask": "What helped with the insomnia, and what did the clinic letter say?",
+    "plain": "Which plants want water every evening?",
+    "markers": ["Melatonin", "screens after nine", "follow-up appointment", "Sleep notes", "health"]
+  }
+}

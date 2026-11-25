@@ -367,6 +367,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 		return nil, true
 	}
 
+	t.recalled = r.searchKnowledge(ctx, s, t) // before the route: what it finds decides the route (P6-05)
 	m, provider, secrets, failure := r.open(ctx, s, t, t.input.Model)
 	if failure != nil {
 		return failure, false

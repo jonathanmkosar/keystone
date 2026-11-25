@@ -92,6 +92,90 @@
       "default": "60",
       "scope": "install",
       "description": "The longest a space's name, a kind of page or a page title is shown in the map of a knowledge store, in characters, from 8 to 200. A longer one is cut."
+    },
+    {
+      "key": "knowledge.recall",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether Keystone searches your knowledge store with each message you send and gives the model what it finds. With no knowledge store nothing is searched either way."
+    },
+    {
+      "key": "knowledge.recall_timeout",
+      "type": "duration",
+      "default": "3s",
+      "scope": "tenant",
+      "description": "How long recall may take before a reply starts without it, from 100ms to 1m. A knowledge store that is slow or down never stops a chat."
+    },
+    {
+      "key": "knowledge.recall_min_score_built_in",
+      "type": "float",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The relevance threshold for recall from the built-in knowledge store. A page or source that scores lower for your message is left out. The score is the store's own ranking: in a store of a few dozen pages or more, a word that few pages hold scores about 1 or more, and a word that half the pages hold scores close to 0. With 0 everything the search finds may be recalled, which is right for a small store."
+    },
+    {
+      "key": "knowledge.recall_min_score_waymarks",
+      "type": "float",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The relevance threshold for recall from Waymarks. A page or source that scores lower for your message is left out. The score is on Waymarks' own scale. With 0 everything the search finds may be recalled."
+    },
+    {
+      "key": "knowledge.recall_ignore_words",
+      "type": "string",
+      "default": "a about after again all also am an and any are as at be because been before being but by can could did do does doing done for from get got had has have having he her here hers him his how i if in into is it its just like me more most my no not now of off on one only or other our out over own please said say she should so some such tell than that the their them then there these they this those to too under up us very was we were what when where which while who why will with would yes you your",
+      "scope": "tenant",
+      "description": "Words recall leaves out when it searches your knowledge store with a message, separated by spaces. They are words that say nothing of what a message is about. A message made of them alone recalls nothing."
+    },
+    {
+      "key": "knowledge.recall_search_max_results",
+      "type": "int",
+      "default": "20",
+      "scope": "tenant",
+      "description": "The most results recall asks your knowledge store for with each message, from 1 to 100, before the relevance threshold is applied."
+    },
+    {
+      "key": "knowledge.recall_max_items",
+      "type": "int",
+      "default": "5",
+      "scope": "tenant",
+      "description": "The most pages and sources recall gives the model with one message, from 0 to 50. With 0 nothing is recalled."
+    },
+    {
+      "key": "knowledge.recall_item_max_chars",
+      "type": "int",
+      "default": "1500",
+      "scope": "tenant",
+      "description": "The most of one recalled page or source the model is given, in characters, from 100 to 100000. A longer one is cut, and the model can read the rest with a lookup."
+    },
+    {
+      "key": "knowledge.recall_query_max_chars",
+      "type": "int",
+      "default": "500",
+      "scope": "install",
+      "description": "The most of your message recall searches with, in characters from its start, from 1 to 10000."
+    },
+    {
+      "key": "knowledge.search_first_text",
+      "type": "string",
+      "default": "This person keeps a knowledge store of their own. Before you answer anything about their world, or say you do not know, look in it. What Keystone found there for this message is given further down, when it found anything. When knowledge lookup tools are offered, search with them and read a page or a source in full. Say which page or source an answer came from.",
+      "scope": "tenant",
+      "description": "The search-first rule: what the standing instructions tell the model when you have a knowledge store. It is left out when you have none. Empty sends none."
+    },
+    {
+      "key": "knowledge.lookup_max_results",
+      "type": "int",
+      "default": "10",
+      "scope": "tenant",
+      "description": "The most results one knowledge search by the model returns, from 1 to 100."
+    },
+    {
+      "key": "knowledge.lookup_max_chars",
+      "type": "int",
+      "default": "6000",
+      "scope": "tenant",
+      "description": "The most text one knowledge lookup by the model returns, in characters, from 200 to 200000. A longer page or source is read in parts."
     }
   ]
 }

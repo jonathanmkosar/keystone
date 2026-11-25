@@ -6,20 +6,20 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/knowledge"
 	"github.com/jonathanmkosar/keystone/internal/knowledge/personmap"
-	"github.com/jonathanmkosar/keystone/internal/models"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tenantsettings"
 )
 
 // person returns the person's profile and the map of their knowledge store
 // for one model call, with the person's own values of the settings. The map
-// is the version this model may read: a model that may not read sensitive
-// content is given one with every sensitive space left out.
+// is the version the call's models may read: with mayReadSensitive false,
+// which is so when any model of the call's route may not read sensitive
+// content, every sensitive space is left out.
 //
 // Nothing here stops a chat. A knowledge store that is down, an adapter
 // this build does not have, or a setting that does not read gives an empty
 // text and a line in the log.
-func (r *Runner) person(ctx context.Context, s *tenant.Store, t row, m models.Model) (profile, personMap string) {
+func (r *Runner) person(ctx context.Context, s *tenant.Store, t row, mayReadSensitive bool) (profile, personMap string) {
 	get := func(key string) (string, bool) {
 		v, err := tenantsettings.Get(ctx, s, r.reg, key)
 		return v, err == nil
@@ -56,7 +56,7 @@ func (r *Runner) person(ctx context.Context, s *tenant.Store, t row, m models.Mo
 			defer ks.Close()
 		}
 	}
-	p, err := personmap.ForContext(ctx, s, ks, m.MayReadSensitive(), l)
+	p, err := personmap.ForContext(ctx, s, ks, mayReadSensitive, l)
 	if err != nil {
 		r.logf("turns: %s turn %s: the profile and map could not be read, so neither is sent: %v", t.requestID, t.ID, err)
 		return "", ""
