@@ -115,7 +115,7 @@ A card under the conversation for each task under way, started from the chat or 
 
 ## Tables
 
-In `internal/tenant/migrations/20261125T151700_jobs.sql`.
+In `internal/tenant/migrations/20261125T163000_jobs.sql`.
 
 | Table | Holds |
 | --- | --- |
@@ -185,5 +185,6 @@ In `settings/agents.json`. `jobs.ReadConfig` reads the install's, and `app.ReadC
 - **A list of every task**, across chats, and on Operations (P11-03). The routes are reached through a chat.
 - **Retrying a provider's failure.** A round that fails with `overloaded` or `rate_limited` ends the task. A task does not wait and try again.
 - **A task's own model.** It runs on the model the chat it was started from would use next.
+- **The memory pass's incognito flag** (P6-06, built beside this). A task started from an incognito chat should have an incognito work chat, so its rounds get no memory pass. It is one call in `Runner.Start` once both are merged; the journal, agents 004, has it. A note runs no memory pass.
 - **Sub-agents** (P8-02), which run beside a turn and report to it, and **scheduled tasks** (P8-03), whose runs are chat turns.
 - A tool that ran in a round the stop cut short, and finished, is in the audit log; the model is told to check before doing anything again, and a changing call is never run twice (decision 0220), but a read-only one may be.
