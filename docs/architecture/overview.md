@@ -46,5 +46,7 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0014 | [A fixed rule is a name no setting can have, enforced by code that cannot read settings](decisions/0014-fixed-rules-and-tenant-settings.md) |
 | 0015 | [A provider streams through a callback](decisions/0015-a-provider-streams-through-a-callback.md) |
 | 0020 | [Messages are a tree, and each parent remembers its current child](decisions/0020-messages-are-a-tree.md) |
+| 0030 | [The knowledge store is one interface with capability flags, and having no store is an adapter](decisions/0030-knowledge-store-interface.md) |
+| 0031 | [A label that is not `normal` reads as sensitive](decisions/0031-label-reads-as-sensitive.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

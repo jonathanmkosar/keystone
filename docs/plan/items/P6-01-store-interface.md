@@ -1,6 +1,6 @@
 # P6-01. Knowledge store interface
 
-Status: doing (knowledge)
+Status: done
 Lane: knowledge
 Depends on: P2-01
 Owner gate: none
@@ -22,3 +22,14 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 - Proof: a contract suite in `internal/knowledge/knowledgetest` that every adapter's tests call. It runs against `none`, and against an in-memory store that exists only in the suite's own tests. Copies of that store with one fault each must fail the suite, which shows the suite can fail.
 - Docs: `docs/architecture/knowledge.md`, a row in the overview, decision records 0030 and 0031, and two lines in `verify`'s list of parts.
 
+
+### Result
+
+Done on November 24, 2026. Built as planned.
+
+- `internal/knowledge`: the `Store` interface, the data types, the capability flags, the `none` adapter and the registry. `internal/knowledge/knowledgetest` is the contract suite.
+- One setting, `knowledge.adapter`, default `none`, in `settings/knowledge.json`.
+- The proof holds: `none` passes the suite, a correct in-memory store passes it with each flag on and off, and copies of that store with one fault each fail it.
+- The lane's session stopped after its code and the part's doc were committed. The row in the overview, decisions 0030 and 0031 and the journal entry were written by the integrator from the plan and the doc.
+
+Journal: `docs/journal/2026-11-24-knowledge-001.md`.

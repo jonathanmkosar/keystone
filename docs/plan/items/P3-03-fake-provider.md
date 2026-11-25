@@ -1,6 +1,6 @@
 # P3-03. Fake provider
 
-Status: doing (models)
+Status: done
 Lane: models
 Depends on: P3-01
 Owner gate: none
@@ -23,3 +23,16 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 - Proof: tests for text in several pieces, thinking, a tool call and its continuation, each failure, each kind of refused script, and every example script folding back to its reply through the seam's collector. `verify` is green with the new check.
 - Docs: `docs/architecture/fake-provider.md`, additions to `seam.md` and `tools.md`, a row in the overview, and decisions 0011 (matching) and 0015 (the shape of the interface).
 
+
+### Result
+
+Done on November 24, 2026.
+
+- `internal/seam/provider.go` adds the `Provider` interface, which streams through a callback (decision 0015).
+- `internal/adapters/fake` plays scripts from `fixtures/fake-provider/`: a plain answer, thinking, a tool call, and failures. A script is found from the request alone (decision 0011). It imports no network package and reads no key.
+- `verify` has the `offline` check: only listed folders may import a network package, and the tests are run again with every key taken out of the environment and no way out to the network.
+- The proof holds: `verify` passes with no network and no keys.
+- Not proven yet, and said so in `tools.md`: a whole turn running offline through the fake provider. There is no turn until P4-03.
+- The lane's session stopped after its code and docs were committed. The journal entry was written by the integrator.
+
+Journal: `docs/journal/2026-11-24-models-002.md`.

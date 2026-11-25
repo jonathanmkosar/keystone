@@ -1,6 +1,6 @@
 # P2-03. Per-tenant secrets
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P2-01
 Owner gate: none
@@ -23,3 +23,15 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 - Proof: tests that `secrets.bin` does not hold the plain value, that another master key cannot read it, that one tenant's file is refused in another tenant's folder, and that a damaged file is refused and not replaced. A Windows-only test for the DPAPI keeper.
 - Docs: `docs/architecture/secrets.md`, a row in the overview, decision 0008 for the keepers on macOS and Linux and for a system with none, and a runbook for storing a key and for what to do after a restore.
 
+
+### Result
+
+Done on November 24, 2026. Built as planned, with two changes made when the lanes were merged.
+
+- `internal/secrets` holds the vault and the keepers, and `Store.Secrets()` returns a tenant's vault. `tools/tenant secret set | list | delete` stores, lists and removes. `verify` has the `no keys in output` check.
+- The proof holds: the tests show `secrets.bin` does not hold the plain value, another master key cannot read it, one tenant's file is refused in another's folder, and a damaged file is refused and not replaced. The DPAPI keeper is tested on Windows.
+- Changed at the merge: `internal/tenant` no longer reads the `secrets.keeper` setting. P2-04's fixed rules check refuses a guard of tenant isolation that can read a setting. The tenant command reads the setting and passes it in through `Install.NewInstallKeeper`.
+- The lane's session stopped after its code was committed. The doc, decision 0008, the runbook and the journal entry were written by the integrator.
+- Provisional: the macOS keychain keeper and the Linux Secret Service keeper compile and share tested code, and have not been run on those systems.
+
+Journal: `docs/journal/2026-11-24-core-006.md`.

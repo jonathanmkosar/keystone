@@ -1,6 +1,6 @@
 # P2-04. Audit log and per-tenant settings
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P2-01
 Owner gate: none
@@ -23,3 +23,16 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 - Proof: tests for each of the above, and `verify` green with the new check.
 - Docs: `docs/architecture/audit.md`, `docs/architecture/tenant-settings.md`, the fixed rules in `settings.md`, rows in the overview and in `tools.md`, and decisions 0009 and 0014.
 
+
+### Result
+
+Done on November 24, 2026, as far as it can be before the API exists.
+
+- `internal/audit`: an append-only `audit_log` table in each tenant's database, kept so by triggers, with keys removed three ways, and `Wrap`, which records a call before it runs and again when it ends (decision 0009).
+- `internal/tenantsettings`: a tenant's values over the registry's defaults, limited by each setting's scope. The four fixed rules are in `settings/fixed.go` and cannot be stored (decision 0014).
+- `verify` has the `fixed rules` check. At the merge it caught P2-03's tenant package reading a setting, and that was fixed in P2-03's code.
+- The proof: an override test passes, and a fixed rule cannot be overridden by a person, the admin, or a row written straight into the database. "Every API call lands in the audit log" is proven for any handler put inside `Wrap`. There are no routes yet, so P2-05 wraps its routes and adds the walk that proves it for each one.
+- At the merge, `internal/audit` joined the offline check's list of folders that may import a network package: it wraps the server's handlers and opens no connection.
+- The lane's session stopped after its code and docs were committed. The journal entry was written by the integrator.
+
+Journal: `docs/journal/2026-11-24-core-007.md`.

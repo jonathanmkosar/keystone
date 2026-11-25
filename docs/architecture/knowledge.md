@@ -90,7 +90,7 @@ A caller needs no special case for it. A search finds nothing, the catalog is em
 
 The `knowledge.adapter` setting, in `settings/knowledge.json`, names a person's adapter. Its default is `none`, and a person may change it for themselves.
 
-`knowledge.Open(ctx, name, tenantStore)` opens the store. The name is a plain argument. Stored per-tenant values arrive with P2-04. When they do, whoever opens the store for a turn reads the tenant's value of `knowledge.SettingAdapter` through P2-04's lookup and passes it in. Until then the only value is the default.
+`knowledge.Open(ctx, name, tenantStore)` opens the store. The name is a plain argument. Stored per-tenant values are in `internal/tenantsettings`. Whoever opens the store for a turn reads the tenant's value of `knowledge.SettingAdapter` through P2-04's lookup and passes it in.
 
 `Open` refuses a name this build does not have, and says which names it has.
 

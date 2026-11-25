@@ -5,3 +5,12 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | Folder | Lane | Holds |
 | --- | --- | --- |
 | `project` | core | Helpers for the project scripts in `tools/` |
+| `tenant` | core | The tenant registry, each tenant's database and folders, and the migrations |
+| `signin` | core | Passwords, passkeys and sessions, kept in each tenant's database |
+| `secrets` | core | Each tenant's `secrets.bin`, and the keepers of the install master key |
+| `audit` | core | The append-only audit log and the wrapper that records every API call |
+| `tenantsettings` | core | A tenant's own values over the registry's defaults |
+| `seam` | models | Keystone's own format for a model call, and the `Provider` interface |
+| `adapters/fake` | models | The scripted model used by the tests and `verify` |
+| `chat` | chats | Chats, messages as a tree of branches, and search |
+| `knowledge` | knowledge | The knowledge store interface, the `none` adapter and the contract suite |
