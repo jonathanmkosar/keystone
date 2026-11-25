@@ -1,6 +1,6 @@
 # P7-04. Connectors
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-02
 Owner gate: none

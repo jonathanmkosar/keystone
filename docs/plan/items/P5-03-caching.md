@@ -1,6 +1,6 @@
 # P5-03. Prompt caching
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P5-01, P3-04
 Owner gate: none

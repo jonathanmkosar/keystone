@@ -1,6 +1,6 @@
 # P5-05. Chat summaries and past-chat search
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P5-02
 Owner gate: none

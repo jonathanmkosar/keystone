@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: being built: P13-04 backup and restore (core), P5-04 the turn inspector (chats), P6-06 the memory pass (knowledge), P8-01 background tasks (agents). The owner is trying web search and the model picker on his own domain.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P7-04 connectors and P8-01 background tasks (agents), P5-05 chat summaries and past-chat search and P5-03 prompt caching (chats). Then P8-03 scheduled tasks, P12-02 Gmail and Calendar, P12-01 the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P5-04, the turn inspector | P5-05, P9-05 |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner), P6-07, P6-08 |
-| agents | P8-01, background tasks | P7-04 connectors, P8-02 |
+| agents | P8-01 background tasks, P7-04 connectors | P8-03 scheduled tasks, P12-02 Gmail and Calendar |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
@@ -24,6 +24,9 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Item | Lane | Branch |
 | --- | --- | --- |
 | P8-01 background tasks | agents | `agents/p8-01-background-tasks` |
+| P7-04 connectors | agents | `agents/p7-04-connectors` |
+| P5-05 chat summaries and past-chat search | chats | `chats/p5-05-chat-summaries` |
+| P5-03 prompt caching | chats | `chats/p5-03-prompt-caching` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner

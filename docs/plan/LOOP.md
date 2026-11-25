@@ -46,7 +46,7 @@ A session can stop at any moment: a usage limit, a closed window, a restart. Wor
    - **Only the branch exists** (another machine, or the worktree was removed): `git fetch origin`, then `git worktree add .claude/worktrees/<branch with / as -> <branch>` and work there.
    - **No branch yet**: start the item fresh in a new worktree on a branch of that shape.
 3. Start the work with the lane brief in `docs/plan/LANE-BRIEF.md`, filled in for the item, and add: "A previous session started this and stopped. Read the item's Plan and the branch's commits and uncommitted files first, then finish."
-4. When a lane finishes, the integrator merges its branch into `reboot`, runs `verify`, updates `STATE.md` (moving it out of "In flight") and pushes `reboot`.
+4. When a lane finishes, the integrator merges its branch into `reboot`, runs `verify`, updates `STATE.md` (moving it out of "In flight"), pushes `reboot`, and releases it: rebuilds `bin/keystone.exe` and restarts the live server ("Release a new build" in `docs/runbooks/start-at-sign-in.md`). What is built is pushed and released at once; the owner tries it as he goes.
 
 A stopped agent in the same session can instead be sent a message to carry on: it keeps its own context.
 
