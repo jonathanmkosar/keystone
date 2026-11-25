@@ -31,6 +31,8 @@ A call the server was stopped during has a started entry in the audit log and no
 
 Since P5-02, a summary of a chat's oldest turns is a call like these, made beside the turn under its request id, and its record has the kind `summary` ([compaction.md](compaction.md)).
 
+Since P6-06, the memory pass's call is one too, made after the turn under its request id, with the kind `memory`. `usage.SpentOn(ctx, store, month, kind)` sums one kind of task on models that are not local, which is what the memory pass's reserve, a part of the monthly cap, is measured against ([memory-pass.md](memory-pass.md)).
+
 ## Reading them
 
 ```go

@@ -151,6 +151,7 @@ func routes(c Config, log *api.Log) []api.Route {
 	}
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
+	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
 	all = append(all, settingsapi.Routes()...)
 	return all
 }

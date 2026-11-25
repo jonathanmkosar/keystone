@@ -1387,6 +1387,316 @@
         "summary": "Rename a chat, star it or clear its star."
       }
     },
+    "/api/v1/chats/{id}/incognito": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "passes": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "facts": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "source_id": {
+                            "type": "string"
+                          },
+                          "space": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "turn_id",
+                          "chat_id",
+                          "status",
+                          "sensitive",
+                          "facts",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "incognito",
+                    "passes"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make the chat ordinary again: its next turns run the memory pass. Turns while it was incognito stay unread."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "passes": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "facts": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "source_id": {
+                            "type": "string"
+                          },
+                          "space": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "turn_id",
+                          "chat_id",
+                          "status",
+                          "sensitive",
+                          "facts",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "incognito",
+                    "passes"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make the chat incognito: its turns from now on run no memory pass, and a pass still waiting is skipped. It takes no body."
+      }
+    },
+    "/api/v1/chats/{id}/memory": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "passes": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "facts": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "source_id": {
+                            "type": "string"
+                          },
+                          "space": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "turn_id",
+                          "chat_id",
+                          "status",
+                          "sensitive",
+                          "facts",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "incognito",
+                    "passes"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The chat's memory: whether it is incognito, and each memory pass its turns queued, with the facts a pass added to the knowledge store and where."
+      }
+    },
     "/api/v1/chats/{id}/model": {
       "get": {
         "parameters": [

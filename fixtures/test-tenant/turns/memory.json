@@ -1,0 +1,113 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "the beehives at the allotment",
+      "when": { "user_text": "I keep two beehives at the allotment and look in on them every Sunday morning. What should I check for in late autumn?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "In late autumn, check that each hive has enough stores to last the winter, that the entrance reducer is on, and that the roof is weighted against the wind. Look for signs of mice, and leave the bees alone on cold days." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 60, "output_tokens": 50 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a supper for the sister",
+      "when": { "user_text": "My sister is coming to stay for the first week of December, and she does not eat meat. What could I cook for her first night?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "A mushroom and chestnut pie with buttered greens would suit a cold December night, and it can be made the day before." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 64, "output_tokens": 28 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the memory pass: the beehives",
+      "when": { "system_contains": "long-term memory of a personal assistant", "user_text_contains": "I keep two beehives at the allotment" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "{\"facts\": [\"The person keeps two beehives at the allotment.\", \"The person looks in on the beehives every Sunday morning.\"]}" }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the memory pass: the sister's visit",
+      "when": { "system_contains": "long-term memory of a personal assistant", "user_text_contains": "My sister is coming to stay for the first week of December" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "```json\n{\"facts\": [\"The person's sister is coming to stay for the first week of December.\", \"The person's sister does not eat meat.\"]}\n```" }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the memory pass: sleep and the clinic",
+      "when": { "system_contains": "long-term memory of a personal assistant", "user_text_contains": "What helped with the insomnia, and what did the clinic letter say?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "{\"facts\": [\"The person had trouble sleeping in the spring.\", \"The person's clinic wrote to them about a review.\"]}" }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 400, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the memory pass: anything else",
+      "when": { "system_contains": "long-term memory of a personal assistant" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "{\"facts\": []}" }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 300, "output_tokens": 8 }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -12,7 +12,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | core | nothing | scheduled backups once the owner answers; P13-01 to P13-03 drills, held |
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P5-04, the turn inspector | P5-05, P9-05 |
-| knowledge | P6-06, the memory pass | P6-07, P6-08 |
+| knowledge | nothing | P12-01 Waymarks cutover (needs the owner), P6-07, P6-08 |
 | agents | P8-01, background tasks | P7-04 connectors, P8-02 |
 | interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
@@ -24,7 +24,6 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Item | Lane | Branch |
 | --- | --- | --- |
 | P5-04 the turn inspector | chats | `chats/p5-04-turn-inspector` |
-| P6-06 the memory pass | knowledge | `knowledge/p6-06-memory-pass` |
 | P8-01 background tasks | agents | `agents/p8-01-background-tasks` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
@@ -72,6 +71,8 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Should each web search ask before it is sent, as New Keystone did (agents 003) | No; a person can set web_search to ask on Settings → Approvals | Runs without asking | Nothing |
 | Should web tools run in a chat held for sensitive content (agents 003, decision 0252) | Ask there instead of refusing, now that approvals exist | Off in a held chat | Nothing |
 | Scheduled backups: where they go, how many are kept, and whether they are sealed to a public key whose private half lives in a password manager (core 010, decision 0263) | Yes to the public key; nightly, to a folder the owner names, keeping the last 14 | By hand only | Nothing built |
+| Where facts from a chat that was sent sensitive content go (knowledge 006) | The owner names his Waymarks sensitive space in `knowledge.memory_sensitive_space` | Kept nowhere | Nothing |
+| Is the memory reserve part of the monthly cap or set aside from it (knowledge 006, decision 0280) | Part of the cap, $2 a month | Part of the cap | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -110,6 +111,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P7-02, approvals, provisional on the agent mockups for the card's look: each tool is always, ask or never, per person (a list on Settings → Approvals); a tool that changes something asks by default, and always asks once the chat has read outside content, whatever its policy. A call that asks pauses the turn, shows an approval card, and runs once when approved; a waiting turn survives a restart. The `approval` check proves a side effect after outside content always asks.
 - P7-03, web search and fetch, provisional until the owner's first search in a chat (a real Tavily search with his key through Keystone's searcher returned three results on November 25, 2026): `web_search` through Tavily with each person's own key (`provider.tavily`), numbered sources the answer cites as [1], [2] with links in the chat, and `web_fetch` for one page, which refuses any address that is not public, after resolving it and on every redirect. Every result is marked as outside content, so a tool that changes something always asks afterwards. Both tools are off in a chat held for sensitive content.
 - P13-04, backup and restore: one person goes into one file sealed under a passphrase they give (`go run ./tools/tenant backup <tenant-id> <file>`), and a restore on another machine re-wraps their data key under that machine's keeper so their keys work there. A restore checks the whole file before writing anything and is run with the server stopped. Backups are by hand only: a schedule waits on the owner's choice of where they go (decision 0263). Steps: `docs/runbooks/backup-and-restore.md`.
+- P6-06, the memory pass: after each reply, beside it, the memory model (the owner's is Qwen on the Mac mini) pulls durable facts from the exchange and adds them to the person's knowledge store as one source linked to the chat, when the store can take sources. Its spend comes from a reserve inside the monthly cap ($2 by default). A chat that was sent sensitive content keeps its facts only in a named sensitive space. A chat can be made incognito, which turns the memory pass off for it. Only the fake provider has extracted facts so far.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

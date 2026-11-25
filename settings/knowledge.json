@@ -164,6 +164,83 @@
       "description": "The search-first rule: what the standing instructions tell the model when you have a knowledge store. It is left out when you have none. Empty sends none."
     },
     {
+      "key": "knowledge.memory",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "The memory pass: after each reply, a model reads what you wrote and the answer, and adds the durable facts it finds to your knowledge store, as a source that points back to the chat. It runs only when your store can take new sources, never in an incognito chat, and never delays a reply."
+    },
+    {
+      "key": "knowledge.memory_space",
+      "type": "string",
+      "default": "memory",
+      "scope": "tenant",
+      "description": "The space in your knowledge store the memory pass puts facts in. A space your store does not have yet is made, as a normal space."
+    },
+    {
+      "key": "knowledge.memory_sensitive_space",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The space the memory pass puts facts in when the chat was sent content from a sensitive space. Your store must already have it, with a page in it, and say it is sensitive. Empty keeps such facts nowhere."
+    },
+    {
+      "key": "knowledge.memory_reserve_usd",
+      "type": "float",
+      "default": "2",
+      "scope": "tenant",
+      "description": "The most the memory pass may spend in a calendar month on models that are not local, in US dollars. It is part of the monthly cap, not added to it, so the memory pass stops before it eats the cap. A local model costs nothing and is never stopped. Zero keeps the memory pass to local models."
+    },
+    {
+      "key": "knowledge.memory_prompt",
+      "type": "string",
+      "default": "You keep the long-term memory of a personal assistant. You are shown one exchange from a chat: what the person wrote and what the assistant answered. Write down the durable facts it shows about the person and their world: who they are, the people, places and things in their life, their projects, plans, habits, preferences and decisions, when they will still be true and useful in a later chat. Leave out what matters only to this conversation, what the assistant suggested that the person did not take up, general knowledge, and anything you are not sure of. Write each fact as one short sentence that stands on its own, and call the person \"the person\". Answer with one JSON object and nothing else, in this form: {\"facts\": [\"...\", \"...\"]}. Write at most {max} facts. When the exchange holds no durable fact, answer {\"facts\": []}.",
+      "scope": "install",
+      "description": "The instruction the memory pass's model is given with each exchange. {max} becomes the most facts it may write. The answer must stay one JSON object with a list of facts."
+    },
+    {
+      "key": "knowledge.memory_source_name",
+      "type": "string",
+      "default": "Facts from the chat \"{title}\", {date}",
+      "scope": "install",
+      "description": "The name of the source the memory pass adds for one reply. {title} becomes the chat's title and {date} the day of the reply."
+    },
+    {
+      "key": "knowledge.memory_max_facts",
+      "type": "int",
+      "default": "10",
+      "scope": "tenant",
+      "description": "The most facts the memory pass keeps from one reply, from 1 to 100."
+    },
+    {
+      "key": "knowledge.memory_fact_max_chars",
+      "type": "int",
+      "default": "300",
+      "scope": "install",
+      "description": "The longest fact the memory pass keeps, in characters, from 20 to 2000. A longer one is left out."
+    },
+    {
+      "key": "knowledge.memory_message_max_chars",
+      "type": "int",
+      "default": "6000",
+      "scope": "install",
+      "description": "The most of your message, and of the reply, the memory pass's model is shown, in characters, from 200 to 100000. A longer one is cut at a word's end."
+    },
+    {
+      "key": "knowledge.memory_max_output_tokens",
+      "type": "int",
+      "default": "1000",
+      "scope": "install",
+      "description": "The longest answer the memory pass's model may write, in tokens, from 64 to 32000."
+    },
+    {
+      "key": "knowledge.memory_timeout",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "How long one memory pass may take, its model call included, from 5s to 30m. A pass that runs out of time keeps nothing and says so in the server's log."
+    },
+    {
       "key": "knowledge.lookup_max_results",
       "type": "int",
       "default": "10",

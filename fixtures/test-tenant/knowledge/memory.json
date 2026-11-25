@@ -1,0 +1,20 @@
+{
+  "test_data": true,
+  "about": "Invented messages and the facts the memory pass must draw from each, for the memory pass check in verify (P6-06). The recorded turns that answer them, the replies and the extractions, are in fixtures/test-tenant/turns/memory.json. Every person, place and fact is made up. The loader does not read this file.",
+  "chats": [
+    {
+      "ask": "I keep two beehives at the allotment and look in on them every Sunday morning. What should I check for in late autumn?",
+      "facts": ["The person keeps two beehives at the allotment.", "The person looks in on the beehives every Sunday morning."]
+    },
+    {
+      "ask": "My sister is coming to stay for the first week of December, and she does not eat meat. What could I cook for her first night?",
+      "facts": ["The person's sister is coming to stay for the first week of December.", "The person's sister does not eat meat."]
+    }
+  ],
+  "nothing": ["Can you write a short poem about the sea?"],
+  "held": {
+    "ask": "What helped with the insomnia, and what did the clinic letter say?",
+    "space": "health",
+    "facts": ["The person had trouble sleeping in the spring.", "The person's clinic wrote to them about a review."]
+  }
+}
