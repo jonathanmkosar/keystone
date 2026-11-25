@@ -24,6 +24,7 @@ import {
   type Setting,
 } from "./api";
 import { ApprovalSettings } from "./ApprovalSettings";
+import { ConnectorSettings } from "./ConnectorSettings";
 import { Icon } from "./Icon";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
@@ -147,14 +148,7 @@ export function Settings(props: Props) {
         <Route path="appearance" element={<Appearance {...props} />} />
         <Route path="models" element={<ModelsAndKeys {...props} />} />
         <Route path="general" element={<General {...props} />} />
-        <Route
-          path="connectors"
-          element={
-            <NotBuilt title="Connectors" brings="P7-04, connectors, and then P12-02, the Google connectors">
-              Connectors let Keystone reach your mail, calendar and files. A connector's token will be kept with your keys, under Models and keys.
-            </NotBuilt>
-          }
-        />
+        <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route
           path="spend"

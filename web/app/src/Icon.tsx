@@ -95,6 +95,8 @@ const shapes = {
     </>
   ),
   tool: <path d="M5 19h14M7 15h10M9.5 11h5" />,
+  // A connector (P7-04): a plug.
+  plug: <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" />,
   alert: (
     <>
       <path d="M12 4 3 19h18z" />

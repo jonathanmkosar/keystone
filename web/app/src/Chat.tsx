@@ -4,6 +4,7 @@ import { ApiError, createChat, openChat, type Message, type ModelChoice, type Pe
 import { Approvals } from "./Approval";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
+import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
 import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
@@ -38,6 +39,7 @@ export function Start({ person }: { person: Person }) {
     try {
       const made = await createChat();
       put(made.chat, true);
+      await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
       send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id));
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
@@ -58,7 +60,7 @@ export function Start({ person }: { person: Person }) {
         </h1>
       </div>
       <div className="composer-column">
-        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<ModelPicker newChatFor={person.id} />} />
+        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
         {problem && (
           <p className="composer-problem" role="alert">
             {problem}
@@ -210,7 +212,7 @@ function OneChat({ id }: { id: string }) {
             focusKey={id}
             onSend={sendHere}
             onStop={busy ? () => stop(id) : undefined}
-            beside={<ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} />}
+            beside={<><ConnectorMenu chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
           />
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>
