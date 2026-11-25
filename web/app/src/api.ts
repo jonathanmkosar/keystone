@@ -1,17 +1,14 @@
 // Every call the web interface makes to the Keystone server is in this file.
 //
-// PROVISIONAL: the API shell (P2-05) was not built when this was written, so
-// the four paths below are guesses. The integrator wires them to the real
-// routes by changing this file only. The shapes are in docs/architecture/web.md.
+// The routes are the API shell's (P2-05), under /api/v1/. They are described
+// in docs/architecture/api.md and docs/api/openapi.json.
 //
 // The session is a cookie the server sets and the page cannot read, so no
 // token is ever held here.
 
 const paths = {
-  people: "/api/people", // PROVISIONAL
-  signIn: "/api/sign-in", // PROVISIONAL
-  signOut: "/api/sign-out", // PROVISIONAL
-  me: "/api/me", // PROVISIONAL
+  people: "/api/v1/signin/people",
+  session: "/api/v1/session",
 };
 
 export type Person = { id: string; name: string };
@@ -41,7 +38,7 @@ function kindOf(status: number): ApiErrorKind {
   return "failed";
 }
 
-async function call(method: "GET" | "POST", path: string, body?: unknown): Promise<unknown> {
+async function call(method: "GET" | "POST" | "DELETE", path: string, body?: unknown): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(path, {
@@ -86,15 +83,21 @@ export async function listPeople(): Promise<Person[]> {
 
 /** Signs one person in with their password. The server sets the session cookie. */
 export async function signIn(person: string, password: string): Promise<Person> {
-  return personFrom(await call("POST", paths.signIn, { person, password }));
+  try {
+    return personFrom(await call("POST", paths.session, { tenant: person, password }));
+  } catch (e) {
+    // At the door a 401 means the password was refused, not that a session ended.
+    if (e instanceof ApiError && e.status === 401) throw new ApiError("refused", 401);
+    throw e;
+  }
 }
 
 /** Ends the session. */
 export async function signOut(): Promise<void> {
-  await call("POST", paths.signOut);
+  await call("DELETE", paths.session);
 }
 
 /** The signed-in person. Throws ApiError "signed-out" when there is no session. */
 export async function me(): Promise<Person> {
-  return personFrom(await call("GET", paths.me));
+  return personFrom(await call("GET", paths.session));
 }

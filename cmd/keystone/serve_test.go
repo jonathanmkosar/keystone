@@ -38,16 +38,31 @@ func TestHandlerServesThePageFiles(t *testing.T) {
 	}
 }
 
+// A missing file is 404, and so is anything under /api when no API is
+// mounted. A path with no file extension is a route of the interface and
+// gets the page (decision 0071).
 func TestHandlerRefusesWhatItDoesNotServe(t *testing.T) {
-	rec := httptest.NewRecorder()
-	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/no-such-file", nil))
-	if rec.Code != http.StatusNotFound {
-		t.Errorf("GET /no-such-file: status %d, want 404", rec.Code)
+	for _, p := range []string{"/no-such-file.js", "/assets/no-such-file.css", "/api/v1/nothing", "/api"} {
+		rec := httptest.NewRecorder()
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, p, nil))
+		if rec.Code != http.StatusNotFound {
+			t.Errorf("GET %s: status %d, want 404", p, rec.Code)
+		}
 	}
-	rec = httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/", nil))
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("POST /: status %d, want 405", rec.Code)
+	}
+}
+
+func TestHandlerServesThePageForAnInterfaceRoute(t *testing.T) {
+	for _, p := range []string{"/chats", "/chats/abc123", "/settings/"} {
+		rec := httptest.NewRecorder()
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, p, nil))
+		if rec.Code != http.StatusOK || !strings.HasPrefix(rec.Header().Get("Content-Type"), "text/html") || !strings.Contains(rec.Body.String(), "<html") {
+			t.Errorf("GET %s: status %d, content type %q, want the page", p, rec.Code, rec.Header().Get("Content-Type"))
+		}
 	}
 }
 

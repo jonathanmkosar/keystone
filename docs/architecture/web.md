@@ -59,30 +59,28 @@ The theme switch offers dark, light and system. Dark leads, as in the design. Th
 
 The stylesheet names IBM Plex Sans, Fraunces, Source Serif 4 and IBM Plex Mono and falls back to system fonts (decision [0072](decisions/0072-fonts-are-named-not-bundled.md)). No font file is bundled yet and nothing is loaded from another site.
 
-## The API it expects
+## The API it calls
 
-Every server call is in `src/api.ts`. The API shell (P2-05) was being built at the same time, so all four paths are guesses, marked provisional in that file. The integrator wires them to the real routes by changing that file only.
+Every server call is in `src/api.ts`. The routes are the API shell's, described in [api.md](api.md).
 
 | Call | Request | Answer |
 | --- | --- | --- |
-| `GET /api/people` | | 200 `{"people":[{"id","name"}]}`. Needs no session. |
-| `POST /api/sign-in` | `{"person","password"}` | 200 `{"person":{"id","name"}}` and the session cookie; 401 refused; 429 wait |
-| `POST /api/sign-out` | | 204 |
-| `GET /api/me` | | 200 `{"person":{"id","name"}}`; 401 not signed in |
+| `GET /api/v1/signin/people` | | 200 `{"listed","people":[{"id","name"}]}`. Needs no session. |
+| `POST /api/v1/session` | `{"tenant","password"}` | 200 `{"person":{"id","name"},"session":{...}}` and the session cookie; 401 refused; 429 wait |
+| `DELETE /api/v1/session` | | 200 `{"signed_out":true}` |
+| `GET /api/v1/session` | | 200 `{"person":{"id","name"},"session":{...}}`; 401 not signed in |
 
-`person` in the sign-in request is the tenant id of the person picked from the list. The session is an HttpOnly cookie the server sets; the page never sees or stores a token.
+`tenant` in the sign-in request is the tenant id of the person picked from the list. The session is an HttpOnly cookie the server sets; the page never sees or stores a token.
 
 How the app reads an answer:
 
-- 404 or 405 on any call, a network error, or a 200 that is not JSON: the server is not ready. The app shows that state with a "Try again" button. A 200 that is not JSON matters because the server's fallback, once added, would answer an unknown `/api/` path with the page itself.
-- 401 on `me`: signed out, show sign-in. 401 on sign-in: wrong password.
+- 404 or 405 on any call, a network error, or a 200 that is not JSON: the server is not ready. The app shows that state with a "Try again" button.
+- 401 on the session read: signed out, show sign-in. 401 on sign-in: wrong password.
 - 429 on sign-in: too many wrong passwords, wait and try again.
 
-## The server change this needs
+## Routes in the browser
 
-`cmd/keystone/serve.go` serves `web/dist/` with a plain file server today. For client-side routes it must answer a `GET` or `HEAD` for a path that is not a file in `web/dist/` and does not start with `/api/` with `index.html` and status 200. Unknown paths under `/api/` must stay 404 with a JSON body. The interface lane did not edit the server; the change is described in the journal entry for P4-01.
-
-Until then, navigation inside the app works, and reloading on any screen but `/` answers 404.
+The app routes in the browser (decision [0071](decisions/0071-client-side-routes-are-real-paths.md)). `cmd/keystone/serve.go` answers a `GET` or `HEAD` for a path that has no file extension, is not under `/api`, and is not a file in `web/dist/` with the page, so reloading on `/chats` works. A missing file such as `/assets/gone.js` stays a 404, and so does an unknown path under `/api`.
 
 ## What comes next
 

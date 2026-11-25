@@ -6,10 +6,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"strings"
 	"time"
 
@@ -39,8 +41,36 @@ func handler(api http.Handler) http.Handler {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+		// The interface routes in the browser, so a path that is not a file,
+		// such as /chats, is the page itself (decision 0071). A path under
+		// /api never reaches here when there is an API, and is never the page.
+		if isRoute(r.URL.Path) {
+			page, err := fs.ReadFile(web.Files(), "index.html")
+			if err != nil {
+				http.Error(w, "the page is missing from this build", http.StatusInternalServerError)
+				return
+			}
+			h.Set("Content-Type", "text/html; charset=utf-8")
+			h.Set("Cache-Control", "no-cache")
+			if r.Method == http.MethodGet {
+				w.Write(page)
+			}
+			return
+		}
 		files.ServeHTTP(w, r)
 	})
+}
+
+// isRoute reports whether a request path is a route of the interface and
+// not a file: it is not the root, has no file extension, is not under /api,
+// and names no file in the built interface. A missing file stays a 404.
+func isRoute(p string) bool {
+	name := strings.TrimPrefix(path.Clean("/"+p), "/")
+	if name == "" || path.Ext(name) != "" || name == "api" || strings.HasPrefix(name, "api/") {
+		return false
+	}
+	_, err := fs.Stat(web.Files(), name)
+	return err != nil
 }
 
 // setting returns the shipped value of a setting.
