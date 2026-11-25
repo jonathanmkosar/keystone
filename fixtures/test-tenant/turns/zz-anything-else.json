@@ -1,0 +1,23 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "anything else",
+      "when": {},
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "This is the test tenant, and its model is Keystone's fake provider. No turn was recorded for that message, so this is the reply every such message gets. Nothing left this machine." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 12, "output_tokens": 40 }
+          }
+        }
+      ]
+    }
+  ]
+}

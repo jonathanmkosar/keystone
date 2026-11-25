@@ -72,6 +72,13 @@
       "description": "How long a person has to answer a passkey prompt before it must be asked again."
     },
     {
+      "key": "test_tenant.load",
+      "type": "bool",
+      "default": "true",
+      "scope": "install",
+      "description": "Whether rebuild loads the test tenant into the data folder: an invented person whose password is published in the repo, with a few chats and the fake provider for a model. Switch it off on an install that people outside the home can reach."
+    },
+    {
       "key": "data.dir",
       "type": "string",
       "default": "data",
