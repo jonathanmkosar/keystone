@@ -10,6 +10,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
+	"github.com/jonathanmkosar/keystone/internal/tools/approval"
 )
 
 // The knowledge lookups (P6-05) as tools of the tool loop (P7-01).
@@ -54,6 +55,7 @@ func (r *Runner) lookupTools(ctx context.Context, s *tenant.Store, t row, p seam
 	for _, d := range offered {
 		taken[d.Name] = true
 	}
+	pols, _ := r.toolPolicies(ctx, s) // a lookup set never is not offered (P7-02)
 	tr.lookups = map[string]tools.Tool{}
 	var defs []seam.Tool
 	for _, l := range list {
@@ -61,6 +63,9 @@ func (r *Runner) lookupTools(ctx context.Context, s *tenant.Store, t row, p seam
 			continue
 		}
 		tr.lookups[l.Name] = r.lookupTool(t, tr.adapter, l)
+		if pols[l.Name] == approval.Never {
+			continue // kept, so a call made anyway is refused by its policy
+		}
 		defs = append(defs, seam.Tool{Name: l.Name, Description: l.Description, InputSchema: l.Schema})
 	}
 	return defs
@@ -72,7 +77,7 @@ func (r *Runner) lookupTools(ctx context.Context, s *tenant.Store, t row, p seam
 // given when the chat cannot be held.
 func (r *Runner) lookupTool(t row, adapter string, l recall.Lookup) tools.Tool {
 	return tools.Tool{
-		Name: l.Name, Description: l.Description, InputSchema: l.Schema, ReadOnly: l.ReadOnly,
+		Name: l.Name, Description: l.Description, InputSchema: l.Schema, ReadOnly: l.ReadOnly, Inside: lookupInside(l.Name),
 		Run: func(ctx context.Context, in tools.Input) (string, error) {
 			ks, err := knowledge.Open(ctx, adapter, in.Store)
 			if err != nil {

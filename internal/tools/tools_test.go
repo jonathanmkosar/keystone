@@ -13,6 +13,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/secrets"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/internal/tools/approval"
 )
 
 var anyObject = json.RawMessage(`{"type":"object","properties":{}}`)
@@ -152,12 +153,62 @@ func TestAToolThatChangesSomethingIsRefused(t *testing.T) {
 	if res.Status != StatusRefused || res.Ran || ran.Load() != 0 {
 		t.Fatalf("a tool that changes something came to %+v after %d runs", res, ran.Load())
 	}
-	if !res.Block.IsError || !strings.Contains(text(res.Block), "approvals are not built yet") {
+	if !res.Block.IsError || !strings.Contains(text(res.Block), "runs only with a person's approval") {
 		t.Errorf("the model is told %q", text(res.Block))
 	}
 	got := entries(t, s, "req-2")
 	if len(got) != 2 || got[0].Outcome != audit.OutcomeStarted || got[1].Outcome != audit.OutcomeRefused {
 		t.Errorf("the refusal is recorded as %+v", got)
+	}
+}
+
+// An approval runs the one call it covers (P7-02): the same tool with
+// other input, or another tool, is refused and never runs.
+func TestAnApprovalRunsOnlyItsOwnCall(t *testing.T) {
+	s := newStore(t)
+	r := New()
+	var ran atomic.Int32
+	for _, name := range []string{"send_letter", "send_parcel"} {
+		if err := r.Add(echo(name, false, &ran)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	input := json.RawMessage(`{"to":"The harbour master"}`)
+	ok := approval.Answered(approval.Answer{Tool: "send_letter", Input: input, Approved: true})
+	res := r.Run(context.Background(), Call{Store: s, RequestID: "req-3", Actor: "person", ID: "call_1", Name: "send_letter", Input: json.RawMessage(`{ "to": "The harbour master" }`), Approval: ok})
+	if res.Status != StatusOK || ran.Load() != 1 {
+		t.Fatalf("the approved call came to %+v after %d runs", res, ran.Load())
+	}
+	for name, c := range map[string]Call{
+		"other input":  {Name: "send_letter", Input: json.RawMessage(`{"to":"Someone else"}`)},
+		"another tool": {Name: "send_parcel", Input: input},
+	} {
+		c.Store, c.RequestID, c.Actor, c.ID, c.Approval = s, "req-4", "person", "call_2", ok
+		if res := r.Run(context.Background(), c); res.Status != StatusRefused || !strings.Contains(text(res.Block), "another call") {
+			t.Errorf("%s came to %+v", name, res)
+		}
+	}
+	if ran.Load() != 1 {
+		t.Errorf("an approval ran %d calls", ran.Load())
+	}
+	// The standing policy covers its call the same way.
+	standing := approval.Decide(approval.Call{Tool: "send_parcel", Input: input, Policy: approval.Always}).Approval
+	if res := r.Run(context.Background(), Call{Store: s, RequestID: "req-5", Actor: "person", ID: "call_3", Name: "send_parcel", Input: input, Approval: standing}); res.Status != StatusOK {
+		t.Errorf("a call under the standing policy came to %+v", res)
+	}
+}
+
+func TestASummarySaysWhatACallWillDo(t *testing.T) {
+	plain := Tool{Name: "send_letter"}
+	if got := Summary(plain, json.RawMessage(`{"to":"The harbour master","urgent":true,"copies":2,"extra":{"a":1}}`)); got != "Use send_letter with copies 2, to “The harbour master”, urgent true." {
+		t.Errorf("the summary is %q", got)
+	}
+	if got := Summary(plain, json.RawMessage(`{}`)); got != "Use send_letter." {
+		t.Errorf("with no input the summary is %q", got)
+	}
+	own := Tool{Name: "send_letter", Describe: func(json.RawMessage) string { return "Send a letter to the harbour master." }}
+	if got := Summary(own, nil); got != "Send a letter to the harbour master." {
+		t.Errorf("a tool's own words are %q", got)
 	}
 }
 

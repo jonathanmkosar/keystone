@@ -141,6 +141,7 @@ func routes(c Config, log *api.Log) []api.Route {
 		runner = turn.NewRunner(c.turnOptions(log))
 	}
 	all = append(all, turn.Routes(runner)...)
+	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, settingsapi.Routes()...)
 	return all
 }

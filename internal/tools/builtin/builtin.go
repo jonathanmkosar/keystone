@@ -66,6 +66,7 @@ func currentTime(o Options) tools.Tool {
 		Description: "The current date and time, where Keystone runs and in UTC. Use it whenever an answer rests on today's date, the day of the week or the time. It takes no input.",
 		InputSchema: json.RawMessage(`{"type":"object","properties":{},"additionalProperties":false}`),
 		ReadOnly:    true,
+		Inside:      true, // the person's own chats, or the clock: not outside content (P7-02)
 		Run: func(context.Context, tools.Input) (string, error) {
 			now := o.Now()
 			return fmt.Sprintf("It is %s, where Keystone runs (UTC%s).\nIn UTC it is %s.",
@@ -80,6 +81,7 @@ func searchChats(o Options) tools.Tool {
 		Description: "Search the person's own earlier chats by the words of their titles and messages. Every word given must be in the same title or the same message, so use one or two plain words. It returns each match with its chat's title and id and a few words around the match. The chat this turn is in is left out. Use read_chat with an id to read a chat that was found.",
 		InputSchema: json.RawMessage(`{"type":"object","properties":{"query":{"type":"string","description":"The words to look for."}},"required":["query"],"additionalProperties":false}`),
 		ReadOnly:    true,
+		Inside:      true, // the person's own chats, or the clock: not outside content (P7-02)
 		Run: func(ctx context.Context, in tools.Input) (string, error) {
 			var args struct {
 				Query string `json:"query"`
@@ -131,6 +133,7 @@ func readChat(o Options) tools.Tool {
 		Description: fmt.Sprintf("Read one of the person's own chats by its id, as search_chats gives it: the title and the messages on its current branch, oldest first. A long chat comes back as its last %d messages.", o.ReadChatMessages),
 		InputSchema: json.RawMessage(`{"type":"object","properties":{"chat_id":{"type":"string","description":"The chat's id, sixteen characters."}},"required":["chat_id"],"additionalProperties":false}`),
 		ReadOnly:    true,
+		Inside:      true, // the person's own chats, or the clock: not outside content (P7-02)
 		Run: func(ctx context.Context, in tools.Input) (string, error) {
 			var args struct {
 				ChatID string `json:"chat_id"`

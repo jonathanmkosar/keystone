@@ -2950,6 +2950,64 @@
                     },
                     "description": "Always the last event: the turn as it ended, with the status done, stopped or failed. The stream closes after it.",
                     "event": "end"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "asked": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "call_id": {
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "decided": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "input": {},
+                        "reason": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "tool": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "why": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "turn_id",
+                        "chat_id",
+                        "call_id",
+                        "tool",
+                        "summary",
+                        "input",
+                        "reason",
+                        "why",
+                        "status",
+                        "asked"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A tool call needs the person's answer before it runs (status pending), or was answered (approved, declined, expired or stopped). It replaces an earlier approval event with the same id. Answer it with POST .../approvals/{approval}/approve or /decline.",
+                    "event": "approval"
                   }
                 ]
               }
@@ -3109,6 +3167,321 @@
           }
         },
         "summary": "One turn's state."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/approvals": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "approvals": {
+                      "items": {
+                        "properties": {
+                          "asked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "call_id": {
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "decided": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "input": {},
+                          "reason": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "tool": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "why": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "turn_id",
+                          "chat_id",
+                          "call_id",
+                          "tool",
+                          "summary",
+                          "input",
+                          "reason",
+                          "why",
+                          "status",
+                          "asked"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "approvals"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The approvals a turn asked for, oldest first: each tool call that needed the person's answer before it ran, and what became of it."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/approvals/{approval}/approve": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "approval",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "asked": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "call_id": {
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "decided": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "input": {},
+                    "reason": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "tool": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "turn_id",
+                    "chat_id",
+                    "call_id",
+                    "tool",
+                    "summary",
+                    "input",
+                    "reason",
+                    "why",
+                    "status",
+                    "asked"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Approve one tool call that waits for the person's answer. The turn goes on, and the call runs once. It takes no body. An approval that was already answered, or whose turn has ended, is refused with 409."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/approvals/{approval}/decline": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "approval",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "asked": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "call_id": {
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "decided": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "input": {},
+                    "reason": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "tool": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "why": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "turn_id",
+                    "chat_id",
+                    "call_id",
+                    "tool",
+                    "summary",
+                    "input",
+                    "reason",
+                    "why",
+                    "status",
+                    "asked"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Decline one tool call that waits for the person's answer. The turn goes on, and the model is told the call was not run. It takes no body. An approval that was already answered, or whose turn has ended, is refused with 409."
       }
     },
     "/api/v1/chats/{id}/turns/{turn}/events": {
@@ -3925,6 +4298,64 @@
                     },
                     "description": "Always the last event: the turn as it ended, with the status done, stopped or failed. The stream closes after it.",
                     "event": "end"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "asked": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "call_id": {
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "decided": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "input": {},
+                        "reason": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "tool": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "why": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "turn_id",
+                        "chat_id",
+                        "call_id",
+                        "tool",
+                        "summary",
+                        "input",
+                        "reason",
+                        "why",
+                        "status",
+                        "asked"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A tool call needs the person's answer before it runs (status pending), or was answered (approved, declined, expired or stopped). It replaces an earlier approval event with the same id. Answer it with POST .../approvals/{approval}/approve or /decline.",
+                    "event": "approval"
                   }
                 ]
               }
@@ -5611,6 +6042,237 @@
           }
         },
         "summary": "A stream that counts, for building and checking a client's event reader. It honours Last-Event-ID."
+      }
+    },
+    "/api/v1/tools": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "policies": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "tools": {
+                      "items": {
+                        "properties": {
+                          "default": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "inside": {
+                            "type": "boolean"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "overridden": {
+                            "type": "boolean"
+                          },
+                          "policy": {
+                            "type": "string"
+                          },
+                          "read_only": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "description",
+                          "read_only",
+                          "inside",
+                          "default",
+                          "policy",
+                          "overridden"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "tools",
+                    "policies"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every tool a turn may use, with the person's policy for it (always, ask or never) and its default."
+      }
+    },
+    "/api/v1/tools/{name}/policy": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "default": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "inside": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "overridden": {
+                      "type": "boolean"
+                    },
+                    "policy": {
+                      "type": "string"
+                    },
+                    "read_only": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "description",
+                    "read_only",
+                    "inside",
+                    "default",
+                    "policy",
+                    "overridden"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Remove the person's policy for one tool, so its default is back."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "policy": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "policy"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "default": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "inside": {
+                      "type": "boolean"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "overridden": {
+                      "type": "boolean"
+                    },
+                    "policy": {
+                      "type": "string"
+                    },
+                    "read_only": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "description",
+                    "read_only",
+                    "inside",
+                    "default",
+                    "policy",
+                    "overridden"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Set the person's policy for one tool: always, ask or never. Whatever the policy, a tool that changes something asks once the chat has read outside content."
       }
     }
   },

@@ -335,9 +335,16 @@ func checkApproval(string) error {
 		return err
 	}
 	defer r.close()
+	// Since P7-02 the call asks and the turn waits for the person. They
+	// decline while it waits, so the call still has no approval, and the
+	// parts below read as they did.
+	answered := answerWhenAsked(r.w, r.token, r.test, "decline", &ran)
 	got, err := r.send(postcardMessage)
 	if err != nil {
 		return err
+	}
+	if asked, ranWhileWaiting, status := answered(); asked.ID == "" || asked.Tool != postcardTool || ranWhileWaiting != 0 || status != http.StatusOK {
+		problems = append(problems, fmt.Sprintf("a tool that changes something did not ask and wait for the person: asked %q, %d runs while it waited, the decline answered %d", asked.Tool, ranWhileWaiting, status))
 	}
 	if n := ran.Load(); n != 0 {
 		problems = append(problems, fmt.Sprintf("a tool that changes something ran %d times with no approval", n))
@@ -364,6 +371,14 @@ func checkApproval(string) error {
 	if got.end.Status != turn.StatusDone {
 		problems = append(problems, fmt.Sprintf("the turn with the refused call ended as %s, and a refusal is a result the model reads, not a broken turn", got.end.Status))
 	}
+
+	// 3. The approval policy (P7-02, approvals.go): a side effect after
+	// outside content always asks, whatever the tool's setting.
+	more, err := checkApprovalPolicy()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, more...)
 
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))

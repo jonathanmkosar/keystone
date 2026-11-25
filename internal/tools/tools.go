@@ -57,6 +57,18 @@ type Tool struct {
 	// changes something, inside Keystone or outside it, and runs only with
 	// a person's approval.
 	ReadOnly bool
+	// Inside says the tool's result holds only what Keystone itself keeps
+	// for the person: their chats, the clock, a page of their knowledge
+	// store. A tool that does not say so is taken to bring content from
+	// outside Keystone (a web page, a file, an email, a connector's
+	// answer), and once a turn has read such content every tool that
+	// changes something asks before it runs (P7-02). A forgotten flag
+	// makes side effects ask; it never lets one run.
+	Inside bool
+	// Describe says what one call will do, in a sentence a person reads on
+	// the approval card, from the call's input. Nil means a sentence made
+	// from the tool's name and the input's plain values.
+	Describe func(input json.RawMessage) string
 	// Run does the work and returns the text the model reads. Its context
 	// is cancelled when the turn is stopped or the tool has run too long,
 	// and Run must return soon after. An error becomes an error result
@@ -69,6 +81,8 @@ type Info struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	ReadOnly    bool   `json:"read_only"`
+	// Inside says the tool's result is Keystone's own, not outside content.
+	Inside bool `json:"inside"`
 }
 
 var nameShape = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
@@ -127,9 +141,58 @@ func (r *Registry) List() []Info {
 	var out []Info
 	for _, name := range r.names() {
 		t := r.tools[name]
-		out = append(out, Info{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly})
+		out = append(out, Info{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside})
 	}
 	return out
+}
+
+// Get returns one tool by name.
+func (r *Registry) Get(name string) (Tool, bool) {
+	if r == nil {
+		return Tool{}, false
+	}
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	t, ok := r.tools[name]
+	return t, ok
+}
+
+// Summary says what one call of t will do, for the approval card: the
+// tool's own Describe, or its name and the plain values of its input.
+func Summary(t Tool, input json.RawMessage) string {
+	if t.Describe != nil {
+		if s := strings.TrimSpace(t.Describe(input)); s != "" {
+			return s
+		}
+	}
+	var args map[string]json.RawMessage
+	if json.Unmarshal(input, &args) != nil || len(args) == 0 {
+		return fmt.Sprintf("Use %s.", t.Name)
+	}
+	keys := make([]string, 0, len(args))
+	for k := range args {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	var parts []string
+	for _, k := range keys {
+		var v any
+		if json.Unmarshal(args[k], &v) != nil {
+			continue
+		}
+		switch x := v.(type) {
+		case string:
+			if strings.TrimSpace(x) != "" {
+				parts = append(parts, fmt.Sprintf("%s “%s”", strings.ReplaceAll(k, "_", " "), clip(strings.Join(strings.Fields(x), " "), 120)))
+			}
+		case float64, bool:
+			parts = append(parts, fmt.Sprintf("%s %v", strings.ReplaceAll(k, "_", " "), x))
+		}
+	}
+	if len(parts) == 0 {
+		return fmt.Sprintf("Use %s.", t.Name)
+	}
+	return fmt.Sprintf("Use %s with %s.", t.Name, strings.Join(parts, ", "))
 }
 
 // Definitions returns the tools as a model is offered them, by name, so
@@ -166,8 +229,10 @@ type Call struct {
 	Name  string
 	Input json.RawMessage
 
-	// Approval is a person's agreement to this call. The zero value says
-	// there is none, which is all there can be until P7-02.
+	// Approval is a person's agreement to this call: their answer to it,
+	// or their standing policy for the tool (P7-02). The zero value says
+	// there is none. A tool that changes something runs only with one that
+	// covers this tool and this input.
 	Approval approval.Approval
 
 	// Timeout is how long the tool may run. Zero means as long as its
@@ -303,8 +368,9 @@ func (r *Registry) run(ctx context.Context, c Call, input json.RawMessage) Resul
 		return Result{Block: failed(c.ID, fmt.Sprintf("There is no tool named %q. Use only the tools you were offered.", c.Name)), Status: StatusError}
 	}
 	// The second fixed rule. Nothing below this line runs for a tool that
-	// changes something unless a person approved the call.
-	if err := approval.Check(t.ReadOnly, c.Approval); err != nil {
+	// changes something unless a person approved this call: an approval
+	// covers one tool with one input (P7-02).
+	if err := approval.CheckCall(t.ReadOnly, c.Approval, c.Name, input); err != nil {
 		return Result{Block: failed(c.ID, upper(err.Error())), Status: StatusRefused}
 	}
 	if !isObject(input) {
@@ -375,6 +441,16 @@ func cut(text string, most int) string {
 		return text
 	}
 	return string(runes[:most]) + fmt.Sprintf("\n\n[The result was cut here. It had %d characters, and %d are kept.]", len(runes), most)
+}
+
+// clip keeps the first most characters of a short text, with an ellipsis
+// when it left some out.
+func clip(text string, most int) string {
+	runes := []rune(text)
+	if len(runes) <= most {
+		return text
+	}
+	return strings.TrimSpace(string(runes[:most-1])) + "…"
 }
 
 // upper makes an error's text a sentence: a capital first, a full stop last.
