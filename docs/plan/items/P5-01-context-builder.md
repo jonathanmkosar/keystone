@@ -1,6 +1,6 @@
 # P5-01. Context builder
 
-Status: doing (chats)
+Status: done
 Lane: chats
 Depends on: P4-03, P3-07
 Owner gate: none
@@ -30,4 +30,18 @@ How it is proven:
 - The record matches what the model received: the request is rebuilt from the record and the input and compared, and the parts' tokens are checked against `budget.Estimate` of the request.
 - A turn test: a chat longer than its model's window gets an answer, not `too_long`, and the stored record names the dropped turns.
 - `go run ./tools/verify` green, with the new step in `context fit`.
+
+### Result
+
+Done on November 25, 2026, in three commits on `chats/p5-01-context-builder`: the plan, the build with its doc and decisions, and the write-up.
+
+- `internal/contextbuild`: `Build(ctx, Input) (seam.Request, Record, error)`, described in `docs/architecture/context.md`. Decisions 0170 to 0173.
+- The parts are packed in the plan's order. The standing start, the tools, pinned items and the current turn are never left out. Earlier turns go from the newest back, each whole, and the packing stops at the first that does not fit. A tool call is never parted from its result.
+- Named slots, empty today, for tools (P7-01), profile and person map (P6-04), project (P9-01), style (P9-05), attachments and attached chats (P5-06), recall (P6-05) and the summary (P5-02). Each is packed and recorded by the code that is there now.
+- The record lists every part and every turn of the branch with its tokens and whether it was sent. The turn stores one for each model call in `turn_contexts` (migration `20261125T070000_turn_contexts.sql`), and `turn.Contexts` reads them for the inspector (P5-04).
+- `Runner.work` calls the builder where it built the request. A chat several times its model's window is now answered, and the call starts with the standing instructions.
+- Eight settings in `settings/chats.json`, all tenant scope.
+- The proof passes: `go test ./internal/contextbuild` has a packing test for each priority, and puts the request together again from the record to compare them. `go test ./internal/turn` checks the stored record against the audit log's copy of what was sent. `verify` is 15 of 15, and `context fit` packs the largest test chat and a generated chat four times the window under every fixture model.
+
+Left for the items that own them: compaction and the summary's text (P5-02), cache marks (P5-03), the inspector's route and screen (P5-04). A single message larger than the window still fails with `too_long`. No real model has been called through the builder.
 

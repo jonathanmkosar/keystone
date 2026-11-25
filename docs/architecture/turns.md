@@ -235,7 +235,7 @@ Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](dec
 
 1. The model is opened. See "Which model" below. A failure here ends the turn with an `error` event, and nothing is written to the chat.
 2. The person's message is appended to the chat record with `chat.Append`, under the last message of the current branch. With `edit_of` it goes under the edited message's parent. With `retry_of` nothing is appended, and the reply goes under the retried reply's parent.
-3. The request is built from the branch that ends at that message: `seam.Request` with the model's name, the messages, `chats.turn_max_output_tokens` and `chats.turn_thinking_tokens`. There is no system text yet. That is the context builder's (P5-01).
+3. The request is built by the context builder ([context.md](context.md)) from the branch that ends at that message: the standing instructions from `chats.context_system_text`, the current turn, and as many earlier turns as fit the model's window, with `chats.turn_max_output_tokens` and `chats.turn_thinking_tokens`. What the call was built from is stored in `turn_contexts`.
 4. The provider's `Stream` is called. Each seam event goes through a `seam.Collector` and is written as a row in `turn_events`: text and thinking as they arrive, a tool call when it is whole.
 5. The reply is appended to the record, with the model, the stop reason, the usage and the cost in `turn_messages`.
 6. If the model stopped for a tool, each call is answered, the results are appended as a message, and step 3 runs again, up to `chats.turn_max_steps` times. There is no tool loop yet (P7-01), so every call is answered with an error the model can read (decision [0143](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md)).
@@ -364,7 +364,7 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 ## Not here yet
 
 - Tools. A tool call is answered with an error until the tool loop (P7-01), which also brings approvals. The `tool_call` and `tool_result` events are already in the stream.
-- The context builder, compaction and caching (P5-01 to P5-03). The whole current branch is sent, with no system text. A chat that outgrows its model's window fails with `too_long` until then.
+- Compaction and caching (P5-02, P5-03). The context builder (P5-01) leaves the oldest turns out of a chat that outgrows its model's window. Nothing stands in for them yet but one sentence that tells the model. A single message larger than the window still fails with `too_long`.
 - Routing, fallbacks, usage records and the spend cap (P3-08). A failed call is not tried on another model. Cost is worked out from the entry's price and kept in the audit log and on the message.
 - The real adapters in the set. `app.Config.Adapters` is ready for them.
 - Uploads (P9-02). `blocks` takes image and file blocks, and the files behind a `ref` are not yet read by anything.
