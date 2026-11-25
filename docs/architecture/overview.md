@@ -20,6 +20,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Project scripts | `tools` | `rebuild`, `verify`, `doctor` and `snapshot`. | [tools.md](tools.md) |
 | Audit log | `internal/audit` | An append-only log in each tenant's database, kept free of keys, and the wrapper that records every API call before it runs. | [audit.md](audit.md) |
 | Tenant settings | `internal/tenantsettings` | A tenant's own values over the registry's defaults, limited by each setting's scope. The fixed rules cannot be stored. | [tenant-settings.md](tenant-settings.md) |
+| API shell | `internal/api`, `internal/app` | The HTTP API every client uses. Every route but sign-in sits inside one audit wrapper, gets its tenant's store from the session cookie, and is listed in the OpenAPI document. Server-sent events for streams. | [api.md](api.md) |
 
 ## Parts still to come
 
@@ -48,5 +49,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0020 | [Messages are a tree, and each parent remembers its current child](decisions/0020-messages-are-a-tree.md) |
 | 0030 | [The knowledge store is one interface with capability flags, and having no store is an adapter](decisions/0030-knowledge-store-interface.md) |
 | 0031 | [A label that is not `normal` reads as sensitive](decisions/0031-label-reads-as-sensitive.md) |
+| 0040 | [Every route sits inside one audit wrapper, and the doors are a short list](decisions/0040-one-wrap-and-a-short-list-of-doors.md) |
+| 0041 | [The session travels in one cookie, for the browser and the command line alike](decisions/0041-the-session-travels-in-one-cookie.md) |
+| 0042 | [The OpenAPI document is built from the routes, and a copy is committed](decisions/0042-the-openapi-document-is-built-from-the-routes.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

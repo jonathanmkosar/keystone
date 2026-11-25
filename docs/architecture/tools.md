@@ -34,6 +34,17 @@ Written in Go and run with `go run`, so the same commands work on Windows, macOS
 | tenant isolation | Two tenants are made in a throwaway data folder, and every way one could reach the other is tried: rows and files through the other's store handle, a handle opened by a path, and a session used on the other tenant, re-addressed to it, or with its row copied across. Each must be refused. The code is in `tools/verify/isolation.go`, and an item that adds a way to reach tenant data adds its tries there. |
 | fixed rules | No setting can switch off any of the four rules in the plan. See below. |
 | no keys in output | An invented value is stored as a tenant's secret, and then looked for in everything Keystone returned, printed or wrote while it held it. It may come back only from the call that asks for it by name. The code is in `tools/verify/nokeys.go`, and an item that adds a place a key could reach adds a line there. See [secrets.md](secrets.md). |
+| calls recorded | Every route of the API is called with a session, and the tenant's audit log must hold an entry from before the call and an entry for its end, with the status the caller was given. A sign-in is looked for in the log of the tenant it was for. See below. |
+
+### The route walks
+
+Added with the API shell (P2-05), in `tools/verify/routes.go`. They call every route in `app.Routes`, which is the list the binary serves, in memory and with the shipped settings. See [api.md](api.md).
+
+- **In `tenant isolation`.** Every route that is not a door route is called with no session, with tenant one's session re-addressed to tenant two, and with something that is not a token. Each must answer 401 and write to no audit log. Called with tenant one's session, the call must be in tenant one's audit log and leave tenant two's as it was, even when the request names tenant two in a header and in the query string. A signed-out session must be refused on every route. `doorRoutes` in that file is the whole list of routes served without a session. A door in the code that is not on the list fails the check.
+- **`calls recorded`.** The check in the table above. Model calls and tool calls join it with the items that make them.
+- **In `no keys in output`.** A stored secret is sent to every route as a wrong password, in the query string, in two headers and in the body. It is then looked for in every answer, the server's log, the audit log and the data folder. Anything shaped like a session token is looked for in the same places.
+
+`tools/verify`, `internal/api` and `internal/app` are on the list of folders that may import a network package, because they hold or call HTTP handlers. None opens a connection.
 
 The plan's other standing checks (context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 

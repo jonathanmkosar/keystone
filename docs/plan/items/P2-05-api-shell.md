@@ -1,6 +1,6 @@
 # P2-05. API shell and streaming
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P2-02, P2-04
 Owner gate: none
@@ -36,4 +36,13 @@ How it will be proven:
 Open question, built to the assumption in `STATE.md`: the sign-in route is told the tenant by its id, and a door route lists the people on the install, behind the setting `signin.list_people`. Both are provisional until the owner answers.
 
 Not in this item: passkey routes (off until P4-01 proves them in a browser), routes that change a password or a setting (P11-01), hiding a typed password at the console.
+
+### Result
+
+Done on November 24, 2026. Built as planned. See `docs/architecture/api.md`, decisions 0040 to 0042, and the journal entry `docs/journal/2026-11-24-core-008.md`.
+
+- `internal/api` and `internal/app`, seven routes, the session cookie, server-sent events, the OpenAPI document at `docs/api/openapi.json`, and the command-line client.
+- Proof: the route walk in the `tenant isolation` check passes. Every route that is not one of the two sign-in door routes is refused with no session, with a session re-addressed to another tenant and with a signed-out session, and a call is written in its own tenant's audit log only. `verify` is 13 of 13, with the new check `calls recorded`.
+- Provisional inside a done item: the sign-in route takes the tenant's id and the people route lists the people, behind `signin.list_people`, until the owner answers how the sign-in screen asks who is signing in. `server.secure_cookie` is off until Keystone is reached over HTTPS. A typed password still shows on the screen.
+- Not built here: passkey routes (P4-01), and routes that change a password, a setting or a secret (P11-01).
 
