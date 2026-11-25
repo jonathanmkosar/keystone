@@ -108,6 +108,7 @@ func (r *Runner) Close() {
 	r.mu.Unlock()
 	r.cancel()
 	r.wg.Wait()
+	r.closeConnectors() // P7-04: the sessions with the connectors' servers
 }
 
 func (r *Runner) isClosing() bool {
@@ -394,6 +395,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 	r.wake(key)
 
 	t.approvals = r.approvalState(s, t) // P7-02: a turn that paused for an approval goes on where it was
+	t.connectors = &turnConnectors{}    // P7-04: what each call is given from the person's connectors (connectors.go)
 	tail, written, failure := r.place(s, t)
 	if failure != nil {
 		return failure, false

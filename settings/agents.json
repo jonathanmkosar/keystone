@@ -2,6 +2,62 @@
   "lane": "agents",
   "settings": [
     {
+      "key": "agents.connectors_max",
+      "type": "int",
+      "default": "20",
+      "scope": "install",
+      "description": "The most connectors one person may have: MCP servers, on this machine or remote, whose tools a chat may use."
+    },
+    {
+      "key": "agents.connector_connect_timeout",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long Keystone waits for a connector's server to start a session and list its tools. A command that is slow to start, such as one fetched by a package runner the first time, may need longer."
+    },
+    {
+      "key": "agents.connector_idle_timeout",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "How long a session with a connector's server is kept open after its last call. A local command is stopped then, and started again by the next call."
+    },
+    {
+      "key": "agents.connector_max_tools",
+      "type": "int",
+      "default": "64",
+      "scope": "install",
+      "description": "The most tools Keystone takes from one connector. A server that lists more has the rest left out."
+    },
+    {
+      "key": "agents.connector_max_bytes",
+      "type": "int",
+      "default": "4000000",
+      "scope": "install",
+      "description": "The most bytes of one message Keystone reads from a connector's server. A larger message is refused. agents.tool_result_max_chars still cuts every result."
+    },
+    {
+      "key": "agents.connector_line_chars",
+      "type": "int",
+      "default": "160",
+      "scope": "install",
+      "description": "The most characters of the one line a connector's tool is offered with before its full definition is loaded with load_tools."
+    },
+    {
+      "key": "agents.load_tools_max",
+      "type": "int",
+      "default": "16",
+      "scope": "install",
+      "description": "The most tools one call of load_tools may load."
+    },
+    {
+      "key": "agents.connector_retry_after",
+      "type": "duration",
+      "default": "1m",
+      "scope": "install",
+      "description": "How long Keystone waits before it tries again to reach a connector that has never listed its tools and could not be reached when a chat asked for tools."
+    },
+    {
       "key": "agents.approval_timeout",
       "type": "duration",
       "default": "24h",

@@ -89,8 +89,8 @@ func (r *Runner) withoutNever(ctx context.Context, s *tenant.Store, defs []seam.
 }
 
 // knownTools is every tool a person can set a policy for: the registry's,
-// and the three knowledge lookups.
-func (r *Runner) knownTools() []ToolPolicy {
+// the three knowledge lookups, and the tools of the person's connectors.
+func (r *Runner) knownTools(ctx context.Context, s *tenant.Store) []ToolPolicy {
 	var out []ToolPolicy
 	for _, t := range r.o.Tools.List() {
 		out = append(out, ToolPolicy{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside})
@@ -100,6 +100,7 @@ func (r *Runner) knownTools() []ToolPolicy {
 			out = append(out, ToolPolicy{Name: l.Name, Description: l.Description, ReadOnly: l.ReadOnly, Inside: lookupInside(l.Name)})
 		}
 	}
+	out = append(out, r.knownConnectorTools(ctx, s)...) // P7-04 (connectors.go)
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out
 }
@@ -115,7 +116,7 @@ func (r *Runner) policyRows(ctx context.Context, s *tenant.Store) ([]ToolPolicy,
 	if !ok {
 		return nil, errors.New("the tool policies could not be read")
 	}
-	out := r.knownTools()
+	out := r.knownTools(ctx, s)
 	for i := range out {
 		out[i].Default = string(approval.Default(out[i].ReadOnly))
 		out[i].Policy = out[i].Default
@@ -158,8 +159,8 @@ func (r *Runner) oneTool(w http.ResponseWriter, req *http.Request, c api.Call, n
 	api.Error(w, req, http.StatusNotFound, "not_found", "there is no tool of that name")
 }
 
-func (r *Runner) known(name string) bool {
-	for _, t := range r.knownTools() {
+func (r *Runner) known(ctx context.Context, s *tenant.Store, name string) bool {
+	for _, t := range r.knownTools(ctx, s) {
 		if t.Name == name {
 			return true
 		}
@@ -169,7 +170,7 @@ func (r *Runner) known(name string) bool {
 
 func (r *Runner) setPolicy(w http.ResponseWriter, req *http.Request, c api.Call) {
 	name := req.PathValue("name")
-	if !r.known(name) {
+	if !r.known(req.Context(), c.Store, name) {
 		api.Error(w, req, http.StatusNotFound, "not_found", "there is no tool of that name")
 		return
 	}
@@ -193,7 +194,7 @@ func (r *Runner) setPolicy(w http.ResponseWriter, req *http.Request, c api.Call)
 
 func (r *Runner) clearPolicy(w http.ResponseWriter, req *http.Request, c api.Call) {
 	name := req.PathValue("name")
-	if !r.known(name) {
+	if !r.known(req.Context(), c.Store, name) {
 		api.Error(w, req, http.StatusNotFound, "not_found", "there is no tool of that name")
 		return
 	}

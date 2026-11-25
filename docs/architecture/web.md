@@ -261,6 +261,32 @@ A reload in the middle of a wait joins the turn's stream from its first event, s
 
 Seen in a browser on November 25, 2026, against a server built from this branch on port 7931 with a harness that registered test tools: the card asking after outside content, the input opened, Approve, a card that came back after a reload, Not now leaving the row "declined", and the policy list setting a tool to always. In light and dark, and at phone width.
 
+## Connectors (P7-04)
+
+Settings → Connectors and the tools menu in the composer. The server's side, the rules and the routes are in [connectors.md](connectors.md). There is no mockup for either: provisional with the agent mockups (P1-05).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The screen | `src/ConnectorSettings.tsx`, `src/connectors.css` | `/settings/connectors`: each connector with its label, address or command, pills for its kind, its token and its outside mark, the tools it listed (each "reads" or "changes") or why it could not be reached, a switch, "Results are outside content", **Check now**, **Store a token** or **Replace the token**, and **Remove**, which asks once more. A form adds a remote connector: it is added unchecked, its token is stored as `connector.<name>`, and then it is reached, so a refused connector leaves no token behind. A section says how a program on this machine is added, from the command line. It replaces the placeholder. |
+| The tools menu | `src/ConnectorMenu.tsx`, `src/connectors.css` | A plug and the number of connectors on, before the model picker. Its menu has a small switch for each connector in this chat, with its number of tools, "Off in Settings" or "Could not be reached", and a link to Settings → Connectors. On the new chat screen the switches are kept in the page, by person, and `applyNewChatConnectors` sends them for the chat the first message makes before the message is sent. A person with no connectors sees no button. It shares the model picker's menu classes. |
+| Step words | `src/steps.ts`, `src/Icon.tsx` | "Loaded notes_search, notes_add" with "2 tools" for `load_tools`, and a plug icon. A connector's own tools read "Used notes_search: query “harbour”", as any tool this file does not know. |
+| The way in | `src/Chat.tsx`, `src/api.ts`, `src/Settings.tsx` | In `Chat.tsx`: the import, the menu beside each of the two model pickers, and one line in `begin` that applies the new chat's switches. In `api.ts`: the calls, after the tool policies. In `Settings.tsx`: the import and the route. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/connectors` | `listConnectors` | The screen, and the new chat's menu. |
+| `POST /api/v1/connectors` | `addConnector` | The add form, with `check: false`. |
+| `PUT /api/v1/connectors/{name}` | `changeConnector` | The switch, the outside mark, and a token's name after one is stored. |
+| `DELETE /api/v1/connectors/{name}` | `removeConnector` | Remove. |
+| `POST /api/v1/connectors/{name}/check` | `checkConnector` | Check now, and after the add form. |
+| `PUT /api/v1/secrets/{name}` | `setSecret` | A token. It is sent once and leaves the page whether or not it was stored. |
+| `GET /api/v1/chats/{id}/connectors` | `chatConnectors` | A chat's menu. |
+| `PUT /api/v1/chats/{id}/connectors/{name}` | `switchChatConnector` | A switch in a chat's menu, and the new chat's switches. |
+
+Seen in a browser on November 25, 2026: see "Checked by" in [connectors.md](connectors.md).
+
 ## The turn inspector and pins (P5-04)
 
 The panel that shows what went into a turn, and Pin beside Copy on every message. The server's side and the panel's contents are in [inspector.md](inspector.md). Provisional until the inspector mockup (P1-06): there is none, so it is built from the tokens and the patterns of the chat screen (decision [0273](decisions/0273-the-inspector-is-a-panel-opened-from-a-reply.md)).

@@ -97,6 +97,12 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
       meta: "",
     };
   },
+  // The connectors' (P7-04): a connector's own tools read as "Used notes_search: …".
+  load_tools: (args) => {
+    const names = Array.isArray(args.names) ? args.names.filter((n): n is string => typeof n === "string") : [];
+    const which = names.length === 0 ? "connector tools" : cut(names.join(", "), 64);
+    return { icon: "plug", running: `Loading ${which}`, asked: `Load ${which}`, done: `Loaded ${which}`, meta: names.length > 1 ? `${names.length} tools` : "" };
+  },
   // The web tools (P7-03). Their results are numbered sources: citations.tsx.
   web_search: (args, result) => {
     const q = quoted(args.query);

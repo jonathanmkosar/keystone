@@ -52,6 +52,8 @@ The turn goes on, and the model can say so.
 - `http` and `https` only; no user name or password in the address; at most `agents.web_fetch_max_bytes` read; within `agents.web_fetch_timeout`, redirects included; no cookies.
 - **Readable text.** An HTML page loses its head, scripts, styles, navigation, forms' controls and comments; block elements become line breaks; tags go; entities are decoded; spaces collapse. Plain text, JSON and XML come back as text. An image or any other file is refused with its type. A page built by script may come back nearly empty, and the result says so.
 
+Since P7-04 the same checks are exported, in `internal/tools/web/guard.go`, for a remote connector's server: `web.IsPublic`, `web.IsLocalName` and `web.Dial`, a dialler that connects only to addresses a function allows, checked as here (decision [0311](decisions/0311-a-remote-connectors-address-is-checked-as-it-connects.md)).
+
 ## Numbered citations
 
 Each source a turn reads gets a number: every search result, and every fetched page. Numbers run on through one turn, so a second search, or a page fetched after a search, carries on from the last number, and [n] names one source in the reply. The next message the person sends starts again at 1. Decision [0250](decisions/0250-citations-are-numbered-through-a-turn-in-the-result-text.md).

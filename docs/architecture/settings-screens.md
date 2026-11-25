@@ -110,7 +110,7 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/appearance` | The theme switch: dark, light or system. |
 | `/settings/models` | Keys and models. See below. |
 | `/settings/general` | One control for every setting that is the person's to change. See "How General is drawn". |
-| `/settings/connectors` | Not built yet. Says it comes with P7-04 and P12-02. |
+| `/settings/connectors` | Since P7-04, each connector with its switch, its token, its tools and why it could not be reached, and a form to add a remote one. See [connectors.md](connectors.md). |
 | `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
 | `/settings/spend` | Not built yet. Says it comes with P11-02, with the cap from P8-05. |
 
@@ -186,7 +186,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 
 ## Not built yet
 
-- Connectors and spend. Each has a screen that says so. Approvals has its list since P7-02.
+- Spend. It has a screen that says so. Approvals has its list since P7-02, and Connectors its screen since P7-04 ([connectors.md](connectors.md)); a connector's token is stored with `PUT /api/v1/secrets/{name}` as `connector.<name>`.
 - Changing a password, passkeys, and the list of signed-in devices.
 - Changing the person's name, and a short name for the greeting.
 - An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.

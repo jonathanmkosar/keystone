@@ -164,6 +164,10 @@ In `settings/agents.json`. `turn.ReadConfig` reads the install's, and the one a 
 - Sensitive chats. Nothing marks a chat as holding content from a sensitive space yet. When recall (P6-05) marks a turn sensitive, `search_chats` and `read_chat` must leave a marked chat out for a model that may not read sensitive content, or they would carry it into a turn with a hosted model (fixed rule 3). This is a question for the owner in the journal, agents 001.
 - A tool's own settings screen, and a list of tools a person can switch one by one.
 
+## Connectors' tools
+
+Since P7-04 a person's connectors bring tools too, made like the knowledge lookups below: not in the server's registry, asked for by each call that offers tools (`withConnectors` in `internal/turn/connectors.go`), kept on the turn, and run through a registry of their own, so they are recorded, timed and checked as every tool is. Each is offered by name and one line until the model loads it with `load_tools`. A name the server's tools or a lookup has keeps it. See [connectors.md](connectors.md).
+
 ## The knowledge lookups
 
 The three knowledge lookups of recall (P6-05) are tools too, but not in the server's registry, because what a lookup may return depends on the call. Each call that offers tools, for a person whose knowledge store opened, also offers the lookups made for the least of its route, and the calls the model makes in reply run those same ones through a registry of their own. The code is `internal/turn/lookups.go`; the lookups themselves are in [knowledge-recall.md](knowledge-recall.md).

@@ -654,6 +654,93 @@ export async function resetToolPolicy(name: string): Promise<ToolPolicy> {
 }
 
 // ---------------------------------------------------------------------------
+// Connectors (P7-04): each person's MCP servers, and the chat's tools menu.
+// docs/architecture/connectors.md has the server's side. A token is stored
+// with setSecret, under the name the connector gives, and never read back.
+// ---------------------------------------------------------------------------
+
+/** One tool a connector listed, with the name a chat offers it by. */
+export type ConnectorTool = { name: string; tool: string; title?: string; description: string; read_only: boolean };
+
+/** One connector. It names the secret its token is kept under, and never holds the token. */
+export type Connector = {
+  name: string;
+  label: string;
+  transport: "http" | "stdio";
+  command?: string;
+  args: string[];
+  /** A stdio connector's environment, by the names of its variables only. */
+  env_names: string[];
+  token_env?: string;
+  url?: string;
+  local: boolean;
+  secret: string;
+  token_present: boolean;
+  enabled: boolean;
+  outside: boolean;
+  /** "person" or "command line". */
+  added_by: string;
+  listed?: string;
+  problem?: string;
+  tools: ConnectorTool[];
+};
+
+/** What adds or changes a connector. Left out, enabled and outside are true on an add and unchanged on a change. */
+export type ConnectorBody = { name?: string; label: string; url?: string; local?: boolean; secret?: string; enabled?: boolean; outside?: boolean; check?: boolean };
+
+/** One connector in a chat's tools menu. */
+export type ChatConnector = { name: string; label: string; enabled: boolean; on: boolean; switched: boolean; tools: number; problem?: string };
+
+const connectorsPath = "/api/v1/connectors";
+const connectorPath = (name: string) => `${connectorsPath}/${encodeURIComponent(name)}`;
+
+function connectorFrom(data: unknown): Connector {
+  const c = data as Partial<Connector> | undefined;
+  if (!c || typeof c.name !== "string" || typeof c.transport !== "string" || !Array.isArray(c.tools)) throw new ApiError("not-ready", 200);
+  return c as Connector;
+}
+
+/** The person's connectors, and the most they may have. */
+export async function listConnectors(): Promise<{ connectors: Connector[]; max: number }> {
+  const data = await object("GET", connectorsPath);
+  if (!Array.isArray(data.connectors)) throw new ApiError("not-ready", 200);
+  return { connectors: data.connectors.map(connectorFrom), max: typeof data.max === "number" ? data.max : 0 };
+}
+
+/** Adds a remote connector, which the server reaches at once to list its tools. */
+export async function addConnector(body: ConnectorBody): Promise<Connector> {
+  return connectorFrom(await call("POST", connectorsPath, body));
+}
+
+export async function changeConnector(name: string, body: ConnectorBody): Promise<Connector> {
+  return connectorFrom(await call("PUT", connectorPath(name), body));
+}
+
+export async function removeConnector(name: string): Promise<void> {
+  await call("DELETE", connectorPath(name));
+}
+
+/** Reaches a connector now, and keeps the tools it lists or why it could not be reached. */
+export async function checkConnector(name: string): Promise<Connector> {
+  return connectorFrom(await call("POST", `${connectorPath(name)}/check`));
+}
+
+function chatConnectorsFrom(data: Record<string, unknown>): ChatConnector[] {
+  if (!Array.isArray(data.connectors)) throw new ApiError("not-ready", 200);
+  return data.connectors as ChatConnector[];
+}
+
+/** The chat's tools menu: each connector, and whether its tools are offered in the chat. */
+export async function chatConnectors(chatId: string): Promise<ChatConnector[]> {
+  return chatConnectorsFrom(await object("GET", `${chatPath(chatId)}/connectors`));
+}
+
+/** Switches one connector on or off in one chat. */
+export async function switchChatConnector(chatId: string, name: string, on: boolean): Promise<ChatConnector[]> {
+  return chatConnectorsFrom(await object("PUT", `${chatPath(chatId)}/connectors/${encodeURIComponent(name)}`, { on }));
+}
+
+// ---------------------------------------------------------------------------
 // The turn inspector (P5-04), and the pins of P5-02. What went into each
 // model call of a turn, what the chat's next turn leaves out, and the chat's
 // pinned messages. docs/architecture/inspector.md has the server's side.

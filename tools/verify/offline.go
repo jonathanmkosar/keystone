@@ -39,6 +39,10 @@ var networkAllowed = map[string]string{
 	"internal/settingsapi":              "the settings routes' handlers, served by the server; it opens no connection",
 
 	"internal/tools/web": "web_search calls the search provider at agents.web_search_endpoint, and web_fetch reads public pages only; its tests call servers on this machine only",
+
+	"internal/mcp":         "the MCP client calls a connector's server at the address the caller gives it, over the streamable HTTP transport; its tests call servers on this machine only",
+	"internal/mcp/mcptest": "a test MCP server served on this machine, for tests and verify; never in the server Keystone ships",
+	"internal/connectors":  "reaches a person's remote connectors at the address in their own record, public HTTPS or their own local server, checked as it connects, and serves the connector routes' handlers; its tests call servers on this machine only",
 }
 
 // The recall and sensitive content checks (P6-05) serve a fake Waymarks on

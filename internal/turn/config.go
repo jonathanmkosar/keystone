@@ -157,6 +157,9 @@ type Options struct {
 	// means the fake provider playing the shipped recorded turns at the
 	// speed the settings give.
 	TestProvider seam.Provider
+	// Connectors give a turn the tools of the person's connectors (P7-04,
+	// connectors.go). Nil means none.
+	Connectors Connectors
 	// Tools are the tools a turn may offer a model and run (P7-01).
 	// Whoever puts the server together makes the registry and adds the
 	// tools. Nil means none: nothing is offered, and a tool a model asks

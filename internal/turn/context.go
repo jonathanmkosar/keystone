@@ -31,6 +31,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	opts.SystemText = withRule(opts.SystemText, rule)
 	offered := r.offered(ctx, s, m)                                       // the tool loop's (P7-01)
 	offered = append(offered, r.lookupTools(ctx, s, t, p, m, offered)...) // the knowledge lookups (P6-05)
+	offered = r.withConnectors(ctx, s, t, m, messages, offered)           // the person's connectors (P7-04)
 	older := r.olderHistory(ctx, s, t, m, messages, mayRead)              // the summary and the pinned messages (P5-02)
 	recalled, older.pins = r.leaveOut(s, t, step, recalled, older.pins)   // what the person took out of this turn (P5-04)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
