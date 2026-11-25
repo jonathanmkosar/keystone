@@ -109,6 +109,12 @@ func checkContextFit(root string) error {
 	if fakes == 0 {
 		problems = append(problems, "no entry in fixtures/models/examples.json names the fake adapter")
 	}
+	// The packing: contextpack.go.
+	packing, err := packingProblems(entries, o)
+	if err != nil {
+		return err
+	}
+	problems = append(problems, packing...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

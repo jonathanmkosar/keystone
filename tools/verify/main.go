@@ -66,6 +66,7 @@ var componentDocs = map[string]string{
 	"internal/turn":                     "docs/architecture/turns.md",
 
 	"internal/knowledge/personmap": "docs/architecture/knowledge-profile-and-map.md",
+	"internal/contextbuild":        "docs/architecture/context.md",
 }
 
 var checks = []check{

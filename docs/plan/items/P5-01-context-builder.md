@@ -1,6 +1,6 @@
 # P5-01. Context builder
 
-Status: doing (chats)
+Status: done
 Lane: chats
 Depends on: P4-03, P3-07
 Owner gate: none
@@ -10,4 +10,38 @@ Proof: Packing tests per priority; the record matches what the model received.
 See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALLEL.md` for lanes and gates.
 
 ## Plan and result
+
+### Plan
+
+What changes:
+
+- A new package, `internal/contextbuild`, with one function, `Build`. It is given the model, the budget options, its own options from settings, the chat's current branch as seam messages, and the parts a call may carry. It returns a `seam.Request` and a `Record`.
+- The parts, in the plan's fixed order: rules (system text from a setting) and tools, the current message, attachments and attached chats, recent turns, recalled knowledge, older history as a summary. The stable start of a call also has named slots for the profile, the person map, the project and the style. Today only rules, the current message and recent turns have content. Every other part is a named, empty field of the input, packed by the same code, so P5-02, P5-06, P6-04, P6-05, P9-01 and P9-05 fill a field and change nothing else.
+- Packing: the required parts first (the stable start, the tools, the current turn), then attachments, then recent turns newest first, then recall, then the summary, each inside what is left of `budget.InputRoom`. A turn is kept whole or dropped whole, and a turn is cut only where no tool call is waiting for its result. Once a turn does not fit, no older turn is kept, so the conversation sent has no holes.
+- The count is `budget.Estimate` with the margin, part by part. When the provider can count, the packed request is counted once more by the provider, and repacked smaller if the provider's count is over.
+- The record lists every part with its tokens and what was kept and dropped, and every turn of the branch with its tokens and whether it was sent. It is stored for each model call of a turn in a new table, `turn_contexts`, for the turn inspector (P5-04).
+- `internal/turn`: the one line in `Runner.work` that builds the request becomes a call to a new method in a new file. No other existing line of the package changes.
+- Tunables in `settings/chats.json`, all tenant scope so the runner reads them the way it reads the other per-person values.
+- `context fit` in `verify` gains the packing step: the largest test chat, and a generated chat many times over the window, are each packed under the window of every fixture model.
+
+How it is proven:
+
+- Packing tests, one per priority: what is dropped first, what is never dropped, turns whole, a tool call never without its result, no holes.
+- The record matches what the model received: the request is rebuilt from the record and the input and compared, and the parts' tokens are checked against `budget.Estimate` of the request.
+- A turn test: a chat longer than its model's window gets an answer, not `too_long`, and the stored record names the dropped turns.
+- `go run ./tools/verify` green, with the new step in `context fit`.
+
+### Result
+
+Done on November 25, 2026, in three commits on `chats/p5-01-context-builder`: the plan, the build with its doc and decisions, and the write-up.
+
+- `internal/contextbuild`: `Build(ctx, Input) (seam.Request, Record, error)`, described in `docs/architecture/context.md`. Decisions 0170 to 0173.
+- The parts are packed in the plan's order. The standing start, the tools, pinned items and the current turn are never left out. Earlier turns go from the newest back, each whole, and the packing stops at the first that does not fit. A tool call is never parted from its result.
+- Named slots, empty today, for tools (P7-01), profile and person map (P6-04), project (P9-01), style (P9-05), attachments and attached chats (P5-06), recall (P6-05) and the summary (P5-02). Each is packed and recorded by the code that is there now.
+- The record lists every part and every turn of the branch with its tokens and whether it was sent. The turn stores one for each model call in `turn_contexts` (migration `20261125T070000_turn_contexts.sql`), and `turn.Contexts` reads them for the inspector (P5-04).
+- `Runner.work` calls the builder where it built the request. A chat several times its model's window is now answered, and the call starts with the standing instructions.
+- Eight settings in `settings/chats.json`, all tenant scope.
+- The proof passes: `go test ./internal/contextbuild` has a packing test for each priority, and puts the request together again from the record to compare them. `go test ./internal/turn` checks the stored record against the audit log's copy of what was sent. `verify` is 15 of 15, and `context fit` packs the largest test chat and a generated chat four times the window under every fixture model.
+
+Left for the items that own them: compaction and the summary's text (P5-02), cache marks (P5-03), the inspector's route and screen (P5-04). A single message larger than the window still fails with `too_long`. No real model has been called through the builder.
 

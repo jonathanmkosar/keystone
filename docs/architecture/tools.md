@@ -54,6 +54,8 @@ Added with the API shell (P2-05), in `tools/verify/routes.go`. They call every r
 `tools/verify`, `internal/api` and `internal/app` are on the list of folders that may import a network package, because they hold or call HTTP handlers. None opens a connection.
 | context fit | For every entry in `fixtures/models/examples.json`, with the shipped settings: a request estimated under the window is accepted and one over it is refused with the number of tokens over; a provider's own count is believed over the estimate, to the token; and an entry that names the fake adapter is called through the fake provider behind the guard, where the request that fits is answered and the one that does not is refused as `too_long` and never sent. The code is in `tools/verify/contextfit.go`. Packing the largest test chat under each window joins it with the context builder (P5-01). See [budget.md](budget.md). |
 
+`context fit` also has the packing step the plan words it by, in `tools/verify/contextpack.go`, added with the context builder (P5-01). For every entry in `fixtures/models/examples.json`, the largest test chat and a generated chat four times the window are each packed by `contextbuild.Build` with the shipped settings, once by the estimate and once with a provider that counts half as much again. Each packed request must be one a provider takes, end with the current message, be accepted by `budget.Check`, and agree with its record. The test chat must be sent whole, and the generated chat must lose turns, and only its oldest. See [context.md](context.md).
+
 The plan's other standing checks (context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 
 ### What offline checks today

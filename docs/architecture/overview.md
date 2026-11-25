@@ -33,6 +33,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | Chat Completions adapter | `internal/adapters/chatcompletions` | Calls any endpoint that speaks the OpenAI-style Chat Completions format: OpenRouter, LiteLLM, Ollama and the Mac mini gateway. Streaming, tool calls, errors mapped to the seam's kinds, retries, and a certificate authority an entry may trust for itself. Proven on recorded exchanges; no live call yet. | [adapter-chat-completions.md](adapter-chat-completions.md) |
 | Chats and turns | `internal/turn` | The routes a chat screen calls, and the runner behind them. A turn is a row in the tenant's database: it takes the person's message through the model seam, streams the reply as server-sent events a client can resume, can be stopped, waits its turn in a chat's queue, and is finished after a restart. The test tenant always gets the fake provider. | [turns.md](turns.md) |
 | Profile and map | `internal/knowledge/personmap` | The two short texts about a person that start every call: a profile in their own words, and a map of what their knowledge store holds, made from its catalog, held to a token limit and built again when the catalog changes. The map for a model that may not read sensitive content leaves every sensitive space out. Nothing calls it yet. | [knowledge-profile-and-map.md](knowledge-profile-and-map.md) |
+| Context builder | `internal/contextbuild` | Builds what one model call carries: the standing instructions, the current turn and as many earlier turns as fit the model's window, newest first and each one whole, with named slots for the parts later items bring. Returns a record of every part, kept and dropped, with its tokens, which the turn stores for the inspector. | [context.md](context.md) |
 
 ## Parts still to come
 
@@ -94,6 +95,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0142 | [After a restart a queued turn runs, and a turn that was running is closed as failed](decisions/0142-an-interrupted-turn-fails-and-a-queued-one-runs.md) |
 | 0143 | [Until the tool loop, a tool call is answered with an error and the model is called again](decisions/0143-a-tool-call-is-answered-with-an-error-for-now.md) |
 | 0144 | [The test tenant's model is in no registry, and the fake provider's titles come from the message](decisions/0144-the-test-tenants-model-is-in-no-registry.md) |
+| 0170 | [A turn is kept whole or left out, and nothing older is sent past a gap](decisions/0170-a-turn-is-kept-whole-or-left-out.md) |
+| 0171 | [Recall and the summary hold a share of the room ahead of earlier turns](decisions/0171-recall-and-the-summary-hold-a-share.md) |
+| 0172 | [The builder packs by the estimate and asks the provider to count the result](decisions/0172-the-builder-packs-by-estimate-and-asks-the-provider-once.md) |
+| 0173 | [What a call was built from is a row beside the turn, not an event in its stream](decisions/0173-the-context-record-is-a-row-beside-the-turn.md) |
 | 0150 | [The Markdown reader is written in the interface, not taken from a package](decisions/0150-the-markdown-reader-is-written-here.md) |
 | 0151 | [Replies that are arriving live outside the screens, and are read with fetch](decisions/0151-arriving-replies-live-outside-the-screens.md) |
 | 0180 | [The profile is one text, and it goes to every model](decisions/0180-the-profile-is-one-text.md) |

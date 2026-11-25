@@ -409,7 +409,13 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 		if err != nil {
 			return broke("reading the chat", err)
 		}
-		req := seam.Request{Model: m.Name, Messages: messages, MaxOutputTokens: maxOutput, ThinkingTokens: thinking}
+		req, err := r.build(ctx, s, t, step, m, provider, messages, maxOutput, thinking)
+		if err != nil {
+			if ctx.Err() != nil {
+				return nil, true // stopped while the provider counted
+			}
+			return broke("building the context", err)
+		}
 		out := r.call(ctx, s, t, step, m, provider, secrets, req, say)
 
 		blocks, stopReason := out.partial.Blocks, StatusFailed
