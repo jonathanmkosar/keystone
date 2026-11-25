@@ -114,9 +114,11 @@ func TestItClaimsEveryCapability(t *testing.T) {
 	}
 }
 
-// Every value the knowledge.adapter setting offers is an adapter this
-// package's build can open for a tenant, and the built-in store is one.
-func TestEveryOptionOfTheSettingOpens(t *testing.T) {
+// The knowledge.adapter setting offers the built-in store, and every adapter
+// in this package's build is offered and opens for a tenant. The test that
+// every option of the setting opens is in internal/knowledge/waymarks, the
+// one package whose tests have every adapter in their build.
+func TestTheSettingOffersItAndItOpens(t *testing.T) {
 	reg, err := settings.Registry()
 	if err != nil {
 		t.Fatal(err)
@@ -129,19 +131,17 @@ func TestEveryOptionOfTheSettingOpens(t *testing.T) {
 		t.Errorf("%s does not offer %q: %v", knowledge.SettingAdapter, Name, st.Options)
 	}
 	ts := newTenant(t, newInstall(t), "Test Person One")
-	for _, name := range st.Options {
+	for _, name := range knowledge.Adapters() {
+		if !slices.Contains(st.Options, name) {
+			t.Errorf("the adapter %q is registered and the setting does not offer it", name)
+		}
 		s, err := knowledge.Open(bg, name, ts)
 		if err != nil {
-			t.Errorf("the option %q does not open: %v", name, err)
+			t.Errorf("the adapter %q does not open: %v", name, err)
 			continue
 		}
 		if err := s.Close(); err != nil {
 			t.Errorf("Close of %q: %v", name, err)
-		}
-	}
-	for _, name := range knowledge.Adapters() {
-		if !slices.Contains(st.Options, name) {
-			t.Errorf("the adapter %q is registered and the setting does not offer it", name)
 		}
 	}
 }

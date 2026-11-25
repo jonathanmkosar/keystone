@@ -22,3 +22,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `testtenant` | core | Loads the invented test tenant from `fixtures/test-tenant` |
 | `budget` | models | Counts a call's tokens and refuses one that cannot fit the model's window |
 | `adapters/responses` | models | The adapter for the OpenAI Responses API, over HTTP with the standard library |
+| `knowledge/waymarks` | knowledge | The Waymarks adapter: a client of one Waymarks instance for each tenant |

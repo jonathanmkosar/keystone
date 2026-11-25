@@ -5,9 +5,44 @@
       "key": "knowledge.adapter",
       "type": "string",
       "default": "none",
-      "options": ["none", "built-in"],
+      "options": ["none", "built-in", "waymarks"],
       "scope": "tenant",
-      "description": "The knowledge store Keystone remembers in. With none, Keystone keeps your chats and remembers nothing between them. The built-in store keeps what it remembers in your own Keystone folder."
+      "description": "The knowledge store Keystone remembers in. With none, Keystone keeps your chats and remembers nothing between them. The built-in store keeps what it remembers in your own Keystone folder. Waymarks is your own Waymarks instance, at the address and with the tokens you give."
+    },
+    {
+      "key": "knowledge.waymarks_address",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "Where your Waymarks instance is, such as http://127.0.0.1:7878. Its tokens are kept with your secrets and never here."
+    },
+    {
+      "key": "knowledge.waymarks_timeout",
+      "type": "duration",
+      "default": "5s",
+      "scope": "tenant",
+      "description": "How long Keystone waits for one answer from Waymarks before it carries on without it, from 100ms to 2m."
+    },
+    {
+      "key": "knowledge.waymarks_search_max_results",
+      "type": "int",
+      "default": "20",
+      "scope": "tenant",
+      "description": "The most results one search of Waymarks returns when the search names no limit, from 1 to 100."
+    },
+    {
+      "key": "knowledge.waymarks_vectors_needed_max",
+      "type": "int",
+      "default": "100",
+      "scope": "install",
+      "description": "The most pages Keystone asks Waymarks for at once when it lists the pages needing a vector, from 1 to 1000."
+    },
+    {
+      "key": "knowledge.waymarks_reply_max_mb",
+      "type": "int",
+      "default": "32",
+      "scope": "install",
+      "description": "The largest answer Keystone reads from Waymarks, in megabytes, from 1 to 1024. A larger one is treated as Waymarks being unavailable."
     },
     {
       "key": "knowledge.builtin_search_max_results",

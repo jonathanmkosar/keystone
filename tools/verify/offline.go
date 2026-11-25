@@ -29,6 +29,8 @@ var networkAllowed = map[string]string{
 	"tools/verify":   "calls the API's handlers in memory for the route walks; it opens no connection",
 
 	"internal/adapters/responses": "calls the model at the registry entry's endpoint; its tests call a server on this machine",
+
+	"internal/knowledge/waymarks": "calls the tenant's own Waymarks instance, at the address in that tenant's settings; its tests call a fake one on this machine",
 }
 
 // deadProxy is an address on this machine where nothing listens. The tests

@@ -10,9 +10,9 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Lane | In progress | Next |
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
-| models | P3-04, P3-05 and P3-06, each in its own worktree | P3-08 |
+| models | P3-04 and P3-06, each in its own worktree | P3-08 |
 | chats | P4-03, in its own worktree | P5-01 |
-| knowledge | P6-03, in its own worktree | P6-04 |
+| knowledge | nothing | P6-04 |
 | agents | nothing | P7-01, after P4-03 |
 | interface | nothing. P4-01 is wired to the real API when P2-05 is merged | P4-04, after P4-03 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
@@ -29,6 +29,9 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Should the built-in knowledge store's pages be files a person can open, or is the database enough (knowledge 002, decision 0060) | The database is the truth, and Keystone exports to and imports from a Markdown folder on request | Rows only, no export | P6-02 |
 | Who may add, change and remove models in a person's registry: the admin only, or the person too (models 003) | The admin only. Marking a model trusted is a security choice. Each person still picks among their models and keeps their own keys | The registry functions take no role, so either answer fits | Nothing built. It shapes the registry routes and the models screen in P11-01 |
 | The test tenant's password is published in the repo, so anyone who can reach sign-in can be the test tenant (core 009) | Keep it on the home network, and switch `test_tenant.load` off before phone access from outside (P10-05) | Loaded by default | Nothing |
+| An OpenAI key, two model names (a cheap one and a cheap reasoning one), and a go-ahead to spend a few cents, for the live check of the Responses adapter (models 005) | Store the key with `tools/tenant secret set <tenant-id> provider.openai` | Tested against hand-written exchanges only | P3-05 |
+| Should page vectors go to Waymarks under a third token, an embedder with read and page-write rights (knowledge 003, decision 0090) | Yes, so the reader cannot write and the intake token cannot read | The adapter takes an optional embedder token | P6-03, and the plan's line on Waymarks tokens |
+| An empty Waymarks test instance and three tokens, for the live check of the Waymarks adapter (knowledge 003) | The owner starts one and stores the tokens with `tools/tenant secret set` | Tested against a fake Waymarks only | P6-03 |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -50,6 +53,8 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P3-09, the test tenant: `rebuild` loads an invented person, "Test Person One", who can sign in and has three chats, and `verify` has the `test tenant` check, 13 of 13. Files, images and knowledge for it wait for P9-02 and later. Nothing yet ties the test tenant to the fake provider on a route: P4-03 does.
 - P2-05, the API shell: routes under `/api/v1/` inside one audit wrapper, the session in a cookie the page cannot read, server-sent events, the OpenAPI document, the command-line client, and route walks in `verify` (`calls recorded`). The web shell is wired to it: on November 25, 2026 the test tenant signed in through the browser, the frame loaded, and a reload on `/chats` kept the page.
 - P3-07, the token budget: a request that cannot fit a model's window is refused before it is sent, with the `context fit` check. `verify` is 15 of 15. Every model is estimated until the adapters count for themselves.
+- P3-05, the OpenAI Responses adapter, provisional: built and tested against hand-written exchanges, never against the real API.
+- P6-03, the Waymarks adapter, provisional: it passes the whole contract suite against a fake Waymarks written from Waymarks' own source, and has never called a real one. Both knowledge adapters are compiled into the binary.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).
