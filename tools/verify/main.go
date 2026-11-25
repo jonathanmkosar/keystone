@@ -61,6 +61,8 @@ var componentDocs = map[string]string{
 	"internal/knowledge/waymarks": "docs/architecture/knowledge-waymarks.md",
 
 	"internal/adapters/anthropic": "docs/architecture/adapter-anthropic.md",
+
+	"internal/adapters/chatcompletions": "docs/architecture/adapter-chat-completions.md",
 }
 
 var checks = []check{

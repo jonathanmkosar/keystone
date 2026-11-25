@@ -30,6 +30,7 @@ The design is in [`docs/plan/PLAN.md`](../plan/PLAN.md). This page says what exi
 | API shell | `internal/api`, `internal/app` | The HTTP API every client uses. Every route but sign-in sits inside one audit wrapper, gets its tenant's store from the session cookie, and is listed in the OpenAPI document. Server-sent events for streams. | [api.md](api.md) |
 | Token budget | `internal/budget` | Counts the tokens a call will use, with the provider's own count where it offers one and an estimate with a margin elsewhere, and refuses a call that cannot fit the model's window before it is sent. | [budget.md](budget.md) |
 | Responses adapter | `internal/adapters/responses` | Calls a model that speaks the OpenAI Responses API: streaming, function calls, reasoning, errors sorted into the seam's kinds, and retries. Proven on replayed exchanges; not yet checked against the real API. | [adapter-responses.md](adapter-responses.md) |
+| Chat Completions adapter | `internal/adapters/chatcompletions` | Calls any endpoint that speaks the OpenAI-style Chat Completions format: OpenRouter, LiteLLM, Ollama and the Mac mini gateway. Streaming, tool calls, errors mapped to the seam's kinds, retries, and a certificate authority an entry may trust for itself. Proven on recorded exchanges; no live call yet. | [adapter-chat-completions.md](adapter-chat-completions.md) |
 
 ## Parts still to come
 
@@ -83,5 +84,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0091 | [The Waymarks catalog marker is a hash of the catalog and the labels](decisions/0091-waymarks-marker-is-a-hash-of-the-catalog.md) |
 | 0092 | [A Waymarks label comes from the answer's own mark, and from the list of spaces read afterwards](decisions/0092-waymarks-labels-from-the-answer.md) |
 | 0093 | [What each Waymarks refusal becomes](decisions/0093-waymarks-refusals.md) |
+| 0120 | [An entry may trust one certificate authority of its own, and nothing turns the check off](decisions/0120-an-entry-trusts-one-authority.md) |
+| 0121 | [The Chat Completions adapter holds tool calls until the reply ends](decisions/0121-tool-calls-are-held-until-the-reply-ends.md) |
+| 0122 | [An adapter retries only until the first event, calls a local model directly, and follows no redirect](decisions/0122-retries-stop-at-the-first-event.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

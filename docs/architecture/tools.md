@@ -65,6 +65,8 @@ Since P3-05 the list also holds `internal/adapters/responses`, the OpenAI Respon
 
 What it does not prove yet: that a whole turn runs offline through the fake provider. There is no turn to run until P4-03. The test tenant (P3-09) and the turn API add that, and the adapters add their folders to the list.
 
+`internal/adapters/chatcompletions` is on the list since P3-06: it calls the endpoint in a model's registry entry. Its tests replay recorded exchanges from servers on this machine, so they pass in the second run too. An entry classed `local` is called without the environment's proxy ([adapter-chat-completions.md](adapter-chat-completions.md)), so the dead proxy guards its `hosted` and `trusted` entries only, and no test has one that points off this machine.
+
 ### The fixed rules check
 
 The code is in `tools/verify/fixedrules.go`. It proves four things on every run.

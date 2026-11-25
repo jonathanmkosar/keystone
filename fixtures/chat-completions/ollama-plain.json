@@ -1,0 +1,51 @@
+{
+  "test_data": true,
+  "name": "ollama-plain",
+  "style": "ollama",
+  "about": "A local endpoint that asks for no key. A text answer in three pieces, a last piece that carries the finish reason, and the usage in a piece of its own with no choices.",
+  "entry": {
+    "name": "house-small",
+    "label": "House small",
+    "adapter": "chat_completions",
+    "endpoint": "http://127.0.0.1:11434/v1",
+    "provider_model": "example-small:8b",
+    "context_window": 8192,
+    "output_limit": 2048,
+    "capabilities": ["tools"],
+    "price": {"input": 0, "output": 0},
+    "class": "local"
+  },
+  "uses_key": false,
+  "request": {
+    "model": "house-small",
+    "system": [{"type": "text", "text": "Answer in one sentence."}],
+    "messages": [
+      {"role": "user", "blocks": [{"type": "text", "text": "Which of the three hills behind Larkfield is the tallest?"}]}
+    ],
+    "max_output_tokens": 200
+  },
+  "sent": {
+    "model": "example-small:8b",
+    "messages": [
+      {"role": "system", "content": "Answer in one sentence."},
+      {"role": "user", "content": "Which of the three hills behind Larkfield is the tallest?"}
+    ],
+    "max_tokens": 200,
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  },
+  "stream": [
+    {"id": "chatcmpl-101", "object": "chat.completion.chunk", "created": 1795000000, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": "Marrow Hill"}, "finish_reason": null}]},
+    {"id": "chatcmpl-101", "object": "chat.completion.chunk", "created": 1795000000, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": " is the tallest,"}, "finish_reason": null}]},
+    {"id": "chatcmpl-101", "object": "chat.completion.chunk", "created": 1795000000, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": " at 412 metres."}, "finish_reason": null}]},
+    {"id": "chatcmpl-101", "object": "chat.completion.chunk", "created": 1795000000, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": ""}, "finish_reason": "stop"}]},
+    {"id": "chatcmpl-101", "object": "chat.completion.chunk", "created": 1795000000, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [], "usage": {"prompt_tokens": 31, "completion_tokens": 11, "total_tokens": 42}},
+    "data: [DONE]"
+  ],
+  "response": {
+    "model": "house-small",
+    "message": {"role": "assistant", "blocks": [{"type": "text", "text": "Marrow Hill is the tallest, at 412 metres."}]},
+    "stop_reason": "end",
+    "usage": {"input_tokens": 31, "output_tokens": 11}
+  }
+}

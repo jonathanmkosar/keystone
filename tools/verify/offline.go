@@ -33,6 +33,8 @@ var networkAllowed = map[string]string{
 	"internal/knowledge/waymarks": "calls the tenant's own Waymarks instance, at the address in that tenant's settings; its tests call a fake one on this machine",
 
 	"internal/adapters/anthropic": "calls the endpoint a registry entry names, over HTTP; its tests call a server on this machine",
+
+	"internal/adapters/chatcompletions": "calls the endpoint in a model's registry entry; its tests call servers on this machine only",
 }
 
 // deadProxy is an address on this machine where nothing listens. The tests

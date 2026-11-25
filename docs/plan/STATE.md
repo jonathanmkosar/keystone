@@ -10,7 +10,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | Lane | In progress | Next |
 | --- | --- | --- |
 | core | nothing | P13-04, held until the app runs |
-| models | P3-04 and P3-06, each in its own worktree | P3-08 |
+| models | nothing | P3-08, routing and usage, now ready |
 | chats | P4-03, in its own worktree | P5-01 |
 | knowledge | nothing | P6-04 |
 | agents | nothing | P7-01, after P4-03 |
@@ -32,6 +32,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | An OpenAI key, two model names (a cheap one and a cheap reasoning one), and a go-ahead to spend a few cents, for the live check of the Responses adapter (models 005) | Store the key with `tools/tenant secret set <tenant-id> provider.openai` | Tested against hand-written exchanges only | P3-05 |
 | Should page vectors go to Waymarks under a third token, an embedder with read and page-write rights (knowledge 003, decision 0090) | Yes, so the reader cannot write and the intake token cannot read | The adapter takes an optional embedder token | P6-03, and the plan's line on Waymarks tokens |
 | An empty Waymarks test instance and three tokens, for the live check of the Waymarks adapter (knowledge 003) | The owner starts one and stores the tokens with `tools/tenant secret set` | Tested against a fake Waymarks only | P6-03 |
+| An Anthropic key, for the live check of the Anthropic adapter (models 004) | Store it with `tools/tenant secret set <tenant-id> provider.anthropic` | Tested against hand-written exchanges only | P3-04 |
+| The Mac mini gateway's address, key and certificate authority file, and an OpenRouter key and model name, for the live checks of the Chat Completions adapter (models 006) | Keys go in a tenant's vault; the certificate is a path in the registry entry | Tested against hand-written exchanges only | P3-06 |
+| Should a model's registry entry say how it thinks (adaptive or a token budget), and should the thinking control be a depth and not a token count (models 004) | Yes to both, decided with the live check | Adaptive by default, a budget for the models a setting names | Nothing built on it yet |
+| Tool calls from Chat Completions endpoints are held until the reply ends, then sent whole (models 006, decision 0121) | Leave as is | Held | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -55,6 +59,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 - P3-07, the token budget: a request that cannot fit a model's window is refused before it is sent, with the `context fit` check. `verify` is 15 of 15. Every model is estimated until the adapters count for themselves.
 - P3-05, the OpenAI Responses adapter, provisional: built and tested against hand-written exchanges, never against the real API.
 - P6-03, the Waymarks adapter, provisional: it passes the whole contract suite against a fake Waymarks written from Waymarks' own source, and has never called a real one. Both knowledge adapters are compiled into the binary.
+- P3-04, the Anthropic Messages adapter, and P3-06, the Chat Completions adapter, both provisional: built and tested against hand-written exchanges, never against a real endpoint. With P3-05 that is all three real adapters. None is in the server's set of builders yet: the chat turn (P4-03) is where a provider is opened.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

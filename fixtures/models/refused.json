@@ -100,6 +100,22 @@
     {
       "why": "the field context_window must be a",
       "entry": {"name": "window-as-text", "label": "Window as text", "adapter": "fake", "context_window": "big", "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "takes no ca_cert",
+      "entry": {"name": "fake-with-cert", "label": "Fake with a certificate", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local", "ca_cert": "certs/authority.pem"}
+    },
+    {
+      "why": "ca_cert is for an https endpoint",
+      "entry": {"name": "cert-over-http", "label": "Certificate over http", "adapter": "chat_completions", "endpoint": "http://127.0.0.1:11434/v1", "provider_model": "example-small:8b", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local", "ca_cert": "certs/authority.pem"}
+    },
+    {
+      "why": "ca_cert holds a private key",
+      "entry": {"name": "cert-is-a-key", "label": "Certificate is a key", "adapter": "chat_completions", "endpoint": "https://gateway.home.arpa:8443/v1", "provider_model": "example-medium", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local", "ca_cert": "BEGIN PRIVATE KEY (invented, not a key)"}
+    },
+    {
+      "why": "ca_cert is PEM text or the path of a PEM file on one line",
+      "entry": {"name": "cert-on-two-lines", "label": "Certificate on two lines", "adapter": "chat_completions", "endpoint": "https://gateway.home.arpa:8443/v1", "provider_model": "example-medium", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local", "ca_cert": "certs/authority.pem\ncerts/other.pem"}
     }
   ]
 }

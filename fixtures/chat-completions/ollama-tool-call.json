@@ -1,0 +1,62 @@
+{
+  "test_data": true,
+  "name": "ollama-tool-call",
+  "style": "ollama",
+  "about": "A local endpoint that sends a tool call whole in one piece, with its arguments as one string, and then says the reply finished with \"stop\". The adapter reads the stop reason from the call itself.",
+  "entry": {
+    "name": "house-small",
+    "label": "House small",
+    "adapter": "chat_completions",
+    "endpoint": "http://127.0.0.1:11434/v1",
+    "provider_model": "example-small:8b",
+    "context_window": 8192,
+    "output_limit": 2048,
+    "capabilities": ["tools"],
+    "price": {"input": 0, "output": 0},
+    "class": "local"
+  },
+  "uses_key": false,
+  "request": {
+    "model": "house-small",
+    "messages": [
+      {"role": "user", "blocks": [{"type": "text", "text": "Is the ferry to Pell Island running this afternoon?"}]}
+    ],
+    "tools": [
+      {
+        "name": "ferry_times",
+        "description": "Looks up the invented ferry timetable for one crossing.",
+        "input_schema": {"type": "object", "properties": {"crossing": {"type": "string"}, "day": {"type": "string"}}, "required": ["crossing"]}
+      }
+    ]
+  },
+  "sent": {
+    "model": "example-small:8b",
+    "messages": [
+      {"role": "user", "content": "Is the ferry to Pell Island running this afternoon?"}
+    ],
+    "tools": [
+      {
+        "type": "function",
+        "function": {
+          "name": "ferry_times",
+          "description": "Looks up the invented ferry timetable for one crossing.",
+          "parameters": {"type": "object", "properties": {"crossing": {"type": "string"}, "day": {"type": "string"}}, "required": ["crossing"]}
+        }
+      }
+    ],
+    "stream": true,
+    "stream_options": {"include_usage": true}
+  },
+  "stream": [
+    {"id": "chatcmpl-102", "object": "chat.completion.chunk", "created": 1795000100, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": "", "tool_calls": [{"id": "call_k3v9x2ab", "index": 0, "type": "function", "function": {"name": "ferry_times", "arguments": "{\"crossing\":\"Pell Island\",\"day\":\"today\"}"}}]}, "finish_reason": null}]},
+    {"id": "chatcmpl-102", "object": "chat.completion.chunk", "created": 1795000100, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [{"index": 0, "delta": {"role": "assistant", "content": ""}, "finish_reason": "stop"}]},
+    {"id": "chatcmpl-102", "object": "chat.completion.chunk", "created": 1795000100, "model": "example-small:8b", "system_fingerprint": "fp_ollama", "choices": [], "usage": {"prompt_tokens": 148, "completion_tokens": 24, "total_tokens": 172}},
+    "data: [DONE]"
+  ],
+  "response": {
+    "model": "house-small",
+    "message": {"role": "assistant", "blocks": [{"type": "tool_call", "id": "call_k3v9x2ab", "name": "ferry_times", "input": {"crossing": "Pell Island", "day": "today"}}]},
+    "stop_reason": "tool_call",
+    "usage": {"input_tokens": 148, "output_tokens": 24}
+  }
+}
