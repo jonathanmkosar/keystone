@@ -83,6 +83,11 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
       continue;
     }
     const into = open();
+    if (m.stop_reason === "step_limit") {
+      // Keystone's note at the turn's step limit, not the model's words.
+      into.parts.push({ kind: "limit", text: textOf(m.blocks) });
+      continue;
+    }
     m.blocks.forEach((b, i) => {
       if (b.type === "thinking") addStep(into, { kind: "thinking", text: b.text ?? "", running: false, seconds: thoughtFor(m.id, i) });
       else if (b.type === "tool_call") addStep(into, toolStep(b.id ?? "", b.name ?? "a tool", inputOf(b.input)));
