@@ -389,7 +389,7 @@
 }
 
 .reply-text {
-  font: 400 18px/30px var(--font-read);
+  font: 400 17px/28px var(--font-read); /* the mockup's 18px/30px read too large (decision 0300) */
   overflow-wrap: anywhere;
 }
 
@@ -491,11 +491,12 @@
   margin-top: 8px;
 }
 
+/* Headings are set in the interface's sans at semibold: a fallback serif's
+   bold is too heavy on the dark ground (decision 0300). */
 .md-h {
   margin: 10px 0 0;
-  font-family: var(--font-read);
+  font-family: var(--font-sans);
   font-weight: 600;
-  letter-spacing: -0.005em;
 }
 
 .md > .md-h:first-child {
@@ -503,21 +504,27 @@
 }
 
 .md-h1 {
-  font-size: 26px;
-  line-height: 34px;
+  font-size: 22px;
+  line-height: 30px;
 }
 
 .md-h2 {
-  font-size: 22px;
-  line-height: 30px;
+  font-size: 20px;
+  line-height: 28px;
 }
 
 .md-h3,
 .md-h4,
 .md-h5,
 .md-h6 {
-  font-size: 19px;
-  line-height: 28px;
+  font-size: 18px;
+  line-height: 26px;
+}
+
+/* Semibold where the font has it. */
+.md strong,
+.md b {
+  font-weight: 600;
 }
 
 .md blockquote {

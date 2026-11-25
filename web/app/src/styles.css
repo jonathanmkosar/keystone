@@ -4,7 +4,10 @@
 :root {
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: Fraunces, Georgia, "Times New Roman", serif;
-  --font-read: "Source Serif 4", Georgia, serif;
+  /* Fonts are named, not bundled (decision 0072), so the reading text falls
+     back to Charter or Iowan Old Style on Apple devices and Georgia elsewhere:
+     thin, crisp regular weights on the dark ground (decision 0300). */
+  --font-read: "Source Serif 4", Charter, "Iowan Old Style", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
   --sidebar-width: 272px;
 }

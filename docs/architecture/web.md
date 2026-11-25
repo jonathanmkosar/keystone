@@ -63,7 +63,7 @@ The theme switch offers dark, light and system. Dark leads, as in the design. Th
 
 ### Fonts
 
-The stylesheet names IBM Plex Sans, Fraunces, Source Serif 4 and IBM Plex Mono and falls back to system fonts (decision [0072](decisions/0072-fonts-are-named-not-bundled.md)). No font file is bundled yet and nothing is loaded from another site.
+The stylesheet names IBM Plex Sans, Fraunces, Source Serif 4 and IBM Plex Mono and falls back to system fonts (decision [0072](decisions/0072-fonts-are-named-not-bundled.md)). No font file is bundled yet and nothing is loaded from another site. The reading text falls back to Charter or Iowan Old Style on Apple devices and Georgia elsewhere, at 17px, with headings in the sans at semibold (decision [0300](decisions/0300-reading-text-for-the-fonts-people-have.md)).
 
 ## The chat screen
 
