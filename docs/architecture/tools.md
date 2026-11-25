@@ -56,6 +56,12 @@ Added with the API shell (P2-05), in `tools/verify/routes.go`. They call every r
 
 The plan's other standing checks (context fit, the approval rule, the spend cap, recall, and the rest) are added to this list by the items that build what they check.
 
+Since P3-08 there is the check `spend cap`, which makes 16. It runs the real server on a throwaway data folder, with the shipped settings and the fake provider behind a model marked hosted that has a price. A message sent under the cap is answered and its calls are in the usage records with their cost. After the admin lowers the cap, the next message is stopped with the code `spend_cap`, the provider is not called, and the stopped call has a usage record that cost nothing. Then, for that tenant and for the test tenant, every model call the audit log says ended must have a usage record under the same request id. The code is in `tools/verify/spendcap.go`. See [usage.md](usage.md).
+
+Since P3-08, `internal/routing` is a second guard for the sensitive content rule in `fixedRuleGuards`: it is where a route is held to `MayReadSensitive`, and it takes its rules as arguments ([routing.md](routing.md)).
+
+`go run ./tools/tenant usage <tenant-id> [month]` prints a tenant's model calls for a calendar month, by model, and where the month stands against the cap (since P3-08, [usage.md](usage.md)).
+
 ### What offline checks today
 
 The plan's rule is that `verify` passes with no network and no keys, using the fake provider. Two things can be proven now, and both are in `tools/verify/offline.go`.

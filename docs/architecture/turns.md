@@ -372,3 +372,12 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 - A turn left `running` by a second server on the same data folder is not noticed. One server for each data folder is assumed.
 - A title call that times out is recorded with the outcome a stopped call has.
 - A way to change which model a chat uses, other than naming one in the next turn, and routes for the person's settings (P11-01).
+
+## Routing, usage and the spend cap
+
+Since P3-08 a turn does not open one model. `open` asks `internal/turn/route.go` for the route of the model picked: that model first, then the person's fallback chain, as one provider ([routing.md](routing.md)). `call` then asks which model the call ended on, records the call's end under that model, and writes its usage record ([usage.md](usage.md)).
+
+- The turn's `model` is the one asked for. A reply written by a fallback has the fallback's name in its own `model`, and so does the turn's `usage` event.
+- When a model of the route did not answer and the next one did, the audit log holds a started entry and an end entry for each.
+- Two more codes can end a turn: `spend_cap`, when the call could take the month past the cap and was not sent, and `sensitive`, when the turn holds sensitive content and the person has no local or trusted model. Nothing sets the second yet.
+- A title is routed as its own kind of task: the model `chats.title_model` names, then the chat's own.

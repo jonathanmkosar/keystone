@@ -54,11 +54,14 @@ const (
 	ErrInvalid ErrorKind = "invalid"
 	// ErrUnavailable: the endpoint could not be reached, or it failed.
 	ErrUnavailable ErrorKind = "unavailable"
+	// ErrSpendCap: Keystone did not send the call, because it would take
+	// the tenant past its monthly spend cap. No provider gives this kind.
+	ErrSpendCap ErrorKind = "spend_cap"
 	// ErrOther: anything else.
 	ErrOther ErrorKind = "other"
 )
 
-var errorKinds = []ErrorKind{ErrAuth, ErrRateLimited, ErrOverloaded, ErrTooLong, ErrInvalid, ErrUnavailable, ErrOther}
+var errorKinds = []ErrorKind{ErrAuth, ErrRateLimited, ErrOverloaded, ErrTooLong, ErrInvalid, ErrUnavailable, ErrSpendCap, ErrOther}
 
 // Error is a failed model call. The message must never hold a key.
 type Error struct {

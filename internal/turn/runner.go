@@ -367,7 +367,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 		return nil, true
 	}
 
-	m, provider, secrets, failure := r.open(ctx, s, t.ChatID, t.input.Model)
+	m, provider, secrets, failure := r.open(ctx, s, t, t.input.Model)
 	if failure != nil {
 		return failure, false
 	}
@@ -424,7 +424,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 			return nil, false
 		}
 		if len(blocks) > 0 {
-			msg, err := r.store(s, t, tail, seam.RoleAssistant, blocks, meta{model: m.Name, stopReason: stopReason, usage: usage, costMicros: out.cost})
+			msg, err := r.store(s, t, tail, seam.RoleAssistant, blocks, meta{model: out.model.Name, stopReason: stopReason, usage: usage, costMicros: out.cost})
 			if err != nil {
 				return broke("storing the reply", err)
 			}
@@ -434,7 +434,7 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 		if out.err != nil {
 			return out.failure, out.stopped
 		}
-		say(EventUsage, UsageEvent{Step: step, Model: m.Name, StopReason: stopReason, Usage: out.resp.Usage, CostMicros: out.cost})
+		say(EventUsage, UsageEvent{Step: step, Model: out.model.Name, StopReason: stopReason, Usage: out.resp.Usage, CostMicros: out.cost})
 		t.Usage, t.CostMicros = t.Usage.Add(out.resp.Usage), t.CostMicros+out.cost
 		total, _ := json.Marshal(t.Usage)
 		if _, err := s.DB().Exec("UPDATE turns SET usage = ?, cost_micros = ?, stop_reason = ? WHERE id = ?", string(total), t.CostMicros, stopReason, t.ID); err != nil {
@@ -662,6 +662,10 @@ type called struct {
 	failure *TurnError // why it failed, for the person
 	stopped bool       // the person stopped it
 	closing bool       // the runner is closing: nothing was written
+
+	// model is the model the call ended on, which a fallback may have
+	// changed (P3-08).
+	model models.Model
 }
 
 // call makes one model call and streams it. The audit log gets an entry
@@ -725,6 +729,8 @@ func (r *Runner) call(ctx context.Context, s *tenant.Store, t row, step int, m m
 			out.err = &seam.Error{Kind: seam.ErrUnavailable, Message: "the stream ended before its stop event", Retryable: true}
 		}
 	}
+	m = answered(p, m) // the route's model that answered, or failed last (P3-08)
+	out.model, entry.Action = m, m.Name
 	entry.Sent, entry.DurationMS = "", time.Since(began).Milliseconds()
 	var modelErr *seam.Error
 	switch {
@@ -748,7 +754,7 @@ func (r *Runner) call(ctx context.Context, s *tenant.Store, t row, step int, m m
 		out.failure = &TurnError{Code: string(modelErr.Kind), Message: audit.Scrub(modelErr.Message, secrets...), Retryable: modelErr.Retryable}
 		received, _ := json.Marshal(modelErr)
 		entry.Outcome, entry.Received = audit.OutcomeError, string(received)
-		if modelErr.Kind == seam.ErrTooLong {
+		if modelErr.Kind == seam.ErrTooLong || modelErr.Kind == seam.ErrSpendCap {
 			entry.Outcome = audit.OutcomeRefused
 		}
 	default:
@@ -764,6 +770,7 @@ func (r *Runner) call(ctx context.Context, s *tenant.Store, t row, step int, m m
 			out.failure = &TurnError{Code: CodeFailed, Message: "The model call could not be recorded, so its reply was not used."}
 		}
 	}
+	r.used(s, t, step, m, entry, out.stopped) // the call's usage record (P3-08)
 	return out
 }
 

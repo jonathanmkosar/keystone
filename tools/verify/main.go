@@ -64,6 +64,9 @@ var componentDocs = map[string]string{
 
 	"internal/adapters/chatcompletions": "docs/architecture/adapter-chat-completions.md",
 	"internal/turn":                     "docs/architecture/turns.md",
+
+	"internal/routing": "docs/architecture/routing.md",
+	"internal/usage":   "docs/architecture/usage.md",
 }
 
 var checks = []check{
@@ -82,6 +85,7 @@ var checks = []check{
 	{"test tenant", checkTestTenant},
 	{"calls recorded", checkRecorded},
 	{"context fit", checkContextFit},
+	{"spend cap", checkSpendCap},
 }
 
 func main() {
