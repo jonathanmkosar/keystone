@@ -1,0 +1,425 @@
+/* Artifacts (P9-03): the card in a reply, the panel beside the chat, the
+   publish page and the Artifacts screen. There is no mockup for any of it:
+   built from the tokens and the patterns of the chat screen, and
+   provisional until the workspace mockups (P1-06). Every colour is a
+   token, except the frame's own ground, which is the browser's Canvas. */
+
+/* The card in a reply's steps. */
+
+.artifact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 6px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--page);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+
+button.artifact-card {
+  cursor: pointer;
+}
+
+button.artifact-card:hover,
+.artifact-card.is-open {
+  border-color: var(--accent);
+}
+
+.artifact-card.is-running {
+  animation: working 1.4s ease-in-out infinite;
+}
+
+.artifact-card-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.artifact-card-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.artifact-card-title {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifact-card-meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.artifact-card-open {
+  flex: none;
+  color: var(--link);
+  font-size: 13px;
+}
+
+/* The panel. On a wide screen it sits beside the chat, which makes room
+   for it; on a narrow one it covers the chat, as the inspector does. */
+
+.artifact-panel {
+  --artifact-width: min(46vw, 760px);
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  width: var(--artifact-width);
+  border-left: 1px solid var(--line);
+  background: var(--page);
+}
+
+@media (min-width: 1100px) {
+  .chat:has(> .artifact-panel) > .chat-scroll,
+  .chat:has(> .artifact-panel) > .composer-dock {
+    margin-right: min(46vw, 760px);
+  }
+}
+
+@media (max-width: 1099px) {
+  .artifact-panel {
+    width: 100%;
+  }
+}
+
+.artifact-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px 10px 20px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.artifact-heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.artifact-title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font: 600 15px/22px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.artifact-title:focus {
+  outline: none;
+}
+
+.artifact-kind {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.artifact-pill {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.artifact-pill.is-sensitive {
+  border-color: var(--accent);
+  color: var(--softink);
+}
+
+.artifact-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  padding: 16px 20px;
+}
+
+.artifact-notice {
+  margin: 12px 20px 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--accent);
+  border-radius: 10px;
+  color: var(--softink);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.artifact-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px 0;
+}
+
+.artifact-version select,
+.artifact-against select {
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--ink);
+  font: 13px var(--font-sans);
+}
+
+.artifact-tabs {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--sunk);
+}
+
+.artifact-tab {
+  min-height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.artifact-tab.is-on {
+  background: var(--raised);
+  color: var(--ink);
+}
+
+.artifact-tab:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.artifact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 20px 0;
+}
+
+a.copy-button {
+  text-decoration: none;
+}
+
+.artifact-meta,
+.artifact-said,
+.artifact-problem {
+  margin: 6px 20px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.artifact-said {
+  color: var(--ok);
+}
+
+.artifact-problem {
+  color: var(--err);
+}
+
+.artifact-stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 12px;
+  padding: 0 20px 20px;
+  overflow: auto;
+}
+
+.artifact-stage.is-preview {
+  padding: 0;
+  overflow: hidden;
+}
+
+.artifact-stage.is-preview > .artifact-doc,
+.artifact-stage.is-preview > .artifact-code {
+  margin: 0 20px 20px;
+  overflow: auto;
+}
+
+/* The sandboxed frame. Its page is a document of its own, drawn on the
+   browser's own ground in its own scheme: an HTML artifact expects a page
+   of its own. */
+.artifact-frame {
+  flex: 1;
+  width: 100%;
+  min-height: 320px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: Canvas;
+  color-scheme: light;
+}
+
+.artifact-frame.is-svg,
+.artifact-frame.is-mermaid {
+  color-scheme: normal;
+  background: var(--page);
+}
+
+.artifact-doc {
+  font: 16px/26px var(--font-read);
+}
+
+.artifact-code pre {
+  max-height: none;
+}
+
+/* The comparison. */
+
+.artifact-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artifact-against {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.artifact-diff {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sunk);
+  font: 12.5px/20px var(--font-mono);
+  overflow-x: auto;
+}
+
+.diff-line {
+  display: grid;
+  grid-template-columns: 3.2em 3.2em 1.4em minmax(0, 1fr);
+  min-width: max-content;
+}
+
+.diff-line.is-add {
+  background: color-mix(in srgb, var(--ok) 16%, transparent);
+}
+
+.diff-line.is-remove {
+  background: color-mix(in srgb, var(--err) 16%, transparent);
+}
+
+.diff-num {
+  padding-right: 6px;
+  color: var(--muted);
+  text-align: right;
+  user-select: none;
+}
+
+.diff-mark {
+  color: var(--muted);
+  text-align: center;
+  user-select: none;
+}
+
+.diff-text {
+  padding-right: 12px;
+  white-space: pre;
+}
+
+/* The publish page: the artifact alone. */
+
+.artifact-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--page);
+  color: var(--ink);
+}
+
+.artifact-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.artifact-page-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.artifact-page-note {
+  flex: 1;
+  min-width: 200px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.artifact-page-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 0;
+  margin: 0 auto;
+}
+
+/* The Artifacts screen. */
+
+.artifact-row .list-title {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.artifact-row-kind,
+.artifact-row-chat {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.artifact-row-chat {
+  color: var(--link);
+}
+
+@media (max-width: 640px) {
+  .artifact-row {
+    flex-wrap: wrap;
+  }
+
+  .artifact-row .list-title {
+    flex-basis: 100%;
+  }
+}

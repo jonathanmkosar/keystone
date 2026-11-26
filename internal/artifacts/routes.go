@@ -1,6 +1,8 @@
 package artifacts
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"mime"
 	"net/http"
@@ -286,11 +288,26 @@ func (h handlers) sandbox(w http.ResponseWriter, r *http.Request, c api.Call) {
 		answer(w, r, err)
 		return
 	}
-	page := SandboxPage(a.Type, v.Title, content, r.URL.Query().Get("theme"), h.rt)
+	theme := Theme(r.URL.Query().Get("theme"))
+	policy := Policy(a.Type, r.Host, h.o.SandboxTokens())
 	head := w.Header()
-	head.Set("Content-Security-Policy", Policy(a.Type, r.Host, h.o.SandboxTokens()))
+	head.Set("Content-Security-Policy", policy)
 	head.Set("X-Frame-Options", "SAMEORIGIN")
 	head.Set("Cross-Origin-Resource-Policy", "same-origin")
+	// A page holds its renderer, which for a diagram is megabytes, so the
+	// browser may keep it and ask whether it changed: the version, the
+	// theme, the renderer and the policy name it. It is asked each time, so
+	// a page of a deleted chat is never shown from the browser's copy.
+	renderer := map[Kind]string{KindReact: h.rt.ReactDigest, KindMermaid: h.rt.MermaidDigest}[a.Type]
+	sum := sha256.Sum256([]byte(strings.Join([]string{v.SHA256, v.Title, theme, renderer, policy}, "\n")))
+	etag := `"` + hex.EncodeToString(sum[:16]) + `"`
+	head.Set("ETag", etag)
+	head.Set("Cache-Control", "private, no-cache")
+	if r.Header.Get("If-None-Match") == etag {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+	page := SandboxPage(a.Type, v.Title, content, theme, h.rt)
 	head.Set("Content-Type", "text/html; charset=utf-8")
 	head.Set("Content-Length", strconv.Itoa(len(page)))
 	w.WriteHeader(http.StatusOK)

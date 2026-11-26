@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { ApiError, listToolPolicies, resetToolPolicy, setToolPolicy, type ToolPolicy } from "./api";
 import { Icon } from "./Icon";
+import { artifactTools } from "./artifacts";
 import "./approval.css";
 
 const policyWords: Record<string, string> = {
@@ -15,7 +16,10 @@ const policyWords: Record<string, string> = {
 };
 
 function kind(t: ToolPolicy): string {
-  const acts = t.read_only ? "Only reads." : "Changes something.";
+  // The artifact tools write only to the person's own artifacts, a new
+  // version each time, so they run as tools that only read do (P9-03,
+  // decision 0420).
+  const acts = artifactTools.has(t.name) && t.name !== "read_artifact" ? "Writes only to your artifacts in Keystone, keeping every version." : t.read_only ? "Only reads." : "Changes something.";
   const from = t.inside ? "Its result is Keystone's own." : "Its result can be outside content.";
   return `${acts} ${from}`;
 }

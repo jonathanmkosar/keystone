@@ -343,8 +343,10 @@ func artifactProblems() ([]string, error) {
 			case script == "":
 			case !strings.Contains(page, string(source)):
 				say("the %s artifact's sandbox does not give its renderer the source", kind)
-			case !strings.Contains(page, `<script src="`+script+`">`):
-				say("the %s artifact's sandbox does not load its renderer %s", kind, script)
+			case !strings.Contains(page, `<script>`+script+`</script>`):
+				say("the %s artifact's sandbox does not hold its renderer", kind)
+			case !strings.Contains(policy, "script-src 'unsafe-inline';"):
+				say("the %s artifact's sandbox may load script from an address: %q", kind, policy)
 			}
 		default:
 			if !strings.Contains(page, `<pre class="ks-text">`) || strings.Contains(page, "<b>noon") || strings.Contains(page, "<script") {

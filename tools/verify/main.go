@@ -120,6 +120,7 @@ var checks = []check{
 	{"past chats", checkPastChats},
 	{"scheduled tasks", checkSchedules},
 	{"uploads", checkUploads},
+	{"artifacts", checkArtifacts},
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
 }

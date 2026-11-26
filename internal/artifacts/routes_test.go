@@ -162,11 +162,25 @@ func TestTheSandboxRouteCarriesItsOwnPolicy(t *testing.T) {
 		if got, want := h.Get("Content-Security-Policy"), Policy(d.Type, "127.0.0.1:7980", "allow-scripts allow-forms allow-modals"); got != want {
 			t.Errorf("%s: the sandbox's policy is %q, want %q", d.Type, got, want)
 		}
-		if h.Get("X-Frame-Options") != "SAMEORIGIN" || h.Get("Cache-Control") != "no-store" {
+		if h.Get("X-Frame-Options") != "SAMEORIGIN" || h.Get("Cache-Control") != "private, no-cache" || h.Get("ETag") == "" {
 			t.Errorf("%s: the sandbox's headers are %v", d.Type, h)
 		}
 		if !bytes.Equal(rec.Body.Bytes(), SandboxPage(d.Type, d.Title, d.Content, "dark", FindRuntime(testRuntime))) {
 			t.Errorf("%s: the sandbox serves %q", d.Type, rec.Body)
+		}
+		// Asked again with its tag, the page is not sent again; in the other
+		// theme it is.
+		r := httptest.NewRequest("GET", api.Prefix+"artifacts/"+a.ID+"/versions/1/sandbox?theme=dark", nil)
+		r.Host = "127.0.0.1:7980"
+		r.Header.Set("If-None-Match", h.Get("ETag"))
+		r.AddCookie(&http.Cookie{Name: api.CookieName, Value: g.tokens[g.one.TenantID()]})
+		again := httptest.NewRecorder()
+		g.h.ServeHTTP(again, r)
+		if again.Code != http.StatusNotModified || again.Body.Len() != 0 || again.Header().Get("Content-Security-Policy") == "" {
+			t.Errorf("%s: asked again with its tag, the sandbox answered %d with %d bytes", d.Type, again.Code, again.Body.Len())
+		}
+		if light := g.call(g.one, "GET", "artifacts/"+a.ID+"/versions/1/sandbox?theme=light"); light.Header().Get("ETag") == h.Get("ETag") {
+			t.Errorf("%s: the light page has the dark page's tag", d.Type)
 		}
 	}
 }

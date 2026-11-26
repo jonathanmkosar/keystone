@@ -56,7 +56,7 @@ const createDescription = "Make an artifact: a document the person sees in a pan
 	"Artifacts are shown offline in a sandbox: nothing in one may load from the internet. After making one, say in a sentence what it is; do not repeat its content in the reply."
 
 const updateDescription = "Change an artifact of this chat by writing a new version; every earlier version is kept and the person can go back to one. " +
-	"Give artifact_id, and either content, the whole new document, or old_text and new_text, to replace one exact piece of text that appears once in the newest version. title, when given, renames it."
+	"Give artifact_id (its id, or its exact title), and either content, the whole new document, or old_text and new_text, to replace one exact piece of text that appears once in the newest version. title, when given, renames it."
 
 const readDescription = "Read the artifacts of this chat. With no artifact_id, lists them: each one's id, title, type and newest version. " +
 	"With artifact_id, gives the newest version's content, or the version you name. Use it before changing an artifact whose content you no longer have."
@@ -113,7 +113,7 @@ func updateTool(o Options) tools.Tool {
 		Name:        UpdateName,
 		Description: updateDescription,
 		InputSchema: json.RawMessage(`{"type":"object","properties":{` +
-			`"artifact_id":{"type":"string","description":"The artifact's id, as create_artifact or read_artifact gave it."},` +
+			`"artifact_id":{"type":"string","description":"The artifact's id, as create_artifact or read_artifact gave it, or its exact title."},` +
 			`"content":{"type":"string","description":"The whole new document. Leave it out to replace one piece with old_text and new_text."},` +
 			`"old_text":{"type":"string","description":"The exact text to replace, which appears once in the newest version."},` +
 			`"new_text":{"type":"string","description":"What replaces old_text. Empty removes it."},` +
@@ -143,7 +143,11 @@ func updateTool(o Options) tools.Tool {
 			if args.OldText != nil {
 				c.OldText, c.HasOldText = *args.OldText, true
 			}
-			a, v, err := Update(ctx, in.Store, o, in.ChatID, strings.TrimSpace(args.ID), c, audit.RequestID(ctx))
+			id, err := resolve(ctx, in, args.ID)
+			if err != nil {
+				return "", forModel("the artifact was not changed", err)
+			}
+			a, v, err := Update(ctx, in.Store, o, in.ChatID, id, c, audit.RequestID(ctx))
 			if err != nil {
 				return "", forModel("the artifact was not changed", err)
 			}
@@ -157,7 +161,7 @@ func readTool(o Options) tools.Tool {
 		Name:        ReadName,
 		Description: readDescription,
 		InputSchema: json.RawMessage(`{"type":"object","properties":{` +
-			`"artifact_id":{"type":"string","description":"The artifact to read. Leave it out to list this chat's artifacts."},` +
+			`"artifact_id":{"type":"string","description":"The artifact to read, by its id or its exact title. Leave it out to list this chat's artifacts."},` +
 			`"version":{"type":"integer","description":"The version to read. Leave it out for the newest."}}}`),
 		ReadOnly: true,
 		Inside:   true, // the chat's own artifacts
@@ -169,7 +173,10 @@ func readTool(o Options) tools.Tool {
 			if err := json.Unmarshal(in.Args, &args); err != nil {
 				return "", errors.New("the input does not read: give artifact_id, or nothing to list")
 			}
-			id := strings.TrimSpace(args.ID)
+			id, err := resolve(ctx, in, args.ID)
+			if err != nil {
+				return "", forModel("the artifact could not be read", err)
+			}
 			if id == "" {
 				list, err := List(ctx, in.Store, in.ChatID)
 				if err != nil {
@@ -203,6 +210,34 @@ func readTool(o Options) tools.Tool {
 			return fmt.Sprintf("“%s”: artifact %s, type %s%s, version %d of %d.\n\n%s", v.Title, a.ID, a.Type, languageOf(a), v.Version, a.Latest, content), nil
 		},
 	}
+}
+
+// resolve finds the artifact a model names in this chat: by its id, or by
+// its exact title, which a model may still have after the turn that gave
+// the id was summarised away. Two artifacts of the chat with that title are
+// refused, so the model gives the id.
+func resolve(ctx context.Context, in tools.Input, ref string) (string, error) {
+	ref = strings.TrimSpace(ref)
+	if IsID(ref) || ref == "" {
+		return ref, nil
+	}
+	list, err := List(ctx, in.Store, in.ChatID)
+	if err != nil {
+		return "", err
+	}
+	found := ""
+	for _, a := range list {
+		if strings.EqualFold(a.Title, strings.Join(strings.Fields(ref), " ")) {
+			if found != "" {
+				return "", refusef("two artifacts of this chat are titled %q; give the id of the one to use", ref)
+			}
+			found = a.ID
+		}
+	}
+	if found == "" {
+		return "", fmt.Errorf("artifact %q: %w", ref, ErrNotFound)
+	}
+	return found, nil
 }
 
 func languageOf(a Artifact) string {

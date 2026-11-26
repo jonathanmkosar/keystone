@@ -16,8 +16,9 @@ import (
 // The sandbox: the page an artifact is shown in, served from a route of its
 // own (GET /artifacts/{artifact}/versions/{version}/sandbox) and drawn in
 // an iframe whose sandbox never allows same-origin. Its policy allows
-// nothing to be fetched or sent: no connection, no form action, no frame,
-// no worker, and images and fonts only from data: and blob: addresses. Its
+// nothing to be fetched or sent: no connection, no script or style from any
+// address, no form action, no frame, no worker, and images and fonts only
+// from data: and blob: addresses. Everything the page needs is in it. Its
 // sandbox directive makes it a page of no origin even when it is opened on
 // its own, so its script can never read the person's session, cookies or
 // API. The main page's policy is not touched (decision 0422).
@@ -26,48 +27,67 @@ import (
 //
 //   - html: the page as written, or the fragment in a page;
 //   - svg: an image, from a data: address, so its own script never runs;
-//   - mermaid and react: the source as JSON, and the renderer, a classic
-//     script built into the web interface under sandbox/ (decision 0421);
+//   - mermaid and react: the source as JSON, and the renderer, a script
+//     built into the web interface under sandbox/ (decision 0421), written
+//     into the page, since a page of no origin should fetch nothing;
 //   - markdown and code: the text, escaped. The panel draws these two in
 //     the app itself, with its own Markdown reader and a code block.
 
-// Runtime is where the sandbox's renderers are, as each page names them:
-// an address with a digest of the script, so a new build is fetched anew.
-// Empty when the build has no such renderer.
+// Runtime is the sandbox's renderers, as a page holds them: each script
+// made safe to write inside a script element, and a digest of it, which
+// names the build in the page's ETag. Empty when the build has none.
 type Runtime struct {
-	React, Mermaid string
+	React, Mermaid             string
+	ReactDigest, MermaidDigest string
 }
 
 // RuntimeFiles are the renderers' files in the built web interface.
 var RuntimeFiles = map[Kind]string{KindReact: "sandbox/react.js", KindMermaid: "sandbox/mermaid.js"}
 
+// FindRuntime reads the renderers from the built web interface. Nil means
+// the files compiled into the binary.
 func FindRuntime(fsys fs.FS) Runtime {
 	if fsys == nil {
 		fsys = web.Files()
 	}
-	return Runtime{React: scriptURL(fsys, RuntimeFiles[KindReact]), Mermaid: scriptURL(fsys, RuntimeFiles[KindMermaid])}
+	var rt Runtime
+	rt.React, rt.ReactDigest = script(fsys, RuntimeFiles[KindReact])
+	rt.Mermaid, rt.MermaidDigest = script(fsys, RuntimeFiles[KindMermaid])
+	return rt
 }
 
-func scriptURL(fsys fs.FS, name string) string {
+func script(fsys fs.FS, name string) (text, sum string) {
 	raw, err := fs.ReadFile(fsys, name)
 	if err != nil || len(raw) == 0 {
-		return ""
+		return "", ""
 	}
-	sum := sha256.Sum256(raw)
-	return "/" + name + "?v=" + hex.EncodeToString(sum[:6])
+	d := sha256.Sum256(raw)
+	return Inline(string(raw)), hex.EncodeToString(d[:8])
+}
+
+// closing is any spelling of what would end a script element or start the
+// HTML parser's escaped states inside one.
+var closing = regexp.MustCompile(`(?i)<(/script|script|!--)`)
+
+// Inline makes a script safe to write inside a script element: each "<"
+// that would end the element, or start the parser's escaped states inside
+// it, is written \x3C, which JavaScript reads as "<" in a string, a
+// template and a regular expression alike.
+func Inline(js string) string {
+	return closing.ReplaceAllString(js, `\x3C$1`)
 }
 
 // hostShape is a Host header that may be written into a policy: a name or
 // an address, and a port. Anything else is left out of it.
 var hostShape = regexp.MustCompile(`^([a-zA-Z0-9.-]+|\[[0-9a-fA-F:.]+\])(:[0-9]{1,5})?$`)
 
-// selfSources is Keystone's own address, for a policy served in a page of
-// no origin: 'self', and the address the browser asked for, under both
+// selfSources is Keystone's own address, for the frame-ancestors of a page
+// of no origin: 'self', and the address the browser asked for, under both
 // schemes, so it holds behind a tunnel that speaks plain HTTP to Keystone.
-func selfSources(host, path string) string {
+func selfSources(host string) string {
 	s := "'self'"
 	if hostShape.MatchString(host) {
-		s += " http://" + host + path + " https://" + host + path
+		s += " http://" + host + " https://" + host
 	}
 	return s
 }
@@ -77,13 +97,10 @@ func selfSources(host, path string) string {
 func Policy(k Kind, host, sandbox string) string {
 	script := "'none'"
 	switch k {
-	case KindHTML:
+	case KindHTML, KindReact, KindMermaid:
+		// The page's own scripts: an HTML page's, or the renderer and,
+		// for React, the component it turns into script and runs.
 		script = "'unsafe-inline'"
-	case KindReact:
-		// The renderer, and the component it turns into script and runs.
-		script = "'unsafe-inline' " + selfSources(host, "/sandbox/")
-	case KindMermaid:
-		script = selfSources(host, "/sandbox/")
 	}
 	parts := []string{
 		"default-src 'none'",
@@ -98,7 +115,7 @@ func Policy(k Kind, host, sandbox string) string {
 		"manifest-src 'none'",
 		"form-action 'none'",
 		"base-uri 'none'",
-		"frame-ancestors " + selfSources(host, ""),
+		"frame-ancestors " + selfSources(host),
 		strings.TrimSpace("sandbox " + sandbox),
 	}
 	return strings.Join(parts, "; ")
@@ -190,7 +207,7 @@ func SandboxPage(k Kind, title, content, theme string, rt Runtime) []byte {
 		b.WriteString(root)
 		b.WriteString(`<script type="application/json" id="ks-artifact">` + string(data) + `</script>`)
 		b.WriteString(noScripts)
-		b.WriteString(`<script src="` + html.EscapeString(script) + `"></script></body></html>`)
+		b.WriteString(`<script>` + script + `</script></body></html>`)
 	default: // markdown and code
 		b.WriteString(head(title, theme))
 		b.WriteString(`<body><pre class="ks-text">` + html.EscapeString(content) + `</pre></body></html>`)

@@ -1,0 +1,131 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "one artifact of each type",
+      "when": { "user_text": "Make one artifact of each kind for the harbour trip." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will make one of each." },
+                {
+                  "type": "tool_call",
+                  "id": "call_html",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "html",
+                    "title": "Ferry times",
+                    "content": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n<title>Ferry times</title>\n<style>\nbody { font: 16px/1.5 system-ui, sans-serif; margin: 24px; }\ntable { border-collapse: collapse; }\ntd, th { padding: 6px 12px; border-bottom: 1px solid #ccc; text-align: left; }\n</style>\n</head>\n<body>\n<h1>Ferry times</h1>\n<p>The first ferry leaves at nine.</p>\n<table>\n<tr><th>From</th><th>To</th><th>Leaves</th></tr>\n<tr><td>North pier</td><td>Gull Island</td><td>09:00</td></tr>\n<tr><td>Gull Island</td><td>North pier</td><td>16:30</td></tr>\n</table>\n<p><button id=\"count\">Tickets: 0</button></p>\n<script>\nlet n = 0;\ndocument.getElementById(\"count\").onclick = (e) => { n += 1; e.target.textContent = \"Tickets: \" + n; };\n</script>\n</body>\n</html>\n"
+                  }
+                },
+                {
+                  "type": "tool_call",
+                  "id": "call_react",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "react",
+                    "title": "Tide counter",
+                    "content": "import { useState } from \"react\";\n\nexport default function TideCounter() {\n  const [hours, setHours] = useState(6);\n  return (\n    <div style={{ fontFamily: \"system-ui, sans-serif\", padding: 24 }}>\n      <h2 style={{ marginTop: 0 }}>Hours to high water</h2>\n      <p style={{ fontSize: 48, margin: \"8px 0\" }}>{hours}</p>\n      <button onClick={() => setHours((h) => Math.max(0, h - 1))}>One hour later</button>{\" \"}\n      <button onClick={() => setHours(6)}>Reset</button>\n    </div>\n  );\n}\n"
+                  }
+                },
+                {
+                  "type": "tool_call",
+                  "id": "call_svg",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "svg",
+                    "title": "Harbour buoy",
+                    "content": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"200\" viewBox=\"0 0 160 200\">\n<rect x=\"20\" y=\"150\" width=\"120\" height=\"20\" rx=\"6\" fill=\"#2f6f8f\"/>\n<path d=\"M50 150 L80 40 L110 150 Z\" fill=\"#d9532c\"/>\n<rect x=\"58\" y=\"95\" width=\"44\" height=\"14\" fill=\"#f4efe4\"/>\n<circle cx=\"80\" cy=\"32\" r=\"9\" fill=\"#f2c14e\"/>\n</svg>\n"
+                  }
+                },
+                {
+                  "type": "tool_call",
+                  "id": "call_mermaid",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "mermaid",
+                    "title": "Ferry route",
+                    "content": "graph LR\n  A[North pier] -->|20 min| B(Gull Island)\n  B -->|15 min| C[Lighthouse quay]\n  C -->|35 min| A\n"
+                  }
+                },
+                {
+                  "type": "tool_call",
+                  "id": "call_markdown",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "markdown",
+                    "title": "Packing list",
+                    "content": "# Packing list for the harbour trip\n\n- A warm coat, since the ferry deck is windy\n- Tickets, bought at the **north pier** kiosk\n- Lunch for Gull Island, which has no café\n\n| Item | Who |\n| --- | --- |\n| Flask | Test Person One |\n| Map | Test Person One |\n"
+                  }
+                },
+                {
+                  "type": "tool_call",
+                  "id": "call_code",
+                  "name": "create_artifact",
+                  "input": {
+                    "type": "code",
+                    "language": "python",
+                    "title": "Tide table",
+                    "content": "# An invented tide table for the harbour trip.\ntides = {\"high\": \"12:10\", \"low\": \"18:25\"}\n\nfor name, time in tides.items():\n    print(f\"{name} water at {time}\")\n"
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 640, "output_tokens": 820 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Six artifacts are beside the chat: the ferry times as a page, a tide counter, a buoy, the ferry route, a packing list and a tide table. This reply is a recorded turn." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 1480, "output_tokens": 44 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a new version of an artifact",
+      "when": { "user_text": "Make the first ferry leave at ten." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_update",
+                  "name": "update_artifact",
+                  "input": { "artifact_id": "Ferry times", "old_text": "The first ferry leaves at nine.", "new_text": "The first ferry leaves at ten." }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 700, "output_tokens": 40 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The ferry times now say ten. The earlier version is kept, and you can compare or restore it in the panel." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 26 }
+          }
+        }
+      ]
+    }
+  ]
+}

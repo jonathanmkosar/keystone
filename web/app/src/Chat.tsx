@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useNavigate, useParams } from "react-router";
 import { ApiError, createChat, openChat, type Message, type ModelChoice, type Person } from "./api";
 import { Approvals } from "./Approval";
+import { ArtifactPanel } from "./ArtifactPanel";
 import { AttachedChats } from "./AttachedChats";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
@@ -228,6 +229,7 @@ function OneChat({ id }: { id: string }) {
         </div>
       </div>
       <Inspector chatId={id} />
+      <ArtifactPanel chatId={id} />
     </div>
   );
 }

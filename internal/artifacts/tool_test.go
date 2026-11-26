@@ -70,6 +70,11 @@ func TestTheToolsMakeChangeAndReadThroughTheRegistryAndAreRecorded(t *testing.T)
 	if !strings.Contains(resultText(old), "high water") {
 		t.Errorf("read_artifact of version 1 gave %q", resultText(old))
 	}
+	// A model may name an artifact of its chat by its exact title.
+	byTitle := run(nil, UpdateName, map[string]string{"artifact_id": "tide CLOCK", "old_text": "low water", "new_text": "slack water"}, chatID)
+	if m := cardWords.FindStringSubmatch(resultText(byTitle)); byTitle.Status != tools.StatusOK || m == nil || m[1] != id || m[2] != "3" {
+		t.Fatalf("update_artifact by title gave %s: %q", byTitle.Status, resultText(byTitle))
+	}
 	listed := run(nil, ReadName, map[string]any{}, chatID)
 	if !strings.Contains(resultText(listed), "artifact "+id) {
 		t.Errorf("read_artifact with no id gave %q", resultText(listed))
@@ -110,8 +115,8 @@ func TestTheToolsMakeChangeAndReadThroughTheRegistryAndAreRecorded(t *testing.T)
 			ended++
 		}
 	}
-	if started != 9 || ended != 9 {
-		t.Errorf("the audit log holds %d starts and %d ends of the nine calls in this person's log", started, ended)
+	if started != 10 || ended != 10 {
+		t.Errorf("the audit log holds %d starts and %d ends of the ten calls in this person's log", started, ended)
 	}
 }
 

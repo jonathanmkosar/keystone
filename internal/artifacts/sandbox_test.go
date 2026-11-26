@@ -50,19 +50,13 @@ func TestEveryTypesPolicyFetchesNothingAndGivesNoOrigin(t *testing.T) {
 				t.Errorf("%s: %s reaches a network address: %q", k, d, directive(p, d))
 			}
 		}
+		// Script only from the page itself: nothing is fetched, not even
+		// from Keystone.
 		script := directive(p, "script-src")
 		switch k {
-		case KindHTML:
+		case KindHTML, KindReact, KindMermaid:
 			if script != "script-src 'unsafe-inline'" {
-				t.Errorf("html: %q", script)
-			}
-		case KindReact:
-			if script != "script-src 'unsafe-inline' 'self' http://127.0.0.1:7980/sandbox/ https://127.0.0.1:7980/sandbox/" {
-				t.Errorf("react: %q", script)
-			}
-		case KindMermaid:
-			if script != "script-src 'self' http://127.0.0.1:7980/sandbox/ https://127.0.0.1:7980/sandbox/" {
-				t.Errorf("mermaid: %q", script)
+				t.Errorf("%s: %q", k, script)
 			}
 		default:
 			if script != "script-src 'none'" {
@@ -131,8 +125,8 @@ func artifactJSON(t *testing.T, page string) map[string]string {
 
 func TestReactAndMermaidAreGivenTheirSourceAndRenderer(t *testing.T) {
 	rt := FindRuntime(testRuntime)
-	if !regexp.MustCompile(`^/sandbox/react\.js\?v=[0-9a-f]{12}$`).MatchString(rt.React) || !strings.HasPrefix(rt.Mermaid, "/sandbox/mermaid.js?v=") {
-		t.Fatalf("the renderers are at %+v", rt)
+	if rt.React != "/* an invented react renderer */" || rt.Mermaid != "/* an invented mermaid renderer */" || len(rt.ReactDigest) != 16 || rt.ReactDigest == rt.MermaidDigest {
+		t.Fatalf("the renderers read %+v", rt)
 	}
 	// A source that tries to end its script element.
 	source := "export default function App() { return <p>{\"</script><script>alert(1)</script>\"}</p> }"
@@ -145,8 +139,8 @@ func TestReactAndMermaidAreGivenTheirSourceAndRenderer(t *testing.T) {
 		if got["content"] != source || got["type"] != string(k) || got["theme"] != "dark" || got["title"] != "Ferry" {
 			t.Errorf("%s: the renderer is given %+v", k, got)
 		}
-		if !strings.Contains(page, `<script src="`+strings.ReplaceAll(script, "&", "&amp;")+`"></script>`) {
-			t.Errorf("%s: the page does not load its renderer %s: %q", k, script, page)
+		if !strings.Contains(page, `<script>`+script+`</script></body></html>`) || strings.Contains(page, "src=") {
+			t.Errorf("%s: the page does not hold its renderer %s, or loads something: %q", k, script, page)
 		}
 		if !strings.Contains(page, `<div id="ks-root"`) || !strings.Contains(page, "<noscript>") {
 			t.Errorf("%s: the page has no root or no word for a frame without scripts", k)
@@ -156,6 +150,24 @@ func TestReactAndMermaidAreGivenTheirSourceAndRenderer(t *testing.T) {
 	page := string(SandboxPage(KindMermaid, "Ferry", "graph TD; A-->B<i>", "light", FindRuntime(fstest.MapFS{})))
 	if !strings.Contains(page, "built without the renderer for mermaid") || !strings.Contains(page, "A--&gt;B&lt;i&gt;") || strings.Contains(page, "<script") {
 		t.Errorf("a build without the renderer serves %q", page)
+	}
+}
+
+// A renderer written into the page cannot end its script element, or start
+// the parser's escaped states, whatever its text holds.
+func TestARendererIsWrittenSafelyIntoThePage(t *testing.T) {
+	js := "a=`<!-->`; b='</script><script>'; c=/<!--x/; d='</SCRIPT >'; e='<Script>'"
+	got := Inline(js)
+	if regexp.MustCompile(`(?i)</script|<script|<!--`).MatchString(got) {
+		t.Errorf("the renderer still holds a closing tag or a comment's start: %q", got)
+	}
+	if want := "a=`\\x3C!-->`; b='\\x3C/script>\\x3Cscript>'; c=/\\x3C!--x/; d='\\x3C/SCRIPT >'; e='\\x3CScript>'"; got != want {
+		t.Errorf("Inline gives %q, want %q", got, want)
+	}
+	rt := FindRuntime(fstest.MapFS{"sandbox/react.js": {Data: []byte(js)}})
+	page := string(SandboxPage(KindReact, "x", "export default () => null", "light", rt))
+	if strings.Count(strings.ToLower(page), "</script") != 2 {
+		t.Errorf("the page's script elements do not end where they should: %q", page)
 	}
 }
 
