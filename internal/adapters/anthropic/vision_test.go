@@ -1,0 +1,105 @@
+package anthropic
+
+import (
+	"context"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"sync"
+	"testing"
+
+	"github.com/jonathanmkosar/keystone/internal/models"
+	"github.com/jonathanmkosar/keystone/internal/seam"
+)
+
+// visionAsks are requests that carry an invented image: in the person's
+// message, and in a tool's result.
+func visionAsks(picture []byte) map[string]seam.Request {
+	image := seam.Block{Type: seam.BlockImage, MediaType: "image/png", Data: picture}
+	return map[string]seam.Request{
+		"in the message": {Messages: []seam.Message{{Role: seam.RoleUser, Blocks: []seam.Block{
+			{Type: seam.BlockText, Text: "What is in this picture?"}, image,
+		}}}},
+		"in a tool's result": {Messages: []seam.Message{
+			{Role: seam.RoleUser, Blocks: []seam.Block{{Type: seam.BlockText, Text: "Draw a square."}}},
+			{Role: seam.RoleAssistant, Blocks: []seam.Block{{Type: seam.BlockToolCall, ID: "toolu_invented_1", Name: "draw", Input: json.RawMessage(`{}`)}}},
+			{Role: seam.RoleUser, Blocks: []seam.Block{{Type: seam.BlockToolResult, ID: "toolu_invented_1", Content: []seam.Block{{Type: seam.BlockText, Text: "drawn"}, image}}}},
+		}},
+	}
+}
+
+// TestAnImageReachesOnlyAModelThatSees is P9-02's proof at the adapter: a
+// request that carries an image is refused before anything is sent when
+// the entry does not say it can see, and sent in the Messages API's form
+// when it does. The stand-in answers every call with a refusal, so the
+// request the adapter built is what is checked.
+func TestAnImageReachesOnlyAModelThatSees(t *testing.T) {
+	var mu sync.Mutex
+	var bodies [][]byte
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, _ := io.ReadAll(r.Body)
+		mu.Lock()
+		bodies = append(bodies, body)
+		mu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		io.WriteString(w, `{"type":"error","error":{"type":"invalid_request_error","message":"the stand-in answers every call so"}}`)
+	}))
+	defer srv.Close()
+	picture := []byte("invented image bytes")
+	ctx := context.Background()
+
+	blind := testEntry(srv.URL)
+	blind.Capabilities = []models.Capability{models.CapTools, models.CapFiles, models.CapThinking}
+	for name, req := range visionAsks(picture) {
+		p, err := New(blind, testKey, testOptions())
+		if err != nil {
+			t.Fatal(err)
+		}
+		quiet(p)
+		err = p.Stream(ctx, req, func(seam.Event) error { return nil })
+		var refused *seam.Error
+		if !errors.As(err, &refused) || refused.Kind != seam.ErrInvalid || !strings.Contains(refused.Message, "never sent to a model without vision") {
+			t.Errorf("%s: a model without vision was not refused the image: %v", name, err)
+		}
+		if _, err := p.CountTokens(ctx, req); err == nil {
+			t.Errorf("%s: the image was sent to be counted for a model without vision", name)
+		}
+	}
+	if len(bodies) != 0 {
+		t.Fatalf("the stand-in was sent %d requests for a model that cannot see", len(bodies))
+	}
+
+	p, err := New(testEntry(srv.URL), testKey, testOptions())
+	if err != nil {
+		t.Fatal(err)
+	}
+	quiet(p)
+	p.Stream(ctx, visionAsks(picture)["in the message"], func(seam.Event) error { return nil })
+	if len(bodies) != 1 {
+		t.Fatalf("the stand-in was sent %d requests for a model that sees, want 1", len(bodies))
+	}
+	var sent struct {
+		Messages []struct {
+			Content []struct {
+				Type   string `json:"type"`
+				Source *struct {
+					Type      string `json:"type"`
+					MediaType string `json:"media_type"`
+					Data      string `json:"data"`
+				} `json:"source"`
+			} `json:"content"`
+		} `json:"messages"`
+	}
+	if err := json.Unmarshal(bodies[0], &sent); err != nil || len(sent.Messages) != 1 || len(sent.Messages[0].Content) != 2 {
+		t.Fatalf("the request reads %s: %v", bodies[0], err)
+	}
+	got := sent.Messages[0].Content[1]
+	if got.Type != "image" || got.Source == nil || got.Source.Type != "base64" || got.Source.MediaType != "image/png" || got.Source.Data != base64.StdEncoding.EncodeToString(picture) {
+		t.Errorf("the image was sent as %s", bodies[0])
+	}
+}

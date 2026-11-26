@@ -279,6 +279,9 @@ func checkSend(s *tenant.Store, chatID string, body *SendBody) error {
 			return invalid("a message holds text, image and file blocks")
 		}
 	}
+	if err := uploadedBlocks(s, chatID, body); err != nil { // P9-02: a ref names an upload of the chat (uploads.go)
+		return err
+	}
 	if body.RetryOf == 0 {
 		if err := seam.ValidateMessage(seam.Message{Role: seam.RoleUser, Blocks: body.content()}); err != nil {
 			return invalid(err.Error())

@@ -7051,6 +7051,81 @@
                         "last_event_id"
                       ],
                       "type": "object"
+                    },
+                    "uploads": {
+                      "items": {
+                        "properties": {
+                          "call": {
+                            "properties": {
+                              "files": {
+                                "type": "boolean"
+                              },
+                              "items": {
+                                "items": {
+                                  "properties": {
+                                    "chars": {
+                                      "type": "integer"
+                                    },
+                                    "current": {
+                                      "type": "boolean"
+                                    },
+                                    "cut": {
+                                      "type": "boolean"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "kind": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "sent": {
+                                      "type": "string"
+                                    },
+                                    "why": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "kind",
+                                    "sent"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "moved": {
+                                "type": "string"
+                              },
+                              "sees": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "model",
+                              "sees",
+                              "files",
+                              "items"
+                            ],
+                            "type": "object"
+                          },
+                          "step": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "step",
+                          "call"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     }
                   },
                   "required": [
