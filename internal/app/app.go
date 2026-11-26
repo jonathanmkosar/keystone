@@ -21,6 +21,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/jobs"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
+	"github.com/jonathanmkosar/keystone/internal/shareapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
@@ -243,6 +244,9 @@ func routes(c Config, log *api.Log) []api.Route {
 	// Artifacts (P9-03): a chat's, one with its versions, compare, restore,
 	// download and the sandboxed page.
 	all = append(all, artifacts.Routes(c.Artifacts)...)
+	// Share links (P10-04): the person's four, and the two doors that show a
+	// link's chat without a session.
+	all = append(all, shareapi.Routes(shareapi.Options{Install: c.Install, Log: log})...)
 	return all
 }
 

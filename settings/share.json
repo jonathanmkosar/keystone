@@ -1,0 +1,41 @@
+{
+  "lane": "share",
+  "settings": [
+    {
+      "key": "share.link_lifetime",
+      "type": "duration",
+      "default": "720h",
+      "scope": "tenant",
+      "description": "How long a new share link opens, from when it is made, such as 720h for thirty days. 0s makes links that open until they are turned off. A link made earlier keeps the time it was made with."
+    },
+    {
+      "key": "share.max_links",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant-admin",
+      "description": "The most share links one person may have open at once. A link that was turned off or has expired does not count. 0 means no new link can be made, and the links already made still open."
+    },
+    {
+      "key": "share.images",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether a shared chat shows the images in your messages. Off, each image is named and not shown. Files other than images are only ever named."
+    },
+    {
+      "key": "share.artifacts",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether a shared chat shows the artifacts its replies made, as their source and never run. Off, each is named by the step that made it."
+    },
+    {
+      "key": "share.default_view",
+      "type": "string",
+      "default": "live",
+      "options": ["live", "snapshot"],
+      "scope": "tenant",
+      "description": "What a new share link shows when you do not choose: live is the chat as it is when the link is opened, with later messages, and snapshot is the chat as it was when the link was made."
+    }
+  ]
+}

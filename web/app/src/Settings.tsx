@@ -29,6 +29,7 @@ import { Icon } from "./Icon";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
 import { UsageSettings } from "./UsageSettings";
+import { ShareSettings } from "./ShareSettings";
 
 // The settings screens (P11-01). docs/architecture/settings-screens.md
 // describes them. Every server call they make is in api.ts.
@@ -41,6 +42,7 @@ const screens: { to: string; label: string }[] = [
   { to: "connectors", label: "Connectors" },
   { to: "approvals", label: "Approvals" },
   { to: "usage", label: "Usage" },
+  { to: "sharing", label: "Shared links" },
 ];
 
 type Props = {
@@ -153,6 +155,7 @@ export function Settings(props: Props) {
         <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route path="usage" element={<UsageSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="sharing" element={<ShareSettings onSignedOut={props.onSignedOut} />} />
         <Route path="spend" element={<Navigate to="/settings/usage" replace />} />
         <Route path="*" element={<Navigate to="/settings/profile" replace />} />
       </Routes>

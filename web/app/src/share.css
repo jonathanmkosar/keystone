@@ -1,0 +1,275 @@
+/* Share links (P10-04): the Share button and its popover in a chat's
+   header, Settings → Shared links, and the shared page. Every colour is a
+   token. Provisional: only the Share button has a mockup. */
+
+/* The button and the popover. */
+
+.share-control {
+  position: relative;
+  flex: none;
+}
+
+.share-button {
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.menu.share-menu {
+  right: 0;
+  left: auto;
+  width: min(360px, calc(100vw - 32px));
+  gap: 10px;
+  padding: 14px;
+}
+
+.share-lead {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.share-views {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.share-legend {
+  margin-bottom: 2px;
+  padding: 0;
+  color: var(--muted);
+  font: 600 12px var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.share-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.share-choice input {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+
+.share-hint {
+  display: block;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.share-make {
+  min-height: 36px;
+}
+
+.share-made {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--page);
+}
+
+.share-address {
+  flex: 1 1 200px;
+  min-width: 0;
+  min-height: 34px;
+  font: 400 13px var(--font-mono);
+}
+
+.share-problem {
+  margin: 0;
+  color: var(--err);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.share-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.share-row-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+}
+
+.share-row-state {
+  color: var(--err);
+}
+
+.share-off {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  color: var(--ink);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.share-off:hover {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.share-off:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.share-all {
+  align-self: flex-start;
+  color: var(--link);
+  font-size: 13px;
+}
+
+/* Settings → Shared links. */
+
+.share-chat-title {
+  color: var(--link);
+  text-decoration: none;
+}
+
+/* The shared page, alone, outside the app's frame. */
+
+.shared-page {
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+}
+
+.shared-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+}
+
+.shared-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shared-note {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.shared-body {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.shared-title {
+  margin: 0 0 6px;
+  font: 600 24px/32px var(--font-sans);
+  overflow-wrap: anywhere;
+}
+
+.shared-when {
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.shared-conversation {
+  max-width: none;
+}
+
+.shared-image {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: 8px;
+}
+
+.shared-artifact {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.shared-artifact-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.shared-artifact-head > .ico {
+  color: var(--accent);
+}
+
+.shared-artifact-title {
+  font: 600 14px var(--font-sans);
+}
+
+.shared-artifact-kind {
+  flex: 1;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.shared-artifact-source {
+  max-height: 480px;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  font: 400 13px/20px var(--font-mono);
+  white-space: pre;
+}
+
+.shared-refused {
+  padding: 48px 0;
+}
+
+.shared-foot {
+  margin: 40px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .shared-head,
+  .shared-body {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+}
