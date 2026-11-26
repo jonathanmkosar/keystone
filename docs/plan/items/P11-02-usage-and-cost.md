@@ -1,6 +1,6 @@
 # P11-02. Usage and cost
 
-Status: todo
+Status: doing (core)
 Lane: core + interface
 Depends on: P3-08, P4-01
 Owner gate: Approval of the settings mockups (P1-07), for the screen only.

@@ -26,6 +26,7 @@ import {
   type Totals,
   type UsageRecord,
 } from "./api";
+import { UploadsSection, type UploadCall } from "./Attachments";
 import { Icon } from "./Icon";
 import { pinMessage, putPins, usePins } from "./pins";
 import { onEnd } from "./turns";
@@ -271,6 +272,7 @@ function Inspected({ chatId, data, skips, change }: { chatId: string; data: Insp
         </section>
       )}
       {data.recall && <RecallSection recall={data.recall} removed={removedRefs(chats[0])} />}
+      <UploadsSection calls={data.uploads as UploadCall[] | undefined} />
     </>
   );
 }
@@ -402,6 +404,8 @@ function PartDetail(props: {
     case "recent":
       return <EarlierTurns call={call} part={p} />;
     case "recall":
+      return <Items {...props} />;
+    case "attached": // the text read from the chat's files (P9-02)
       return <Items {...props} />;
     case "pinned":
       return <Items {...props} />;

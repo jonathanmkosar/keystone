@@ -167,6 +167,8 @@ export type Block = {
   content?: Block[];
   is_error?: boolean;
   media_type?: string;
+  /** An image's or a file's upload, by its id (P9-02). */
+  ref?: string;
 };
 
 export type Message = {
@@ -346,9 +348,9 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   return ended;
 }
 
-/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. See readTurn for what it returns. */
-export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string): Promise<boolean> {
-  return readTurn("POST", turnsPath(chatId), model ? { text, model } : { text }, "", reader);
+/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. `blocks`, when given, is the message in place of `text` (P9-02). See readTurn for what it returns. */
+export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string, blocks?: Block[]): Promise<boolean> {
+  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...(model ? { model } : {}) }, "", reader);
 }
 
 /**
@@ -926,6 +928,8 @@ export type Inspection = {
   totals: Totals;
   pinned: number[];
   skips: Skip[];
+  /** What each call was given of the chat's images and files (P9-02); Attachments.tsx reads it. */
+  uploads?: unknown[];
 };
 
 /** What went into each model call of one turn. */
@@ -940,6 +944,7 @@ export async function inspectTurn(chatId: string, turnId: string): Promise<Inspe
     totals: data.totals as Totals,
     pinned: Array.isArray(data.pinned) ? (data.pinned as number[]) : [],
     skips: Array.isArray(data.skips) ? (data.skips as Skip[]) : [],
+    uploads: Array.isArray(data.uploads) ? data.uploads : undefined,
   };
 }
 

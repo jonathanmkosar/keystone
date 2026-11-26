@@ -119,6 +119,7 @@ var checks = []check{
 	{"background tasks", checkBackgroundTasks},
 	{"past chats", checkPastChats},
 	{"scheduled tasks", checkSchedules},
+	{"uploads", checkUploads},
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
 }

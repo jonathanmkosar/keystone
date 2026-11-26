@@ -205,6 +205,8 @@ In `settings/models.json`. All are for the install.
 
 They are read at their defaults. An install's own stored values are not built yet (see [settings.md](settings.md)).
 
+Since P9-02 the adapter refuses, while it builds the body and before anything is sent, a request that holds an image for an entry without `vision`, with the seam's `invalid`; `CountTokens` refuses it too. `vision_test.go` proves it against a stand-in, and that an entry with `vision` sends the image as a base64 `image` block (decision [0383](decisions/0383-the-adapters-refuse-an-image-to-a-model-without-vision.md)).
+
 ## Checked by
 
 `go test ./internal/adapters/anthropic ./internal/adapters`, with no key and no network.

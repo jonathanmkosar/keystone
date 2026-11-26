@@ -81,6 +81,9 @@ const betweenBlocks = "\n\n"
 // buildBody turns a seam request into the JSON body for one entry. The
 // request has passed seam.ValidateRequest.
 func buildBody(m models.Model, req seam.Request) ([]byte, error) {
+	if n := seam.Images(req); n > 0 && !m.Has(models.CapVision) { // P9-02: never an image to a model without vision
+		return nil, fmt.Errorf("the request holds %d images, and the registry entry of %s does not say it can see: an image is never sent to a model without vision", n, m.Name)
+	}
 	out := wireRequest{
 		Model:         m.ProviderModel,
 		Stream:        true,

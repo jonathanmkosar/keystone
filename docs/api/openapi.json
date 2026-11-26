@@ -8442,6 +8442,81 @@
                         "last_event_id"
                       ],
                       "type": "object"
+                    },
+                    "uploads": {
+                      "items": {
+                        "properties": {
+                          "call": {
+                            "properties": {
+                              "files": {
+                                "type": "boolean"
+                              },
+                              "items": {
+                                "items": {
+                                  "properties": {
+                                    "chars": {
+                                      "type": "integer"
+                                    },
+                                    "current": {
+                                      "type": "boolean"
+                                    },
+                                    "cut": {
+                                      "type": "boolean"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "kind": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "sent": {
+                                      "type": "string"
+                                    },
+                                    "why": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "kind",
+                                    "sent"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "moved": {
+                                "type": "string"
+                              },
+                              "sees": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "model",
+                              "sees",
+                              "files",
+                              "items"
+                            ],
+                            "type": "object"
+                          },
+                          "step": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "step",
+                          "call"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     }
                   },
                   "required": [
@@ -8611,6 +8686,411 @@
           }
         },
         "summary": "Stop a turn. The model call is cancelled and what had streamed is kept. It takes no body. Stopping a turn that has ended changes nothing."
+      }
+    },
+    "/api/v1/chats/{id}/uploads": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "notices": {
+                      "items": {
+                        "properties": {
+                          "kind": {
+                            "type": "string"
+                          },
+                          "message_id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "upload_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "turn_id",
+                          "message_id",
+                          "kind",
+                          "text"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "uploads": {
+                      "items": {
+                        "properties": {
+                          "chars": {
+                            "type": "integer"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "in_use": {
+                            "type": "boolean"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "media_type": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "name",
+                          "kind",
+                          "media_type",
+                          "size",
+                          "chars",
+                          "created",
+                          "in_use"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "uploads",
+                    "notices"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "A chat's uploads, and what the person is told about its replies: an image a reply did not see, and a reply a fallback wrote to see one."
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The file's name. Its ending says what kind of text file it is.",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Upload": {
+                      "properties": {
+                        "chars": {
+                          "type": "integer"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "in_use": {
+                          "type": "boolean"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "media_type": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "name",
+                        "kind",
+                        "media_type",
+                        "size",
+                        "chars",
+                        "created",
+                        "in_use"
+                      ],
+                      "type": "object"
+                    },
+                    "added": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "Upload",
+                    "added"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Upload a file or an image to a chat. The body is the file's bytes. An image or a document is known by its bytes, a text file by its ending; the text of a text file is read. The file is kept under its SHA-256, which is the upload's id and the ref a message's block names it by."
+      }
+    },
+    "/api/v1/chats/{id}/uploads/{upload}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "upload",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Take an upload off a chat, and remove its file when no other chat holds it. Refused while a message of the chat holds it."
+      },
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "upload",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Upload": {
+                      "properties": {
+                        "chars": {
+                          "type": "integer"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "in_use": {
+                          "type": "boolean"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "media_type": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "name",
+                        "kind",
+                        "media_type",
+                        "size",
+                        "chars",
+                        "created",
+                        "in_use"
+                      ],
+                      "type": "object"
+                    },
+                    "text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "Upload",
+                    "text"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One upload of a chat, with the text read from it."
+      }
+    },
+    "/api/v1/chats/{id}/uploads/{upload}/content": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "upload",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "An upload's bytes. An image is served as itself; any other file as a download."
       }
     },
     "/api/v1/connectors": {
@@ -13891,6 +14371,62 @@
           }
         },
         "summary": "Set the person's policy for one tool: always, ask or never. Whatever the policy, a tool that changes something asks once the chat has read outside content."
+      }
+    },
+    "/api/v1/uploads/limits": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "document_types": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "image_types": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "max_bytes": {
+                      "type": "integer"
+                    },
+                    "text_extensions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "max_bytes",
+                    "image_types",
+                    "text_extensions",
+                    "document_types"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "What may be uploaded: the largest size, the image and document types, and the endings of text files."
       }
     }
   },

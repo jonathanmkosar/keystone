@@ -1,6 +1,6 @@
 # P9-03. Artifacts
 
-Status: todo
+Status: doing (interface)
 Lane: agents + interface
 Depends on: P7-01
 Owner gate: Approval of the workspace mockups (P1-06), for the panel only.

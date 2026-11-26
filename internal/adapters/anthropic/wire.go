@@ -96,6 +96,9 @@ func (p *Provider) body(req seam.Request, stream bool) ([]byte, error) {
 	if req.Model != "" && req.Model != p.model.Name {
 		return nil, fmt.Errorf("the request is for model %s, and this provider calls %s", req.Model, p.model.Name)
 	}
+	if n := seam.Images(req); n > 0 && !p.model.Has(models.CapVision) { // P9-02: never an image to a model without vision
+		return nil, fmt.Errorf("the request holds %d images, and the registry entry of %s does not say it can see: an image is never sent to a model without vision", n, p.model.Name)
+	}
 	out := wireRequest{Model: p.model.ProviderModel, Stream: stream}
 
 	maxTokens := p.model.OutputLimit

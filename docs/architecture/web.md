@@ -398,6 +398,10 @@ Provisional on the memory mockups (P1-06), which are not approved: built from th
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7973 with a data folder inside the worktree, as the test tenant with the built-in store: the beehives facts listed with their chat, one forgotten and one corrected, each with the server's note; an incognito chat with its mark, deleted (404) once the person went to a new chat, and dropped from the sidebar. Light and dark, and at phone width. No console errors but the sign-in check's 401 and the 404 asked for.
 
+## Uploads (P9-02)
+
+The composer takes files: a plus button opens the file picker, and files dropped on the composer are taken too. Each is a chip with its ending, name, size and a remove button; a file `GET /uploads/limits` refuses is not taken, with the reason. A message may be files alone. The files are uploaded when the message is sent, and the message goes with their blocks first. In the person's message an image is a thumbnail from the content route and other files are downloads; a reply that did not see an image, or that a fallback wrote to see one, has a notice above it. The inspector lists each file's text in the attachments part and has a section, Images and files. `Attachments.tsx`, `uploads.ts` and `uploads.css`; small edits in `Composer.tsx`, `Chat.tsx`, `turns.ts`, `api.ts`, `layout.ts`, `Conversation.tsx` and `Inspector.tsx`. Provisional until the workspace mockups (P1-06): built from the tokens, after the composer's "Add files or a chat" button and the attached chat's chip in `design/screens`. See [uploads.md](uploads.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

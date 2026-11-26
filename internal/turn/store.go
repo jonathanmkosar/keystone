@@ -39,6 +39,9 @@ type row struct {
 	// connectors is what the current call was given from the person's
 	// connectors (P7-04, connectors.go).
 	connectors *turnConnectors
+	// media is what the turn's images decide about its route (P9-02,
+	// uploads.go).
+	media *turnMedia
 }
 
 const turnColumns = `id, chat_id, status, request_id, actor, input, model, user_message_id,

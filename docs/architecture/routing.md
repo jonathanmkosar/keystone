@@ -97,6 +97,8 @@ A chain also counts tokens with its first model's provider when that provider of
 
 The test tenant has no route. It always gets its recorded turns (decision [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md)).
 
+Since P9-02 a chat turn's images ask the route for vision through `Ask.Needs`: `planRoute` in `internal/turn/uploads.go` adds `vision` when the turn's message holds an image, or an earlier message does and the chat's model can see, and plans again without it when no model can take the call so. Nothing in this package changed ([uploads.md](uploads.md), decision [0382](decisions/0382-a-turns-image-asks-its-route-for-vision.md)).
+
 ## Settings
 
 In `settings/models.json`, with `chats.title_model` in `settings/chats.json`.
