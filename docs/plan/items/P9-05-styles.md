@@ -1,6 +1,6 @@
 # P9-05. Styles
 
-Status: doing (chats)
+Status: provisional
 Lane: chats
 Depends on: P5-01
 Owner gate: none
@@ -29,3 +29,15 @@ Branch `chats/p9-05-styles`, cut from `reboot` at 24c6273. Follows the shape of 
 **The proof.** `go test ./internal/styles` (the record, the built-ins, the rules) and `go test ./internal/turn` (`styles_test.go`) with the fake provider: a chosen style's instructions are in the standing start of the request the model gets, before the first cache point, and the record's `style` part is kept; the fake provider, scripted to answer by what the system text holds, answers one style as a bulleted list and another as a formal paragraph, so the reply's format changes with the style; changing the style changes the next call and keeps the call's start otherwise byte-identical; the default is kept by a chat's first turn; another tenant reaches no style and no chat's style. A standing check `styles` in `tools/verify/styles.go` proves the same on the real server with the shipped settings.
 
 **Left for later.** A handoff keeping its parent's style, the style's name in the inspector, a style on the project page's composer, and the styles mockup.
+
+### Result
+
+Provisional on the screens only: there is no styles mockup, and the workspace mockups (P1-06) are not approved, so the style picker and Settings → Styles are built from the tokens. Everything else in the plan is built and proven.
+
+- **Built:** the migration `20261125T235300_styles.sql`; `internal/styles` (a person's own styles, the built-in ones read from `styles.builtin`, a chat's style, the default kept by a chat's first turn, what a call carries), a guard of rule 1 in `fixed rules`; `internal/turn/styles.go` (eight routes, and the style part of each call); the screens (`StylePicker.tsx`, `StyleSettings.tsx`, `styleCalls.ts`, `style-presets.css`); the `styles` check in `verify`, which is 29 of 29.
+- **The proof**, with the fake provider, in `internal/turn/styles_test.go` and the `styles` check: a chosen style's instructions are the last block of the standing start of the request the model gets, before the first cache point, and the record's `style` part is kept with its tokens; with the model scripted to answer by what the system text holds, the reply is a sentence with no style, a bulleted list with the person's own style and a formal sentence with the shipped Formal; a chat that keeps its style sends the same start byte for byte, and changing the style changes nothing in the start before it; the default reaches new chats and a chat keeps it after the default changes; another tenant reaches no style and no chat's style; `internal/styles` reaches none of routing, the registry, recall, the tools or the approval rule.
+- **Decisions:** 0450 to 0452. **Settings:** `settings/styles.json`, six: `styles.builtin`, `styles.default`, `styles.heading`, `styles.max_styles`, `styles.name_max_chars`, `styles.instructions_max_chars`.
+- **Seen in a browser** on the server built from the branch, as the test tenant: a style picked on the new chat screen and kept by the chat, the inspector's Style part, a style made, made the default, renamed and deleted on Settings → Styles, a style picked in a chat. Light at desktop width and dark at phone width.
+- **Not done:** a handoff, task or scheduled run keeping its parent's style; the style's name in the inspector; a style on the project page's composer. `web/dist/` is not committed: it is rebuilt at the merge.
+
+Write-up: `docs/architecture/styles.md`, the journal entry `docs/journal/2026-11-25-chats-010.md`.
