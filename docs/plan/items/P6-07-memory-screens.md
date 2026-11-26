@@ -1,6 +1,6 @@
 # P6-07. Memory screens and incognito
 
-Status: doing (knowledge)
+Status: provisional
 Lane: knowledge + interface
 Depends on: P6-06
 Owner gate: Approval of the memory mockups (P1-06), for the screens only.
@@ -25,3 +25,13 @@ Branch `knowledge/p6-07-memory-screens`, cut from `reboot` at 798e627.
 7. **Proof**: tests on the test tenant with the built-in store, and a `memory screens` check in `verify`: a forgotten fact is gone from the store and from recall; an incognito chat leaves no messages, no memory source, no recap, and is not found by past-chat search.
 
 Left for later: forgetting a page (the interface has no page writes until P8-06); raising a Waymarks issue for a withdrawn source (it needs a token with the raise-issues grant, an owner question).
+
+### Result
+
+Provisional on the memory mockups (P1-06), for the screens only. The server side is complete and the proof passes on the test tenant with the built-in store: `verify` is 24 of 24 with the new `memory screens` check.
+
+- Built as planned: `RemoveSource` with the contract suite's `remove source` check; withdrawn sources through `knowledge.Open`; `memory.Apply` for correct and forget over the memory pass's ledger, with the profile following; `GET /memory`, `POST /memory/forget`, `POST /memory/correct`; `POST /chats/incognito`, `POST /chats/{id}/close` and the sweep; no recap and no past-chat search for an incognito chat; the Memory screen, the incognito switch and mark.
+- Decisions 0370 (a fact is changed by replacing its source; only the memory pass's own sources), 0371 (Waymarks: withdrawn in Keystone, kept facts back under the intake token, no issue yet), 0372 (incognito deleted when left or idle; its calls stay in the audit log).
+- Seen in a browser on a server of this branch: forget, correct, and an incognito chat deleted on leaving.
+- Not done: forgetting a page; a notice to Waymarks' agents for a withdrawn source; a real Waymarks.
+- Doc: [memory-screens.md](../../architecture/memory-screens.md). Journal: `docs/journal/2026-11-25-knowledge-007.md`.

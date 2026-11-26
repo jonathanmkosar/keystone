@@ -87,6 +87,11 @@ var componentDocs = map[string]string{
 	"internal/mcp":         "docs/architecture/connectors.md",
 	"internal/mcp/mcptest": "docs/architecture/connectors.md",
 	"internal/connectors":  "docs/architecture/connectors.md",
+
+	"internal/turn/memoryscreens.go":         "docs/architecture/memory-screens.md",
+	"internal/turn/incognito.go":             "docs/architecture/memory-screens.md",
+	"internal/knowledge/memory/forget.go":    "docs/architecture/memory-screens.md",
+	"internal/knowledge/memory/incognito.go": "docs/architecture/memory-screens.md",
 }
 
 var checks = []check{
