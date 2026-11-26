@@ -1,0 +1,18 @@
+{
+  "test_data": true,
+  "about": "Invented test data for the embeddings check in verify (P6-08), beside knowledge.json, whose pages it asks about. The questions share no word with the page that answers them, so the search by words misses them, and the fake embedding model finds them by meaning through the word groups below, which are all the language it knows. The held question is sent in a chat that was sent sensitive content, and its words must never reach a hosted embedding model.",
+  "meanings": [
+    ["apple", "orchard"],
+    ["pruned", "trim", "trimmed"],
+    ["chives", "herb"],
+    ["divided", "split"],
+    ["shed", "hut"],
+    ["felt", "covering"]
+  ],
+  "questions": [
+    { "ask": "When is the orchard trimmed?", "answer": "pruned in February" },
+    { "ask": "How often is the herb split?", "answer": "divided every third spring" },
+    { "ask": "Which covering suits the hut?", "answer": "new felt before winter" }
+  ],
+  "held": { "ask": "Should the evening routine change?", "word": "routine" }
+}

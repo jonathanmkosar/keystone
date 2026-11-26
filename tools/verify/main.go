@@ -93,6 +93,9 @@ var componentDocs = map[string]string{
 	"internal/turn/incognito.go":             "docs/architecture/memory-screens.md",
 	"internal/knowledge/memory/forget.go":    "docs/architecture/memory-screens.md",
 	"internal/knowledge/memory/incognito.go": "docs/architecture/memory-screens.md",
+
+	"internal/embedding":          "docs/architecture/embeddings.md",
+	"internal/turn/embeddings.go": "docs/architecture/embeddings.md",
 }
 
 var checks = []check{
@@ -122,6 +125,7 @@ var checks = []check{
 	{"uploads", checkUploads},
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
+	{"embeddings", checkEmbeddings},
 }
 
 func main() {

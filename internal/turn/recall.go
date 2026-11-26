@@ -102,6 +102,7 @@ func (r *Runner) searchKnowledge(ctx context.Context, s *tenant.Store, t row) *t
 		r.logf("turns: %s turn %s: recall: %v", t.requestID, t.ID, err)
 		return tr
 	}
+	o.Meaning = r.meaningFor(ctx, s, t, ks, name, o, timeout) // a query vector, so recall searches by meaning too (P6-08, embeddings.go)
 	sctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	found, err := recall.Find(sctx, ks, newestText(s, t), o)

@@ -122,6 +122,111 @@
       "description": "The relevance threshold for recall from Waymarks. A page or source that scores lower for your message is left out. The score is on Waymarks' own scale. With 0 everything the search finds may be recalled."
     },
     {
+      "key": "knowledge.recall_meaning",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether recall searches your knowledge store by meaning as well as by words. It does when you have an embedding model and the store takes a vector to search with. Off, or with neither, recall searches by words alone."
+    },
+    {
+      "key": "knowledge.recall_meaning_max_results",
+      "type": "int",
+      "default": "5",
+      "scope": "tenant",
+      "description": "The most pages a search by meaning finds for your message, which join what the search by words found, from 1 to 100."
+    },
+    {
+      "key": "knowledge.recall_meaning_min_score_built_in",
+      "type": "float",
+      "default": "0.3",
+      "scope": "tenant",
+      "description": "The relevance threshold for a page the built-in store finds by meaning. Its score is the cosine between the page's vector and your message's, from 0 to 1. A page that scores lower is left out."
+    },
+    {
+      "key": "knowledge.recall_meaning_min_score_waymarks",
+      "type": "float",
+      "default": "0",
+      "scope": "tenant",
+      "description": "The relevance threshold for a page Waymarks finds by meaning. Waymarks scores a search by vector by its place in the list, not by how near it is, so with 0 every page it finds by meaning may be recalled."
+    },
+    {
+      "key": "knowledge.recall_merge_words_weight",
+      "type": "float",
+      "default": "1",
+      "scope": "tenant",
+      "description": "How much a page's place in the search by words counts when it is merged with the search by meaning, from 0 to 100. With 0, the merged order is the meaning's."
+    },
+    {
+      "key": "knowledge.recall_merge_meaning_weight",
+      "type": "float",
+      "default": "1",
+      "scope": "tenant",
+      "description": "How much a page's place in the search by meaning counts when it is merged with the search by words, from 0 to 100. With 0, the merged order is the words'. Both cannot be 0."
+    },
+    {
+      "key": "knowledge.recall_merge_rank_constant",
+      "type": "float",
+      "default": "60",
+      "scope": "install",
+      "description": "The constant k in the merge of the two searches: a page scores weight / (k + its place) in each, summed. The larger it is, the less the first places count above the later ones, from 1 to 1000. 60 is what Waymarks' own hybrid search uses."
+    },
+    {
+      "key": "knowledge.embeddings",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether Keystone makes vectors of the pages in your knowledge store, in the background, so recall can search them by meaning. It does when you have an embedding model and the store takes vectors."
+    },
+    {
+      "key": "knowledge.embedding_batch_size",
+      "type": "int",
+      "default": "16",
+      "scope": "install",
+      "description": "How many pages go to the embedding model in one call, from 1 to 256."
+    },
+    {
+      "key": "knowledge.embedding_pages_per_refresh",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The most pages one refresh of a person's vectors sends to the embedding model, from 1 to 100000. The rest wait for the next refresh."
+    },
+    {
+      "key": "knowledge.embedding_list_max",
+      "type": "int",
+      "default": "1000",
+      "scope": "install",
+      "description": "The most pages a refresh asks the knowledge store to list as needing a vector, from 1 to 100000. It is larger than the pages per refresh, because pages in a sensitive space a hosted embedding model may not read are listed too and passed over."
+    },
+    {
+      "key": "knowledge.embedding_text_max_chars",
+      "type": "int",
+      "default": "8000",
+      "scope": "install",
+      "description": "The most characters of one page, its title and then its body, the embedding model is sent, from 100 to 1000000. A model whose window is smaller is sent less."
+    },
+    {
+      "key": "knowledge.embedding_reserve_usd",
+      "type": "float",
+      "default": "0.5",
+      "scope": "tenant",
+      "description": "The most making vectors may spend in a calendar month on embedding models that are not local, in US dollars: the refresh of your pages and the vector of each message recall searches with. It is a part of the monthly cap, not an addition to it. Zero keeps embeddings to local models."
+    },
+    {
+      "key": "knowledge.embedding_refresh_every",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "How often Keystone looks for pages whose vector is missing or stale, because the page changed or the embedding model did, and makes new ones, from 1m to 24h."
+    },
+    {
+      "key": "knowledge.embedding_timeout",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "How long one call to the embedding model may take in the background refresh, from 5s to 30m. The vector of a message is made inside recall's own time, knowledge.recall_timeout."
+    },
+    {
       "key": "knowledge.recall_ignore_words",
       "type": "string",
       "default": "a about after again all also am an and any are as at be because been before being but by can could did do does doing done for from get got had has have having he her here hers him his how i if in into is it its just like me more most my no not now of off on one only or other our out over own please said say she should so some such tell than that the their them then there these they this those to too under up us very was we were what when where which while who why will with would yes you your",

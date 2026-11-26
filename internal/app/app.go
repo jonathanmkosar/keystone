@@ -203,6 +203,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// that keep no record (P6-07).
 	all = append(all, turn.MemoryScreenRoutes(runner)...)
 	all = append(all, turn.IncognitoRoutes(runner)...)
+	// Embeddings: where a person's page vectors stand, and a refresh now (P6-08).
+	all = append(all, turn.EmbeddingRoutes(runner)...)
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, turn.RecapRoutes(runner)...)        // chat recaps (P5-05)
@@ -233,6 +235,9 @@ func Handler(c Config) (http.Handler, error) {
 	// Incognito chats that were left, or idle too long, are deleted now and
 	// from then on (P6-07).
 	c.runner.SweepIncognito()
+	// Page vectors that are missing or stale are made now and from then on
+	// (P6-08).
+	c.runner.SweepEmbeddings()
 	// Then a background task whose round the stop cut short goes on (P8-01).
 	c.jobs.Bind(c.runner)
 	c.jobs.Recover()

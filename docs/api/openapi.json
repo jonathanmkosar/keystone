@@ -8151,11 +8151,20 @@
                               "chars": {
                                 "type": "integer"
                               },
+                              "found_by": {
+                                "type": "string"
+                              },
                               "id": {
                                 "type": "string"
                               },
                               "kept": {
                                 "type": "boolean"
+                              },
+                              "meaning_score": {
+                                "type": "number"
+                              },
+                              "merged": {
+                                "type": "number"
                               },
                               "reason": {
                                 "type": "string"
@@ -8191,6 +8200,18 @@
                         },
                         "kept": {
                           "type": "integer"
+                        },
+                        "meaning_found": {
+                          "type": "integer"
+                        },
+                        "meaning_min_score": {
+                          "type": "number"
+                        },
+                        "meaning_model": {
+                          "type": "string"
+                        },
+                        "meaning_note": {
+                          "type": "string"
                         },
                         "min_score": {
                           "type": "number"
@@ -10273,6 +10294,300 @@
           }
         },
         "summary": "Start a Google sign-in with PKCE for Gmail, Calendar or both, and answer with Google's sign-in address. Google sends the browser back to the page at /settings/connectors/google, or to agents.google_redirect_url."
+      }
+    },
+    "/api/v1/knowledge/embeddings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adapter": {
+                      "type": "string"
+                    },
+                    "last": {
+                      "properties": {
+                        "Result": {
+                          "properties": {
+                            "embedded": {
+                              "type": "integer"
+                            },
+                            "failed": {
+                              "type": "integer"
+                            },
+                            "held": {
+                              "type": "integer"
+                            },
+                            "listed": {
+                              "type": "integer"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "stale": {
+                              "type": "integer"
+                            },
+                            "stopped": {
+                              "type": "string"
+                            },
+                            "vector_model": {
+                              "type": "string"
+                            },
+                            "waiting": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "model",
+                            "vector_model",
+                            "listed",
+                            "embedded",
+                            "held",
+                            "stale",
+                            "failed",
+                            "waiting"
+                          ],
+                          "type": "object"
+                        },
+                        "adapter": {
+                          "type": "string"
+                        },
+                        "at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "class": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "adapter",
+                        "at",
+                        "Result"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "properties": {
+                        "class": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "may_read_sensitive": {
+                          "type": "boolean"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "vector_model": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "label",
+                        "class",
+                        "vector_model",
+                        "may_read_sensitive"
+                      ],
+                      "type": "object"
+                    },
+                    "note": {
+                      "type": "string"
+                    },
+                    "on": {
+                      "type": "boolean"
+                    },
+                    "refreshed": {
+                      "type": "boolean"
+                    },
+                    "searches_by_meaning": {
+                      "type": "boolean"
+                    },
+                    "takes_vectors": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "adapter",
+                    "on",
+                    "takes_vectors",
+                    "searches_by_meaning",
+                    "refreshed",
+                    "note"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Where the person's page vectors stand: the knowledge store, the embedding model and its class, whether recall searches by meaning, and the last refresh, with how many pages in a sensitive space were left without a vector because the model is not local or trusted."
+      }
+    },
+    "/api/v1/knowledge/embeddings/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "adapter": {
+                      "type": "string"
+                    },
+                    "last": {
+                      "properties": {
+                        "Result": {
+                          "properties": {
+                            "embedded": {
+                              "type": "integer"
+                            },
+                            "failed": {
+                              "type": "integer"
+                            },
+                            "held": {
+                              "type": "integer"
+                            },
+                            "listed": {
+                              "type": "integer"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "stale": {
+                              "type": "integer"
+                            },
+                            "stopped": {
+                              "type": "string"
+                            },
+                            "vector_model": {
+                              "type": "string"
+                            },
+                            "waiting": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "model",
+                            "vector_model",
+                            "listed",
+                            "embedded",
+                            "held",
+                            "stale",
+                            "failed",
+                            "waiting"
+                          ],
+                          "type": "object"
+                        },
+                        "adapter": {
+                          "type": "string"
+                        },
+                        "at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "class": {
+                          "type": "string"
+                        },
+                        "note": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "adapter",
+                        "at",
+                        "Result"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "properties": {
+                        "class": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "may_read_sensitive": {
+                          "type": "boolean"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "vector_model": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "label",
+                        "class",
+                        "vector_model",
+                        "may_read_sensitive"
+                      ],
+                      "type": "object"
+                    },
+                    "note": {
+                      "type": "string"
+                    },
+                    "on": {
+                      "type": "boolean"
+                    },
+                    "refreshed": {
+                      "type": "boolean"
+                    },
+                    "searches_by_meaning": {
+                      "type": "boolean"
+                    },
+                    "takes_vectors": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "adapter",
+                    "on",
+                    "takes_vectors",
+                    "searches_by_meaning",
+                    "refreshed",
+                    "note"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Refresh the person's page vectors now, as the background refresh does: the pages with no vector of the embedding model's, or a stale one, get one, a page in a sensitive space only from a local or trusted model. It takes no body."
       }
     },
     "/api/v1/memory": {
