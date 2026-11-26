@@ -1,6 +1,6 @@
 # P6-08. Embeddings
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge + models
 Depends on: P3-02, P6-03, P6-05
 Owner gate: none

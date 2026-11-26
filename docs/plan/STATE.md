@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-05 unattended spend and the pause switch (agents), P9-01 projects (chats), P9-02 uploads (interface). Gmail and Calendar are built and wait on the owner's Google OAuth client (`docs/runbooks/google.md`). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-05 unattended spend and the pause switch (agents), P9-01 projects (chats), P6-08 embeddings (knowledge, built on the Waymarks adapter, whose only open part is the live check), P9-02 uploads (interface). Gmail and Calendar are built and wait on the owner's Google OAuth client (`docs/runbooks/google.md`). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -12,7 +12,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | core | nothing | scheduled backups once the owner answers; P13-01 to P13-03 drills, held |
 | models | nothing | P6-08 with knowledge, after P6-05 |
 | chats | P9-01 projects | P9-05 styles, P12-03 import |
-| knowledge | P6-07 memory screens and incognito | P12-01 Waymarks cutover (needs the owner), P6-08 |
+| knowledge | P6-08 embeddings | P12-01 Waymarks cutover (needs the owner and P8-06) |
 | agents | P8-05 unattended spend and the pause switch | P7-05 skills, P8-02 sub-agents, the morning brief as a schedule |
 | interface | P9-02 uploads | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
@@ -26,6 +26,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | P8-05 unattended spend and the pause switch | agents | `agents/p8-05-unattended-spend` |
 | P9-01 projects | chats | `chats/p9-01-projects` |
 | P9-02 uploads | interface | `interface/p9-02-uploads` |
+| P6-08 embeddings | knowledge | `knowledge/p6-08-embeddings` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
