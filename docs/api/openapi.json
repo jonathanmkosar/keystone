@@ -1399,6 +1399,428 @@
         "summary": "Rename a chat, star it or clear its star."
       }
     },
+    "/api/v1/chats/{id}/attached": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "attached": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "parent": {
+                            "type": "boolean"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "parent",
+                          "sensitive",
+                          "incognito",
+                          "added"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "handoffs": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "max": {
+                      "type": "integer"
+                    },
+                    "parent": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "attached",
+                    "handoffs",
+                    "max",
+                    "incognito"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The chats attached to the chat, with their summaries: the chat it continues from first, then the rest. Also the chats handed off from it."
+      }
+    },
+    "/api/v1/chats/{id}/attached/{other}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "other",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "attached": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "parent": {
+                            "type": "boolean"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "parent",
+                          "sensitive",
+                          "incognito",
+                          "added"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "handoffs": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "max": {
+                      "type": "integer"
+                    },
+                    "parent": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "attached",
+                    "handoffs",
+                    "max",
+                    "incognito"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Take an attached chat off the chat. The chat it continues from stays. Taking off a chat that is not attached changes nothing."
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "other",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "attached": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "parent": {
+                            "type": "boolean"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "parent",
+                          "sensitive",
+                          "incognito",
+                          "added"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "handoffs": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "incognito": {
+                      "type": "boolean"
+                    },
+                    "max": {
+                      "type": "integer"
+                    },
+                    "parent": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat_id",
+                    "attached",
+                    "handoffs",
+                    "max",
+                    "incognito"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Attach another of the person's chats to the chat. Each call of the chat then carries its summary, and the model can open the rest of it. It takes no body. Attaching a chat twice changes nothing. An incognito chat is refused on either side (409 incognito), and so is one past chats.attach_max (409 too_many)."
+      }
+    },
     "/api/v1/chats/{id}/connectors": {
       "get": {
         "parameters": [
@@ -1581,6 +2003,476 @@
           }
         },
         "summary": "Switch one connector on or off in one chat. A connector that is off in Settings stays off."
+      }
+    },
+    "/api/v1/chats/{id}/handoff": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "chat": {
+                      "properties": {
+                        "chat": {
+                          "properties": {
+                            "active": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "busy": {
+                              "type": "boolean"
+                            },
+                            "created": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "starred": {
+                              "type": "boolean"
+                            },
+                            "summary": {
+                              "type": "string"
+                            },
+                            "title": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "title",
+                            "starred",
+                            "created",
+                            "active",
+                            "busy"
+                          ],
+                          "type": "object"
+                        },
+                        "messages": {
+                          "items": {
+                            "properties": {
+                              "blocks": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {},
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "cost_micros": {
+                                "type": "integer"
+                              },
+                              "created": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "integer"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "parent_id": {
+                                "type": "integer"
+                              },
+                              "role": {
+                                "type": "string"
+                              },
+                              "siblings": {
+                                "items": {
+                                  "type": "integer"
+                                },
+                                "type": "array"
+                              },
+                              "stop_reason": {
+                                "type": "string"
+                              },
+                              "turn_id": {
+                                "type": "string"
+                              },
+                              "usage": {
+                                "properties": {
+                                  "cache_read_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "cache_write_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "estimated": {
+                                    "type": "boolean"
+                                  },
+                                  "input_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "output_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "thinking_tokens": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "input_tokens",
+                                  "output_tokens"
+                                ],
+                                "type": "object"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "chat_id",
+                              "role",
+                              "blocks",
+                              "created",
+                              "siblings"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "model": {
+                          "properties": {
+                            "model": {
+                              "properties": {
+                                "capabilities": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "class": {
+                                  "type": "string"
+                                },
+                                "context_window": {
+                                  "type": "integer"
+                                },
+                                "label": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "output_limit": {
+                                  "type": "integer"
+                                },
+                                "test": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "label",
+                                "class",
+                                "capabilities",
+                                "context_window",
+                                "output_limit",
+                                "test"
+                              ],
+                              "type": "object"
+                            },
+                            "models": {
+                              "items": {
+                                "properties": {
+                                  "capabilities": {
+                                    "items": {
+                                      "type": "string"
+                                    },
+                                    "type": "array"
+                                  },
+                                  "class": {
+                                    "type": "string"
+                                  },
+                                  "context_window": {
+                                    "type": "integer"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "output_limit": {
+                                    "type": "integer"
+                                  },
+                                  "test": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "label",
+                                  "class",
+                                  "capabilities",
+                                  "context_window",
+                                  "output_limit",
+                                  "test"
+                                ],
+                                "type": "object"
+                              },
+                              "type": "array"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "source": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "source",
+                            "models"
+                          ],
+                          "type": "object"
+                        },
+                        "turns": {
+                          "items": {
+                            "properties": {
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "cost_micros": {
+                                "type": "integer"
+                              },
+                              "created": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "properties": {
+                                  "code": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  },
+                                  "retryable": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "code",
+                                  "message",
+                                  "retryable"
+                                ],
+                                "type": "object"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "last_event_id": {
+                                "type": "integer"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "reply_message_id": {
+                                "type": "integer"
+                              },
+                              "started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "stop_reason": {
+                                "type": "string"
+                              },
+                              "usage": {
+                                "properties": {
+                                  "cache_read_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "cache_write_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "estimated": {
+                                    "type": "boolean"
+                                  },
+                                  "input_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "output_tokens": {
+                                    "type": "integer"
+                                  },
+                                  "thinking_tokens": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "input_tokens",
+                                  "output_tokens"
+                                ],
+                                "type": "object"
+                              },
+                              "user_message_id": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "chat_id",
+                              "status",
+                              "usage",
+                              "cost_micros",
+                              "created",
+                              "last_event_id"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "chat",
+                        "messages",
+                        "model",
+                        "turns"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "parent": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "title",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "chat",
+                    "parent"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Hand the chat off: make a fresh chat that continues from it, with this one attached, so each of its calls carries this chat's summary and the model can open the rest. It takes no body. An incognito chat is refused (409 incognito), and so is a chat with no messages."
       }
     },
     "/api/v1/chats/{id}/incognito": {

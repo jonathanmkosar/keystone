@@ -12,6 +12,7 @@ This is Test Person One, the tenant `rebuild` loads so a fresh checkout has some
 | `cases/` | Use cases and their expected results, which the `test tenant` check in `verify` runs. |
 | `knowledge/` | Invented pages and sources in two ordinary spaces and a sensitive one, with the questions the `recall` and `sensitive content` checks ask (`knowledge.json`), and the messages and facts the `memory pass` check expects (`memory.json`). The checks load it themselves; the loader does not read this folder and the binary does not embed it. |
 | `past-chats.json` | What the `past chats` check expects (P5-05): the recaps the recorded turns give three of the chats, the questions about earlier chats and what the search and the reply must hold, and the chat held for sensitive content. The loader does not read it and the binary does not embed it. |
+| `attached-chats.json` | What the `attached chats` check expects (P5-06): the question a chat handed off from the lighthouse walk answers from its summary, and the question a chat that attaches it answers through `open_attached_chat`. The recorded turns for both are in `turns/attached-chats.json`. The loader does not read it and the binary does not embed it. |
 | `fixture.go` | Compiles this folder into the binary. |
 
 ## Adding a chat

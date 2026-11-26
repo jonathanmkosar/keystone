@@ -179,6 +179,7 @@ func (r *Runner) resumeStep(ctx context.Context, s *tenant.Store, t *row, m mode
 		return at.step, at.messageID, false, &TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."}, false
 	}
 	r.lookupTools(ctx, s, *t, p, m, r.offered(ctx, s, m))
+	r.attachedTools(ctx, s, *t, p, m, nil)    // and open_attached_chat (P5-06, attach.go)
 	r.connectorTools(ctx, s, *t, m, nil, nil) // and the connectors' tools (P7-04)
 	calls := seam.ToolCalls(seam.Message{Role: msg.Role, Blocks: msg.Blocks})
 	tail, again, failure, stopped = r.toolStep(ctx, s, *t, at.step, at.messageID, calls, say)

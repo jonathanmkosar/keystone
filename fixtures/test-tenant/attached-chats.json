@@ -1,0 +1,16 @@
+{
+  "test_data": true,
+  "about": "Invented expectations for the attached chats check in verify (P5-06). The questions are answered by the recorded turns in turns/attached-chats.json: the handoff's needs the summary of the chat it continues from in the call, which turns/recaps.json gives it; the attached chat's calls open_attached_chat. The held chat is the one of past-chats.json. The loader does not read this file and the binary does not embed it.",
+  "handoff": {
+    "chat": "Planning the lighthouse walk",
+    "ask": "What did we settle in the chat this one continues from?",
+    "call_contains": ["continues from an earlier chat", "Walk to the old lighthouse on Saturday."],
+    "reply_contains": ["walking to the old lighthouse on Saturday"]
+  },
+  "attached": {
+    "chat": "Planning the lighthouse walk",
+    "ask": "Where does the phone signal drop on the way to the lighthouse?",
+    "result_contains": ["the signal drops after the second gate", "Page 1 of 1"],
+    "reply_contains": ["second gate"]
+  }
+}
