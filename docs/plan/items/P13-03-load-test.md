@@ -1,6 +1,6 @@
 # P13-03. Load test
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P11-03
 Owner gate: none

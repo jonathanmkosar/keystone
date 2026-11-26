@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { AttachButton, AttachChips, useAttachments } from "./Attachments";
+import { DictationButton, DictationStatus, useDictation } from "./DictationControls";
 import { Icon } from "./Icon";
 
 /**
@@ -36,6 +37,7 @@ export function Composer({
   const [text, setText] = useState(initial);
   const area = useRef<HTMLTextAreaElement>(null);
   const attach = useAttachments(); // the files that go with the message (P9-02, Attachments.tsx)
+  const dictation = useDictation(area, text, setText); // speech into the box, never sent by itself (P10-01, DictationControls.tsx)
 
   // The box grows with what is typed, up to the limit the stylesheet sets.
   // The height is set through the element, which the content security policy
@@ -54,6 +56,9 @@ export function Composer({
   const ready = (text.trim() !== "" || attach.files.length > 0) && !busy;
 
   function send() {
+    // While dictation listens, Send and Enter finish the transcript for the
+    // person to review, and nothing is sent (P10-01).
+    if (dictation.holdsSend()) return;
     if (!ready) return;
     onSend(text.trim(), attach.files);
     setText("");
@@ -66,6 +71,10 @@ export function Composer({
   }
 
   function keyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Escape" && dictation.escape()) {
+      e.preventDefault(); // Escape stops dictation (P10-01)
+      return;
+    }
     // Enter while a word is being composed, as in Japanese, picks the word.
     if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
     e.preventDefault();
@@ -88,10 +97,12 @@ export function Composer({
         onChange={(e) => setText(e.target.value)}
         onKeyDown={keyDown}
       />
+      <DictationStatus dictation={dictation} />
       <div className="composer-row">
         <AttachButton attach={attach} />
         <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
         {beside}
+        <DictationButton dictation={dictation} />
         {busy ? (
           <button type="button" className="send-button is-stop" aria-label="Stop the reply" title="Stop" disabled={stopping || !onStop} onClick={onStop}>
             <Icon name="stop" />

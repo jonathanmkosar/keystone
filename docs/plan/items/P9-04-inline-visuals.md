@@ -1,6 +1,6 @@
 # P9-04. Inline visuals
 
-Status: todo
+Status: doing (interface)
 Lane: interface
 Depends on: P9-03
 Owner gate: Approval of the workspace mockups (P1-06).

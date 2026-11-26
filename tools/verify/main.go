@@ -137,6 +137,7 @@ var checks = []check{
 	{"isolation drill", checkIsolationDrill},
 	{"share", checkShare},
 	{"sub-agents", checkSubagents},
+	{"dictation", checkDictation},
 }
 
 func main() {

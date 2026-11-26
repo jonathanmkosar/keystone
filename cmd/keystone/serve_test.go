@@ -28,6 +28,21 @@ func TestHandlerServesTheEmbeddedPage(t *testing.T) {
 	}
 }
 
+// Dictation (P10-01) needs the microphone on Keystone's own pages and on no
+// other origin's, and the content security policy stays as it was.
+func TestHandlerAllowsTheMicrophoneToItsOwnOriginOnly(t *testing.T) {
+	for _, p := range []string{"/", "/chats/abc123", "/keystone.css", "/api/v1/nothing"} {
+		rec := httptest.NewRecorder()
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, p, nil))
+		if got := rec.Header().Get("Permissions-Policy"); got != "microphone=(self)" {
+			t.Errorf("GET %s: Permissions-Policy %q, want microphone=(self)", p, got)
+		}
+		if got := rec.Header().Get("Content-Security-Policy"); got != "default-src 'self'" {
+			t.Errorf("GET %s: Content-Security-Policy %q, want default-src 'self'", p, got)
+		}
+	}
+}
+
 func TestHandlerServesThePageFiles(t *testing.T) {
 	for path, want := range map[string]string{"/keystone.css": "text/css", "/mark.svg": "image/svg+xml"} {
 		rec := httptest.NewRecorder()

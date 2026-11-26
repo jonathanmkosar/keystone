@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && vite build -c vite.sandbox.config.ts --mode react && vite build -c vite.sandbox.config.ts --mode mermaid",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test test/dictation.test.ts"
   },
   "dependencies": {
     "mermaid": "^12.3.0",
