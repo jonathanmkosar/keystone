@@ -31,6 +31,7 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `routing` | models | Which models a call may go to: task rules, the privacy filter and the fallback chain |
 | `usage` | models | A record for each model call, a month's sums, and the monthly spend cap |
 | `usagereport` | core | A period's usage records summed by model, by chat and by kind of work against the cap, and its route |
+| `operations` | core | Operations and Monitor: tasks, schedules, model health, recent traces and limits with their trends, the snapshots behind them and the sampler, and its two routes |
 | `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |
 | `tools` | agents | The tool registry and the one place a tool runs; `tools/approval`, the test for fixed rule 2; `tools/builtin`, the tools that come with Keystone |
 | `tools/web` | agents | `web_search` with Tavily and `web_fetch` of public pages, numbered sources, and results marked as outside content |

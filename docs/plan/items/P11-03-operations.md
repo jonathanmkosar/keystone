@@ -1,6 +1,6 @@
 # P11-03. Operations and Monitor
 
-Status: doing (core)
+Status: provisional
 Lane: core + interface
 Depends on: P8-01, P4-01
 Owner gate: Approval of the settings mockups (P1-07), for the screens only.
@@ -34,4 +34,15 @@ Built by the core lane on the branch `core/p11-03-operations`, cut from `reboot`
 **The proof**, as tests in `internal/operations`: generated snapshots over a week give each limit its share used and a trend with growth and a fill date; a crossed watch level is in `Watch` and in `GET /api/v1/operations/watch`; the cap equals `usagereport.Read`'s; model health counts and medians equal the records; a trace's tokens and cost equal its usage records; no key placed in an error reaches a reply; another tenant sees none of it. A `verify` check, `operations`, in a new file: the real server with the test tenant, generated snapshots and a lowered room, every limit with a share and a trend, the crossed one on the watch route, the cap equal to the usage report's, and a second tenant's report empty of the first's. A browser check signs in as the test tenant on a server of this branch and sees the notice on the home screen.
 
 Left for later: an install-wide view for an admin (there is no admin role); retry and reconnect buttons on the rows that need attention; past-chat search time as a limit (no timing is recorded yet).
+
+### Result (core lane, November 26, 2026)
+
+Provisional on the settings mockups (P1-07) for the screens; the server side is complete and proven.
+
+- Built as planned: `internal/operations` (`Read`, `Watch`, `Limits`, `Sample`, `SampleDue`, `Start`, `Keep`, `Snapshots`, `Newest`, `ReadSettings`, `ReadConfig`, `Routes`), `jobs.List` and `jobs.Tally` in a new `internal/jobs/list.go`, migration `20261126T001900_operations.sql` (`operations_snapshots`), the routes `GET /api/v1/operations` and `GET /api/v1/operations/watch`, the sampler started by `internal/app` under the turn runner, seventeen settings in `settings/core.json`, the Operations page at `/operations` (sidebar and a Settings tab) and the notice on the home screen. Decisions 0460 to 0463.
+- One change from the plan: a task's spend on Operations is summed from its usage records, as its budget's gate sums it, not read from the task's row, which the browser check showed can lag (decision 0462).
+- The proof: `TestEachLimitHasItsShareAndTrend` (a week of generated snapshots; each of six limits has its share, watch level, and a trend whose rate, fill date and month-end figure match the snapshots) and `TestACrossedWatchLevelIsWatched` with `TestTheRoutes` (a crossed watch level is in `Watch` and on `GET /api/v1/operations/watch`, and another person's is not), with the standing check `operations` on the real server. `verify` is 31 of 31.
+- The home screen's notice was seen in the browser pane against a stand-in that answered the two routes from the real functions on the test tenant's folder; signing in to the real server to look was left to a person (see the journal).
+- `web/dist/` is not committed: the integrator rebuilds it at the merge.
+- See `docs/journal/2026-11-26-core-012.md` and `docs/architecture/operations.md`.
 

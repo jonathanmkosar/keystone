@@ -138,6 +138,7 @@ In `settings/agents.json`.
 - **Sub-agents** (P8-02). The kind, `agents.subagent_budget_usd` and the registry are the seam; nothing registers a sub-agent, and the switch pauses one when P8-02 reads it in its loop.
 - **A budget for a month of a schedule's runs.** The budget is each run's.
 - **A list of every task and run**, across chats, with the switch, on Operations (P11-03).
+  - Built in P11-03 ([operations.md](operations.md)): the page draws the switch, lists every task and run by state, and shows the budget of each run under way as a limit, its spend summed from its usage records as the gate sums it, with a watch level, `operations.watch_run_budget_percent`.
 - **The memory pass, recaps and compaction are not paused.** They are part of a chat, not agents. Their spend has the memory reserve and the cap.
 - **A paused round's spend.** A call cut short is recorded with no tokens and no cost, as any stopped call is ([usage.md](usage.md)).
 - **Two calls at once** can each pass a budget's check and together spend more than it by one call's cost, as at the cap.

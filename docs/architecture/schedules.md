@@ -187,6 +187,7 @@ A run is a background task, so `agents.task_budget_usd` is each run's budget, an
   - Built in P8-05 ([unattended-spend.md](unattended-spend.md)): each run's budget is the schedule's own (`budget_usd` on `ScheduleBody` and `Schedule`, and `run_budget_micros`, the one in force), or the person's `agents.schedule_budget_usd`, no longer `agents.task_budget_usd`; a run is registered as a scheduled run, so its refusals say so. The budget is each run's, not a month's.
 - **A schedule a model makes** with a tool. A person makes them on the screen or through the routes.
 - **Runs on Operations** (P11-03), across schedules.
+  - Built in P11-03 ([operations.md](operations.md)): Operations lists each schedule with its next due time and its newest run, through `Scheduler.List`, and each scheduled run among the background tasks, with its budget as a limit while it runs.
 - **A step-by-step run panel** as in the mockup: the run's chat has its steps, and the inspector its tokens.
 - **Retrying a run that failed** for a provider's failure. A person can run it now.
 - A chat made for a run, and the server stopped before the run noted it, is made again at the next start; the first stays, empty.

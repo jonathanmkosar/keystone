@@ -47,6 +47,7 @@ Addresses are real paths (decision [0071](decisions/0071-client-side-routes-are-
 | `/chats/<id>` | One chat. |
 | `/signin` | Goes to `/` when signed in. Signed out, every path shows sign-in and keeps its address. |
 | `/search`, `/projects`, `/artifacts`, `/agents`, `/scheduled` | A placeholder saying the screen is not built yet. |
+| `/operations` | Operations and Monitor (P11-03): see its section below. |
 | anything else | Page not found, with a link back to the start. |
 
 ### The frame
@@ -443,6 +444,21 @@ Its calls, all in `src/api.ts`:
 The delete button of the project's confirmation sets its colours itself (`.project-danger`), because `scheduled.css` and `chat.css` both define `.button-danger` and the later one leaves the button's text the colour of its ground; the chat's own Delete confirmation shows the same fault.
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7962 with a data folder inside the worktree (removed afterwards), as the test tenant: a project made from the form, two text files added, a chat started from the project's page whose turn inspector showed the project part and the files sent with the attachments, the copper chip in its header, an older chat moved in from its chip and taken out again, a file marked sensitive, and the project deleted with its chat kept and its files gone from `files/`. In dark at desktop width and in light at phone width, where the chip was made its icon alone after it crowded the header. The only console error was the session check before sign-in. Not seen: the archived state, renaming from the page, the memory space form, and a refused file.
+
+## Operations and Monitor (P11-03)
+
+The Operations page and the home screen's notice. The server's side is [operations.md](operations.md). There is no settings mockup (P1-07), so the page is drawn from `design/screens/Operations.html` and the notice after the "Running now" strip of `Home.html`, with the tokens, and both are provisional (decision [0463](decisions/0463-operations-is-a-page-of-its-own-and-the-home-notice-reads-the-watch-route.md)).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The page | `src/Operations.tsx`, `src/operations.css` | `/operations`: a header with **Read again**, the switch that pauses every agent, four tiles (running now, failed in the window, model calls, spend this month with its bar and "at this rate, … by the end of the month"), **Needs attention** (each crossed limit, stuck or failed task, failing model and failed schedule, with where to look), **Room to grow** (each limit with its use, a bar with a tick at its watch level, a line of its trend, its growth a day, when it fills, and a pill; then the budgets of runs under way), **Models**, **Background tasks and runs**, **Schedules** and **Recent traces**, each trace's title opening its chat with the turn inspector on its turn (`openInspector`, then the chat's address). It reads the report again every minute while the tab is shown. Tables wider than a phone scroll inside their card. |
+| The notice | `src/OperationsNotice.tsx` | On the home screen, under the composer: "Running out of room", a sentence for each limit at or past its watch level, and **See Operations**. Read once when the home screen opens; nothing is drawn when no limit is crossed or the server cannot say. |
+| The calls | `src/operationsCalls.ts` | `readOperations` (`GET /api/v1/operations`) and `readWatch` (`GET /api/v1/operations/watch`), their types, and the words for amounts and sizes. Kept apart from `api.ts`. |
+| The way in | `src/App.tsx`, `src/Shell.tsx`, `src/Settings.tsx`, `src/Chat.tsx`, `src/Icon.tsx` | A line each, with an import where needed: the `/operations` route; Operations in the sidebar after Memory; a Settings tab that goes to it; the notice in the new chat screen; and the `operations` icon, the pulse of the mockup's sidebar. |
+
+Bars and trend lines are inline SVG whose sizes are attributes, coloured by classes that read the tokens (`--ok`, `--accent`, `--err` on `--sunk`), so the page has no `style` attribute and no chart library (decision [0432](decisions/0432-the-usage-bars-are-inline-svg.md)).
+
+Seen in a browser on November 26, 2026, in the browser pane, against a stand-in on port 7942 that served the page built from this branch and answered the session and the two Operations routes from `operations.Read` and `operations.Watch` on the test tenant's data folder (inside the worktree, removed afterwards), with a week of generated snapshots, invented turns, a running task at 82% of its budget, and the test tenant's own disk watch level set to 1%: the notice on the home screen naming the disk and the task, **See Operations** opening the page with every section filled, the Settings tab going to `/operations`, in light at desktop width and in dark at phone width with no page that scrolls sideways (a hidden header word that escaped its scrolling card was fixed). The only console errors were the stand-in's 404s for routes it does not serve. The real server built from this branch was started on port 7941 with the same folder and answered 401 to both routes with no session; signing in to it was left to a person, so the page has not been seen against the real server, and a trace's link has not opened the inspector.
 
 ## The API it calls
 

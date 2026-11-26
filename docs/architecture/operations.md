@@ -28,7 +28,9 @@ w, err := operations.Watch(ctx, store, registry, time.Now())
 | `Routes(Options)` | The two routes. `Options` holds the scheduler's `List`, the log and a clock. |
 | `Report`, `JobsPart`, `TaskLine`, `SchedulesPart`, `ScheduleLine`, `RunLine`, `ModelsPart`, `ModelHealth`, `CallError`, `Trace`, `ToolStep`, `Limit`, `Trend`, `Point`, `Snapshot`, `WatchReply` | The shapes, below. |
 
-The package imports the jobs, schedules, unattended runs, usage records, usage report, model registry, audit log, tenant store, tenant settings and the API shell. It enforces no fixed rule, so it may read settings. A person reaches only their own tenant because each route acts on the store the shell hands it (fixed rule 1).
+The package imports the jobs, schedules, unattended runs, usage records, usage report, model registry, audit log, tenant store, tenant settings and the API shell. It enforces no fixed rule, so it may read settings. A person reaches only their own tenant because each route acts on the store the shell hands it (fixed rule 1). It writes only its own snapshots: the usage records and the audit log are read and never changed, so call recording (fixed rule 4) is as it was. How it reads each part, and why it keeps no count of its own, is decision [0462](decisions/0462-operations-reads-each-part-and-sums-nothing-a-second-way.md).
+
+**For the drills** (P13-02, P13-03): `Limits` and `Watch` say where a tenant stands at any moment, `Sample` records it, and `Keep` and `Snapshots` write and read a limit's past, so a load test can watch the database grow and a tenant isolation drill can call both routes with another person's session.
 
 ## Jobs
 
@@ -43,7 +45,7 @@ The package imports the jobs, schedules, unattended runs, usage records, usage r
 | `stuck`, `stuck_after` | Open tasks, not paused and not waiting for the person, whose current round began longer ago than `operations.stuck_after`. |
 | `failed`, `failed_count` | Tasks that failed within `operations.health_window`, newest first. |
 
-A `TaskLine` is a task's id, title, `scheduled`, status, waiting, progress, its two chats and round's turn, rounds and steps, budget and spend, its error's words (through `audit.Scrub`), and its times.
+A `TaskLine` is a task's id, title, `scheduled`, status, waiting, progress, its two chats and round's turn, rounds and steps, budget and spend, its error's words (through `audit.Scrub`), and its times. Its spend is summed from the usage records of its request id (`unattended.Spent`), as its budget's gate sums it, not read from the task's row (decision [0462](decisions/0462-operations-reads-each-part-and-sums-nothing-a-second-way.md)).
 
 The list comes from `jobs.List` and `jobs.Tally`, new in `internal/jobs/list.go`: a task across every chat, read through the package's own `scanJob`, so a task the pause switch holds reads as paused here as it does on the task routes; `List` adds the task's request id, whether a schedule run started it, and when its current round began.
 
@@ -150,6 +152,15 @@ In `settings/core.json`. A value outside its bounds is taken as the nearest boun
 
 The cap's watch level is `usage.cap_warn_percent` ([usage.md](usage.md)). The person's settings have controls on Settings → General, drawn from the registry like every other ([settings-screens.md](settings-screens.md)). `app.ReadConfig` reads the two install settings of the sampler through `operations.ReadConfig`.
 
+## The screens
+
+Provisional on the settings mockups (P1-07), which do not exist yet (decision [0463](decisions/0463-operations-is-a-page-of-its-own-and-the-home-notice-reads-the-watch-route.md)); [web.md](web.md) has the parts and what was seen in a browser.
+
+- **The page**, `/operations`, in the sidebar after Memory and on a Settings tab, drawn from `design/screens/Operations.html` with the tokens: a header with **Read again**; the switch that pauses every agent ([unattended-spend.md](unattended-spend.md)); four tiles (running now, failed in the window, model calls, and spend this month with its bar and what the rate reaches by the end of the month); **Needs attention**, a row for each crossed limit, stuck or failed task, failing model and schedule whose last run failed, each with where to look; **Room to grow**, each limit with its use and share, a bar with a tick at its watch level, a line of its trend, its growth a day, when it fills, and a pill (Fine, Watch, Full, Not known), then the budgets of runs under way; **Models**; **Background tasks and runs**; **Schedules**; and **Recent traces**, each opening its chat with the turn inspector on its turn. It reads the report again every minute while shown.
+- **The notice** on the home screen, under the composer, after the "Running now" strip of `Home.html`: "Running out of room", a sentence for each crossed limit, and **See Operations**. Nothing when no limit is crossed.
+
+Bars and trend lines are inline SVG from the tokens, with no `style` attribute and no chart library (decision [0432](decisions/0432-the-usage-bars-are-inline-svg.md)).
+
 ## Checked by
 
 `go test ./internal/operations`.
@@ -158,7 +169,7 @@ The cap's watch level is `usage.cap_warn_percent` ([usage.md](usage.md)). The pe
 - The item's proof, second half, in the package, `TestACrossedWatchLevelIsWatched`: with a megabyte of room for files, 900 KB is watched at 87%, not at a level the person raised to 90, and 1.1 MB is full whatever the level; `TestTheRoutes`: the watch route the home screen reads has the cap at 90% for a person who spent $4.50 of $5, and nothing for another.
 - `TestTheCapIsTheUsageReports`: the cap's spend, limit and level are `usagereport.Read`'s; at 82% it is watched, past its limit full, and a cap that does not read is crossed.
 - `TestModelHealth`: calls by outcome, the median of the calls sent, the cost, the state of each kind (errors, failing, refused, idle), a model that left the registry, `where` with the host only, and a last error whose invented key is scrubbed.
-- `TestJobsAndRunBudgets`: counts by state with paused and waiting, the newest, a stuck task and not a fresh, paused or waiting one, the failed within the window with its key scrubbed; each open task's budget a limit, one at 85% watched, with a trend from its usage records.
+- `TestJobsAndRunBudgets`: counts by state with paused and waiting, the newest, a stuck task and not a fresh, paused or waiting one, the failed within the window with its key scrubbed, a task's spend from its usage records and not its row; each open task's budget a limit, one at 85% watched, with a trend from its usage records. `jobs.List` and `jobs.Tally` are checked here, on rows written as the task runner writes them.
 - `TestTraces`: three traces newest first (a task's rounds and note as one, a failed turn, a chat turn with tool steps), the inspector's chat and turn, models, calls, errors, refusals, tool steps in order, tokens and cost equal to the usage records, no key and nothing of another person's, and as many as the setting says.
 - `TestSampleDue`, `TestTrend`, `TestSettingsAreHeldToTheirBounds`, and `TestTheRoutes`: each person sees their own report, the route's limits are `Read`'s, no key in either reply, and no session is refused.
 
@@ -173,3 +184,9 @@ In `verify`: the standing check `operations`, in `tools/verify/operations.go`. O
 - **Past-chat search time and first words** as in the mockup: neither is recorded yet.
 - **Turns by hour** and **cache hits** as in the mockup: both could be summed from the usage records.
 - **A limit for the audit log's size alone.** It is part of the database, which is a limit.
+
+## Provisional
+
+- **The owner gate.** The page and the notice wait on the settings mockups (P1-07); there is no settings mockup. The page follows the draft `Operations.html` (in the first round's colours) for its tiles, needs-attention table, models table and room-to-grow table; the tasks, schedules and traces tables, the words and the order were chosen without a mockup. The notice follows nothing but the "Running now" strip of `Home.html`.
+- **Not seen against the real server.** The screens type-check and build, and were seen in the browser pane against a stand-in that answered the two routes from the real functions on the test tenant's folder; the real server answered both routes. Signing in to the real server to look was left to a person: see the journal, core 012.
+- **The rooms** (2 GB for a database, 20 GB for files, 5 GB for artifacts) are guesses until the load test measures them.
