@@ -58,6 +58,27 @@ export function AttachedChats({ chatId }: { chatId: string }) {
     };
   }, [open]);
 
+  // On a phone the picker is a sheet at the top of what can be seen
+  // (attach.css). The on-screen keyboard shrinks and moves that, and CSS
+  // cannot tell, so the sheet is told where the visible part starts and how
+  // tall it is, and its list scrolls inside it.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const el = list.current;
+    if (!open || !vv || !el) return;
+    const place = () => {
+      el.style.setProperty("--seen-top", `${vv.offsetTop}px`);
+      el.style.setProperty("--seen-height", `${vv.height}px`);
+    };
+    place();
+    vv.addEventListener("resize", place);
+    vv.addEventListener("scroll", place);
+    return () => {
+      vv.removeEventListener("resize", place);
+      vv.removeEventListener("scroll", place);
+    };
+  }, [open]);
+
   // An incognito chat attaches nothing, so nothing is drawn.
   if (!a || a.incognito) return null;
 
@@ -98,6 +119,10 @@ export function AttachedChats({ chatId }: { chatId: string }) {
     }
   }
 
+  // A touch screen raises its keyboard when a box takes the focus, which
+  // covers half the list: there the person sees their chats first and taps
+  // the box if they want to narrow them.
+  const touch = window.matchMedia?.("(pointer: coarse)").matches ?? false;
   const addLabel = full ? `This chat has as many attached chats as it may (${a.max})` : "Attach another of your chats: each reply in this chat is given its summary, and can open the rest of it";
   return (
     <div className="attached" ref={wrap}>
@@ -145,11 +170,16 @@ export function AttachedChats({ chatId }: { chatId: string }) {
       </ul>
       {open && (
         <div className="model-menu attached-menu" role="dialog" aria-label="Attach a chat" ref={list} onKeyDown={listKey}>
-          <p className="model-menu-head">Attach a chat</p>
+          <div className="attached-menu-top">
+            <p className="model-menu-head">Attach a chat</p>
+            <button type="button" className="attached-remove" aria-label="Close" title="Close" onClick={() => setOpen(false)}>
+              <Icon name="close" size={14} />
+            </button>
+          </div>
           <label className="offscreen" htmlFor="attached-search">
             Find a chat by its title or summary
           </label>
-          <input id="attached-search" className="input attached-search" placeholder="Find a chat by its title or summary" value={query} autoFocus autoComplete="off" onChange={(e) => setQuery(e.target.value)} />
+          <input id="attached-search" className="input attached-search" placeholder="Find a chat by its title or summary" value={query} autoFocus={!touch} autoComplete="off" onChange={(e) => setQuery(e.target.value)} />
           {choices.map((c) => (
             <button key={c.id} type="button" className="model-item attached-item" disabled={busy === c.id} onClick={() => void change(c.id, true)}>
               <Icon name="chatlink" size={16} />

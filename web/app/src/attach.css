@@ -134,13 +134,23 @@
   cursor: default;
 }
 
-/* The picker opens upwards, from the left of the strip. */
-.attached-menu {
+/* The picker opens upwards, from the left of the strip. Both classes are
+   named so these rules win over the model picker's menu, whose stylesheet
+   comes later in the built file. */
+.model-menu.attached-menu {
   right: auto;
   left: 0;
 }
 
+.attached-menu-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .attached-search {
+  flex: none;
   margin: 2px 4px 6px;
 }
 
@@ -223,9 +233,26 @@
     max-width: 160px;
   }
 
-  .attached-menu {
-    right: 0;
+  /* On a phone the picker is a sheet at the top of what can be seen, not a
+     menu over the strip: opening upwards, the keyboard pushed its box and its
+     list off the top and left only its last line showing. --seen-top and
+     --seen-height are the visible part's, kept by AttachedChats.tsx as the
+     keyboard comes and goes. */
+  .model-menu.attached-menu {
+    position: fixed;
+    top: calc(var(--seen-top, 0px) + 8px);
+    right: 8px;
+    bottom: auto;
+    left: 8px;
+    z-index: 60;
     width: auto;
     max-width: none;
+    max-height: calc(var(--seen-height, 100dvh) - 16px);
+  }
+
+  /* 16px, or a phone's browser zooms the whole page in when the box takes
+     the focus. */
+  .attached-search {
+    font-size: 16px;
   }
 }
