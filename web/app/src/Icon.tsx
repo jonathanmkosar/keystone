@@ -165,6 +165,10 @@ const shapes = {
       <path d="M14 3v4h4M9 12h6M9 16h6" />
     </>
   ),
+  // The artifact panel's (P9-03): save a file, a link, and open on its own.
+  download: <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />,
+  link: <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />,
+  open: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
 } as const;
 
 export type IconName = keyof typeof shapes;

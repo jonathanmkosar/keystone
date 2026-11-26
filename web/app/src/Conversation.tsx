@@ -7,6 +7,7 @@ import { Fragment, useState } from "react";
 import { useParams } from "react-router";
 import type { Block } from "./api";
 import { useWaitingFor } from "./Approval";
+import { ArtifactCard, isArtifactCard } from "./ArtifactCard";
 import { ReplyNotices, SaidMedia } from "./Attachments";
 import { useChatUploads } from "./uploads";
 import { Icon } from "./Icon";
@@ -148,7 +149,7 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
 function Steps({ steps }: { steps: Step[] }) {
   return (
     <div className="steps">
-      {steps.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} /> : <ToolStep key={s.id || i} step={s} />))}
+      {steps.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} />))}
     </div>
   );
 }

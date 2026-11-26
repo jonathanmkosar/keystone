@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/artifacts"
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/builtin"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
@@ -29,6 +30,12 @@ func Tools(c Config) (*tools.Registry, error) {
 		if err := c.jobs.AddTool(r); err != nil {
 			return nil, err
 		}
+	}
+	// Artifacts (P9-03): a model makes, changes and reads the artifacts of
+	// its chat. They change nothing outside Keystone, so they run without
+	// asking unless the person sets them to (decision 0420).
+	if err := artifacts.Add(r, c.Artifacts); err != nil {
+		return nil, err
 	}
 	return r, nil
 }

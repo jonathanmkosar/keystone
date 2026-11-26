@@ -165,6 +165,716 @@
         "summary": "Let every agent and schedule go on. A paused task goes on with a new round, a held one starts, and each schedule is due at its first due time after now: the times that passed while paused are not made up. It takes no body."
       }
     },
+    "/api/v1/artifacts": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifacts": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "latest": {
+                            "type": "integer"
+                          },
+                          "link": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "type",
+                          "title",
+                          "latest",
+                          "created",
+                          "updated",
+                          "sensitive",
+                          "link"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "artifacts"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every artifact of the person, the one changed last first."
+      }
+    },
+    "/api/v1/artifacts/{artifact}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "language": {
+                          "type": "string"
+                        },
+                        "latest": {
+                          "type": "integer"
+                        },
+                        "link": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "type",
+                        "title",
+                        "latest",
+                        "created",
+                        "updated",
+                        "sensitive",
+                        "link"
+                      ],
+                      "type": "object"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "sandbox": {
+                      "type": "string"
+                    },
+                    "versions": {
+                      "items": {
+                        "properties": {
+                          "artifact_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "origin": {
+                            "type": "string"
+                          },
+                          "request_id": {
+                            "type": "string"
+                          },
+                          "restored_from": {
+                            "type": "integer"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "sha256": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "version": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "artifact_id",
+                          "version",
+                          "title",
+                          "size",
+                          "sha256",
+                          "origin",
+                          "sensitive",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "versions",
+                    "sandbox"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One artifact, with every version kept, how its frame is sandboxed, and what the person is told when it is sensitive."
+      }
+    },
+    "/api/v1/artifacts/{artifact}/compare": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The older version's number.",
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The newer version's number. Leave it out for the newest.",
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "added": {
+                      "type": "integer"
+                    },
+                    "from": {
+                      "type": "integer"
+                    },
+                    "lines": {
+                      "items": {
+                        "properties": {
+                          "from": {
+                            "type": "integer"
+                          },
+                          "op": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "to": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "op",
+                          "text"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "removed": {
+                      "type": "integer"
+                    },
+                    "to": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "from",
+                    "to",
+                    "lines",
+                    "added",
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Two versions of an artifact compared line by line: the lines both hold, those put in and those taken out."
+      }
+    },
+    "/api/v1/artifacts/{artifact}/versions/{version}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "language": {
+                          "type": "string"
+                        },
+                        "latest": {
+                          "type": "integer"
+                        },
+                        "link": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "type",
+                        "title",
+                        "latest",
+                        "created",
+                        "updated",
+                        "sensitive",
+                        "link"
+                      ],
+                      "type": "object"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "properties": {
+                        "artifact_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "origin": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "restored_from": {
+                          "type": "integer"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "artifact_id",
+                        "version",
+                        "title",
+                        "size",
+                        "sha256",
+                        "origin",
+                        "sensitive",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "version",
+                    "content"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One version of an artifact, with its content."
+      }
+    },
+    "/api/v1/artifacts/{artifact}/versions/{version}/download": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One version of an artifact as a file to save, named by its title, with the file type its type has."
+      }
+    },
+    "/api/v1/artifacts/{artifact}/versions/{version}/restore": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "language": {
+                          "type": "string"
+                        },
+                        "latest": {
+                          "type": "integer"
+                        },
+                        "link": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "type",
+                        "title",
+                        "latest",
+                        "created",
+                        "updated",
+                        "sensitive",
+                        "link"
+                      ],
+                      "type": "object"
+                    },
+                    "content": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "properties": {
+                        "artifact_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "origin": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "restored_from": {
+                          "type": "integer"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "artifact_id",
+                        "version",
+                        "title",
+                        "size",
+                        "sha256",
+                        "origin",
+                        "sensitive",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "version",
+                    "content"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Restore an older version of an artifact: it is written again as the newest version, and every version stays."
+      }
+    },
+    "/api/v1/artifacts/{artifact}/versions/{version}/sandbox": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "artifact",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "dark or light: the theme of the page around the artifact.",
+            "in": "query",
+            "name": "theme",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The page one version of an artifact is shown in, inside a sandboxed frame: served with a policy of its own that fetches and sends nothing and gives the page no origin."
+      }
+    },
     "/api/v1/audit": {
       "get": {
         "parameters": [
@@ -1972,6 +2682,99 @@
           }
         },
         "summary": "Rename a chat, star it or clear its star."
+      }
+    },
+    "/api/v1/chats/{id}/artifacts": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifacts": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "latest": {
+                            "type": "integer"
+                          },
+                          "link": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "type",
+                          "title",
+                          "latest",
+                          "created",
+                          "updated",
+                          "sensitive",
+                          "link"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "artifacts"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "A chat's artifacts, the oldest first, each as its newest version has it."
       }
     },
     "/api/v1/chats/{id}/attached": {

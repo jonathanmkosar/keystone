@@ -125,6 +125,7 @@ var checks = []check{
 	{"scheduled tasks", checkSchedules},
 	{"unattended spend", checkUnattended},
 	{"uploads", checkUploads},
+	{"artifacts", checkArtifacts},
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
 	{"projects", checkProjects},

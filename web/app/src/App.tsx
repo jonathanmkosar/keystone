@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Route, Routes, useMatch } from "react-router";
+import { ArtifactPage, Artifacts } from "./ArtifactPage";
 import { ApiError, listSettings, me, setSetting, signOut, type Person } from "./api";
 import { Shell } from "./Shell";
 import { NotReady, SignIn } from "./SignIn";
@@ -25,6 +26,7 @@ type Session =
 export function App() {
   const [session, setSession] = useState<Session>({ state: "loading" });
   const [theme, setTheme] = useTheme();
+  const alone = useMatch("/artifacts/:id") !== null; // an artifact's publish link (P9-03)
 
   const check = useCallback(async () => {
     setSession({ state: "loading" });
@@ -108,6 +110,9 @@ export function App() {
     );
   }
 
+  // An artifact's publish link shows it alone, outside the frame (P9-03).
+  if (alone) return <ArtifactPage />;
+
   return (
     <ChatsProvider onSignedOut={check}>
       <Shell person={session.person} theme={theme} onTheme={chooseTheme} onSignOut={leave}>
@@ -119,7 +124,7 @@ export function App() {
           <Route path="/chats/:id" element={<ChatPage />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectPage />} />
-          <Route path="/artifacts" element={<Soon title="Artifacts" />} />
+          <Route path="/artifacts" element={<Artifacts />} />
           <Route path="/agents" element={<Soon title="Agents" />} />
           <Route path="/scheduled" element={<Scheduled />} />
           <Route path="/memory" element={<Memory />} />

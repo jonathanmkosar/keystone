@@ -1,6 +1,6 @@
 # P10-04. Share a chat
 
-Status: todo
+Status: doing (interface)
 Lane: chats + interface
 Depends on: P4-03
 Owner gate: none

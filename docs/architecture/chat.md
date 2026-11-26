@@ -82,6 +82,8 @@ The files go before the transaction commits. If one cannot be removed, the trans
 
 **A later table that belongs to a chat** names it with `REFERENCES chats(id) ON DELETE CASCADE`. `Delete` then removes its rows with no change here.
 
+**A chat's artifacts** (since P9-03) are kept in a folder named by the chat's id in the tenant's `artifacts/` folder. `Delete` removes that folder after the files, before the transaction commits, once the chat's row is known to have been there; its `artifacts` and `artifact_versions` rows go by `ON DELETE CASCADE` ([artifacts.md](artifacts.md)).
+
 ## Pinned messages
 
 Since P5-02 a person can pin a message so it is never left out of a call. `Pin(store, chatID, messageID, pinned)` pins one, on any branch, or with `pinned` false takes the pin off; pinning twice or unpinning what is not pinned changes nothing. `Pins(store, chatID)` returns the pinned ids, oldest first. A chat or message that is not in the record gives `ErrNotFound`. The rows are `chat_pins`, from the migration `20261125T110000_compaction.sql`, and go with their chat. What a pin does to a call is in [compaction.md](compaction.md).

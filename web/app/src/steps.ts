@@ -97,6 +97,21 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
       meta: "",
     };
   },
+  // Artifacts (P9-03). A call that made or changed one is drawn as its card
+  // (ArtifactCard.tsx); these words are for a call that failed, the
+  // approval card of a person who set one to ask, and reading one.
+  create_artifact: (args) => {
+    const t = quoted(args.title);
+    return { icon: "artifacts", running: t ? `Making the artifact ${t}` : "Making an artifact", asked: t ? `Make the artifact ${t}` : "Make an artifact", done: t ? `Made the artifact ${t}` : "Made an artifact", meta: "" };
+  },
+  update_artifact: () => ({ icon: "artifacts", running: "Changing an artifact", asked: "Change an artifact", done: "Changed an artifact", meta: "" }),
+  read_artifact: (args) => ({
+    icon: "artifacts",
+    running: args.artifact_id ? "Reading an artifact" : "Listing this chat's artifacts",
+    asked: args.artifact_id ? "Read an artifact" : "List this chat's artifacts",
+    done: args.artifact_id ? "Read an artifact" : "Listed this chat's artifacts",
+    meta: "",
+  }),
   // The connectors' (P7-04): a connector's own tools read as "Used notes_search: …".
   load_tools: (args) => {
     const names = Array.isArray(args.names) ? args.names.filter((n): n is string => typeof n === "string") : [];
