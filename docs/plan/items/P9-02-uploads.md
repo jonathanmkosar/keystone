@@ -35,4 +35,5 @@ Provisional on the workspace mockups (P1-06) for the screens; the server side is
 - Seen in the browser on the test tenant: chips, drop, remove, a refusal, thumbnails, the notice, and the inspector's attachments and Images and files, at desktop width in light and phone width in dark.
 - Provisional: the screens (no mockup), and PDF text, which is not read (decision 0381): a PDF goes whole to a model that takes files.
 - Not done: files and images in the test tenant's fixture; a thumbnail before sending; pasting an image.
+- `reboot` at c268a41 (P5-06, P12-02) is merged into the branch, with four conflicts resolved; `verify` is 25 of 25 on the merge. The files' text follows the attached chats in the attachments part.
 - See `docs/journal/2026-11-25-interface-005.md` and `docs/architecture/uploads.md`.
