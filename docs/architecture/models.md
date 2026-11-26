@@ -124,6 +124,8 @@ A `Set` maps an adapter's name to its `Builder`, a function from an entry and a 
 
 A builder must never put the key in an error. If one does, `Open` takes it out before the error goes on.
 
+Since P6-08, `adapters.OpenEmbedder(ctx, store, set, name)` opens an embedding model the same way and returns a `seam.Embedder`: it refuses an entry without the `embedding` capability, and a provider that has no `Embed` method, with `ErrNotEmbedder`. `adapters.Embeds(adapter)` says which adapters make vectors in this build: `fake` and `chat_completions`. An embedding model's entry is an ordinary entry with `"capabilities": ["embedding"]` and an output limit of 1; it takes embedding calls and nothing else, and chat never offers it ([embeddings.md](embeddings.md)).
+
 ## Settings
 
 In `settings/models.json`.

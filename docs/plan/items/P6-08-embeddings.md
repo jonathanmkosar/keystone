@@ -1,9 +1,9 @@
 # P6-08. Embeddings
 
-Status: doing (knowledge)
+Status: provisional
 Lane: knowledge + models
 Depends on: P3-02, P6-03, P6-05
-Owner gate: none
+Owner gate: none in the plan; for the live check only, a real local embedding model on the home gateway and the owner's Waymarks embedder token (knowledge 008).
 Scope: Embedding as a model seam capability with its own registry entries, local first. Page vectors are pushed to stores that take them (Waymarks runs no embedding pipeline of its own). Recall gets a query vector, so search is by meaning as well as by keyword. Stale vectors are refreshed in the background. A sensitive page is embedded only by a local or trusted model.
 Proof: Recall by keyword and meaning answers more of the test tenant's recall questions than keyword alone, and no sensitive page reaches a hosted embedding model.
 
@@ -24,4 +24,13 @@ Branch `knowledge/p6-08-embeddings`, cut from `reboot` at 8106f15. Built on the 
 7. **Proof.** Tests in each package, and a standing check `embeddings` in `verify`: on the test tenant with the fake embedding model, keyword and meaning answer more of the fixture's recall questions than keyword alone (new questions keyword search misses, invented), and a hosted embedding model behind a stand-in server is never sent a sensitive page, nor a held chat's query.
 
 Left for later: a real local embedding model and the owner's embedder token for the live check; an embedding model's own fixed vector size in the registry (Waymarks is set to one by its owner).
+
+### Result
+
+Provisional on the live check only: a real local embedding model on the home gateway, and the owner's Waymarks embedder token with the instance set to the same model and size. The proof passes on the test tenant with the fake embedding model, on both stores: `verify` is 27 of 27 with the new `embeddings` check, where words alone answer 3 of the 6 questions and words and meaning answer all 6, and a hosted embedding model behind a stand-in server is never sent a sensitive page or a held chat's message.
+
+- Built as planned: `seam.EmbedRequest`, `EmbedResponse` and `Embedder`; `adapters.OpenEmbedder`; the fake's vectors with meaning groups (`fake.embedding_size`); the Chat Completions adapter's `POST {endpoint}/embeddings`, proven against hand-written exchanges; the guard `internal/embedding` (`Choose`, `MayEmbed`, `MayEmbedQuery`, `Refresh`, the reserve, the state), listed in `fixed rules`; `VectorsNeeded(ctx, model, limit)`; recall by words and meaning merged by weighted reciprocal rank; every embedding call recorded with the kind `embedding` under its own reserve inside the cap; the background sweep and `GET /knowledge/embeddings`, `POST /knowledge/embeddings/refresh`; the migration `20261125T234753_embeddings.sql`; fifteen settings in `settings/knowledge.json` and one in `settings/models.json`.
+- Decisions 0410 (the embed call and the adapters), 0411 (the merge), 0412 (the model, local first, and the sensitive rule), 0413 (the reserve and what the audit log keeps), 0414 (the refresh and `VectorsNeeded` by model).
+- Not done: a real embedding model; a real Waymarks; a screen for the status (the route is ready); a nearness from Waymarks for hits found by vector, an owner question.
+- Doc: [embeddings.md](../../architecture/embeddings.md). Journal: `docs/journal/2026-11-25-knowledge-008.md`.
 

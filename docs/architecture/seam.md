@@ -110,6 +110,6 @@ Since P9-02, `Images(r)` counts the image blocks a request carries, in its messa
 
 - What a call needs (vision, privacy, a cost ceiling) is part of routing, P3-08.
 - Cache markers on blocks come with caching, P5-03, and the Anthropic adapter. Built since as the request's cache points, which say where the stable parts end and leave the marks to the adapter (decision [0331](decisions/0331-the-seam-carries-cache-points-and-the-anthropic-adapter-makes-four-marks.md)).
-- Embedding calls get their own small request shape in P6-08.
+- Embedding calls get their own small request shape in P6-08. Built since, in `embed.go`: `EmbedRequest` (the model's registry name and the texts, none blank), `EmbedResponse` (one vector for each text, in order and of one size, and the usage, of which only `input_tokens` is used), and `Embedder`, whose one method, `Embed(ctx, request)`, returns the whole answer or a `*Error`, as a provider's call does. `ValidateEmbedRequest` and `ValidateEmbedResponse` refuse a blank text, a missing or extra vector, two sizes, a number that is not finite and a vector of zeros; `EncodeEmbedRequest` and `DecodeEmbedRequest` are how the audit log holds the request. An adapter whose provider can embed has the method beside `Stream` (decision [0410](decisions/0410-embedding-is-a-call-of-its-own-on-the-seam.md), [embeddings.md](embeddings.md)).
 
 Since P3-08 there is one more kind, `spend_cap`: Keystone did not send the call, because it could take the tenant past its monthly spend cap ([usage.md](usage.md)). No provider gives it.

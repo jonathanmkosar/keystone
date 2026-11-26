@@ -12,6 +12,7 @@ These are recorded exchanges for the Chat Completions adapter, written in the sh
 | `litellm-tool-result.json` | LiteLLM | A key. A request that carries a tool result, an image and a text file, and a reply with `reasoning_content`. |
 | `gateway-cut-short.json` | The home gateway | A key, and https with the gateway's own certificate authority. A reply that stops at the output limit, with no usage reported. |
 | `errors.json` | All | Refusals by status and body, and errors that arrive inside a reply, each with the seam error it must become. |
+| `embeddings/exchanges.json` | Ollama, LiteLLM, the gateway | Embedding calls (P6-08): three hand-written exchanges of `POST /embeddings` (indexes in order and out of order, none at all; usage as prompt tokens, total tokens, or missing), four refusals with the seam error each becomes, and six answers that are not one usable vector for each text. In a folder of its own, since its shape is not a chat exchange's. |
 
 ## An exchange
 

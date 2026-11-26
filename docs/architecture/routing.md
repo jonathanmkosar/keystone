@@ -22,6 +22,8 @@ Since P5-02, `summary` is called too: compaction summarises a long chat's oldest
 
 Since P6-06, `memory` is called too: the memory pass reads each finished turn through the route for the `memory` task, planned as sensitive for a held chat. Its gate is the memory pass's reserve and then the monthly cap, so a hosted model refused at the reserve moves the call on to a local model behind it ([memory-pass.md](memory-pass.md)).
 
+Since P6-08, `embedding` is called too, and not through a route: an embedding model writes no reply and a vector of one model cannot be compared with another's, so there is one model and no fallback. `routing.embedding_model` names it; empty, which for the other kinds means the chat's own model, here means the first local embedding model, then the first trusted one, and a hosted one only when named (`embedding.Choose`, decision [0412](decisions/0412-the-embedding-model-is-chosen-local-first-and-sensitive-pages-wait-for-one.md)). Its gate is the embedding reserve and then the monthly cap ([embeddings.md](embeddings.md)).
+
 ## A route
 
 `routing.Plan(rules, ask, models)` returns a `Route`: the models to try, in order.
