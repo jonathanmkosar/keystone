@@ -1,6 +1,6 @@
 # P13-02. Tenant isolation drill
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P11-03
 Owner gate: none
@@ -25,7 +25,13 @@ What the second person tries, signed in as themselves:
 4. **Files on disk**: the first person's folder is listed and hashed before and after each part; their database is compared table by table.
 5. **The audit log**: every attempt is in the second person's log under its request id, with the method and path tried, refused or answered with nothing; no token or key is in either log; the first person's log does not grow.
 
-A hole found is fixed in the smallest local change, with a test, and listed as a finding. Already seen while reading: a model's `ca_cert` may be a path, and the API takes one, so a person can make Keystone read any file on the machine, another person's included, and learn from the error whether it exists.
+A hole found is fixed in the smallest local change, with a test, and listed as a finding. Already seen while reading: a model's `ca_cert` may be a path, and the API takes one, so a person can make Keystone read any file on the machine, another person's included, with rights no person has.
 
 Left out, with the reason in the doc: share links (P10-04) and sub-agents (P8-02) are not merged; each adds its tries here when it lands. Waymarks is one instance per person at their own address with their own tokens; the drill uses the built-in store.
 
+
+## Result
+
+Done on November 26, 2026. `internal/isolationdrill` runs the drill in about six seconds: 342 tries across the session and the API (every route that takes an id, the second person's own chats with the first person's ids under them, path tricks, forged ids, cookie swaps, the share doors merged from P10-04, sign-ins), the tools (every tool a turn offers, connectors, Gmail and Calendar, a model naming the first person's key), the jobs and agents (a background task, a scheduled run, the wiki compile job, the memory pass) and the files on disk. Every try is refused or answered with nothing of the first person's, their folder, database and audit log do not move, and every try is in the second person's own log. It runs in `go test` and as the standing check `isolation drill`; `verify` is 36 of 36.
+
+One hole found and fixed: a model's `ca_cert` could be a path through the API, so any person could make Keystone read another person's file or a share on another host (medium; decision 0490). Three findings reported, not fixed: a local connector or model may name any address on this machine (an owner question), the audit log does not hold ids sent in bodies (by design), and a sign-in for a person goes in their log and counts toward their wait whoever sends it (by design, decision 0492). Every way tried and its result: `docs/architecture/isolation-drill.md`. Journal: `docs/journal/2026-11-26-core-013.md`.
