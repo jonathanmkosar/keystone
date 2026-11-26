@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-04 research mode (agents), P9-04 inline visuals (interface), P13-03 load test (core). The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and the integrator runs his real import. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-04 research mode (agents), P9-04 inline visuals (interface), P13-03 load test (core). The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,7 +11,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | P13-03 load test | P13-05 rebuild drill, after the other drills and the week of daily use; scheduled backups once the owner answers |
 | models | nothing | the live checks of the adapters and embeddings, with the owner's keys and models |
-| chats | nothing | the owner's real import, run by the integrator; P10-02 voice mode with interface |
+| chats | nothing | P10-02 voice mode with interface |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
 | agents | P8-04 research mode | P7-05 skills, P10-03 browser use, then P13-01 the tricked-agent drill |
 | interface | P9-04 inline visuals | P10-02 voice mode, P10-05 phone (needs the owner), the model route reporting a held chat and missing keys (decisions 0240, 0241) |
