@@ -130,6 +130,7 @@ Other refusals:
 - Roles in the interface. The adapter picks the token by the call. A caller that must not add sources is handed a store opened for a tenant with no intake token, or checks the flag. Chat gets the whole store, and recall and the lookups only read (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
 - A wider search than 100 hits, and paging through a search. The interface has no call for either.
 - The upkeep jobs' tokens (P8-06). Each job has its own token and writes pages, which the interface has no call for yet.
+  - Built in P8-06 ([wiki-jobs.md](wiki-jobs.md)): each of the four jobs has its own token, `knowledge.waymarks.compile`, `.lint`, `.upkeep` and `.fix_issues`, and calls Waymarks itself, not through this adapter, with the agent kit's grant for the job. A job writes pages through Waymarks batches under its token, from its answer. It reads the address, timeout and largest answer from this adapter's settings.
 
 ## Since P6-08: the embedder at work
 

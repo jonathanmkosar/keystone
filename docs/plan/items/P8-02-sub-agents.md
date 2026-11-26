@@ -1,6 +1,6 @@
 # P8-02. Sub-agents
 
-Status: todo
+Status: doing (agents)
 Lane: agents + interface
 Depends on: P8-01
 Owner gate: Approval of the agent mockups (P1-05), for the lanes only.

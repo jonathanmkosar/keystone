@@ -19105,6 +19105,834 @@
         },
         "summary": "Your usage for a period: what your model calls cost and their tokens, in total and by model, by chat and by kind of work, each split into local, hosted and trusted models, with this month against the monthly cap and the memory pass's reserve. Summed from the usage records, so the lines of each breakdown add up to the total. With no query, the period is your usage.report_period."
       }
+    },
+    "/api/v1/wiki-jobs": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "jobs": {
+                      "items": {
+                        "properties": {
+                          "Job": {
+                            "properties": {
+                              "grant": {
+                                "type": "string"
+                              },
+                              "kit": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "principal": {
+                                "type": "string"
+                              },
+                              "secret": {
+                                "type": "string"
+                              },
+                              "store": {
+                                "type": "string"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "tools": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "title",
+                              "store",
+                              "tools"
+                            ],
+                            "type": "object"
+                          },
+                          "budget_usd": {
+                            "type": "number"
+                          },
+                          "has_token": {
+                            "type": "boolean"
+                          },
+                          "held": {
+                            "type": "boolean"
+                          },
+                          "last_run": {
+                            "properties": {
+                              "began": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "due": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "late": {
+                                "type": "boolean"
+                              },
+                              "late_reason": {
+                                "type": "string"
+                              },
+                              "missed": {
+                                "type": "integer"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "schedule_id": {
+                                "type": "string"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "task_id": {
+                                "type": "string"
+                              },
+                              "trigger": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "schedule_id",
+                              "trigger",
+                              "due",
+                              "started",
+                              "late",
+                              "missed",
+                              "status",
+                              "waiting",
+                              "steps",
+                              "spent_micros"
+                            ],
+                            "type": "object"
+                          },
+                          "last_written": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "run_id": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "summary": {
+                                "type": "string"
+                              },
+                              "written": {
+                                "items": {
+                                  "properties": {
+                                    "detail": {
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "what": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "what",
+                                    "id",
+                                    "detail"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "run_id",
+                              "state",
+                              "summary",
+                              "written",
+                              "at"
+                            ],
+                            "type": "object"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "next": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "on": {
+                            "type": "boolean"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "says": {
+                            "type": "string"
+                          },
+                          "schedule_id": {
+                            "type": "string"
+                          },
+                          "when": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "Job",
+                          "on",
+                          "when",
+                          "budget_usd",
+                          "has_token",
+                          "held"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "jobs"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The wiki upkeep jobs, each with its switch, why it cannot run if it cannot, its schedule, model and budget, whether its own Waymarks token is stored, and its last and next run."
+      }
+    },
+    "/api/v1/wiki-jobs/{job}/off": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Job": {
+                      "properties": {
+                        "grant": {
+                          "type": "string"
+                        },
+                        "kit": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "type": "string"
+                        },
+                        "store": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "tools": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "title",
+                        "store",
+                        "tools"
+                      ],
+                      "type": "object"
+                    },
+                    "budget_usd": {
+                      "type": "number"
+                    },
+                    "has_token": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "last_written": {
+                      "properties": {
+                        "at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "run_id": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "written": {
+                          "items": {
+                            "properties": {
+                              "detail": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "what": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "what",
+                              "id",
+                              "detail"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "run_id",
+                        "state",
+                        "summary",
+                        "written",
+                        "at"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "on": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "schedule_id": {
+                      "type": "string"
+                    },
+                    "when": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "Job",
+                    "on",
+                    "when",
+                    "budget_usd",
+                    "has_token",
+                    "held"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Switch a wiki job off: it starts no run. A run under way goes on. It takes no body."
+      }
+    },
+    "/api/v1/wiki-jobs/{job}/on": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Job": {
+                      "properties": {
+                        "grant": {
+                          "type": "string"
+                        },
+                        "kit": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "principal": {
+                          "type": "string"
+                        },
+                        "secret": {
+                          "type": "string"
+                        },
+                        "store": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "tools": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "title",
+                        "store",
+                        "tools"
+                      ],
+                      "type": "object"
+                    },
+                    "budget_usd": {
+                      "type": "number"
+                    },
+                    "has_token": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "last_run": {
+                      "properties": {
+                        "began": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "due": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "late": {
+                          "type": "boolean"
+                        },
+                        "late_reason": {
+                          "type": "string"
+                        },
+                        "missed": {
+                          "type": "integer"
+                        },
+                        "progress": {
+                          "type": "string"
+                        },
+                        "schedule_id": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "task_id": {
+                          "type": "string"
+                        },
+                        "trigger": {
+                          "type": "string"
+                        },
+                        "waiting": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "schedule_id",
+                        "trigger",
+                        "due",
+                        "started",
+                        "late",
+                        "missed",
+                        "status",
+                        "waiting",
+                        "steps",
+                        "spent_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "last_written": {
+                      "properties": {
+                        "at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "run_id": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "written": {
+                          "items": {
+                            "properties": {
+                              "detail": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "what": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "what",
+                              "id",
+                              "detail"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "run_id",
+                        "state",
+                        "summary",
+                        "written",
+                        "at"
+                      ],
+                      "type": "object"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "next": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "on": {
+                      "type": "boolean"
+                    },
+                    "problem": {
+                      "type": "string"
+                    },
+                    "says": {
+                      "type": "string"
+                    },
+                    "schedule_id": {
+                      "type": "string"
+                    },
+                    "when": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "Job",
+                    "on",
+                    "when",
+                    "budget_usd",
+                    "has_token",
+                    "held"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Switch a wiki job on: it runs on its schedule from its next due time. It takes no body."
+      }
+    },
+    "/api/v1/wiki-jobs/{job}/run": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "began": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "due": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "late": {
+                      "type": "boolean"
+                    },
+                    "late_reason": {
+                      "type": "string"
+                    },
+                    "missed": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "schedule_id": {
+                      "type": "string"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task_id": {
+                      "type": "string"
+                    },
+                    "trigger": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "schedule_id",
+                    "trigger",
+                    "due",
+                    "started",
+                    "late",
+                    "missed",
+                    "status",
+                    "waiting",
+                    "steps",
+                    "spent_micros"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Run a wiki job now, on or off, in a chat of its own. It is refused while one of its runs is under way, and while it cannot run. It takes no body."
+      }
     }
   },
   "security": [

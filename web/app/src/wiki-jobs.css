@@ -1,0 +1,106 @@
+/* The wiki upkeep jobs (P8-06), a section of the Scheduled screen, in the
+   tokens of design/README.md. No mockup yet (P1-05). The pills and the
+   switch are the Scheduled screen's own. */
+
+.wiki-jobs {
+  margin: 0;
+  padding: 18px 28px 28px;
+  border-top: 1px solid var(--line);
+}
+
+.wiki-jobs-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.wiki-jobs-words {
+  margin: 0 0 12px;
+  max-width: 72ch;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.wiki-jobs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.wiki-job {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.wiki-job:first-child {
+  border-top: none;
+}
+
+.wiki-job-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wiki-job-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wiki-job-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.wiki-job-facts {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.wiki-job-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wiki-job-problem {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.wiki-job-problem code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.wiki-job-line {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+@media (max-width: 640px) {
+  .wiki-jobs {
+    padding: 16px;
+  }
+}

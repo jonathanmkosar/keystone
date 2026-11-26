@@ -29,6 +29,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/internal/usagereport"
+	"github.com/jonathanmkosar/keystone/internal/wikijobs"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -99,6 +100,12 @@ type Config struct {
 	// Artifacts is what artifacts are kept and shown with (P9-03), in
 	// settings/artifacts.json.
 	Artifacts artifacts.Options
+	// WikiJobs is what the wiki upkeep jobs run with (P8-06), in
+	// settings/agents.json.
+	WikiJobs wikijobs.Config
+	// wiki keeps the wiki jobs' schedules and writes their answers. Handler
+	// and routes make it, after the scheduler; Handler starts it.
+	wiki *wikijobs.Runner
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -151,6 +158,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Artifacts' settings (P9-03), in settings/artifacts.json.
 	if c.Artifacts, err = artifacts.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
+	// The wiki upkeep jobs' settings (P8-06), in settings/agents.json.
+	if c.WikiJobs, err = wikijobs.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -244,6 +255,11 @@ func routes(c Config, log *api.Log) []api.Route {
 	// Artifacts (P9-03): a chat's, one with its versions, compare, restore,
 	// download and the sandboxed page.
 	all = append(all, artifacts.Routes(c.Artifacts)...)
+	// The wiki upkeep jobs (P8-06), after the scheduler.
+	if c.wiki == nil {
+		c.wiki = c.newWiki(log)
+	}
+	all = append(all, wikijobs.Routes(c.wiki)...)
 	return all
 }
 
@@ -271,6 +287,10 @@ func Handler(c Config) (http.Handler, error) {
 	// stopped starts once (P8-03).
 	c.schedules = c.newSchedules(log)
 	c.schedules.Start(c.runner)
+	// Then the wiki upkeep jobs keep their schedules and write their runs'
+	// answers (P8-06).
+	c.wiki = c.newWiki(log)
+	c.wiki.Start(c.runner)
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,
@@ -306,6 +326,11 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 		// Unattended work at the cap or its budget: a local model with a
 		// notice, or a stop (P8-05).
 		o.Moved = unattended.Moved
+		// Wiki upkeep jobs (P8-06): a job's tools in its runs' chats, only local
+		// or trusted models for them, and no memory pass of them.
+		o.Connectors = wikijobs.Connectors(o.Connectors)
+		o.Gate = wikijobs.Gate(o.Gate)
+		o.SkipMemory = wikijobs.SkipMemory
 		return o
 	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}

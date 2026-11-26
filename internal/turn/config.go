@@ -1,6 +1,7 @@
 package turn
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -173,4 +174,8 @@ type Options struct {
 	// tried, and may end the call instead (P8-05: unattended work at the cap
 	// or its budget, unattended.Moved). Nil tells nothing.
 	Moved Moved
+	// SkipMemory says a chat's turns run no memory pass (P8-06: a wiki
+	// upkeep job's run, wikijobs.SkipMemory, so a job's report never comes
+	// back to the store as a source). Nil skips none.
+	SkipMemory func(ctx context.Context, s *tenant.Store, chatID string) bool
 }
