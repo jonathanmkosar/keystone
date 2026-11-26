@@ -214,6 +214,29 @@ func TestStoppingTheParentTurnStopsItsSubagents(t *testing.T) {
 	}
 }
 
+// The test tenant's recorded turns ask for three sub-agents, and each is
+// answered by a recorded turn of its own, so the lanes can be seen with the
+// fake provider alone (fixtures/test-tenant/turns/subagents.json).
+func TestTheTestTenantsRecordedSubagents(t *testing.T) {
+	g := newRig(t)
+	sv := g.serve(nil)
+	chatID := sv.newChat(g.test.ID)
+	sv.send(g.test.ID, chatID, "Count the boats, the gulls and the buoys in the harbour, all at once.", 30*time.Second)
+	subs := sv.subagents(g.test.ID, chatID)
+	if len(subs) != 3 {
+		t.Fatalf("the recorded turn started %d sub-agents", len(subs))
+	}
+	for i, want := range []string{"Fourteen boats", "About forty gulls", "Twelve buoys"} {
+		if subs[i].Status != StatusDone || !strings.HasPrefix(subs[i].Result, want) {
+			t.Errorf("recorded sub-agent %d reads %+v", i+1, subs[i])
+		}
+	}
+	msgs := sv.messages(g.test.ID, chatID)
+	if last := text(msgs[len(msgs)-1]); !strings.HasPrefix(last, "The three are back") {
+		t.Errorf("the recorded turn ended with %q", last)
+	}
+}
+
 // A restart in the middle ends the sub-agents as interrupted, as the turn
 // that started them is closed as failed: nothing waits for their results.
 func TestARestartEndsSubagentsAsInterrupted(t *testing.T) {

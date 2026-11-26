@@ -108,6 +108,18 @@ A sub-agent's steps are its chat's, read with `GET /chats/{work_chat_id}`; its a
 
 While a sub-agent runs, `steps`, `spent_micros`, `waiting` and `progress` are read from its turn when the route is called; once it has ended, they are what was written then.
 
+## On the screen
+
+`web/app/src/Subagents.tsx`, `subagentCalls.ts` and `subagents.css`, with one line in `Conversation.tsx` (the step list draws a `run_subagents` call as its lanes, as it draws an artifact's card) and an entry in `steps.ts` for an approval card's title. Provisional on the agent mockups (P1-05): the row is the approved one of `design/screens/MainDark.html`, "Ran 2 sub-agents in parallel"; the lanes under it have no mockup and are built from the tokens.
+
+- **The row**: "Running 3 sub-agents in parallel", pulsing, with "1 of 3 done" on the right; once they have ended, "Ran 3 sub-agents in parallel" and "all done", or how many were not. A call the tool refused reads "Run 3 sub-agents in parallel" with "none started", and opens on the reason.
+- **A lane for each sub-agent**, in its place: a number, its title, and its state on the right (Waiting for a lane, Working, Waiting for you, Done, Stopped, Paused, Did not finish), with a left edge in the accent while it works, green when done and red when it did not finish; where it is ("Using search_chats · 1 step · $0.00 of $0.25"); its error, its notice, or why its result stayed in its chat; the first lines of its result. **Show its steps** opens its steps as rows, read from its own chat and read again as it moves on, and its whole result with Copy; **Open its chat** goes to its transcript; **Stop** stops it alone.
+- **Its approval card**, when a call of its waits for the person: the same card as a turn's, drawn in its lane and answered there, through its own turn's approval routes.
+
+The lanes are read from `GET /chats/{id}/subagents?call=…` once a second while the step runs or a sub-agent is under way, so they are the same after a reload.
+
+Seen in a browser on November 26, 2026, on a server built from this branch on port 7952 with a data folder inside the worktree (removed afterwards), as the test tenant, with the recorded turn `fixtures/test-tenant/turns/subagents.json` ("Count the boats, the gulls and the buoys in the harbour, all at once."): three lanes done with their steps and results, in light and dark, at phone width, and after a reload; with `search_chats` set to ask, a lane waiting with its card, approved there, and its sub-agent finishing; a call left waiting past `agents.subagent_timeout` ending as `timeout`; and a call while every agent was paused reading "none started". The only console error was the sign-in probe's 401.
+
 ## Tables
 
 In `internal/tenant/migrations/20261126T010700_subagents.sql`.

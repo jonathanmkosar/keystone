@@ -1,0 +1,137 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "three sub-agents asked for in a chat",
+      "when": { "user_text": "Count the boats, the gulls and the buoys in the harbour, all at once." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will send three sub-agents, one for each." },
+                {
+                  "type": "tool_call",
+                  "id": "call_lanes",
+                  "name": "run_subagents",
+                  "input": {
+                    "agents": [
+                      { "title": "Boats", "task": "Count the boats moored in the harbour.", "context": "The harbour is the one in the lighthouse walk chat." },
+                      { "title": "Gulls", "task": "Count the gulls on the pier this morning." },
+                      { "title": "Buoys", "task": "Count the buoys that mark the channel in the bay." }
+                    ]
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 420, "output_tokens": 96 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The three are back: fourteen boats, about forty gulls and twelve buoys. Each lane above has its steps and its whole result. This reply is a recorded turn, so the numbers are the recordings', not a count." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 48 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the sub-agent that counts the boats",
+      "when": { "user_text_contains": "Count the boats moored in the harbour." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Your chats first." },
+                {
+                  "type": "tool_call",
+                  "id": "call_boats_search",
+                  "name": "search_chats",
+                  "input": { "query": "harbour" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 300, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Fourteen boats are moored in the harbour: nine with sails and five with motors." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 410, "output_tokens": 22 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the sub-agent that counts the gulls",
+      "when": { "user_text_contains": "Count the gulls on the pier this morning." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The time of day first." },
+                {
+                  "type": "tool_call",
+                  "id": "call_gulls_time",
+                  "name": "current_time",
+                  "input": {}
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 290, "output_tokens": 16 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "About forty gulls are on the pier, most of them on the railings by the café." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 360, "output_tokens": 20 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the sub-agent that counts the buoys",
+      "when": { "user_text_contains": "Count the buoys that mark the channel in the bay." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Twelve buoys mark the channel in the bay: six red and six green." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 280, "output_tokens": 18 }
+          }
+        }
+      ]
+    }
+  ]
+}

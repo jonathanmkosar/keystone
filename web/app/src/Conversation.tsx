@@ -16,6 +16,7 @@ import { InspectButton, PinButton, SaidActions } from "./MessageActions";
 import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
 import { TaskNote } from "./Tasks";
+import { isSubagentsStep, SubagentLanes } from "./Subagents";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -149,7 +150,7 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
 function Steps({ steps }: { steps: Step[] }) {
   return (
     <div className="steps">
-      {steps.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} />))}
+      {steps.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : isSubagentsStep(s) ? <SubagentLanes key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} />))}
     </div>
   );
 }
