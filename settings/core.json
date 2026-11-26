@@ -192,6 +192,13 @@
       "description": "How far back Operations looks to tell each limit's trend: its growth a day and when it would fill at that rate. 168h is a week; the monthly cap and the memory reserve look back no further than the start of the month."
     },
     {
+      "key": "operations.trend_min_span",
+      "type": "duration",
+      "default": "24h",
+      "scope": "tenant",
+      "description": "How long a limit's snapshots must span before Operations tells its trend and when it would fill. Shorter, and a few minutes of a disk's churn read as a rate for the whole day. A run's budget is told from its own calls, whatever this says."
+    },
+    {
       "key": "operations.health_window",
       "type": "duration",
       "default": "24h",

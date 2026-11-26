@@ -22,6 +22,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/operations"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
+	"github.com/jonathanmkosar/keystone/internal/shareapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
@@ -270,6 +271,9 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, wikijobs.Routes(c.wiki)...)
 	// Operations and Monitor (P11-03).
 	all = append(all, operations.Routes(operations.Options{Schedules: c.schedules.List, Log: log, Now: c.Clock})...)
+	// Share links (P10-04): the person's four, and the two doors that show a
+	// link's chat without a session.
+	all = append(all, shareapi.Routes(shareapi.Options{Install: c.Install, Log: log})...)
 	return all
 }
 

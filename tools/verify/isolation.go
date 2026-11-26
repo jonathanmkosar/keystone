@@ -56,6 +56,7 @@ func checkIsolation(string) error {
 		storeProbes,
 		sessionProbes,
 		routeProbes, // in routes.go
+		shareProbes, // in share.go: the share door finds its tenant from the link's token alone (P10-04)
 	} {
 		got, err := probe(in, one, two)
 		if err != nil {

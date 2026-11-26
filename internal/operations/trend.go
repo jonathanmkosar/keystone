@@ -36,13 +36,19 @@ type Trend struct {
 }
 
 // trend fits a line through the points by least squares, with time in
-// days, and says when the use would reach the limit at its slope.
-func trend(points []Point, used, of int64, now time.Time, resets *time.Time) Trend {
+// days, and says when the use would reach the limit at its slope. The
+// points must span minSpan at least: a line through a few minutes of a
+// disk's churn, a build or a restart, says nothing about a day, and once
+// told a full disk in thirteen days.
+func trend(points []Point, used, of int64, now time.Time, resets *time.Time, minSpan time.Duration) Trend {
 	t := Trend{Points: points, Resets: resets}
 	if t.Points == nil {
 		t.Points = []Point{}
 	}
 	if len(points) < 2 || !points[len(points)-1].At.After(points[0].At) {
+		return t
+	}
+	if points[len(points)-1].At.Sub(points[0].At) < minSpan {
 		return t
 	}
 	t0 := points[0].At

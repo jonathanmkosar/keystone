@@ -213,7 +213,7 @@ func limits(ctx context.Context, s *tenant.Store, reg []settings.Setting, cfg Se
 		if l.Problem == "" {
 			points = append(points, Point{At: now.UTC(), Used: l.Used, Of: l.Of})
 		}
-		l.Trend = trend(points, l.Used, l.Of, now, r.resets)
+		l.Trend = trend(points, l.Used, l.Of, now, r.resets, cfg.TrendMinSpan)
 		judge(&l)
 		out = append(out, l)
 	}
@@ -256,7 +256,7 @@ func runLimits(ctx context.Context, s *tenant.Store, cfg Settings, now time.Time
 			Note: "What this run has spent on models that are not local, against its own budget.",
 			Used: spent, Of: t.BudgetMicros, Watch: cfg.Watch[LimitRun], ChatID: t.WorkChatID, RunID: t.ID,
 		}
-		l.Trend = trend(points, l.Used, l.Of, now, nil)
+		l.Trend = trend(points, l.Used, l.Of, now, nil, 0) // a run is short: its own calls tell its rate
 		judge(&l)
 		out = append(out, l)
 	}

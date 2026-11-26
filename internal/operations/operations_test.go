@@ -373,28 +373,37 @@ func TestTrend(t *testing.T) {
 	for d := 0; d <= 4; d++ {
 		points = append(points, Point{At: now.AddDate(0, 0, d-4), Used: 100 + int64(d)*10, Of: 1000})
 	}
-	tr := trend(points, 140, 1000, now, nil)
+	tr := trend(points, 140, 1000, now, nil, 0)
 	if !tr.Known || tr.PerDay != 10 || tr.FullAt == nil || !tr.FullAt.Equal(now.Add(86*24*time.Hour)) {
 		t.Errorf("a line of 10 a day: %+v", tr)
 	}
 	reset := now.AddDate(0, 0, 10)
-	tr = trend(points, 140, 1000, now, &reset)
+	tr = trend(points, 140, 1000, now, &reset, 0)
 	if tr.AtReset == nil || *tr.AtReset != 240 {
 		t.Errorf("at its reset in ten days: %v", tr.AtReset)
 	}
-	if tr := trend(points[:1], 100, 1000, now, nil); tr.Known || tr.FullAt != nil {
+	if tr := trend(points[:1], 100, 1000, now, nil, 0); tr.Known || tr.FullAt != nil {
 		t.Errorf("one point: %+v", tr)
 	}
 	flat := []Point{{At: now.Add(-time.Hour), Used: 5, Of: 10}, {At: now, Used: 5, Of: 10}}
-	if tr := trend(flat, 5, 10, now, nil); !tr.Known || tr.PerDay != 0 || tr.FullAt != nil {
+	if tr := trend(flat, 5, 10, now, nil, 0); !tr.Known || tr.PerDay != 0 || tr.FullAt != nil {
 		t.Errorf("flat: %+v", tr)
 	}
 	falling := []Point{{At: now.Add(-24 * time.Hour), Used: 9, Of: 10}, {At: now, Used: 5, Of: 10}}
-	if tr := trend(falling, 5, 10, now, nil); tr.PerDay != -4 || tr.FullAt != nil {
+	if tr := trend(falling, 5, 10, now, nil, 0); tr.PerDay != -4 || tr.FullAt != nil {
 		t.Errorf("falling: %+v", tr)
 	}
-	if tr := trend(nil, 0, 0, now, nil); tr.Points == nil {
+	if tr := trend(nil, 0, 0, now, nil, 0); tr.Points == nil {
 		t.Error("no points is not an empty list")
+	}
+	// Points that span less than the least span tell no rate: a few minutes
+	// of a disk's churn are not a day's growth.
+	brief := []Point{{At: now.Add(-10 * time.Minute), Used: 1, Of: 100}, {At: now, Used: 9, Of: 100}}
+	if tr := trend(brief, 9, 100, now, nil, 24*time.Hour); tr.Known || tr.FullAt != nil || len(tr.Points) != 2 {
+		t.Errorf("ten minutes against a day's least span: %+v", tr)
+	}
+	if tr := trend(falling, 5, 10, now, nil, 24*time.Hour); !tr.Known {
+		t.Errorf("a day's points against a day's least span: %+v", tr)
 	}
 }
 
