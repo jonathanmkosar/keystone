@@ -639,10 +639,15 @@ func links(raw string) []Link {
 
 // Copy makes a whole copy of a New Keystone database that may be in use:
 // one file that holds everything the database and its write-ahead log
-// hold at one moment. It reads the source and never writes to it; while
-// it reads, SQLite may make its usual shared-memory file beside a database
-// in write-ahead mode, as any reader does. The copy must not be there
-// already.
+// hold at one moment. It reads the source and never writes to it. The copy
+// must not be there already.
+//
+// A database in write-ahead mode that some program has open has a
+// shared-memory file beside it (workspace.sqlite-shm), and a log that may
+// hold its newest turns. Such a database is read as any reader reads one,
+// through those files. One with neither is open nowhere, and is read as a
+// file nothing writes, so that SQLite does not make the two files beside
+// it: after a copy of a database at rest, its folder holds what it held.
 func Copy(from, to string) error {
 	src, err := filepath.Abs(from)
 	if err != nil {
@@ -660,7 +665,11 @@ func Copy(from, to string) error {
 	if _, err := os.Lstat(dst); err == nil {
 		return fmt.Errorf("%s is already there, and a copy never replaces a file: give it a new name", dst)
 	}
-	db, err := sql.Open("sqlite", dsn(src, "mode=ro&_pragma=busy_timeout(10000)"))
+	query := "mode=ro&immutable=1"
+	if inUse(src) {
+		query = "mode=ro&_pragma=busy_timeout(10000)"
+	}
+	db, err := sql.Open("sqlite", dsn(src, query))
 	if err != nil {
 		return sourcef("%v", err)
 	}
@@ -678,4 +687,15 @@ func Copy(from, to string) error {
 		return fmt.Errorf("the copy was written and does not read back: %w", err)
 	}
 	return copied.Close()
+}
+
+// inUse says a database file has a shared-memory file beside it, or a log
+// that holds something: a program has it open, or stopped without closing
+// it.
+func inUse(path string) bool {
+	if _, err := os.Stat(path + "-shm"); err == nil {
+		return true
+	}
+	side, err := os.Stat(path + "-wal")
+	return err == nil && side.Size() > 0
 }

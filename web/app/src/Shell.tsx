@@ -5,6 +5,7 @@ import { titleOf, useChats } from "./chats";
 import { ChatLinks } from "./ChatLinks";
 import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
+import { ImportedTag } from "./Imported";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -43,6 +44,7 @@ function ChatLink({ chat }: { chat: Chat }) {
   return (
     <NavLink to={`/chats/${chat.id}`} className="nav" title={chat.title || undefined}>
       <span className={chat.title ? "nav-text" : "nav-text nav-untitled"}>{titleOf(chat)}</span>
+      <ImportedTag chat={chat} />
     </NavLink>
   );
 }

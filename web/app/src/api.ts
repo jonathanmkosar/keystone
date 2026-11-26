@@ -154,6 +154,28 @@ export type Chat = {
   active: string;
   /** A turn is queued or running in the chat. */
   busy: boolean;
+  /** The mark of a chat that was brought in from another app. Absent on a chat made here (P12-03). */
+  imported?: Imported;
+};
+
+/** Where an imported chat came from, and what was recorded of it there (docs/architecture/import.md). */
+export type Imported = {
+  /** The app's name, such as New Keystone. */
+  from: string;
+  /** A stretch of that app's continuing chat, a routine's run, or a build. */
+  kind: "chat" | "routine" | "build";
+  /** When it was imported. */
+  at: string;
+  turns: number;
+  /** How many of its turns have no reply. */
+  unanswered?: number;
+  /** The times of its first and last message there. */
+  first: string;
+  last: string;
+  /** The models that app named for its replies. */
+  models: string[];
+  /** What that app recorded that the chat record cannot hold, in words. */
+  note?: string;
 };
 
 /** One piece of a message's content, in the model seam's format. */

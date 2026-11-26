@@ -535,6 +535,18 @@ func TestWhatIsNotAWholeCopyIsRefused(t *testing.T) {
 	if err := importer.Copy(live, whole); err == nil || !strings.Contains(err.Error(), "already there") {
 		t.Errorf("a copy replaced a file: %v", err)
 	}
+	// A database at rest is copied without a file being made beside it.
+	rest := filepath.Join(g.dir, "rest", "workspace.sqlite")
+	os.MkdirAll(filepath.Dir(rest), 0o700)
+	if err := importertest.Build(rest, importertest.Standard()); err != nil {
+		t.Fatal(err)
+	}
+	if err := importer.Copy(rest, filepath.Join(g.dir, "rest-copy.sqlite")); err != nil {
+		t.Fatal(err)
+	}
+	if left, _ := os.ReadDir(filepath.Dir(rest)); len(left) != 1 {
+		t.Errorf("copying a database at rest left %d files in its folder, want the one", len(left))
+	}
 
 	// Two workspaces: one must be named, and only it is brought.
 	second := importertest.Fixture{Workspace: "Marlow", Turns: []importertest.Turn{{ID: strings.Repeat("d", 32), Prompt: "Where is the trowel?", Reply: "In the potting shed.", At: now.Add(-time.Hour), Took: time.Second}}}
