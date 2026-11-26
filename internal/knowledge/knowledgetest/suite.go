@@ -115,6 +115,7 @@ var checks = []check{
 	{"add source", true, checkAddSource},
 	{"vector search", true, checkVectorSearch},
 	{"page vectors", true, checkPageVectors},
+	{"remove source", true, checkRemoveSource},
 }
 
 // runCheck runs one check and returns what it found wrong. The suite's own
@@ -420,6 +421,9 @@ func checkUnsupported(p *probe) {
 		want("VectorsNeeded", err)
 		want("PutVector", s.PutVector(ctx, knowledge.PageVector{PageID: noSuchID, Revision: "1", Model: VectorModel, Vector: vecGarden}))
 	}
+	if !caps.RemoveSource {
+		want("RemoveSource", s.RemoveSource(ctx, noSuchID))
+	}
 }
 
 func checkCancelled(p *probe) {
@@ -462,6 +466,7 @@ func checkCancelled(p *probe) {
 		{"PutVector", caps.PageVectors, func() error {
 			return s.PutVector(ctx, knowledge.PageVector{PageID: pageID, Revision: revision, Model: VectorModel, Vector: vecGarden})
 		}},
+		{"RemoveSource", caps.RemoveSource, func() error { return s.RemoveSource(ctx, sourceID) }},
 	}
 	for _, c := range calls {
 		err := c.err()
@@ -936,5 +941,91 @@ func checkPageVectors(p *probe) {
 		p.errorf("a page that changed after its vector was stored is missing from VectorsNeeded")
 	} else if !n.Stale {
 		p.errorf("a page that changed after its vector was stored is listed as having no vector: %+v", n)
+	}
+}
+
+// checkRemoveSource (P6-07): a removed source can no longer be read or
+// found, a page that cited it no longer does and moves on a revision, and
+// nothing else goes with it.
+func checkRemoveSource(p *probe) {
+	ctx := context.Background()
+	s := p.seeded(base(false))
+	if !s.Capabilities().RemoveSource {
+		p.skipped = "the store has no RemoveSource"
+		return
+	}
+	garden, _, sleep, ok := p.ids(s)
+	if !ok {
+		return
+	}
+	before, err := s.ReadPage(ctx, garden)
+	if err != nil || len(before.Sources) != 1 {
+		p.errorf("the raised beds page reads as %+v, error %v: it should cite the seed order", before, err)
+		return
+	}
+	order := before.Sources[0]
+	sleepPage, err := s.ReadPage(ctx, sleep)
+	if err != nil || len(sleepPage.Sources) != 1 {
+		p.errorf("the sleep page reads as %+v, error %v: it should cite the clinic letter", sleepPage, err)
+		return
+	}
+	clinic := sleepPage.Sources[0]
+
+	if err := s.RemoveSource(ctx, noSuchID); !errors.Is(err, knowledge.ErrNotFound) {
+		p.errorf("RemoveSource of an id the store does not hold: error %v, want ErrNotFound", err)
+	}
+	if err := s.RemoveSource(ctx, order); err != nil {
+		p.errorf("RemoveSource of the seed order: %v", err)
+		return
+	}
+	if _, err := s.ReadSource(ctx, order); !errors.Is(err, knowledge.ErrNotFound) {
+		p.errorf("ReadSource of a removed source: error %v, want ErrNotFound", err)
+	}
+	for _, q := range []knowledge.Query{{Text: "marigold"}, {Text: "marigold", Space: spaceHome}} {
+		if _, found := hitFor(p.search(s, q, baseSensitive), knowledge.HitSource, order); found {
+			p.errorf("Search(%+v) still finds the removed source", q)
+		}
+	}
+	after, err := s.ReadPage(ctx, garden)
+	switch {
+	case err != nil:
+		p.errorf("the page that cited the removed source cannot be read: %v; the page stays", err)
+	case len(after.Sources) != 0:
+		p.errorf("the page that cited the removed source still cites %v", after.Sources)
+	case after.Revision == before.Revision:
+		p.errorf("the page that cited the removed source keeps its revision %q: what it cites changed", after.Revision)
+	case strings.TrimSpace(after.Body) != strings.TrimSpace(before.Body):
+		p.errorf("the page that cited the removed source changed its body to %q", after.Body)
+	}
+	if _, found := hitFor(p.search(s, knowledge.Query{Text: "tomatoes"}, baseSensitive), knowledge.HitPage, garden); !found {
+		p.errorf("the page that cited the removed source is no longer found")
+	}
+	if got, err := s.ReadSource(ctx, clinic); err != nil || got.ID != clinic {
+		p.errorf("the source that was not removed reads as %+v, error %v", got, err)
+	}
+	if err := s.RemoveSource(ctx, order); !errors.Is(err, knowledge.ErrNotFound) {
+		p.errorf("RemoveSource of a source removed already: error %v, want ErrNotFound", err)
+	}
+
+	// A source in a sensitive space goes the same way.
+	if err := s.RemoveSource(ctx, clinic); err != nil {
+		p.errorf("RemoveSource of the clinic letter, in a sensitive space: %v", err)
+	} else if _, found := hitFor(p.search(s, knowledge.Query{Text: "autumn"}, baseSensitive), knowledge.HitSource, clinic); found {
+		p.errorf("a search still finds the removed source of the sensitive space")
+	}
+
+	// And so does a source added through the interface.
+	if !s.Capabilities().AddSource {
+		return
+	}
+	added, err := s.AddSource(ctx, chatFacts(spaceNotes))
+	if err != nil {
+		p.errorf("AddSource: %v", err)
+		return
+	}
+	if err := s.RemoveSource(ctx, added.ID); err != nil {
+		p.errorf("RemoveSource of an added source: %v", err)
+	} else if _, found := hitFor(p.search(s, knowledge.Query{Text: "hinge"}, baseSensitive), knowledge.HitSource, added.ID); found {
+		p.errorf("a search still finds the added source after it was removed")
 	}
 }

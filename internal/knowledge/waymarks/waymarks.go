@@ -208,6 +208,14 @@ func (s *store) Capabilities() knowledge.Capabilities {
 	}
 }
 
+// RemoveSource is not offered. Waymarks keeps every source unchanged: it
+// has no call that removes one, and only its owner may erase one, with the
+// owner's own token, which Keystone never holds (decision 0371). Keystone
+// withdraws a source it was asked to forget instead (knowledge.Withdraw).
+func (s *store) RemoveSource(context.Context, string) error {
+	return knowledge.ErrNotSupported
+}
+
 // Close lets go of the connections the handle kept open.
 func (s *store) Close() error {
 	s.http.CloseIdleConnections()

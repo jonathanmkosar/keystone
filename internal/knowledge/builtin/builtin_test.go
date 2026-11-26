@@ -65,7 +65,7 @@ func fresh(t *testing.T) (knowledge.Store, *tenant.Store) {
 // functions.
 func seed(t *testing.T, s knowledge.Store, c knowledgetest.Content) {
 	t.Helper()
-	ts := s.(*store).t
+	ts := knowledge.Unwrap(s).(*store).t
 	for _, space := range c.Sensitive {
 		if err := SetLabel(bg, ts, space, knowledge.LabelSensitive); err != nil {
 			t.Fatal(err)
@@ -108,7 +108,7 @@ func TestContract(t *testing.T) {
 
 func TestItClaimsEveryCapability(t *testing.T) {
 	s, _ := fresh(t)
-	want := knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true}
+	want := knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true, RemoveSource: true}
 	if got := s.Capabilities(); got != want {
 		t.Errorf("Capabilities() = %+v, want %+v", got, want)
 	}
