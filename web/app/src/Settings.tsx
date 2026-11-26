@@ -30,6 +30,7 @@ import { StyleSettings } from "./StyleSettings";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
 import { UsageSettings } from "./UsageSettings";
+import { ShareSettings } from "./ShareSettings";
 
 // The settings screens (P11-01). docs/architecture/settings-screens.md
 // describes them. Every server call they make is in api.ts.
@@ -44,6 +45,7 @@ const screens: { to: string; label: string }[] = [
   { to: "styles", label: "Styles" },
   { to: "usage", label: "Usage" },
   { to: "operations", label: "Operations" }, // the page at /operations (P11-03)
+  { to: "sharing", label: "Shared links" },
 ];
 
 type Props = {
@@ -157,6 +159,7 @@ export function Settings(props: Props) {
         <Route path="styles" element={<StyleSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route path="usage" element={<UsageSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="sharing" element={<ShareSettings onSignedOut={props.onSignedOut} />} />
         <Route path="spend" element={<Navigate to="/settings/usage" replace />} />
         <Route path="operations" element={<Navigate to="/operations" replace />} />
         <Route path="*" element={<Navigate to="/settings/profile" replace />} />

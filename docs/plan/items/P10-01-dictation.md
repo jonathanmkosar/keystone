@@ -1,6 +1,6 @@
 # P10-01. Dictation
 
-Status: todo
+Status: doing (interface)
 Lane: interface
 Depends on: P4-04
 Owner gate: none

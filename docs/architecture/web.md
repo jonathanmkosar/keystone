@@ -513,6 +513,10 @@ Bars and trend lines are inline SVG whose sizes are attributes, coloured by clas
 
 Seen in a browser on November 26, 2026, in the browser pane, against a stand-in on port 7942 that served the page built from this branch and answered the session and the two Operations routes from `operations.Read` and `operations.Watch` on the test tenant's data folder (inside the worktree, removed afterwards), with a week of generated snapshots, invented turns, a running task at 82% of its budget, and the test tenant's own disk watch level set to 1%: the notice on the home screen naming the disk and the task, **See Operations** opening the page with every section filled, the Settings tab going to `/operations`, in light at desktop width and in dark at phone width with no page that scrolls sideways (a hidden header word that escaped its scrolling card was fixed). The only console errors were the stand-in's 404s for routes it does not serve. The real server built from this branch was started on port 7941 with the same folder and answered 401 to both routes with no session; signing in to it was left to a person, so the page has not been seen against the real server, and a trace's link has not opened the inspector.
 
+## Share links (P10-04)
+
+The Share button in a chat's header, where the mockups draw it, and its popover (`ShareControl.tsx`, one line in `ChatLinks.tsx`); Settings → Shared links (`ShareSettings.tsx`, three lines in `Settings.tsx`); and the shared page at `/share/<token>` (`Shared.tsx`), which `main.tsx` draws in place of the app, so nothing asks who is signed in. The page reads the link with `credentials: "omit"`, imports nothing from `api.ts`, and draws text only: replies through `Markdown.tsx`, artifacts as source in a code block. Calls in `share.ts`; styles in `share.css`, from the tokens. Provisional: only the button has a mockup. See [share.md](share.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

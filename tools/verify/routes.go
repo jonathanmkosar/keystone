@@ -35,6 +35,10 @@ import (
 var doorRoutes = map[string]string{
 	"GET /api/v1/signin/people": "the sign-in screen asks who is signing in, before there is a session",
 	"POST /api/v1/session":      "signing in is how a session begins",
+	// Share links (P10-04): the only doors to a tenant's data that are not a
+	// sign-in. Each finds its one tenant from the link's token alone.
+	"GET /api/v1/shared/{token}":                "a share link shows its one chat, read-only, to someone who has not signed in",
+	"GET /api/v1/shared/{token}/images/{image}": "an image of a message a share link shows, when its person lets images show",
 }
 
 // Invented passwords, used in throwaway folders only.

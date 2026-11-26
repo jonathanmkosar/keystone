@@ -5276,6 +5276,216 @@
         "summary": "Put a message on the chat's current branch: step to a sibling at a branch point, or open a search result."
       }
     },
+    "/api/v1/chats/{id}/shares": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "links": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "chat_title": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "expires": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_viewed": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "revoked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "view": {
+                            "type": "string"
+                          },
+                          "views": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "chat_title",
+                          "view",
+                          "created",
+                          "views",
+                          "state"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "links"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The chat's share links, the newest first, with whether each opens."
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "view": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "link": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "chat_title": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_viewed": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "revoked": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "view": {
+                          "type": "string"
+                        },
+                        "views": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "chat_title",
+                        "view",
+                        "created",
+                        "views",
+                        "state"
+                      ],
+                      "type": "object"
+                    },
+                    "path": {
+                      "type": "string"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "link",
+                    "token",
+                    "path"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Make a read-only link to the chat that anyone who has it can open without signing in. The token is in the answer this once and is never kept. Refused for a chat held for content from a sensitive space, an incognito chat, an empty chat, and past share.max_links open links."
+      }
+    },
     "/api/v1/chats/{id}/skips": {
       "get": {
         "parameters": [
@@ -18336,6 +18546,356 @@
           }
         },
         "summary": "Store the person's own value for one setting. Refused for a setting that is not theirs to change, and for a fixed rule."
+      }
+    },
+    "/api/v1/shared/{token}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "as_of": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "entries": {
+                      "items": {
+                        "properties": {
+                          "parts": {
+                            "items": {
+                              "properties": {
+                                "artifact": {
+                                  "properties": {
+                                    "content": {
+                                      "type": "string"
+                                    },
+                                    "language": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    },
+                                    "version": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "title",
+                                    "type",
+                                    "version",
+                                    "content"
+                                  ],
+                                  "type": "object"
+                                },
+                                "failed": {
+                                  "type": "boolean"
+                                },
+                                "image": {
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "media_type": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "text": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "kind"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "role": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "role",
+                          "parts"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "shared": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "view": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "view",
+                    "shared",
+                    "entries"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [],
+        "summary": "What a share link shows, to anyone who has it, without signing in: one chat's title and messages, as words, images and names, and nothing else of the person's. 404 for a link that is not there, 410 for one turned off or expired, 403 for one whose chat is now held for sensitive content or incognito. Every call is in the audit log, without the token.",
+        "x-keystone-door": true
+      }
+    },
+    "/api/v1/shared/{token}/images/{image}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "image",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [],
+        "summary": "An image of a message a share link shows, when the person lets images show, without signing in.",
+        "x-keystone-door": true
+      }
+    },
+    "/api/v1/shares": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "links": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "chat_title": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "expires": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_viewed": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "revoked": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "view": {
+                            "type": "string"
+                          },
+                          "views": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "chat_title",
+                          "view",
+                          "created",
+                          "views",
+                          "state"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "links"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every share link of the person, the newest first, with whether each opens."
+      }
+    },
+    "/api/v1/shares/{share}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "share",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "link": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "chat_title": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_viewed": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "revoked": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "view": {
+                          "type": "string"
+                        },
+                        "views": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "chat_title",
+                        "view",
+                        "created",
+                        "views",
+                        "state"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "link"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Turn a share link off for good. It then answers 410 to anyone who opens it, and stays in the list."
       }
     },
     "/api/v1/signin/people": {

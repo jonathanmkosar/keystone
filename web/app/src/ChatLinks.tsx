@@ -12,6 +12,7 @@ import { useAttached } from "./attached";
 import { useChats } from "./chats";
 import { Icon } from "./Icon";
 import { pickModel } from "./modelPicks";
+import { ShareControl } from "./ShareControl";
 import { isActive, useLive } from "./turns";
 import "./attach.css";
 
@@ -73,6 +74,7 @@ export function ChatLinks({ id }: { id: string }) {
           <span className="handoff-label">{busy ? "Handing off…" : "Hand off"}</span>
         </button>
       )}
+      {a && !a.incognito && <ShareControl chatId={id} />}
     </div>
   );
 }

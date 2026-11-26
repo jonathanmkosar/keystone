@@ -29,6 +29,8 @@ var keyShapes = []*regexp.Regexp{
 	regexp.MustCompile(`eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}`),
 	// Keystone's own session token (internal/signin).
 	regexp.MustCompile(`kss_[a-f0-9]+_[a-f0-9]{64}`),
+	// A share link's token (internal/share, P10-04).
+	regexp.MustCompile(`ksh_[a-f0-9]+_[a-f0-9]{64}`),
 }
 
 var (
