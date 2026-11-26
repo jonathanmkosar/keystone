@@ -113,6 +113,7 @@ var checks = []check{
 	{"background tasks", checkBackgroundTasks},
 	{"past chats", checkPastChats},
 	{"scheduled tasks", checkSchedules},
+	{"memory screens", checkMemoryScreens},
 }
 
 func main() {

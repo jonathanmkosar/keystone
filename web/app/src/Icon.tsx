@@ -117,6 +117,20 @@ const shapes = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  // The Memory screen's (P6-07): a page with a corner turned down.
+  memory: (
+    <>
+      <path d="M6 3h9l3 3v15H6z" />
+      <path d="M9 10h6M9 14h6M9 18h4" />
+    </>
+  ),
+  // An incognito chat's (P6-07): an eye with a line through it.
+  incognito: (
+    <>
+      <path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z" />
+      <path d="M4 4l16 16" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;
