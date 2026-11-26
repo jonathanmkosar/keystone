@@ -72,6 +72,13 @@
       "description": "How long the fake provider waits before each piece of a streamed reply, so a chat in the test tenant streams at a speed a person can watch. Tests use no wait."
     },
     {
+      "key": "fake.embedding_size",
+      "type": "int",
+      "default": "1024",
+      "scope": "install",
+      "description": "How many numbers each vector the fake provider makes holds, when a registry entry on the fake adapter is an embedding model, from 1 to 65536. Zero makes the fake make no vectors."
+    },
+    {
       "key": "models.max_per_tenant",
       "type": "int",
       "default": "50",

@@ -247,7 +247,7 @@ func everyCall(ctx context.Context, s knowledge.Store) map[string]error {
 	_, out["ReadSource"] = s.ReadSource(ctx, "1")
 	_, out["AddSource"] = s.AddSource(ctx, knowledge.NewSource{Space: "home", Name: "chat-facts", Facts: []knowledge.Fact{{Text: "The heron comes at dusk."}}})
 	_, out["CatalogMarker"] = s.CatalogMarker(ctx)
-	_, out["VectorsNeeded"] = s.VectorsNeeded(ctx, 0)
+	_, out["VectorsNeeded"] = s.VectorsNeeded(ctx, "", 0)
 	out["PutVector"] = s.PutVector(ctx, knowledge.PageVector{PageID: "1", Revision: "1", Model: knowledgetest.VectorModel, Vector: []float32{1, 0, 0, 0}})
 	return out
 }
@@ -529,7 +529,7 @@ func TestWhatIsRefused(t *testing.T) {
 	}
 	// An instance that takes no vectors says so, as a call it will not take.
 	f.set(func(f *fake) { f.model, f.size = "", 0 })
-	if _, err := s.VectorsNeeded(bg, 0); !errors.Is(err, knowledge.ErrInvalid) {
+	if _, err := s.VectorsNeeded(bg, "", 0); !errors.Is(err, knowledge.ErrInvalid) {
 		t.Errorf("VectorsNeeded on an instance that takes no vectors: error %v, want ErrInvalid", err)
 	}
 }

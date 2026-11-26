@@ -248,10 +248,12 @@ type Store interface {
 	// the catalog did. Needs CatalogMarker.
 	CatalogMarker(ctx context.Context) (string, error)
 
-	// VectorsNeeded lists pages with no vector or a stale one. Limit is the
-	// most wanted, and zero or less leaves it to the store. Needs
-	// PageVectors.
-	VectorsNeeded(ctx context.Context, limit int) ([]PageNeed, error)
+	// VectorsNeeded lists pages with no vector of the embedding model named,
+	// or a stale one. A vector of another model counts as none (P6-08), so
+	// when the model changes every page is listed again. An empty model
+	// takes a vector of any model. Limit is the most wanted, and zero or
+	// less leaves it to the store. Needs PageVectors.
+	VectorsNeeded(ctx context.Context, model string, limit int) ([]PageNeed, error)
 
 	// PutVector stores the vector made from one revision of a page. It
 	// returns ErrStale when that revision is no longer the page's own, and

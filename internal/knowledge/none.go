@@ -54,7 +54,7 @@ func (none) CatalogMarker(context.Context) (string, error) {
 	return "", ErrNotSupported
 }
 
-func (none) VectorsNeeded(context.Context, int) ([]PageNeed, error) {
+func (none) VectorsNeeded(context.Context, string, int) ([]PageNeed, error) {
 	return nil, ErrNotSupported
 }
 

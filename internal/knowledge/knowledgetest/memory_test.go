@@ -329,7 +329,7 @@ func (m *memory) CatalogMarker(ctx context.Context) (string, error) {
 	return "change " + strconv.Itoa(m.changes), nil
 }
 
-func (m *memory) VectorsNeeded(ctx context.Context, limit int) ([]knowledge.PageNeed, error) {
+func (m *memory) VectorsNeeded(ctx context.Context, model string, limit int) ([]knowledge.PageNeed, error) {
 	if !m.caps.PageVectors {
 		return nil, knowledge.ErrNotSupported
 	}
@@ -339,10 +339,14 @@ func (m *memory) VectorsNeeded(ctx context.Context, limit int) ([]knowledge.Page
 	if limit <= 0 {
 		limit = 100
 	}
+	// The store keeps vectors of VectorModel alone, so for another model
+	// every page has none.
+	other := model != "" && model != VectorModel
 	var out []knowledge.PageNeed
 	for _, pg := range m.sorted() {
-		stale := pg.vec != nil && pg.vecRev != pg.rev
-		if pg.vec != nil && (!stale || m.fault == faultForgetsStale) {
+		has := pg.vec != nil && !other
+		stale := has && pg.vecRev != pg.rev
+		if has && (!stale || m.fault == faultForgetsStale) {
 			continue
 		}
 		if len(out) == limit {

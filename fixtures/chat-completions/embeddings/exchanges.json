@@ -1,0 +1,115 @@
+{
+  "test_data": true,
+  "about": "Hand-written embedding exchanges for the Chat Completions adapter (P6-08), in the shape each kind of endpoint answers POST /embeddings. Everything is invented: the models, the addresses, the texts, the numbers and the token counts. The tests in internal/adapters/chatcompletions replay them from a server on this machine.",
+  "exchanges": [
+    {
+      "name": "ollama-two-texts",
+      "style": "ollama",
+      "about": "A local endpoint that asks for no key. Two texts, each vector with its index, and usage that gives prompt tokens.",
+      "entry": {
+        "name": "house-embed",
+        "label": "House embed",
+        "adapter": "chat_completions",
+        "endpoint": "http://127.0.0.1:11434/v1",
+        "provider_model": "example-embed:v1",
+        "context_window": 8192,
+        "output_limit": 1,
+        "capabilities": ["embedding"],
+        "price": {"input": 0, "output": 0},
+        "class": "local"
+      },
+      "uses_key": false,
+      "request": {"model": "house-embed", "texts": ["Runner beans go in the north bed.", "When is the orchard cut back?"]},
+      "sent": {"model": "example-embed:v1", "input": ["Runner beans go in the north bed.", "When is the orchard cut back?"], "encoding_format": "float"},
+      "answer": {
+        "object": "list",
+        "model": "example-embed:v1",
+        "data": [
+          {"object": "embedding", "index": 0, "embedding": [0.25, -0.5, 0.75, 0.125]},
+          {"object": "embedding", "index": 1, "embedding": [-0.125, 0.5, 0.25, 0.8]}
+        ],
+        "usage": {"prompt_tokens": 17, "total_tokens": 17}
+      },
+      "response": {
+        "model": "house-embed",
+        "vectors": [[0.25, -0.5, 0.75, 0.125], [-0.125, 0.5, 0.25, 0.8]],
+        "usage": {"input_tokens": 17, "output_tokens": 0}
+      }
+    },
+    {
+      "name": "litellm-out-of-order",
+      "style": "litellm",
+      "about": "A key. The vectors come back out of order, each with its index, and the usage gives total tokens alone.",
+      "entry": {
+        "name": "proxy-embed",
+        "label": "Proxy embed",
+        "adapter": "chat_completions",
+        "endpoint": "http://127.0.0.1:4000/v1",
+        "provider_model": "example-embed-small",
+        "key": "provider.proxy",
+        "context_window": 8192,
+        "output_limit": 1,
+        "capabilities": ["embedding"],
+        "price": {"input": 0.02, "output": 0},
+        "class": "trusted"
+      },
+      "uses_key": true,
+      "request": {"model": "proxy-embed", "texts": ["Attic boards", "Shed roof", "Garden gate"]},
+      "sent": {"model": "example-embed-small", "input": ["Attic boards", "Shed roof", "Garden gate"], "encoding_format": "float"},
+      "answer": {
+        "data": [
+          {"index": 2, "embedding": [0.0, 0.0, 1.0]},
+          {"index": 0, "embedding": [1.0, 0.0, 0.0]},
+          {"index": 1, "embedding": [0.0, 1.0, 0.0]}
+        ],
+        "usage": {"total_tokens": 9}
+      },
+      "response": {
+        "model": "proxy-embed",
+        "vectors": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+        "usage": {"input_tokens": 9, "output_tokens": 0}
+      }
+    },
+    {
+      "name": "gateway-no-usage",
+      "style": "gateway",
+      "about": "A key, and no index or usage in the answer: the vectors are taken in the order they came, and the tokens are left for Keystone to count.",
+      "entry": {
+        "name": "gateway-embed",
+        "label": "Gateway embed",
+        "adapter": "chat_completions",
+        "endpoint": "http://127.0.0.1:8443/v1",
+        "provider_model": "example-gateway-embed",
+        "key": "provider.gateway",
+        "context_window": 2048,
+        "output_limit": 1,
+        "capabilities": ["embedding"],
+        "price": {"input": 0, "output": 0},
+        "class": "local"
+      },
+      "uses_key": true,
+      "request": {"model": "gateway-embed", "texts": ["Tomatoes stay in the greenhouse until June."]},
+      "sent": {"model": "example-gateway-embed", "input": ["Tomatoes stay in the greenhouse until June."], "encoding_format": "float"},
+      "answer": {"data": [{"embedding": [0.5, 0.5, -0.5, 0.5]}]},
+      "response": {
+        "model": "gateway-embed",
+        "vectors": [[0.5, 0.5, -0.5, 0.5]],
+        "usage": {"input_tokens": 0, "output_tokens": 0}
+      }
+    }
+  ],
+  "refusals": [
+    {"name": "no key", "status": 401, "body": {"error": {"message": "invalid api key", "type": "authentication_error"}}, "kind": "auth"},
+    {"name": "rate limited", "status": 429, "body": {"error": {"message": "slow down", "type": "rate_limit_error"}}, "kind": "rate_limited"},
+    {"name": "not an embedding model", "status": 400, "body": {"error": {"message": "model does not support embeddings", "type": "invalid_request_error"}}, "kind": "invalid"},
+    {"name": "a fault", "status": 500, "body": {"error": "the model is not loaded"}, "kind": "unavailable"}
+  ],
+  "malformed": [
+    {"name": "one vector short", "body": {"data": [{"index": 0, "embedding": [1.0, 0.0]}]}},
+    {"name": "an index twice", "body": {"data": [{"index": 0, "embedding": [1.0, 0.0]}, {"index": 0, "embedding": [0.0, 1.0]}]}},
+    {"name": "two sizes", "body": {"data": [{"index": 0, "embedding": [1.0, 0.0]}, {"index": 1, "embedding": [0.0, 1.0, 0.0]}]}},
+    {"name": "all zeros", "body": {"data": [{"index": 0, "embedding": [1.0, 0.0]}, {"index": 1, "embedding": [0.0, 0.0]}]}},
+    {"name": "an error inside a success", "body": {"error": {"message": "the batch was too large"}}},
+    {"name": "not JSON", "body": "<html>a proxy's page</html>"}
+  ]
+}
