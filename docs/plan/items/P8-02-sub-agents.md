@@ -1,6 +1,6 @@
 # P8-02. Sub-agents
 
-Status: doing (agents)
+Status: provisional
 Lane: agents + interface
 Depends on: P8-01
 Owner gate: Approval of the agent mockups (P1-05), for the lanes only.
@@ -34,4 +34,13 @@ Built on the branch `agents/p8-02-sub-agents`, cut from `reboot` at 9a3b55a.
 **The proof**, with the fake provider: three sub-agents overlap in time (fake calls that wait for each other) and the parent's next call carries their three results; a sub-agent past its budget stops and says so; the pause switch stops them within seconds. A standing check `sub-agents` in `verify` runs it on the real server.
 
 **Left for later:** sub-agent chats stay in the sidebar as task chats do (an owner question); a sub-agent may still be offered `start_background_task`, which asks as everywhere; research mode (P8-04) builds on this.
+
+### Result (agents, November 26, 2026)
+
+Provisional on the agent mockups (P1-05) for the lanes only. The server side is complete and the proof passes with the fake provider.
+
+- **Built as planned**: `internal/subagents` (the tool `run_subagents`, a turn of a chat of its own for each sub-agent, registered as an unattended run with its budget, run `agents.subagents_at_once` at a time by a supervisor under the turn runner, results back as the tool's result, three routes) and its guard `internal/subagents/carry` for fixed rules 2 and 3; `turn.Options.MaxSteps`; `tools.Tool.Timeout` and `tools.Input.CallID`; the lanes (`web/app/src/Subagents.tsx`); a recorded test-tenant turn with three sub-agents; six settings; the migration `20261126T010700_subagents.sql`; the standing check `sub-agents`, which makes `verify` 34 of 34. Decisions 0480 to 0485. The doc is `docs/architecture/sub-agents.md`.
+- **The proof**: three sub-agents overlap in time (each fake call waits until all three are under way) and the parent's next call carries their three results (`TestThreeSubagentsRunInParallelAndTheirResultsReachTheParent`, and the `sub-agents` check on the real server); a sub-agent past its budget stops and says so; the pause switch stops three within seconds. Seen in a browser as the test tenant.
+- **Provisional**: the lanes' look, until the agent mockups are approved.
+- **Owner questions**: whether sub-agent chats stay in the sidebar, and whether `run_subagents` should ask first (journal agents 010).
 
