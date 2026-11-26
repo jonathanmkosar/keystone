@@ -42,6 +42,9 @@ type Input struct {
 	Args json.RawMessage
 	// ChatID is the chat the turn runs in.
 	ChatID string
+	// CallID is the id of the model's tool call this run answers (P8-02:
+	// the sub-agents a call starts are shown under it).
+	CallID string
 }
 
 // Tool is one tool.
@@ -81,6 +84,11 @@ type Tool struct {
 	// and Run must return soon after. An error becomes an error result
 	// with the error's text, so it is written for the model to read.
 	Run func(ctx context.Context, in Input) (string, error)
+	// Timeout is how long one call of the tool may run, when that is longer
+	// than the call's own timeout (P8-02: run_subagents waits for its
+	// sub-agents, which agents.tool_timeout would cut short). Zero means the
+	// call's.
+	Timeout time.Duration
 }
 
 // Info is a tool without its function, for a list.
@@ -406,6 +414,9 @@ func (r *Registry) run(ctx context.Context, c Call, input json.RawMessage) Resul
 		return Result{Block: failed(c.ID, "The turn was stopped before this tool ran."), Status: StatusStopped}
 	}
 
+	if t.Timeout > c.Timeout && c.Timeout > 0 {
+		c.Timeout = t.Timeout // the tool's own, longer limit (P8-02)
+	}
 	runCtx, cancel := ctx, context.CancelFunc(func() {})
 	if c.Timeout > 0 {
 		runCtx, cancel = context.WithTimeout(ctx, c.Timeout)
@@ -425,7 +436,7 @@ func (r *Registry) run(ctx context.Context, c Call, input json.RawMessage) Resul
 				done <- outcome{panicked: true, err: fmt.Errorf("%v", p)}
 			}
 		}()
-		text, err := t.Run(runCtx, Input{Store: c.Store, Args: input, ChatID: c.ChatID})
+		text, err := t.Run(runCtx, Input{Store: c.Store, Args: input, ChatID: c.ChatID, CallID: c.ID})
 		done <- outcome{text: text, err: err}
 	}()
 

@@ -37,6 +37,13 @@ func Tools(c Config) (*tools.Registry, error) {
 	if err := artifacts.Add(r, c.Artifacts); err != nil {
 		return nil, err
 	}
+	// Sub-agents (P8-02): a model starts several at once and waits for their
+	// results. A caller with no sub-agent runner gets no such tool.
+	if c.subagents != nil {
+		if err := c.subagents.AddTool(r); err != nil {
+			return nil, err
+		}
+	}
 	return r, nil
 }
 

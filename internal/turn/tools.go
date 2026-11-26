@@ -118,7 +118,7 @@ func (r *Runner) toolStep(ctx context.Context, s *tenant.Store, t row, step int,
 		r.logf("turns: %s turn %s: %s: %v", t.requestID, t.ID, what, err)
 		return tail, false, &TurnError{Code: CodeFailed, Message: "The turn failed inside Keystone. The reason is in the server's log."}, false
 	}
-	atLimit := step >= r.o.Config.MaxSteps
+	atLimit := step >= r.maxSteps(ctx, s, t.ChatID)
 	on := r.toolsOn(ctx, s)
 	// The approval policy (P7-02, approvals.go): every call is decided, and
 	// those that ask are answered by the person, before any of them runs.

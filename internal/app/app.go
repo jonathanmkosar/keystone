@@ -22,6 +22,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
+	"github.com/jonathanmkosar/keystone/internal/subagents"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
@@ -106,6 +107,12 @@ type Config struct {
 	// wiki keeps the wiki jobs' schedules and writes their answers. Handler
 	// and routes make it, after the scheduler; Handler starts it.
 	wiki *wikijobs.Runner
+	// Subagents is what sub-agents run with (P8-02), in settings/agents.json.
+	Subagents subagents.Config
+	// subagents starts sub-agents and gathers their results. Handler, Open
+	// and routes make it before the turn runner, so run_subagents can be
+	// given it, and bind it to the turn runner after.
+	subagents *subagents.Runner
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -164,6 +171,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	if c.WikiJobs, err = wikijobs.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
+	// Sub-agents' settings (P8-02), in settings/agents.json.
+	if c.Subagents, err = subagents.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
 	read := func(key string, parse func(string) error) {
 		if err != nil {
 			return
@@ -219,11 +230,15 @@ func routes(c Config, log *api.Log) []api.Route {
 	if c.jobs == nil {
 		c.jobs = c.newJobs(log) // background tasks (P8-01), before the turn runner and its tools
 	}
+	if c.subagents == nil {
+		c.subagents = c.newSubagents(log) // sub-agents (P8-02), before the turn runner and its tools
+	}
 	runner := c.runner
 	if runner == nil {
 		runner = turn.NewRunner(c.turnOptions(log))
 	}
 	c.jobs.Bind(runner)
+	c.subagents.Bind(runner)
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
@@ -260,6 +275,8 @@ func routes(c Config, log *api.Log) []api.Route {
 		c.wiki = c.newWiki(log)
 	}
 	all = append(all, wikijobs.Routes(c.wiki)...)
+	// Sub-agents (P8-02): a chat's lanes, and a stop for one.
+	all = append(all, subagents.Routes(c.subagents)...)
 	return all
 }
 
@@ -268,6 +285,9 @@ func Handler(c Config) (http.Handler, error) {
 	log := api.NewLog(c.Log)
 	if c.jobs == nil {
 		c.jobs = c.newJobs(log) // background tasks (P8-01), before the turn runner and its tools
+	}
+	if c.subagents == nil {
+		c.subagents = c.newSubagents(log) // sub-agents (P8-02), before the turn runner and its tools
 	}
 	if c.runner == nil {
 		c.runner = turn.NewRunner(c.turnOptions(log))
@@ -283,6 +303,10 @@ func Handler(c Config) (http.Handler, error) {
 	// Then a background task whose round the stop cut short goes on (P8-01).
 	c.jobs.Bind(c.runner)
 	c.jobs.Recover()
+	// Then sub-agents a stop left unfinished are ended as interrupted, as
+	// the turns that started them were (P8-02).
+	c.subagents.Bind(c.runner)
+	c.subagents.Recover()
 	// Then the scheduler starts, and a run missed while the server was
 	// stopped starts once (P8-03).
 	c.schedules = c.newSchedules(log)
@@ -331,6 +355,12 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 		o.Connectors = wikijobs.Connectors(o.Connectors)
 		o.Gate = wikijobs.Gate(o.Gate)
 		o.SkipMemory = wikijobs.SkipMemory
+		// Sub-agents (P8-02): a sub-agent's chat has its own step limit, and no
+		// memory pass reads it.
+		if c.subagents != nil {
+			o.MaxSteps = c.subagents.MaxSteps
+			o.SkipMemory = c.subagents.SkipMemory(o.SkipMemory)
+		}
 		return o
 	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}
@@ -343,6 +373,9 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 // it first.
 func Open(c Config) (http.Handler, func(), error) {
 	c.jobs = c.newJobs(api.NewLog(c.Log)) // background tasks (P8-01): closed with the turn runner
+
+	// Sub-agents (P8-02): their supervisors are closed with the turn runner.
+	c.subagents = c.newSubagents(api.NewLog(c.Log))
 	c.runner = turn.NewRunner(c.turnOptions(api.NewLog(c.Log)))
 	h, err := Handler(c)
 	if err != nil {
