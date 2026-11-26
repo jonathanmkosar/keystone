@@ -1,0 +1,218 @@
+/* The Usage settings screen (P11-02). Every colour is a token; the sizes
+   follow the spend card of design/screens/Operations.html. Provisional on
+   the settings mockups. */
+
+.use-over {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 18px;
+  text-transform: uppercase;
+}
+
+.use-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.use-cap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.use-pill.is-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.use-pill.is-warn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.use-pill.is-bad {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.use-big {
+  margin: 0;
+  font: 600 28px/34px var(--font-serif);
+  font-variant-numeric: tabular-nums;
+}
+
+.use-big-of {
+  color: var(--muted);
+  font-size: 20px;
+}
+
+/* A bar is an inline SVG drawn to the width of its box. */
+
+.use-bar {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.use-bar.is-small {
+  height: 4px;
+  border-radius: 2px;
+  max-width: 160px;
+}
+
+.use-bar-track {
+  fill: var(--sunk);
+}
+
+.use-bar-fill.is-ok {
+  fill: var(--ok);
+}
+
+.use-bar-fill.is-warn,
+.use-bar-fill.is-accent {
+  fill: var(--accent);
+}
+
+.use-bar-fill.is-bad {
+  fill: var(--err);
+}
+
+.use-bar-mark {
+  fill: var(--ink);
+  opacity: 0.55;
+}
+
+.use-reserve {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.use-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.use-picker .field {
+  min-width: 150px;
+}
+
+.use-period {
+  margin: 0;
+  font: 600 17px/24px var(--font-serif);
+}
+
+.use-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+  padding: 16px 20px;
+}
+
+.use-total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.use-total-value {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  font-variant-numeric: tabular-nums;
+}
+
+.use-totals-split {
+  grid-column: 1 / -1;
+}
+
+.use-table-wrap {
+  overflow-x: auto;
+}
+
+.use-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.use-table th,
+.use-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.use-table thead th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.use-table tbody th {
+  font-weight: 400;
+}
+
+.use-table tfoot th,
+.use-table tfoot td {
+  border-bottom: 0;
+  font-weight: 600;
+}
+
+.use-table .use-num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.use-cost {
+  font-weight: 600;
+}
+
+.use-name {
+  min-width: 180px;
+}
+
+.use-name-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.use-name-main {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.use-quiet,
+.use-table tr.is-rest .use-name-main {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+@media (max-width: 760px) {
+  .use-totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .use-picker .field {
+    flex: 1 1 140px;
+  }
+}

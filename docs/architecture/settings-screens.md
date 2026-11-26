@@ -113,7 +113,8 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/connectors` | Since P7-04, each connector with its switch, its token, its tools and why it could not be reached, and a form to add a remote one. See [connectors.md](connectors.md). |
 | `/settings/connectors/google` | Since P12-02, the Connectors screen with a Google section at its top: not set up and what the admin adds, Connect Google, connected as an account, Disconnect. Google sends the browser back to this address. See [google.md](google.md). |
 | `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
-| `/settings/spend` | Not built yet. Says it comes with P11-02, with the cap from P8-05. |
+| `/settings/usage` | Since P11-02, what the person's model calls cost for a period against the monthly cap, by model, by chat and by kind of work. See [usage-report.md](usage-report.md). It took the place of the Spend placeholder. |
+| `/settings/spend` | Goes to `/settings/usage`. |
 
 The seven are tabs in a row under the title, and the row scrolls sideways on a phone.
 
@@ -187,7 +188,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 
 ## Not built yet
 
-- Spend. It has a screen that says so. Approvals has its list since P7-02, and Connectors its screen since P7-04 ([connectors.md](connectors.md)); a connector's token is stored with `PUT /api/v1/secrets/{name}` as `connector.<name>`.
+- Setting the monthly cap from the browser: it is the admin's (`tenant-admin`), and Usage shows it since P11-02 ([usage-report.md](usage-report.md)). Approvals has its list since P7-02, and Connectors its screen since P7-04 ([connectors.md](connectors.md)); a connector's token is stored with `PUT /api/v1/secrets/{name}` as `connector.<name>`.
 - Changing a password, passkeys, and the list of signed-in devices.
 - Changing the person's name, and a short name for the greeting.
 - An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.

@@ -27,6 +27,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/internal/uploads"
+	"github.com/jonathanmkosar/keystone/internal/usagereport"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -228,6 +229,7 @@ func routes(c Config, log *api.Log) []api.Route {
 		Runs: c.jobs.Runs, Pause: c.jobs.PauseAll, Rearm: c.schedules.Rearm, Resume: c.jobs.ResumeAll})...)
 	// Uploads to a chat (P9-02).
 	all = append(all, uploads.Routes(c.Uploads)...)
+	all = append(all, usagereport.Routes(usagereport.Options{PageLimit: c.PageLimit, Log: log})...) // the usage report (P11-02)
 	return all
 }
 

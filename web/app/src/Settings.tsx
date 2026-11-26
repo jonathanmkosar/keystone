@@ -28,6 +28,7 @@ import { ConnectorSettings } from "./ConnectorSettings";
 import { Icon } from "./Icon";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
+import { UsageSettings } from "./UsageSettings";
 
 // The settings screens (P11-01). docs/architecture/settings-screens.md
 // describes them. Every server call they make is in api.ts.
@@ -39,7 +40,7 @@ const screens: { to: string; label: string }[] = [
   { to: "general", label: "General" },
   { to: "connectors", label: "Connectors" },
   { to: "approvals", label: "Approvals" },
-  { to: "spend", label: "Spend" },
+  { to: "usage", label: "Usage" },
 ];
 
 type Props = {
@@ -151,29 +152,11 @@ export function Settings(props: Props) {
         <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
-        <Route
-          path="spend"
-          element={
-            <NotBuilt title="Spend" brings="P11-02, usage and cost, with the monthly cap from P8-05">
-              Spend will show what your hosted models have cost and let you set a cap. Each model call's tokens and cost are already recorded.
-            </NotBuilt>
-          }
-        />
+        <Route path="usage" element={<UsageSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="spend" element={<Navigate to="/settings/usage" replace />} />
         <Route path="*" element={<Navigate to="/settings/profile" replace />} />
       </Routes>
     </div>
-  );
-}
-
-function NotBuilt({ title, brings, children }: { title: string; brings: string; children: ReactNode }) {
-  return (
-    <Section title={title}>
-      <div className="set-card set-stack">
-        <p className="set-plain">Not built yet.</p>
-        <p className="quiet">{children}</p>
-        <p className="quiet">This screen comes with {brings}.</p>
-      </div>
-    </Section>
   );
 }
 

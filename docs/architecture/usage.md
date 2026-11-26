@@ -96,7 +96,7 @@ In `verify`: the standing check `spend cap`, in `tools/verify/spendcap.go`. It r
 
 ## Not here yet
 
-- **A route and a screen.** The month and the cap are read from code and from `tools/tenant usage`. The usage screen and the spend line on Operations are P11-02 and P11-03, and they need a route.
+- **A route and a screen.** Since P11-02, `GET /api/v1/usage`, Settings → Usage and `tools/tenant usage` show a period's records by model, by chat and by kind of work against the cap, from one function, `usagereport.Read` ([usage-report.md](usage-report.md)). The spend line on Operations is P11-03.
 - **The warning in front of the person.** It is in the server's log and in `tools/tenant usage`. Nothing in the turn's stream carries it yet.
 - **Unattended work.** Each background run, schedule and sub-agent gets its own budget in P8-05. The cap's gate already stops or falls back any call that goes through a chain.
   - Since P8-01 a background task has a budget of its own, `agents.task_budget_usd`, summed from the usage records of its own request id and asked after the cap through `turn.Options.Gate` ([jobs.md](jobs.md)).
