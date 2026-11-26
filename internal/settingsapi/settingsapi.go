@@ -600,6 +600,9 @@ func addModel(w http.ResponseWriter, r *http.Request, c api.Call) {
 	if !api.ReadJSON(w, r, &m) {
 		return
 	}
+	if refuseCACertPath(w, r, m, "") { // a path only from the command line (P13-02, decision 0490)
+		return
+	}
 	lim, err := limits(r.Context(), c.Store)
 	if err != nil {
 		failed(w, r)
@@ -623,6 +626,9 @@ func replaceModel(w http.ResponseWriter, r *http.Request, c api.Call) {
 	}
 	if m.Name != name {
 		api.Error(w, r, http.StatusBadRequest, "bad_model", "the entry's name is not the name in the address: a model is renamed by removing it and adding it again")
+		return
+	}
+	if refuseCACertPath(w, r, m, heldCACert(r.Context(), c.Store, name)) { // a path only from the command line (P13-02, decision 0490)
 		return
 	}
 	if err := models.Replace(r.Context(), c.Store, m); err != nil {
