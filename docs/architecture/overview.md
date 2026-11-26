@@ -213,5 +213,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0384 | [A route may take a larger body than the API's own limit](decisions/0384-a-route-may-take-a-larger-body.md) |
 | 0430 | [A usage record is placed in a chat and a kind of work by its request id](decisions/0430-a-usage-record-is-placed-by-its-request-id.md) |
 | 0431 | [The usage report is summed from the records each time it is read, by one function, and a breakdown adds up its rest](decisions/0431-the-report-is-summed-from-the-records-each-time.md) |
+| 0432 | [The usage screen's bars are inline SVG from the tokens, with no chart library](decisions/0432-the-usage-bars-are-inline-svg.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

@@ -1,6 +1,6 @@
 # P11-02. Usage and cost
 
-Status: doing (core)
+Status: provisional
 Lane: core + interface
 Depends on: P3-08, P4-01
 Owner gate: Approval of the settings mockups (P1-07), for the screen only.
@@ -33,4 +33,15 @@ Built by the core lane on the branch `core/p11-02-usage-and-cost`, cut from `reb
 **The proof**, as tests in `internal/usagereport` on generated records spanning models of each class, chats, background tasks, scheduled runs, kinds of work, and the October and November boundary in UTC: the totals equal the sum of the records; for each breakdown the rows sum to the total, field by field and class by class, to the millionth of a dollar; the cap's spend equals the month's cost on models that are not local; folding keeps the sums. A `verify` check, `usage report`, in a new file: the real server, the test tenant's real turns and generated records across a month boundary, every report the API gives compared with sums taken straight from the table, and a second tenant sees none of it.
 
 Left for later: the per-run budgets of unattended work (P8-05) and the spend line on Operations (P11-03) read the same records and are not built here.
+
+### Result (core lane, November 25, 2026)
+
+Provisional on the settings mockups (P1-07) for the screen; the server side is complete and proven.
+
+- Built as planned: `internal/usagereport` (`Read`, `Resolve`, `Records`, `Summarise`, the placing of a record by its request id, the cap and the reserve, the route `GET /api/v1/usage`), `tools/tenant usage` rewritten on `Read`, migration `20261125T222300_usage_report.sql` (an index on `turns(request_id, seq)`), three settings in `settings/core.json` (`usage.report_period`, `usage.report_rows`, `usage.report_max_days`), and Settings → Usage (`UsageSettings.tsx`, `usageCalls.ts`, `usage.css`), which took the place of the Spend placeholder. Decisions 0430 to 0432.
+- The proof: `TestTotalsEqualTheSumOfTheRecords` in `internal/usagereport`, on 900 generated records over five models of three classes, chats, a background task, a scheduled task, a recap asked for through the API, a deleted chat and eight kinds of work, across midnight UTC on 1 November 2026: for seven periods the total equals the records summed by hand, every breakdown adds up to the total field by field and class by class, every line is exactly its records, and the cap's spend is the month's cost on models that are not local. The standing check `usage report` compares the API's reports with sums taken straight from the table on the real server. `verify` is 27 of 27.
+- Not seen in a browser: the screen type-checks and builds, and the route answered the report on a server started from this branch; signing in to look at the screen was left to a person (see the journal).
+- Compaction and recaps share one kind of work, "Summaries and recaps": the records do not tell them apart (decision 0430).
+- `web/dist/` is not committed: the integrator rebuilds it at the merge.
+- See `docs/journal/2026-11-25-core-011.md` and `docs/architecture/usage-report.md`.
 

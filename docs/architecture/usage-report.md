@@ -103,6 +103,17 @@ A migration, `20261125T222300_usage_report.sql`, adds the index `turns_by_reques
 
 It prints the period, the tables by model, by kind of work and by chat, the split by class, where the month stands against the cap, and the memory pass's reserve. It calls `Read`, so it prints what the screen shows.
 
+## The screen
+
+Settings → Usage, at `/settings/usage`, in `web/app/src/UsageSettings.tsx` with `usage.css`; its one call is in `usageCalls.ts`, kept apart from `api.ts` as the Memory screen's are. It took the place of the Spend placeholder, and `/settings/spend` goes to it.
+
+- **The month against the cap.** A card after the draft spend card of `design/screens/Operations.html`: "Spend this month" (or "in October 2026" for a past month), a pill (On track, Near the cap, Cap reached, Cap does not read), "$41.20 of $100.00" in the serif, and a bar with a tick at the warning threshold. Below: what is left and where the warning starts, or that calls to hosted and trusted models are stopped; that the cap counts hosted and trusted models, that the admin sets it, and that the month is a calendar month in UTC. Under a rule, what the memory pass spent of its reserve, with a small bar.
+- **The period picker.** This month, last month, the last 7 or 30 days, a month (a month field), or dates (two date fields and Show). It opens on the person's `usage.report_period`, as the server answers with no query. A period the server refuses is shown in its words, and the last report stays.
+- **The totals.** The period in words ("31 October to 1 November 2026"), then cost, calls, tokens in and out, read from and written to the cache, and the split: "Hosted $1.50 · trusted $0.23 · local 24 calls, free".
+- **Three tables**, by model, by chat and by kind of work, costliest first as the server sends them: calls, in, out, cache read, cache write and cost, a total row, and under each name a small bar of its cost against the costliest line and its split by class. A chat's name links to the chat. The line of calls in no chat and the line that adds up the rest are in the quiet colour and link nowhere. A table wider than a phone scrolls inside its card.
+
+The bars are inline SVG: rectangles whose width is an attribute, filled from the tokens (`--ok`, `--accent`, `--err` on `--sunk`), so the page has no `style` attribute, which the content security policy would refuse, and no chart library (decision [0432](decisions/0432-the-usage-bars-are-inline-svg.md)). The cap's bar is an image with a sentence for a screen reader; the small bars are hidden from it, since the numbers beside them say the same.
+
 ## Settings
 
 In `settings/core.json`.
@@ -140,4 +151,6 @@ In `verify`: the standing check `usage report`, in `tools/verify/usagereport.go`
 
 ## Provisional
 
-The screen, on the settings mockups (P1-07), which are not approved.
+- **The owner gate.** The screen waits on the settings mockups (P1-07), which are not approved; there is no settings mockup at all. The cap card follows the spend card of `Operations.html`, a draft in the first round's colours, and the tables follow its tables; the colours are the tokens. The period picker, the totals, the words and the order of the sections were chosen without a mockup.
+- **Not seen in a browser.** The screen type-checks and builds (`npm run build`), and on a server started from this branch with a data folder of its own the sign-in page loaded from the new build and `GET /api/v1/usage` answered the report the screen reads. Signing in to look at the screen itself was left to a person: see the journal, core 011.
+- **Owner answers it builds on.** The cap's month is a calendar month in UTC, and the memory reserve is a part of the cap, as `STATE.md` recommends; a local model is outside the cap, and a home-network model that forwards to a paid provider is under it only when marked trusted. If any answer changes, the report follows the gates, since it reads the same functions.
