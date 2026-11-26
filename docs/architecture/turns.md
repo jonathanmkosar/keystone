@@ -471,3 +471,7 @@ Since P9-02 a message may name the chat's uploads in image and file blocks, chec
 ## Projects
 
 Since P9-01, `Runner.build` asks `projectParts` (`projects.go`) for the project of the turn's chat: its instructions go in the context's `project` part, in the standing start, and its knowledge files in the `attached` part after the attached chats, a file marked sensitive only for a call whose every model may read it, holding the chat first. `Runner.sensitive` counts a project with a sensitive file for a chat whose own model may read it. The memory pass writes a project chat's facts to the project's memory space, and `searchKnowledge` hands recall a store that searches that space first. Thirteen routes, listed in `internal/app` from `turn.ProjectRoutes`: the projects, their files and their chats under `/projects`, and `GET /chats/{id}/project`. See [projects.md](projects.md).
+
+## Styles
+
+Since P9-05, `Runner.build` asks `styleFor` (`styles.go`) for the style the turn's chat uses: the chat's own, or the person's default (`styles.default`), which the chat's first turn keeps as its own. Its heading and instructions go in the context's `style` part, the standing start's last, under the first cache point; a style with no instructions, as the shipped Normal, sends nothing. The style is read after the route and changes nothing about it. Eight routes, listed in `internal/app` from `turn.StyleRoutes`: the styles under `/styles`, `PUT /styles/{id}/default`, and `GET` and `PUT /chats/{id}/style`. See [styles.md](styles.md).

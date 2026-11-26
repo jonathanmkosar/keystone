@@ -39,6 +39,8 @@ Since P5-06 the turn fills `Attached` with the chats attached to the chat, the o
 
 Since P9-01 the turn fills `Project` with the instructions of the project the chat is in, under a heading, and adds the project's knowledge files to `Attached` after the attached chats, each a file's heading and text cut to `projects.file_context_max_chars`, with a pinned line for files left out for fixed rule 3 ([projects.md](projects.md)). A chat in no project leaves `Project` empty.
 
+Since P9-05 the turn fills `Style` with the heading and instructions of the style the chat uses, its own or the person's default ([styles.md](styles.md)). It is the standing start's last part, so a chat that keeps its style keeps its start, and changing the style changes only this part of the start, from the next call. A style with no instructions, as the shipped Normal, leaves `Style` empty.
+
 The only errors are a branch with no messages (`ErrNoMessages`), options that are not valid, and a cancelled context.
 
 ## The parts and their order

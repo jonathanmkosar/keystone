@@ -1,0 +1,163 @@
+/* Styles (P9-05): the style picker in the composer and the Styles settings
+   screen. There is no mockup for either: the picker is drawn like the model
+   picker (model-picker.css), whose classes it shares, and the screen like
+   the other settings screens (settings.css). Every colour is a token. The
+   file is not named styles.css, which is the app's own stylesheet. */
+
+.style-picker {
+  position: relative;
+  display: flex;
+  flex: none;
+  min-width: 0;
+  /* Pushes the picker, the model picker and the send button to the right. */
+  margin-left: auto;
+}
+
+/* After the tools menu, which pushes already, the picker does not; and the
+   model picker after it does not either, or the row's room would be shared. */
+.tools-menu + .style-picker,
+.style-picker + .model-picker {
+  margin-left: 0;
+}
+
+.style-button {
+  gap: 6px;
+}
+
+.style-button-label {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.style-menu {
+  width: 360px;
+}
+
+.style-item-gist {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* A style of the person's own, in the copper of the soft accent. */
+.model-tag.is-own {
+  border-color: var(--accent);
+  color: var(--softink);
+  background: var(--soft);
+}
+
+.style-problem {
+  color: var(--err);
+}
+
+/* The Styles settings screen. */
+
+.style-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.style-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.style-row-name {
+  font-weight: 600;
+}
+
+.style-row-text {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 21px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.style-row-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.style-row .set-item-main {
+  min-width: 0;
+}
+
+.style-form {
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.style-row .style-form {
+  padding: 4px 0 0;
+  border-top: 0;
+}
+
+.style-new .style-form {
+  border-top: 0;
+}
+
+.style-new-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px 0;
+}
+
+.style-note {
+  margin: 0;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+}
+
+/* The delete confirmation sets its colours itself: two stylesheets define
+   .button-danger with different colours. */
+.style-danger {
+  border-color: var(--err);
+  background: var(--err);
+  color: var(--page);
+}
+
+.style-danger:hover {
+  filter: brightness(1.08);
+}
+
+@media (max-width: 760px) {
+  /* On a phone the picker is its icon alone, with its name in its label. */
+  .style-button-label {
+    display: none;
+  }
+
+  /* As the model picker's: the menu hangs from the composer. */
+  .composer:has(.style-picker) {
+    position: relative;
+  }
+
+  .style-picker {
+    position: static;
+  }
+
+  .style-menu {
+    left: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .style-row {
+    flex-direction: column;
+  }
+
+  .style-row-actions {
+    justify-content: flex-start;
+  }
+}

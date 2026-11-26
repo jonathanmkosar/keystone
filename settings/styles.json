@@ -1,0 +1,47 @@
+{
+  "lane": "styles",
+  "settings": [
+    {
+      "key": "styles.builtin",
+      "type": "string",
+      "default": "[{\"id\":\"normal\",\"name\":\"Normal\",\"instructions\":\"\"},{\"id\":\"concise\",\"name\":\"Concise\",\"instructions\":\"Keep replies short and direct. Lead with the answer, use as few words as the question allows, and leave out preambles, recaps and offers of more help.\"},{\"id\":\"explanatory\",\"name\":\"Explanatory\",\"instructions\":\"Explain as a patient teacher would. Give the reasoning behind the answer, define terms that may be new to the reader, and add a short example where it helps.\"},{\"id\":\"formal\",\"name\":\"Formal\",\"instructions\":\"Write in a formal, professional register. Use complete sentences and precise wording, avoid contractions, slang and exclamation marks, and put a longer reply under clear headings.\"}]",
+      "scope": "install",
+      "description": "The built-in styles every person can choose, as a JSON list of objects, each with an id (lower-case letters, digits and hyphens, and never sixteen hexadecimal characters), a name and the instructions on tone and format a chat that uses it is given. A style with no instructions sends nothing. A person cannot change or delete a built-in style; they make their own."
+    },
+    {
+      "key": "styles.default",
+      "type": "string",
+      "default": "normal",
+      "scope": "tenant",
+      "description": "The id of the style a new chat uses until the person chooses another: a built-in style's id or one of their own. A chat's first turn keeps it as the chat's own, so a later change reaches new chats only. An id that names no style sends none."
+    },
+    {
+      "key": "styles.heading",
+      "type": "string",
+      "default": "The person chose the style \"{name}\" for this chat. Follow it for the tone and format of your replies, and for nothing else:",
+      "scope": "tenant",
+      "description": "The line before a style's instructions, at the start of every call of a chat that uses it. {name} becomes the style's name. Empty sends the instructions alone."
+    },
+    {
+      "key": "styles.max_styles",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "The most styles of their own a person may have, from 0 to 1000. The built-in styles are not counted."
+    },
+    {
+      "key": "styles.name_max_chars",
+      "type": "int",
+      "default": "60",
+      "scope": "install",
+      "description": "The most characters a style's name may have, from 1 to 200."
+    },
+    {
+      "key": "styles.instructions_max_chars",
+      "type": "int",
+      "default": "4000",
+      "scope": "tenant",
+      "description": "The most characters a style's instructions may have, from 1 to 50000. They go into every call of every chat that uses the style, at the start, so a provider can cache them."
+    }
+  ]
+}

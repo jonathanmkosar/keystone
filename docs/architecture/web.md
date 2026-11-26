@@ -461,6 +461,30 @@ Its calls are in `src/artifacts.ts`, through `api.ts`'s `call`: `GET /chats/{id}
 
 `npm run build` now runs three builds: the main page, then the two renderers. It still empties `web/dist/` first.
 
+## Styles (P9-05)
+
+The style picker in the composer and the Styles settings screen. The server's side is [styles.md](styles.md). There is no styles mockup, so both are built from the tokens, after the model picker and the settings screens, and are provisional.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The picker | `src/StylePicker.tsx` (`StylePicker`, `applyNewChatStyle`) | In both composers, between the tools menu and the model picker: a pencil and the style's name, the pencil alone on a phone. Its menu, drawn with the model picker's classes, lists every style with the first two lines of its instructions, a `default` tag and a `yours` tag in the soft copper, a sentence on where the style comes from, and "Manage styles". In a chat a pick is sent at once with `PUT /chats/{id}/style` and is used from the next message; while a reply is being written the rows wait. On the new chat screen the pick is kept, for each person, and given to the chat the first message makes before the message is sent, as the tools menu does. It is read again when a turn ends, since the first turn keeps the default as the chat's own. |
+| The screen | `src/StyleSettings.tsx` (`StyleSettings`) | `/settings/styles`, a tab after Approvals: every style with its instructions, "Built in" or "Yours", the default marked "Default for new chats"; **Make default** on each other style; **Edit** (an inline form) and **Delete** (with "Delete <name>" and "Keep it") on the person's own; a form that makes a new one, with its character count and the count of the person's styles against the limit. The server's refusals are shown as sentences. |
+| Calls | `src/styleCalls.ts` | The eight style calls, apart from `api.ts`, as the memory screens' are. |
+| Look | `src/style-presets.css` | The picker's place in the row, its menu's width and tags, the screen's rows and forms, and the delete confirmation's own colours (`.style-danger`), since two stylesheets define `.button-danger`. Not named `styles.css`, which is the app's own stylesheet. |
+| The way in | `src/Chat.tsx`, `src/Settings.tsx` | In `Chat.tsx`: the import, `applyNewChatStyle` after the tools menu's switches, and the picker in the two composers' `beside`. In `Settings.tsx`: the import, the tab and its route. |
+
+Its calls, all in `src/styleCalls.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/styles` | `listStyles` | The screen, and the new chat screen's picker. |
+| `POST /api/v1/styles` | `createStyle` | The new style form. |
+| `PATCH`, `DELETE /api/v1/styles/{id}` | `changeStyle`, `deleteStyle` | Edit and Delete on the screen. The list is read again after a delete, since a default that named the style goes back to the shipped one. |
+| `PUT /api/v1/styles/{id}/default` | `setDefaultStyle` | **Make default**. |
+| `GET`, `PUT /api/v1/chats/{id}/style` | `chatStyle`, `chooseChatStyle` | The picker in a chat, and the new chat's pick once its chat is made. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7965 with a data folder inside the worktree (removed afterwards), as the test tenant: the new chat screen's picker on Normal, the default; Concise picked there and kept by the chat the first message made, whose turn inspector listed the Style part with its tokens; a style made on the screen, made the default and shown as such by the new chat screen's picker; a name a built-in style has refused with the server's words; the style renamed from its inline form; Formal picked from a chat's picker; the style deleted after its confirmation, with the default back on Normal. In light at desktop width, and in dark at phone width, where the picker is its pencil and its menu hangs from the composer. The console's only errors were the session check before sign-in and the refused name. Not seen: a style of the person's own whose words change a real model's reply (the test tenant's recorded turns answer whatever the style), and the limit reached.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).
