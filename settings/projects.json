@@ -1,0 +1,89 @@
+{
+  "lane": "projects",
+  "settings": [
+    {
+      "key": "projects.max_projects",
+      "type": "int",
+      "default": "200",
+      "scope": "tenant",
+      "description": "The most projects a person may have, archived ones included, from 1 to 10000."
+    },
+    {
+      "key": "projects.name_max_chars",
+      "type": "int",
+      "default": "100",
+      "scope": "install",
+      "description": "The most characters a project's name may have, from 1 to 500."
+    },
+    {
+      "key": "projects.instructions_max_chars",
+      "type": "int",
+      "default": "20000",
+      "scope": "tenant",
+      "description": "The most characters a project's instructions may have, from 0 to 200000. The instructions go into every call of every chat in the project, at the start, so a provider can cache them."
+    },
+    {
+      "key": "projects.max_files",
+      "type": "int",
+      "default": "20",
+      "scope": "tenant",
+      "description": "The most knowledge files one project may have, from 0 to 500."
+    },
+    {
+      "key": "projects.file_max_bytes",
+      "type": "int",
+      "default": "1048576",
+      "scope": "install",
+      "description": "The largest knowledge file a project takes, in bytes. A larger one is refused. Until uploads give a route a body limit of its own, server.max_body_bytes bounds it too."
+    },
+    {
+      "key": "projects.text_extensions",
+      "type": "string",
+      "default": ".txt,.md,.markdown,.csv,.tsv,.json,.yaml,.yml,.toml,.ini,.log,.xml,.go,.py,.js,.ts,.tsx,.jsx,.css,.java,.c,.h,.cpp,.cs,.rs,.rb,.sh,.ps1,.sql",
+      "scope": "install",
+      "description": "The endings of the files a project takes as knowledge files, separated by commas. A file must be UTF-8 text with no zero bytes. Its text is read once, when it is added, and goes into every call of the project's chats."
+    },
+    {
+      "key": "projects.file_context_max_chars",
+      "type": "int",
+      "default": "20000",
+      "scope": "tenant",
+      "description": "The most characters of one knowledge file's text that go into a call, from 100 to 1000000. The rest is left out, with a note. All attachments together take no more than chats.context_attached_percent of a call."
+    },
+    {
+      "key": "projects.instructions_heading",
+      "type": "string",
+      "default": "This chat is in the person's project \"{name}\". The person wrote these instructions for every chat in it:",
+      "scope": "tenant",
+      "description": "The line before a project's instructions, at the start of every call of a chat in it. {name} becomes the project's name. Nothing is sent when the project has no instructions."
+    },
+    {
+      "key": "projects.file_heading",
+      "type": "string",
+      "default": "A knowledge file of the person's project \"{project}\": {name}. Its text:",
+      "scope": "tenant",
+      "description": "The line before a knowledge file's text, with the attachments of every call of a chat in the project. {project} becomes the project's name and {name} the file's."
+    },
+    {
+      "key": "projects.file_cut_note",
+      "type": "string",
+      "default": "[The rest of {name}, {chars} more characters, is left out.]",
+      "scope": "tenant",
+      "description": "The line after a knowledge file's text that was cut to projects.file_context_max_chars. {name} becomes the file's name and {chars} the number of characters left out."
+    },
+    {
+      "key": "projects.memory_space",
+      "type": "string",
+      "default": "project-{slug}",
+      "scope": "tenant",
+      "description": "The knowledge store space a new project's chats keep their facts in, as the memory pass writes them. {slug} becomes the project's name in lower case, with a hyphen for each run of other characters. Empty keeps a new project's facts in knowledge.memory_space with the rest. Each project keeps the space it was given, and a held chat's facts go to knowledge.memory_sensitive_space or nowhere, whatever its project."
+    },
+    {
+      "key": "projects.recall_prefer",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether recall in a project chat searches the project's memory space first, and gives what it finds there before what it finds elsewhere."
+    }
+  ]
+}

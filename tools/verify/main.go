@@ -89,6 +89,8 @@ var componentDocs = map[string]string{
 	"internal/connectors":  "docs/architecture/connectors.md",
 
 	"internal/attach": "docs/architecture/attach-and-handoff.md",
+
+	"internal/projects": "docs/architecture/projects.md",
 }
 
 var checks = []check{
@@ -116,6 +118,7 @@ var checks = []check{
 	{"past chats", checkPastChats},
 	{"scheduled tasks", checkSchedules},
 	{"attached chats", checkAttached},
+	{"projects", checkProjects},
 }
 
 func main() {

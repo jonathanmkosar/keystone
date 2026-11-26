@@ -36,6 +36,9 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	recalled, older.pins = r.leaveOut(s, t, step, recalled, older.pins)   // what the person took out of this turn (P5-04)
 	offered = r.withAttached(ctx, s, t, p, m, offered)                    // open_attached_chat, while the chat carries attached chats (P5-06, attach.go)
 	attached := r.attachedItems(ctx, s, t, step, p, m)                    // the attached chats, the one it continues from first (P5-06, attach.go)
+	// The project's instructions in the standing start, and its knowledge files after the attached chats (P9-01, projects.go).
+	project, files := r.projectParts(ctx, s, t, p, m)
+	attached = append(attached, files...)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Tools: offered,
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
@@ -45,6 +48,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 		Summary: older.text, SummaryCovers: older.covers, Pinned: older.pins,
 		SummaryRef: summaryRef(older.summary), // the inspector's name for it (P5-04)
 		Attached:   attached,
+		Project:    project,
 	})
 	if err != nil {
 		return seam.Request{}, err

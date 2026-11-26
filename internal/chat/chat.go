@@ -245,7 +245,8 @@ func Star(s *tenant.Store, chatID string, starred bool) (Chat, error) {
 func Delete(s *tenant.Store, chatID string) error {
 	return inTx(s, func(tx *sql.Tx) error {
 		names, err := textColumn(tx, `SELECT name FROM chat_files WHERE chat_id = ?1
-			AND name NOT IN (SELECT name FROM chat_files WHERE chat_id <> ?1)`, chatID)
+			AND name NOT IN (SELECT name FROM chat_files WHERE chat_id <> ?1)
+			AND name NOT IN (SELECT hash FROM project_files)`, chatID) // nor a project's knowledge file (P9-01)
 		if err != nil {
 			return err
 		}
