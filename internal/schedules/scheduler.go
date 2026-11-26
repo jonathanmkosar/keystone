@@ -19,6 +19,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tenantsettings"
 	"github.com/jonathanmkosar/keystone/internal/turn"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -159,7 +160,7 @@ func (sc *Scheduler) tickTenant(ctx context.Context, tenantID string) time.Time 
 	defer s.Close()
 	now := sc.now()
 	z := sc.zone(ctx, s)
-	held, err := sc.held(ctx, s)
+	held, err := sc.heldAll(ctx, s) // P8-05: or the switch that pauses every agent (unattended.go)
 	if err != nil {
 		// Unattended work does not start on a switch that cannot be read.
 		sc.logf("schedules: tenant %s: reading %s, so every schedule is held: %v", tenantID, KeyPaused, err)
@@ -248,7 +249,7 @@ func (sc *Scheduler) open(ctx context.Context, s *tenant.Store, scheduleID strin
 	if err != nil {
 		return false, err
 	}
-	return t.Status == jobs.StatusQueued || t.Status == jobs.StatusRunning, nil
+	return t.Status == jobs.StatusQueued || t.Status == jobs.StatusRunning || t.Status == jobs.StatusPaused, nil
 }
 
 // fire writes a run of a schedule and starts it, and returns the run and the
@@ -352,7 +353,12 @@ func (sc *Scheduler) begin(ctx context.Context, s *tenant.Store, run runRow, z z
 		}
 		run.chatID = c.ID
 	}
-	t, err := sc.o.Jobs.StartIn(ctx, s, run.chatID, run.requestID, run.actor, jobs.StartBody{Text: r.prompt, Title: r.name}, r.model)
+	body, err := runBody(ctx, s, r) // P8-05: a scheduled run, with its schedule's budget (unattended.go)
+	if err != nil {
+		sc.logf("schedules: %s reading the budget of run %s: %v", run.requestID, run.id, err)
+		return // tried again at the next look
+	}
+	t, err := sc.o.Jobs.StartIn(ctx, s, run.chatID, run.requestID, run.actor, body, r.model)
 	switch {
 	case err == nil:
 		if _, err := s.DB().ExecContext(ctx, "UPDATE schedule_runs SET job_id = ?, state = 'started', error = '' WHERE id = ?", t.ID, run.id); err != nil {
@@ -515,7 +521,10 @@ func (sc *Scheduler) Create(ctx context.Context, s *tenant.Store, body ScheduleB
 		}
 		_, err := tx.ExecContext(ctx, "INSERT INTO schedules("+scheduleColumns+") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			id, b.name, b.prompt, kind, hour, minute, days, onDate, b.model, body.Incognito, enabled, z.Name, nextText(next), format(now), format(now))
-		return err
+		if err != nil {
+			return err
+		}
+		return setBudget(ctx, tx, id, body.BudgetUSD) // P8-05 (unattended.go)
 	})
 	if err != nil {
 		return Schedule{}, err
@@ -553,6 +562,9 @@ func (sc *Scheduler) Update(ctx context.Context, s *tenant.Store, id string, bod
 	}
 	if n, _ := res.RowsAffected(); n == 0 {
 		return Schedule{}, errNoSchedule
+	}
+	if err := setBudget(ctx, s.DB(), id, body.BudgetUSD); err != nil { // P8-05 (unattended.go)
+		return Schedule{}, err
 	}
 	sc.Wake()
 	return sc.one(ctx, s, id)
@@ -675,6 +687,9 @@ func (sc *Scheduler) check(ctx context.Context, s *tenant.Store, body ScheduleBo
 	case len([]rune(b.prompt)) > sc.o.Config.PromptMaxChars:
 		return bad("a schedule's prompt has at most %d characters", sc.o.Config.PromptMaxChars)
 	}
+	if err := checkBudget(body.BudgetUSD); err != nil { // P8-05 (unattended.go)
+		return checked{}, err
+	}
 	var err error
 	if b.rule, err = readRule(body.Recurrence); err != nil {
 		return checked{}, fmt.Errorf("%w: %s", errInvalid, strings.TrimPrefix(err.Error(), errRecurrence.Error()+": "))
@@ -708,6 +723,9 @@ func (sc *Scheduler) one(ctx context.Context, s *tenant.Store, id string) (Sched
 }
 
 func (sc *Scheduler) scheduleOf(ctx context.Context, s *tenant.Store, r row, z zoneInfo, held bool) (Schedule, error) {
+	if paused, err := unattended.Paused(ctx, s); paused || err != nil { // P8-05: the switch that pauses every agent holds it too
+		held = true
+	}
 	rec := r.rule.recurrence()
 	out := Schedule{
 		ID: r.id, Name: r.name, Prompt: r.prompt, Recurrence: rec, Says: Says(rec), Model: r.model,
@@ -731,6 +749,9 @@ func (sc *Scheduler) scheduleOf(ctx context.Context, s *tenant.Store, r row, z z
 	if ok {
 		run := sc.runOf(ctx, s, last, z.loc)
 		out.LastRun = &run
+	}
+	if err := sc.budgets(ctx, s, &out); err != nil { // P8-05 (unattended.go)
+		return Schedule{}, err
 	}
 	return out, nil
 }

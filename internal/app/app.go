@@ -25,6 +25,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/settings"
 )
@@ -87,6 +88,9 @@ type Config struct {
 	// schedules keeps the schedules and starts their runs. Handler and
 	// routes make it, after the task runner; Handler starts it.
 	schedules *schedules.Scheduler
+	// Unattended is what the switch that pauses every agent and schedule
+	// runs with (P8-05), in settings/agents.json.
+	Unattended unattended.Config
 	// Uploads is what may be uploaded to a chat (P9-02), in
 	// settings/uploads.json.
 	Uploads uploads.Options
@@ -130,6 +134,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Scheduled tasks' settings (P8-03), in settings/agents.json.
 	if c.Schedules, err = schedules.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// The pause switch's settings (P8-05), in settings/agents.json.
+	if c.Unattended, err = unattended.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	// Uploads' settings (P9-02), in settings/uploads.json.
@@ -214,6 +222,9 @@ func routes(c Config, log *api.Log) []api.Route {
 		c.schedules = c.newSchedules(log) // scheduled tasks (P8-03), after the task runner
 	}
 	all = append(all, schedules.Routes(c.schedules)...) // scheduled tasks' (P8-03)
+	// The switch that pauses every agent and schedule (P8-05).
+	all = append(all, unattended.Routes(unattended.Options{Config: c.Unattended, Log: log,
+		Runs: c.jobs.Runs, Pause: c.jobs.PauseAll, Rearm: c.schedules.Rearm, Resume: c.jobs.ResumeAll})...)
 	// Uploads to a chat (P9-02).
 	all = append(all, uploads.Routes(c.Uploads)...)
 	return all
@@ -272,6 +283,9 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 			o.Tools = c.toolsOrNone(log)
 		}
 		o.Gate = jobs.Gate // a background task's budget (P8-01)
+		// Unattended work at the cap or its budget: a local model with a
+		// notice, or a stop (P8-05).
+		o.Moved = unattended.Moved
 		return o
 	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}

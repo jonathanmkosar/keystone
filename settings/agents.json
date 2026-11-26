@@ -297,6 +297,48 @@
       "description": "Holds every one of your scheduled tasks while it is on: none starts a run, and the times that pass meanwhile are not made up afterwards. A run already under way goes on, and Run now still runs one."
     },
     {
+      "key": "agents.paused",
+      "type": "bool",
+      "default": "false",
+      "scope": "tenant",
+      "description": "Pauses every agent and schedule of yours at once while it is on. Each background task and scheduled run that is working is stopped within seconds, with what it did kept, and waits; one started meanwhile waits too; no schedule starts a run. When it goes off, the paused ones go on, and the times your schedules missed meanwhile are not made up. Your own chats are not paused."
+    },
+    {
+      "key": "agents.pause_wait",
+      "type": "duration",
+      "default": "10s",
+      "scope": "install",
+      "description": "How long the pause route waits for the background tasks and scheduled runs that are working to stop before it answers. They stop either way; the answer says how many had not yet."
+    },
+    {
+      "key": "agents.task_unpause_text",
+      "type": "string",
+      "default": "Every agent was paused while you were working on this task, and your last step was cut short. They have been resumed. Carry on from where you stopped: check what was done before you do anything again. When it is finished, give the result in full.",
+      "scope": "install",
+      "description": "The message a background task's next round is sent with when the switch that pauses every agent stopped the round before it, and has been switched off. The model reads it."
+    },
+    {
+      "key": "agents.schedule_budget_usd",
+      "type": "float",
+      "default": "1",
+      "scope": "tenant",
+      "description": "The most each run of a scheduled task may spend, in US dollars, on models that are not local, when the schedule gives no budget of its own. A call that could take the run past it is not sent: the run goes on with a local model if your fallback chain has one and agents.unattended_fallback is on, and otherwise stops and says so. The monthly cap still applies to every call."
+    },
+    {
+      "key": "agents.subagent_budget_usd",
+      "type": "float",
+      "default": "0.25",
+      "scope": "tenant",
+      "description": "The most one sub-agent may spend, in US dollars, on models that are not local. Sub-agents come with P8-02; until then nothing uses it."
+    },
+    {
+      "key": "agents.unattended_fallback",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "When the monthly cap or its own budget refuses a call of a background task, a scheduled run or a sub-agent, it goes on with the next model in your fallback chain, a local one at no cost, and says which model wrote the reply. Off, it stops there and says so. Your own chats always go on with a local model in the chain."
+    },
+    {
       "key": "agents.schedule_poll",
       "type": "duration",
       "default": "30s",

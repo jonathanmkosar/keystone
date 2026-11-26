@@ -11,6 +11,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/chat"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/turn"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 )
 
 // A task that works in the chat it was started from (P8-03, scheduled
@@ -58,7 +59,11 @@ func (r *Runner) StartIn(ctx context.Context, s *tenant.Store, chatID, startedRe
 	case !errors.Is(err, errNoTask):
 		return Task{}, err
 	}
-	budget, err := r.budget(ctx, s)
+	kind := body.Kind // P8-05: a scheduled run's budget is its schedule's
+	if kind == "" {
+		kind = unattended.KindTask
+	}
+	budget, err := r.budget(ctx, s, body, kind)
 	if err != nil {
 		return Task{}, err
 	}
@@ -80,11 +85,15 @@ func (r *Runner) StartIn(ctx context.Context, s *tenant.Store, chatID, startedRe
 		if open >= r.o.Config.OpenMax {
 			return fmt.Errorf("%w: %d are waiting or running, the most one person may have", errTooMany, open)
 		}
+		requestID, title := audit.NewRequestID(), r.titleOf(body.Title, text)
 		if _, err := tx.ExecContext(ctx, `INSERT INTO jobs(id, chat_id, work_chat_id, title, task, started_by, status, request_id,
 			started_request, actor, model, budget_micros, max_rounds, progress, created_at)
 			VALUES(?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?, ?, ?, ?, ?)`,
-			id, chatID, chatID, r.titleOf(body.Title, text), text, StartedByPerson, audit.NewRequestID(), startedRequest, actor, model,
+			id, chatID, chatID, title, text, StartedByPerson, requestID, startedRequest, actor, model,
 			budget, r.o.Config.MaxRounds, "Waiting to start", stamp()); err != nil {
+			return err
+		}
+		if err := unattended.Register(ctx, tx, unattended.Run{Kind: kind, ID: id, RequestID: requestID, Title: title, BudgetMicros: budget}); err != nil {
 			return err
 		}
 		j, err = emitTask(ctx, tx, id, EventTask)

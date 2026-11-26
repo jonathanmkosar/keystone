@@ -361,6 +361,17 @@ Seen in a browser on November 25, 2026, against the server built from this branc
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7991 with a data folder inside the worktree (removed afterwards), as the test tenant: a daily schedule made for two minutes ahead ran at its time, and its run was a chat in the sidebar titled "Harbour brief, Wed 25 Nov 2026" with the prompt, its step and the reply; a weekdays schedule made for a minute ahead, the server stopped before its time and started again more than two hours later: **one run, "Done, late", "Missed at 14:39 because Keystone was not running. Ran once when it was back."**, and the other schedule, whose time had already run, ran nothing more; Pause all and the held banner, Resume all; Edit to Mondays and Thursdays; Run now, in a chat of its own. In light and dark, and at phone width, where a table that ran wider than the screen was fixed. No console errors.
 
+## The switch that pauses every agent, and budgets (P8-05)
+
+`src/AgentsSwitch.tsx` with `src/agents-switch.css`: one bar with the switch that pauses every agent and schedule, drawn under the Scheduled screen's header and above the task cards in a chat. Running, it says background tasks and scheduled runs go on by themselves, with **Pause all agents**; paused, it says they wait where they stopped and no schedule starts a run, how many are still stopping, with **Resume all agents**. The page keeps one copy of the switch, so both places agree, and a screen is told when it changes so it reads its tasks or schedules again. Settings → General draws the same setting, `agents.paused`, from the registry. A paused task's card reads "Background task, paused" with the server's words ("Paused: …" or "Held: …") and keeps Stop; a paused run's pill is "Paused". The schedule form has **Budget for each run, in US dollars**, empty for the person's `agents.schedule_budget_usd`, and the BUDGET fact says whether it is the schedule's own. Lines in `Tasks.tsx`, `tasks.css`, `Scheduled.tsx`, `ScheduleForm.tsx` and `schedules.ts`; the types and calls in `api.ts`, after `followTask`. See [unattended-spend.md](unattended-spend.md).
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/agents` | `getAgentsSwitch` | The bar. |
+| `POST /api/v1/agents/pause`, `…/resume` | `setAgentsPaused` | Pause all agents and Resume all agents. |
+
+Seen in a browser on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree (removed afterwards), as the test tenant: with every agent paused, a task started in a chat showed the bar and a card "Background task, paused" with "Held: every agent is paused. It starts when they are resumed."; Resume all agents started it, and its note came into the chat. On Scheduled, the bar in both states; a schedule with a budget of its own of $0.50 showed "$0.50 a run, this schedule's own"; Pause all agents marked it held with the words that say which switch may hold it; the form's budget field; Settings → General's control for the switch. At phone width the bar wraps under its words. The only console error was the sign-in probe's 401.
+
 ## Attached chats and handoff (P5-06)
 
 The chips of the chats attached to a chat, the control that attaches one, and the handoff's button and links. The server's side is [attach-and-handoff.md](attach-and-handoff.md). There is no mockup for any of it, so it is provisional until the chat mockups cover it (P1-04); it is built from the tokens.

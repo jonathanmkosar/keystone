@@ -60,6 +60,8 @@ The marks are written before the first round can run, and before the receiving c
 
 **Every task has a request id of its own**, made when it starts. Every turn of the task is sent under it, so the task's model calls and tool calls read together in the audit log, its usage records carry it, and its spend is their sum (models that are not local only). The API call that started it is kept beside it as `started_request` (decision [0293](decisions/0293-a-task-has-its-own-request-id-and-budget.md)).
 
+**Since P8-05** ([unattended-spend.md](unattended-spend.md)): a task is an unattended run in the run registry, and its budget is the registry's gate; a person may give one task a budget of its own (`budget_usd` on the start route; the model's tool cannot); at the cap or its budget the task goes on with a local model in the chain and its chat and its note say which model wrote the reply, or it stops when `agents.unattended_fallback` is off; and the switch that pauses every agent stops its round and marks it `paused`, holds a task started meanwhile, and lets it go on with a new round (`agents.task_unpause_text`) when it goes off.
+
 **Its own budget.** `agents.task_budget_usd`, a person's setting ($1 as shipped), is kept on the task when it starts. Before each call to a model that is not local, after the monthly cap, the turn runner asks `jobs.Gate`: when the task's spend and the most the call could cost are together more than its budget, the call is not sent. It is the cap's own kind of refusal, `spend_cap`, so the route falls back to a local model when the person's chain has one, and otherwise the round fails and the task ends with the message: "The call to … was not sent. The background task “…” has spent $… of its budget of $…, and this call could cost up to $…". The monthly cap is asked first and still applies to every call.
 
 ## The routes
@@ -184,6 +186,7 @@ In `settings/agents.json`. `jobs.ReadConfig` reads the install's, and `app.ReadC
 ## Not here yet
 
 - **Unattended spend and the pause switch** (P8-05). A task has its own budget and the monthly cap applies; a budget a person sets for one task, a notice when a task falls back to a local model, and the per-tenant switch that pauses every task and schedule are P8-05's.
+  - Built in P8-05: [unattended-spend.md](unattended-spend.md). A task's `status` may now be `paused`.
 - **A list of every task**, across chats, and on Operations (P11-03). The routes are reached through a chat.
 - **Retrying a provider's failure.** A round that fails with `overloaded` or `rate_limited` ends the task. A task does not wait and try again.
 - **A task's own model.** It runs on the model the chat it was started from would use next.

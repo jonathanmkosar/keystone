@@ -36,6 +36,135 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/agents": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "held": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "working": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "paused",
+                    "working",
+                    "held"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The switch that pauses every agent and schedule of yours, and how many of your background tasks and scheduled runs are working and held."
+      }
+    },
+    "/api/v1/agents/pause": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "held": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "working": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "paused",
+                    "working",
+                    "held"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Pause every agent and schedule at once. Each background task and scheduled run that is working is stopped, with what it did kept, and waits; one started meanwhile waits too; no schedule starts a run. The call waits up to agents.pause_wait for the work to stop. It takes no body."
+      }
+    },
+    "/api/v1/agents/resume": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "held": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "working": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "paused",
+                    "working",
+                    "held"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Let every agent and schedule go on. A paused task goes on with a new round, a held one starts, and each schedule is due at its first due time after now: the times that passed while paused are not made up. It takes no body."
+      }
+    },
     "/api/v1/audit": {
       "get": {
         "parameters": [
@@ -4684,6 +4813,9 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "budget_usd": {
+                    "type": "number"
+                  },
                   "text": {
                     "type": "string"
                   },
@@ -11401,6 +11533,9 @@
                     "schedules": {
                       "items": {
                         "properties": {
+                          "budget_usd": {
+                            "type": "number"
+                          },
                           "created": {
                             "format": "date-time",
                             "type": "string"
@@ -11532,6 +11667,9 @@
                             ],
                             "type": "object"
                           },
+                          "run_budget_micros": {
+                            "type": "integer"
+                          },
                           "says": {
                             "type": "string"
                           },
@@ -11549,6 +11687,7 @@
                           "incognito",
                           "enabled",
                           "held",
+                          "run_budget_micros",
                           "created",
                           "updated"
                         ],
@@ -11605,6 +11744,9 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "budget_usd": {
+                    "type": "number"
+                  },
                   "enabled": {
                     "type": "boolean"
                   },
@@ -11664,6 +11806,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "budget_usd": {
+                      "type": "number"
+                    },
                     "created": {
                       "format": "date-time",
                       "type": "string"
@@ -11795,6 +11940,9 @@
                       ],
                       "type": "object"
                     },
+                    "run_budget_micros": {
+                      "type": "integer"
+                    },
                     "says": {
                       "type": "string"
                     },
@@ -11812,6 +11960,7 @@
                     "incognito",
                     "enabled",
                     "held",
+                    "run_budget_micros",
                     "created",
                     "updated"
                   ],
@@ -11852,6 +12001,9 @@
                     "schedules": {
                       "items": {
                         "properties": {
+                          "budget_usd": {
+                            "type": "number"
+                          },
                           "created": {
                             "format": "date-time",
                             "type": "string"
@@ -11983,6 +12135,9 @@
                             ],
                             "type": "object"
                           },
+                          "run_budget_micros": {
+                            "type": "integer"
+                          },
                           "says": {
                             "type": "string"
                           },
@@ -12000,6 +12155,7 @@
                           "incognito",
                           "enabled",
                           "held",
+                          "run_budget_micros",
                           "created",
                           "updated"
                         ],
@@ -12068,6 +12224,9 @@
                     "schedules": {
                       "items": {
                         "properties": {
+                          "budget_usd": {
+                            "type": "number"
+                          },
                           "created": {
                             "format": "date-time",
                             "type": "string"
@@ -12199,6 +12358,9 @@
                             ],
                             "type": "object"
                           },
+                          "run_budget_micros": {
+                            "type": "integer"
+                          },
                           "says": {
                             "type": "string"
                           },
@@ -12216,6 +12378,7 @@
                           "incognito",
                           "enabled",
                           "held",
+                          "run_budget_micros",
                           "created",
                           "updated"
                         ],
@@ -12409,6 +12572,9 @@
                     },
                     "schedule": {
                       "properties": {
+                        "budget_usd": {
+                          "type": "number"
+                        },
                         "created": {
                           "format": "date-time",
                           "type": "string"
@@ -12540,6 +12706,9 @@
                           ],
                           "type": "object"
                         },
+                        "run_budget_micros": {
+                          "type": "integer"
+                        },
                         "says": {
                           "type": "string"
                         },
@@ -12557,6 +12726,7 @@
                         "incognito",
                         "enabled",
                         "held",
+                        "run_budget_micros",
                         "created",
                         "updated"
                       ],
@@ -12620,6 +12790,9 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "budget_usd": {
+                    "type": "number"
+                  },
                   "enabled": {
                     "type": "boolean"
                   },
@@ -12679,6 +12852,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "budget_usd": {
+                      "type": "number"
+                    },
                     "created": {
                       "format": "date-time",
                       "type": "string"
@@ -12810,6 +12986,9 @@
                       ],
                       "type": "object"
                     },
+                    "run_budget_micros": {
+                      "type": "integer"
+                    },
                     "says": {
                       "type": "string"
                     },
@@ -12827,6 +13006,7 @@
                     "incognito",
                     "enabled",
                     "held",
+                    "run_budget_micros",
                     "created",
                     "updated"
                   ],
@@ -12868,6 +13048,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "budget_usd": {
+                      "type": "number"
+                    },
                     "created": {
                       "format": "date-time",
                       "type": "string"
@@ -12999,6 +13182,9 @@
                       ],
                       "type": "object"
                     },
+                    "run_budget_micros": {
+                      "type": "integer"
+                    },
                     "says": {
                       "type": "string"
                     },
@@ -13016,6 +13202,7 @@
                     "incognito",
                     "enabled",
                     "held",
+                    "run_budget_micros",
                     "created",
                     "updated"
                   ],
@@ -13057,6 +13244,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "budget_usd": {
+                      "type": "number"
+                    },
                     "created": {
                       "format": "date-time",
                       "type": "string"
@@ -13188,6 +13378,9 @@
                       ],
                       "type": "object"
                     },
+                    "run_budget_micros": {
+                      "type": "integer"
+                    },
                     "says": {
                       "type": "string"
                     },
@@ -13205,6 +13398,7 @@
                     "incognito",
                     "enabled",
                     "held",
+                    "run_budget_micros",
                     "created",
                     "updated"
                   ],

@@ -85,8 +85,14 @@ type Schedule struct {
 	Incognito bool `json:"incognito"`
 	// Enabled is false while the person has paused it.
 	Enabled bool `json:"enabled"`
-	// Held says the person's switch that holds every schedule is on.
+	// Held says the person's switch that holds every schedule is on, or the
+	// one that pauses every agent and schedule (P8-05).
 	Held bool `json:"held"`
+	// BudgetUSD is the schedule's own budget for each of its runs, in US
+	// dollars, when it has one (P8-05). RunBudgetMicros is the budget each
+	// run has: its own, or the person's agents.schedule_budget_usd.
+	BudgetUSD       *float64 `json:"budget_usd,omitempty"`
+	RunBudgetMicros int64    `json:"run_budget_micros"`
 	// Next is the next time it is due, in the person's time zone. Absent
 	// while it is paused or held, and for a one-time schedule that has run.
 	Next *time.Time `json:"next,omitempty"`
@@ -116,7 +122,8 @@ type Run struct {
 	// Keystone was not running over several. Zero for a run the person
 	// asked for.
 	Missed int `json:"missed"`
-	// Status is starting, queued, running, done, stopped, failed or gone.
+	// Status is starting, queued, running, paused, done, stopped, failed or
+	// gone.
 	Status string `json:"status"`
 	// Waiting says a tool call of the run waits for the person's approval,
 	// in its chat.
@@ -149,6 +156,10 @@ type ScheduleBody struct {
 	// Enabled, when given, pauses or resumes it. Absent means on for a new
 	// schedule, and as it was for a change.
 	Enabled *bool `json:"enabled,omitempty"`
+	// BudgetUSD is the most each run may spend on models that are not
+	// local, in US dollars (P8-05). Absent means the person's
+	// agents.schedule_budget_usd.
+	BudgetUSD *float64 `json:"budget_usd,omitempty"`
 }
 
 // Zone is the time zone schedules run in.

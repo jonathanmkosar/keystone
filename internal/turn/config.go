@@ -169,4 +169,8 @@ type Options struct {
 	// the monthly cap (P8-01: a background task's budget, jobs.Gate). Nil
 	// asks nothing more.
 	Gate Gate
+	// Moved is told when a route moves past a model, before the next is
+	// tried, and may end the call instead (P8-05: unattended work at the cap
+	// or its budget, unattended.Moved). Nil tells nothing.
+	Moved Moved
 }
