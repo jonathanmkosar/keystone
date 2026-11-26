@@ -47,6 +47,10 @@ type reach struct {
 	fingerprint string
 	// redact takes the token out of a text from the server.
 	redact func(string) string
+	// access gives a Google connector's call its access token, and google
+	// is what it is made from (P12-02, google.go). Nil for an MCP server.
+	access func(ctx context.Context) (string, error)
+	google *googleReach
 }
 
 // errNoToken is a connector whose token is named and not stored.
@@ -59,6 +63,11 @@ func (e errNoToken) Error() string {
 // reachFor makes the transport for one connector of the person whose store
 // s is. The token is read from their vault now.
 func (o Options) reachFor(s *tenant.Store, c Connector) (reach, error) {
+	if c.Transport == TransportGoogle {
+		// Gmail and Calendar: the refresh token and the OAuth client, and
+		// the access token refreshed from them when a call asks (P12-02).
+		return o.googleReachFor(s, c)
+	}
 	token := ""
 	if c.Secret != "" {
 		v, ok, err := s.Secrets().Get(c.Secret)
@@ -182,6 +191,9 @@ func (o Options) Check(ctx context.Context, s *tenant.Store, name string) (Kept,
 	k, err := Get(ctx, s, name)
 	if err != nil {
 		return Kept{}, err
+	}
+	if k.Transport == TransportGoogle {
+		return o.checkGoogleNow(ctx, s, k) // P12-02, google.go
 	}
 	problem := ""
 	r, err := o.reachFor(s, k.Connector)

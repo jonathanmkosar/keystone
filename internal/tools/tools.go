@@ -65,6 +65,13 @@ type Tool struct {
 	// changes something asks before it runs (P7-02). A forgotten flag
 	// makes side effects ask; it never lets one run.
 	Inside bool
+	// ReachesOthers says, from one call's input, that the call reaches
+	// other people: it sends them a message, or invites, updates or tells
+	// the guests of an event (P12-02). Such a call asks whatever the
+	// person's policy for the tool says, and runs only when the person
+	// approves it themselves. Nil means no call of the tool does. It must
+	// answer true for input it cannot read.
+	ReachesOthers func(input json.RawMessage) bool
 	// Describe says what one call will do, in a sentence a person reads on
 	// the approval card, from the call's input. Nil means a sentence made
 	// from the tool's name and the input's plain values.
@@ -83,6 +90,14 @@ type Info struct {
 	ReadOnly    bool   `json:"read_only"`
 	// Inside says the tool's result is Keystone's own, not outside content.
 	Inside bool `json:"inside"`
+	// ReachesOthers says some calls of the tool reach other people, and
+	// those always ask (P12-02).
+	ReachesOthers bool `json:"reaches_others"`
+}
+
+// Reaches reports whether one call of t reaches other people (P12-02).
+func (t Tool) Reaches(input json.RawMessage) bool {
+	return t.ReachesOthers != nil && t.ReachesOthers(input)
 }
 
 var nameShape = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
@@ -141,7 +156,7 @@ func (r *Registry) List() []Info {
 	var out []Info
 	for _, name := range r.names() {
 		t := r.tools[name]
-		out = append(out, Info{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside})
+		out = append(out, Info{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside, ReachesOthers: t.ReachesOthers != nil})
 	}
 	return out
 }
@@ -374,7 +389,14 @@ func (r *Registry) run(ctx context.Context, c Call, input json.RawMessage) Resul
 	// The second fixed rule. Nothing below this line runs for a tool that
 	// changes something unless a person approved this call: an approval
 	// covers one tool with one input (P7-02).
-	if err := approval.CheckCall(t.ReadOnly, c.Approval, c.Name, input); err != nil {
+	// A call that reaches other people runs only on the person's own answer
+	// to it, never under a standing policy, and never as a tool that only
+	// reads (P12-02).
+	others := t.Reaches(input)
+	if err := approval.CheckCall(t.ReadOnly && !others, c.Approval, c.Name, input); err != nil {
+		return Result{Block: failed(c.ID, upper(err.Error())), Status: StatusRefused}
+	}
+	if err := approval.CheckReach(others, c.Approval); err != nil {
 		return Result{Block: failed(c.ID, upper(err.Error())), Status: StatusRefused}
 	}
 	if !isObject(input) {

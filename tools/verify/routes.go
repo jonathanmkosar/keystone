@@ -385,6 +385,13 @@ func checkRecorded(string) error {
 		return err
 	}
 	problems = append(problems, connected...)
+	// So are Gmail and Calendar's, connected through the API, where a send
+	// and an invitation always ask (P12-02). See google.go.
+	googled, err := googleRecorded()
+	if err != nil {
+		return err
+	}
+	problems = append(problems, googled...)
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))
 	}

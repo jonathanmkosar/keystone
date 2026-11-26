@@ -1,0 +1,153 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "Gmail: search, draft and send a reply",
+      "when": { "user_text": "Find the lunch email, draft a reply, and send it." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will find the email first." },
+                { "type": "tool_call", "id": "call_search", "name": "gmail_search", "input": { "query": "lunch" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 22 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Test Person Two asks about lunch on Friday. I will draft a reply." },
+                {
+                  "type": "tool_call",
+                  "id": "call_draft",
+                  "name": "gmail_draft",
+                  "input": {
+                    "to": ["Test Person Two <person.two@example.org>"],
+                    "subject": "Re: Lunch on Friday?",
+                    "body": "Yes, noon by the harbour works. See you on Friday.",
+                    "reply_to": "m7e8f9"
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 700, "output_tokens": 60 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_send",
+                  "name": "gmail_send",
+                  "input": {
+                    "to": ["Test Person Two <person.two@example.org>"],
+                    "subject": "Re: Lunch on Friday?",
+                    "body": "Yes, noon by the harbour works. See you on Friday.",
+                    "reply_to": "m7e8f9"
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 780, "output_tokens": 50 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I drafted the reply and, once you approved it, sent it to Test Person Two.\n\nThis reply is a recorded turn: the tools ran for real against the Gmail connector, and it cannot read out what they returned." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 840, "output_tokens": 44 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calendar: a personal event",
+      "when": { "user_text": "Put a swim on my calendar on Thursday morning." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_swim",
+                  "name": "calendar_create_event",
+                  "input": { "title": "Swim", "start": "2026-11-26T07:00", "end": "2026-11-26T08:00", "time_zone": "America/Chicago" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 480, "output_tokens": 40 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [{ "type": "text", "text": "A swim is on your calendar on Thursday from 07:00 to 08:00.\n\nThis reply is a recorded turn." }]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 560, "output_tokens": 24 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calendar: an event with a guest",
+      "when": { "user_text": "Invite the keeper to tea on Saturday." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "tool_call",
+                  "id": "call_tea",
+                  "name": "calendar_create_event",
+                  "input": {
+                    "title": "Tea at the lighthouse",
+                    "start": "2026-11-28T16:00",
+                    "end": "2026-11-28T17:00",
+                    "time_zone": "America/Chicago",
+                    "guests": ["keeper@lighthouse.example"]
+                  }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 500, "output_tokens": 48 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [{ "type": "text", "text": "Once you approved it, Google sent the keeper an invitation to tea on Saturday at 16:00.\n\nThis reply is a recorded turn." }]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 580, "output_tokens": 30 }
+          }
+        }
+      ]
+    }
+  ]
+}

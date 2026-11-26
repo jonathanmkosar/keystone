@@ -234,7 +234,7 @@ func (r *Runner) approveStep(ctx context.Context, s *tenant.Store, t row, step i
 		if !polsOK {
 			pol = "unread" // not a policy, so the call asks
 		}
-		d := approval.Decide(approval.Call{Tool: c.Name, Input: c.Input, ReadOnly: tool.ReadOnly, Policy: pol, Outside: outside})
+		d := approval.Decide(approval.Call{Tool: c.Name, Input: c.Input, ReadOnly: tool.ReadOnly, Policy: pol, Outside: outside, Others: tool.Reaches(c.Input)})
 		got, kept := have[c.ID]
 		switch {
 		case kept && got.used:
@@ -304,6 +304,8 @@ func (r *Runner) approveStep(ctx context.Context, s *tenant.Store, t row, step i
 // askWhy is the sentence a card gives for asking.
 func askWhy(reason approval.Reason, outside string, set, policiesRead bool) string {
 	switch {
+	case reason == approval.ReasonOthers: // P12-02
+		return "Asking because this reaches other people, so it always asks, whatever you have set."
 	case reason == approval.ReasonOutside:
 		return "Asking because " + outside + "."
 	case !policiesRead:
