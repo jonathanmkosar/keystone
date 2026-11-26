@@ -177,6 +177,7 @@ Faults were put in by hand and each was caught: no reserve on the memory route, 
 - **Incognito chats that keep no record** came with P6-07: made incognito from the start, no recap, left out of past-chat search, deleted when left or once idle ([memory-screens.md](memory-screens.md)). Recall still reads the store in an incognito chat.
 - **Forgetting** came with P6-07: a fact the pass added is corrected or forgotten on the Memory screen, and its row follows the new source ([memory-screens.md](memory-screens.md)). The facts of a deleted chat still stay in the store until forgotten.
 - **Facts merged across turns.** Each pass adds its own source, and the same fact told twice is added twice. Turning sources into pages is the wiki upkeep jobs' (P8-06).
+  - Since P8-06 the wiki upkeep jobs turn the sources into cited pages ([wiki-jobs.md](wiki-jobs.md)). A wiki job's run chat runs no memory pass (`turn.Options.SkipMemory`), so a job's report never becomes a source.
 - **What the store already holds.** The pass is not shown the turn's recall, so it does not know which facts the store has.
 - **A response format in the model seam**, so a provider can be asked for JSON that fits a schema.
 - **A real model.** Only the fake has extracted facts so far. How well the owner's local model follows the prompt is unknown.

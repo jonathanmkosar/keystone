@@ -372,6 +372,18 @@ Seen in a browser on November 25, 2026, against the server built from this branc
 
 Seen in a browser on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree (removed afterwards), as the test tenant: with every agent paused, a task started in a chat showed the bar and a card "Background task, paused" with "Held: every agent is paused. It starts when they are resumed."; Resume all agents started it, and its note came into the chat. On Scheduled, the bar in both states; a schedule with a budget of its own of $0.50 showed "$0.50 a run, this schedule's own"; Pause all agents marked it held with the words that say which switch may hold it; the form's budget field; Settings → General's control for the switch. At phone width the bar wraps under its words. The only console error was the sign-in probe's 401.
 
+## Wiki upkeep (P8-06)
+
+`src/WikiJobs.tsx` with `src/wiki-jobs.css`: a section of the Scheduled screen, under its list, drawn once the list has loaded (one line and its import in `Scheduled.tsx`). A sentence says what the jobs do, then one row for each job: its title, its store (and, for Waymarks, the principal it appears as), its schedule in words, its model and its budget for each run; a pill (Off, On, Held, or Cannot run, red when the job is on and cannot run); a switch; and **Run now**, disabled while a run is under way or the job cannot run. A job that cannot run says why in the server's words, and when its token is what is missing, the grant to give its principal and the secret to store it as, with the runbook's name. Under each, its last run with its pill and a link to its chat, what Keystone wrote for it, and its next run. The section reads the jobs again every two seconds while a run is under way or its answer is being written, and every thirty otherwise; a change made here tells the screen, which reads its list again. The calls go through `call` in `api.ts`, which is not changed. There is no mockup: built from the tokens after `design/screens/Scheduled.html`, provisional on P1-05. See [wiki-jobs.md](wiki-jobs.md).
+
+| Call | Used for |
+| --- | --- |
+| `GET /api/v1/wiki-jobs` | The section. |
+| `POST /api/v1/wiki-jobs/{job}/on`, `…/off` | The switch. |
+| `POST /api/v1/wiki-jobs/{job}/run` | Run now. |
+
+Seen in a browser on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree (removed afterwards), as the test tenant: with no store, every job said it cannot run and why; with the built-in store, the Waymarks jobs named the store and the built-in job the missing model; its switch turned on with the pill red; in the dark theme and at phone width (375 pixels, no sideways scroll). The only console errors were the sign-in probe's 401 and the connection refused while the server was restarted.
+
 ## Attached chats and handoff (P5-06)
 
 The chips of the chats attached to a chat, the control that attaches one, and the handoff's button and links. The server's side is [attach-and-handoff.md](attach-and-handoff.md). There is no mockup for any of it, so it is provisional until the chat mockups cover it (P1-04); it is built from the tokens.

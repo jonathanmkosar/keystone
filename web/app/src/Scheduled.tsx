@@ -27,6 +27,7 @@ import { AgentsSwitch } from "./AgentsSwitch";
 import { useChats } from "./chats";
 import { Icon } from "./Icon";
 import { ScheduleForm } from "./ScheduleForm";
+import { WikiJobs } from "./WikiJobs";
 import { dollars, lastSaid, open, pill, took, when, why, zoneWords, type Tone } from "./schedules";
 import "./scheduled.css";
 
@@ -511,6 +512,7 @@ export function Scheduled() {
           </div>
         </div>
       )}
+      {list.state === "ready" && <WikiJobs onChange={() => void changed()} />}
     </div>
   );
 }

@@ -216,5 +216,10 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0391 | [A paused task is stopped through its context, marked paused, and goes on with a new round](decisions/0391-a-paused-task-is-stopped-through-its-context-and-goes-on-with-a-new-round.md) |
 | 0392 | [Unattended work at the cap or its budget goes on with a local model and says so, or stops when the person says it may not](decisions/0392-unattended-work-at-the-cap-falls-back-with-a-notice-or-stops.md) |
 | 0393 | [Every unattended run is registered by its request id, with its kind and its own budget](decisions/0393-every-unattended-run-is-registered-with-its-own-budget.md) |
+| 0440 | [A wiki job is a schedule it owns, made from the person's settings](decisions/0440-a-wiki-job-is-a-schedule-it-owns-made-from-settings.md) |
+| 0441 | [A wiki job's writes come from its answer, through its own grant](decisions/0441-a-wiki-jobs-writes-come-from-its-answer-through-its-own-grant.md) |
+| 0442 | [A wiki run is held from its first call and refused every hosted model](decisions/0442-a-wiki-run-is-held-and-refused-every-hosted-model.md) |
+| 0443 | [Keystone's own jobs skip withdrawn sources](decisions/0443-keystones-own-jobs-skip-withdrawn-sources.md) |
+| 0444 | [The proof against a real Waymarks runs in go test, and skips without it](decisions/0444-the-proof-against-a-real-waymarks-runs-in-go-test-and-skips-without-it.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

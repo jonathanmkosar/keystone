@@ -1,6 +1,6 @@
 # P8-06. Wiki upkeep jobs
 
-Status: doing (agents)
+Status: provisional
 Lane: agents + knowledge
 Depends on: P8-03, P6-03, P6-06
 Owner gate: none
@@ -27,3 +27,12 @@ What will be built:
 
 Left: the live run against the owner's Waymarks with his tokens; the screen's look (P1-05).
 
+### Result
+
+Provisional on November 25, 2026: built as planned, and the proof passes on this machine against a fake Waymarks and against a Waymarks test instance started from the owner's binary, with invented principals. It waits on:
+
+- **The owner's tokens for his real Waymarks**: the live run, after he makes each job's principal and grant and stores its token (`docs/runbooks/wiki-jobs.md`).
+- **The agent mockups (P1-05)** for the Wiki upkeep section of the Scheduled screen.
+- **The owner's answer to decision 0441**: a job's writes after it read sources run under its grant without his answer to each (recommended, and built).
+
+What is built: `internal/wikijobs` and its guard `internal/wikijobs/scope`; the four agent-kit jobs and the built-in store's compile job, each a schedule it owns made from settings in `settings/agents.json`, off as shipped; each run a background task in a chat of its own, held for sensitive content from its first call and refused every hosted model at the gate, with no memory pass; the job's read tools under its own token; its JSON answer checked whole and written through its own grant, recorded in the audit log, with a note in the run's chat; withdrawn sources left out; four routes; the Wiki upkeep section of the Scheduled screen; the standing check `wiki jobs` (`verify` 28 of 28). See `docs/architecture/wiki-jobs.md`, decisions 0440 to 0444, and `docs/journal/2026-11-25-agents-009.md`.
