@@ -108,7 +108,7 @@ A `Trend` is how a limit has moved and where it is heading:
 | Field | Meaning |
 | --- | --- |
 | `points` | The snapshots within `operations.trend_window`, oldest first, and the reading now as the last. The cap's and the reserve's reach back no further than the start of the month, when they start again. |
-| `known` | There are two points or more at different times. |
+| `known` | There are two points or more at different times, spanning `operations.trend_min_span` at least (a run's budget is exempt: its own calls tell its rate). Added at the merge, after the live install's disk read "21 GB a day, full in about 13 days" from a few minutes of snapshots taken across restarts. |
 | `per_day` | The slope of the line that fits the points best, by least squares, in the limit's unit a day. |
 | `full_at` | When the use would reach the limit at that rate; absent when it is not growing, is full, or would take more than a hundred years. |
 | `resets`, `at_reset` | For the cap and the reserve, the first of next month, and what would be used by then at that rate: "at this rate, $51 by the end of the month". |
@@ -138,6 +138,7 @@ In `settings/core.json`. A value outside its bounds is taken as the nearest boun
 | `operations.files_room_mb` | `20480` | install | The room for one person's files folder. |
 | `operations.artifacts_room_mb` | `5120` | install | The room for one person's artifacts folder. |
 | `operations.trend_window` | `168h` | tenant | How far back a trend looks. 1h to 90 days. |
+| `operations.trend_min_span` | `24h` | tenant | How long a limit's snapshots must span before its trend and its fill date are told. 0 to 30 days. |
 | `operations.health_window` | `24h` | tenant | The window of model health and of failed tasks. 5m to 30 days. |
 | `operations.jobs_shown` | `10` | tenant | How many of the newest tasks, and of the failed, are listed. 1 to 100. |
 | `operations.traces_shown` | `20` | tenant | How many traces are listed. 1 to 100. |

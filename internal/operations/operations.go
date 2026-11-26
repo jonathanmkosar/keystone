@@ -45,6 +45,7 @@ const (
 	SettingFilesRoom       = "operations.files_room_mb"
 	SettingArtifactsRoom   = "operations.artifacts_room_mb"
 	SettingTrendWindow     = "operations.trend_window"
+	SettingTrendMinSpan    = "operations.trend_min_span"
 	SettingHealthWindow    = "operations.health_window"
 	SettingJobsShown       = "operations.jobs_shown"
 	SettingTracesShown     = "operations.traces_shown"
@@ -68,6 +69,7 @@ var (
 	everyBounds  = [2]time.Duration{time.Minute, 24 * time.Hour}
 	keepBounds   = [2]time.Duration{time.Hour, 366 * 24 * time.Hour}
 	trendBounds  = [2]time.Duration{time.Hour, 90 * 24 * time.Hour}
+	spanBounds   = [2]time.Duration{0, 30 * 24 * time.Hour}
 	healthBounds = [2]time.Duration{5 * time.Minute, 30 * 24 * time.Hour}
 	stuckBounds  = [2]time.Duration{time.Minute, 7 * 24 * time.Hour}
 	shownBounds  = [2]int{1, 100}
@@ -118,7 +120,10 @@ func DefaultConfig() (Config, error) {
 
 // Settings are the settings one report reads, as they stand for a tenant.
 type Settings struct {
-	TrendWindow  time.Duration
+	TrendWindow time.Duration
+	// TrendMinSpan is how long a limit's snapshots must span before its
+	// trend is told; a run's budget is told from its own calls.
+	TrendMinSpan time.Duration
 	HealthWindow time.Duration
 	StuckAfter   time.Duration
 	JobsShown    int
@@ -161,6 +166,7 @@ func ReadSettings(ctx context.Context, s *tenant.Store, reg []settings.Setting) 
 		return min(max(n, b[0]), b[1])
 	}
 	out.TrendWindow = dur(SettingTrendWindow, trendBounds)
+	out.TrendMinSpan = dur(SettingTrendMinSpan, spanBounds)
 	out.HealthWindow = dur(SettingHealthWindow, healthBounds)
 	out.StuckAfter = dur(SettingStuckAfter, stuckBounds)
 	out.JobsShown = num(SettingJobsShown, shownBounds)
