@@ -1,6 +1,6 @@
 # P10-01. Dictation
 
-Status: doing (interface)
+Status: provisional
 Lane: interface
 Depends on: P4-04
 Owner gate: none
@@ -23,4 +23,14 @@ Branch `interface/p10-01-dictation`, cut from `reboot` at a3d2864. The chat scre
 6. **The write-up**: `docs/architecture/dictation.md` with its `componentDocs` line and overview row, decisions from 0500, the journal, the status.
 
 Left for later: voice mode (P10-02); a local transcriber; dictation in other boxes than the composer.
+
+### Result (interface lane, November 26, 2026)
+
+Provisional on the mockups for the microphone button only: the chat mockups (P1-04) do not draw it, so its place and look are built from the tokens. The machine, the settings, the header and the proof are complete.
+
+- Built as planned: `dictation.ts` (the machine, no imports), `DictationControls.tsx` (the hook, the button and the status line), `dictation.css`, the `mic` icon, and in `Composer.tsx` the hook, the two components, `holdsSend` at the head of `send`, and Escape. `settings/voice.json` with `voice.dictation`, `voice.language`, `voice.interim`, `voice.max_listen` and `voice.finish_wait`. `Permissions-Policy: microphone=(self)` in `cmd/keystone/serve.go`. Decisions 0500 to 0502.
+- Changed from the plan: the React part is `DictationControls.tsx`, not `Dictation.tsx`, because Windows does not tell `Dictation.tsx` and `dictation.ts` apart and `./Dictation` would have found the machine.
+- The proof: 15 tests of the machine with a fake recognizer and clock, run by Node's own test runner with no package (`npm test` in `web/app`): dictated words land in the box at the cursor, in order, removing nothing; Enter or Send during listening, silence, an error, the time limit and the finishing wait each end with the words in the box and nothing sent, and the person's next send sends them. With `holdsSend` made to answer false, the send test fails. A new standing check, `dictation`, runs them when Node is present and always reads the source, the header and the settings; `verify` is 36 of 36. In the desktop app's browser pane, with a stand-in recognizer in the page, Enter during listening sent no turn and the next Enter sent the box. No real microphone was used.
+- `web/dist/` is not committed: `npm ci && npm run build` in `web/app`.
+- See `docs/journal/2026-11-26-interface-008.md` and `docs/architecture/dictation.md`.
 

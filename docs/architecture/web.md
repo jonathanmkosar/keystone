@@ -517,6 +517,10 @@ Seen in a browser on November 26, 2026, in the browser pane, against a stand-in 
 
 The Share button in a chat's header, where the mockups draw it, and its popover (`ShareControl.tsx`, one line in `ChatLinks.tsx`); Settings → Shared links (`ShareSettings.tsx`, three lines in `Settings.tsx`); and the shared page at `/share/<token>` (`Shared.tsx`), which `main.tsx` draws in place of the app, so nothing asks who is signed in. The page reads the link with `credentials: "omit"`, imports nothing from `api.ts`, and draws text only: replies through `Markdown.tsx`, artifacts as source in a code block. Calls in `share.ts`; styles in `share.css`, from the tokens. Provisional: only the button has a mockup. See [share.md](share.md).
 
+## Dictation (P10-01)
+
+A microphone just before the send button in every composer, and a line under the text with the state, the words still being heard and why dictation stopped. The machine is `dictation.ts`, which has no imports and is tested by Node's own test runner (`npm test`, `web/app/test/`, decision [0501](decisions/0501-the-web-machine-is-tested-by-nodes-own-test-runner.md)); the hook and the two components are `DictationControls.tsx`, the look `dictation.css`, and the icon `mic` in `Icon.tsx`. In `Composer.tsx`: the import, the hook, the line under the text, the button after `beside`, `if (dictation.holdsSend()) return;` at the head of `send`, and Escape in `keyDown`. The settings are read with `listSettings`. The server now sends `Permissions-Policy: microphone=(self)`; the content security policy is unchanged. Provisional: there is no mockup of the button. See [dictation.md](dictation.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

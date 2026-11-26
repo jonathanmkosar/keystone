@@ -14,6 +14,12 @@ import (
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
+// Dictation (P10-01): the machine is a file of the web interface with a
+// doc of its own.
+func init() {
+	componentDocs["web/app/src/dictation.ts"] = "docs/architecture/dictation.md"
+}
+
 // dictationFiles are the dictation path: the machine and the screen's part.
 var dictationFiles = []string{"dictation.ts", "DictationControls.tsx"}
 
