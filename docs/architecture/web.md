@@ -521,6 +521,10 @@ The Share button in a chat's header, where the mockups draw it, and its popover 
 
 A microphone just before the send button in every composer, and a line under the text with the state, the words still being heard and why dictation stopped. The machine is `dictation.ts`, which has no imports and is tested by Node's own test runner (`npm test`, `web/app/test/`, decision [0501](decisions/0501-the-web-machine-is-tested-by-nodes-own-test-runner.md)); the hook and the two components are `DictationControls.tsx`, the look `dictation.css`, and the icon `mic` in `Icon.tsx`. In `Composer.tsx`: the import, the hook, the line under the text, the button after `beside`, `if (dictation.holdsSend()) return;` at the head of `send`, and Escape in `keyDown`. The settings are read with `listSettings`. The server now sends `Permissions-Policy: microphone=(self)`; the content security policy is unchanged. Provisional: there is no mockup of the button. See [dictation.md](dictation.md).
 
+## Imported chats (P12-03)
+
+Provisional on the mockups, which draw no imported chat. A chat brought in from New Keystone carries `imported` on its `Chat` ([import.md](import.md)). `Imported.tsx` draws it twice. `ImportedTag` is a small "imported" mark on the chat's row, in the sidebar (one line in `Shell.tsx`) and on the chats screen (one line in `pages.tsx`), whose tooltip says where the chat came from, how many turns it held, when, and which models answered there. `ImportedNote` is a line at the top of the chat's screen (one line in `Chat.tsx`, under the incognito mark) that says the same and, below it, the mark's note: what New Keystone recorded in the chat that Keystone counts and cannot show as steps. Both read the mark from the list of chats, which opening a chat refreshes. `api.ts` gained the `Imported` type and the field on `Chat`. Styles are in `imported.css`, from the tokens. The source passes `tsc --noEmit`. It has not been seen in a browser, and `web/dist/` is not rebuilt on the branch.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

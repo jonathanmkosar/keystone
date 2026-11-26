@@ -1,0 +1,42 @@
+/* Imported chats (P12-03): the mark on a chat's row and the line at the top
+   of its screen. Built from the tokens; provisional on the mockups. */
+
+.imported-tag {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+
+.imported-note {
+  max-width: 760px;
+  margin: 12px auto 0;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.imported-note p {
+  margin: 0;
+}
+
+.imported-note .imported-note-more {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 760px) {
+  .imported-note {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}

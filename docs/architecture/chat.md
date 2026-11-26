@@ -133,3 +133,7 @@ The functions that use them take a `Limits` value. `DefaultLimits` reads the reg
 - Projects: P9-01. A file a project also holds must be counted before `Delete` removes it.
 - Artifacts live in their own folder, and P9-03 decides how a chat's artifacts are removed.
 - Deleting one message or one branch. Only a whole chat is deleted.
+
+## Importing a chat
+
+Since P12-03, `Import(store, limits, chat, also)` (`imported.go`) writes a chat that happened elsewhere: its title, its messages as one branch and their search rows, in one transaction, with the times it is given. The chat is made at its first message's time and was last active at its newest, so it takes its true place in the list. `also` runs in the same transaction with the chat and its messages' ids, so what the caller writes about the chat is kept with it or not at all. The title is checked as `Rename` checks it and the content as `Append` does; a message that refers to a file is refused. The import from New Keystone is its one caller ([import.md](import.md)).

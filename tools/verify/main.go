@@ -138,6 +138,7 @@ var checks = []check{
 	{"share", checkShare},
 	{"sub-agents", checkSubagents},
 	{"dictation", checkDictation},
+	{"import", checkImport},
 }
 
 func main() {

@@ -9,6 +9,7 @@ import { Composer } from "./Composer";
 import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
 import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
+import { ImportedNote } from "./Imported";
 import { Inspector } from "./Inspector";
 import { IncognitoMark, IncognitoSwitch } from "./Incognito";
 import { createIncognitoChat } from "./memoryCalls";
@@ -198,6 +199,7 @@ function OneChat({ id }: { id: string }) {
     <div className="chat">
       <div className="chat-scroll" ref={scroller} onScroll={scrolled}>
         <IncognitoMark chatId={id} />
+        <ImportedNote chatId={id} />
         {loaded.state === "loading" ? (
           <div className="chat-state" aria-busy="true">
             <p className="quiet">Opening the chat.</p>

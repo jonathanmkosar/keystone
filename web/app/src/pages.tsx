@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import type { Chat } from "./api";
 import { titleOf, useChats } from "./chats";
 import { Icon } from "./Icon";
+import { ImportedTag } from "./Imported";
 
 /** When a chat's last message was written: the time if that was today, the date if not. */
 function when(chat: Chat): string {
@@ -22,6 +23,7 @@ function Row({ chat }: { chat: Chat }) {
         </span>
       )}
       <span className={chat.title ? "list-title" : "list-title nav-untitled"}>{titleOf(chat)}</span>
+      <ImportedTag chat={chat} />
       <span className="list-when">{chat.busy ? "answering" : when(chat)}</span>
     </Link>
   );

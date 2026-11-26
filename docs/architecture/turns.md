@@ -475,3 +475,7 @@ Since P9-01, `Runner.build` asks `projectParts` (`projects.go`) for the project 
 ## Styles
 
 Since P9-05, `Runner.build` asks `styleFor` (`styles.go`) for the style the turn's chat uses: the chat's own, or the person's default (`styles.default`), which the chat's first turn keeps as its own. Its heading and instructions go in the context's `style` part, the standing start's last, under the first cache point; a style with no instructions, as the shipped Normal, sends nothing. The style is read after the route and changes nothing about it. Eight routes, listed in `internal/app` from `turn.StyleRoutes`: the styles under `/styles`, `PUT /styles/{id}/default`, and `GET` and `PUT /chats/{id}/style`. See [styles.md](styles.md).
+
+## Imported chats
+
+Since P12-03, `Chat` has `imported`, the mark of a chat that was brought in from another app, absent on a chat made here: `from`, `kind` (`chat`, `routine` or `build`), `at`, `turns`, `unanswered`, `first`, `last`, `models`, `steps` and `note`. `GET /chats`, `GET /chats/{id}` and `PATCH /chats/{id}` give it (`withImports` and `withImport` in `imported.go`). No turn wrote an imported chat's messages, so they have no `turn_id`, `usage` or `cost_micros`; an imported reply's `model` is the name its source gave, read from `internal/imported`, and need not be a model in the person's registry. The chat's next turn uses the person's default model, since no turn of the chat names one. See [import.md](import.md).
