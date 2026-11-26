@@ -35,6 +35,7 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `tools/web` | agents | `web_search` with Tavily and `web_fetch` of public pages, numbered sources, and results marked as outside content |
 | `mcp` | agents | A Model Context Protocol client, standard library only: initialize, list tools and call one, over stdio and the streamable HTTP transport; `mcp/mcptest`, a test server for tests and verify |
 | `connectors` | agents | Each person's connectors, what a turn is offered from them by name until loaded, the pool of sessions, the address and command rules, and the routes |
+| `google` | agents | The Google OAuth client (PKCE, refresh, revoke) and the Gmail and Calendar tools as plain data and functions, for the built-in connectors; `google/googletest`, a stand-in Google for tests and verify |
 | `knowledge/recall` | knowledge | Recall on every message, the three knowledge lookups, and the sensitive mark a chat keeps |
 | `backup` | core | The sealed file one tenant's backup is written to: the passphrase's key, chunks a cut or changed file cannot pass, and names that cannot leave the folder |
 | `compact` | chats | When a long chat's oldest turns are summarised and which, the summary request, the stored summaries, and whether one may go to a call |

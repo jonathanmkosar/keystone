@@ -29,6 +29,8 @@ Both the wrap and the encryption are bound to the tenant id. A `secrets.bin` cop
 
 A name is 1 to 100 lower-case letters, digits, dots, dashes and underscores, such as `provider.anthropic`. A connector's token is stored as `connector.<name>` by the Connectors screen, and is read for each session with its server and sent nowhere else (since P7-04, [connectors.md](connectors.md)).
 
+Since P12-02, a person's Google sign-in is stored as `connector.google` (the refresh token, written by Connect Google), and the owner's OAuth client secret as `google.client_secret` in each person's vault (written with `tenant secret set`). Both are read in `reachFor` for each call to Google, and access tokens are kept in memory only ([google.md](google.md)).
+
 Every handle for one tenant shares one vault, so two writers cannot lose each other's change. Nothing in the package prints or logs a value, and no error carries one.
 
 ## Keepers

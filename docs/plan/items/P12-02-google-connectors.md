@@ -1,6 +1,6 @@
 # P12-02. Gmail and Calendar connectors
 
-Status: doing (agents)
+Status: provisional
 Lane: agents
 Depends on: P7-04
 Owner gate: Jonathan signs in to Google for the connectors.
@@ -24,4 +24,14 @@ Plan, November 25, 2026 (agents, branch `agents/p12-02-gmail-calendar`):
 - **Proof**, with the stand-in on this machine: drafting and sending an email asks and runs once approved; a send set to always still asks; a personal calendar change follows the person's policy (always runs, ask asks); a guest-notifying change always asks; an update that leaves out an event's guests is refused and changes nothing; tokens appear in no result, event, audit entry, kept problem or file (a surface of `no keys in output`); a step of `calls recorded` runs the test tenant's recorded Google turns on the real server; the `approval` check covers `Others`. Real Google is never called.
 
 Left out: attachments, labels and archiving, replying to a thread by id beyond In-Reply-To, calendars the person does not own, recurring-event edits beyond one occurrence, push notifications, and choosing per call whether guests get an email.
+
+### Result
+
+Provisional on November 25, 2026, on the owner gate: everything in the scope is built and the proof passes against a stand-in Google on this machine; real Google waits on the owner making an OAuth client and signing in (`docs/runbooks/google.md`). The screens wait on the agent mockups (P1-05).
+
+- **Gmail and Calendar as connectors.** Two built-in connectors, `gmail` and `calendar`, with the transport `google`, run in process behind P7-04's registry, pool, switches, policies, `load_tools` and audit path (decision 0350). Nine tools: `gmail_search`, `gmail_read`, `gmail_draft`, `gmail_send`, `calendar_list_events`, `calendar_get_event`, `calendar_create_event`, `calendar_update_event`, `calendar_delete_event`. Results are outside content.
+- **Sends and guest-notifying changes behind approval cards.** A call that reaches other people always asks, whatever the policy, and only the person's own answer runs it, held twice: in `approval.Decide` (`Others`, the reason `others`) and in `tools.Run` (`CheckReach`) (decision 0351). A change to an event names its title and guests and is checked against the live event, so a card never shows fewer people than are reached (decision 0353). Each card says exactly what is sent or changed.
+- **The sign-in.** OAuth 2.0 with PKCE, returning to a page on the same origin, the narrowest scopes, the refresh token in the person's vault and access tokens in memory, refreshed in `reachFor`; the OAuth client is the owner's, a tenant-admin setting and a vault entry, and until both exist the screen says what is missing (decision 0352). Four routes under `/api/v1/google`.
+- **The proof**, in `go test ./internal/turn` and a step of `verify`'s `calls recorded`: drafting and sending an email asks and runs once approved; a send set to always still asks; a personal calendar change asks at its default and runs set to always; a change that invites a guest always asks; an update that leaves out an event's guests changes nothing; no token in any event, answer or audit entry. `approval` checks the rule; `no keys in output` has a Google surface. `verify` is 22 of 22.
+- One migration, `20261125T190000_google_connectors.sql`; ten settings; `docs/api/openapi.json` regenerated. The doc is `docs/architecture/google.md`; decisions 0350 to 0353; the runbook `docs/runbooks/google.md`; the journal is agents 007. Seen in a browser on port 7993 as the test tenant, with the stand-in on port 7994.
 
