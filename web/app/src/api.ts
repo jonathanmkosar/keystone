@@ -990,7 +990,8 @@ export type Task = {
   title: string;
   task: string;
   started_by: "person" | "tool";
-  status: "queued" | "running" | "done" | "stopped" | "failed";
+  /** paused: the switch that pauses every agent holds it (P8-05). */
+  status: "queued" | "running" | "paused" | "done" | "stopped" | "failed";
   /** A call of its round waits for the person's approval, in its own chat. */
   waiting: boolean;
   /** Where it is, in the server's few words. */
@@ -1074,6 +1075,30 @@ export async function followTask(chatId: string, taskId: string, lastEventId: st
 }
 
 // ---------------------------------------------------------------------------
+// The switch that pauses every agent and schedule (P8-05). AgentsSwitch.tsx
+// draws it. docs/architecture/unattended-spend.md.
+// ---------------------------------------------------------------------------
+
+/** The switch, and how many background tasks and scheduled runs are working and held. */
+export type AgentsSwitchState = { paused: boolean; working: number; held: number };
+
+function agentsFrom(data: unknown): AgentsSwitchState {
+  const d = data as Partial<AgentsSwitchState> | undefined;
+  if (!d || typeof d.paused !== "boolean") throw new ApiError("not-ready", 200);
+  return { paused: d.paused, working: d.working ?? 0, held: d.held ?? 0 };
+}
+
+/** Reads the switch that pauses every agent and schedule. */
+export async function getAgentsSwitch(): Promise<AgentsSwitchState> {
+  return agentsFrom(await call("GET", "/api/v1/agents"));
+}
+
+/** Pauses every agent and schedule, or lets them go on. A pause answers once the work under way has stopped. */
+export async function setAgentsPaused(on: boolean): Promise<AgentsSwitchState> {
+  return agentsFrom(await call("POST", `/api/v1/agents/${on ? "pause" : "resume"}`));
+}
+
+// ---------------------------------------------------------------------------
 // Scheduled tasks (P8-03). A schedule's every run is a background task that
 // works in a chat of its own; Scheduled.tsx draws them.
 // docs/architecture/schedules.md.
@@ -1101,7 +1126,7 @@ export type ScheduleRun = {
   late: boolean;
   late_reason?: "stopped" | "busy";
   missed: number;
-  status: "starting" | "queued" | "running" | "done" | "stopped" | "failed" | "gone";
+  status: "starting" | "queued" | "running" | "paused" | "done" | "stopped" | "failed" | "gone";
   waiting: boolean;
   progress?: string;
   chat_id?: string;
@@ -1124,8 +1149,12 @@ export type Schedule = {
   model?: string;
   incognito: boolean;
   enabled: boolean;
-  /** The person's switch that holds every schedule is on. */
+  /** The person's switch that holds every schedule is on, or the one that pauses every agent. */
   held: boolean;
+  /** Its own budget for each run, in dollars, when it has one (P8-05). */
+  budget_usd?: number;
+  /** The budget each run has: its own, or the person's agents.schedule_budget_usd. */
+  run_budget_micros?: number;
   /** The next due time, in the person's zone. Absent while paused or held, or once it has run. */
   next?: string;
   last_run?: ScheduleRun;
@@ -1146,6 +1175,8 @@ export type ScheduleBody = {
   model?: string;
   incognito?: boolean;
   enabled?: boolean;
+  /** Each run's budget, in dollars. Absent means the person's agents.schedule_budget_usd. */
+  budget_usd?: number;
 };
 
 const schedulesPath = "/api/v1/schedules";

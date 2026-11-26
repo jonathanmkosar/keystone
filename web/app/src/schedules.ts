@@ -82,9 +82,9 @@ export function dollars(micros: number): string {
 
 export type Tone = "ok" | "bad" | "warn" | "idle" | "busy";
 
-/** A run is under way: starting, waiting or running. */
+/** A run is under way: starting, waiting, running, or paused by the switch that pauses every agent (P8-05). */
 export function open(r: ScheduleRun): boolean {
-  return r.status === "starting" || r.status === "queued" || r.status === "running";
+  return r.status === "starting" || r.status === "queued" || r.status === "running" || r.status === "paused";
 }
 
 /** A run's state, as a pill: its words and its tone. */
@@ -97,6 +97,8 @@ export function pill(r: ScheduleRun): { label: string; tone: Tone } {
       return { label: "Starting", tone: "busy" };
     case "running":
       return { label: "Running", tone: "busy" };
+    case "paused":
+      return { label: "Paused", tone: "warn" };
     case "done":
       return r.late ? { label: "Done, late", tone: "warn" } : { label: "Done", tone: "ok" };
     case "stopped":

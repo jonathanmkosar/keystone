@@ -59,6 +59,8 @@ export function ScheduleForm({
   const [date, setDate] = useState(r?.date ?? today());
   const [model, setModel] = useState(from?.model ?? "");
   const [incognito, setIncognito] = useState(from?.incognito ?? false);
+  // Each run's budget in dollars (P8-05); empty is the person's agents.schedule_budget_usd.
+  const [budget, setBudget] = useState(from?.budget_usd !== undefined ? String(from.budget_usd) : "");
   const [models, setModels] = useState<{ name: string; label: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState("");
@@ -93,6 +95,14 @@ export function ScheduleForm({
     if (kind === "once") recurrence.date = date;
     const body: ScheduleBody = { name, prompt, recurrence, incognito };
     if (model) body.model = model;
+    if (budget.trim() !== "") {
+      const usd = Number(budget);
+      if (!Number.isFinite(usd) || usd < 0) {
+        setProblem("A budget is a number of US dollars, 0 or more, or empty for your budget for scheduled runs.");
+        return;
+      }
+      body.budget_usd = usd;
+    }
     setBusy(true);
     try {
       onSaved(await save(body));
@@ -178,6 +188,23 @@ export function ScheduleForm({
           ))}
           {!known && <option value={model}>{model}</option>}
         </select>
+      </label>
+      <label className="field">
+        <span className="field-label">Budget for each run, in US dollars</span>
+        <input
+          className="input sched-short"
+          type="number"
+          min={0}
+          step="0.01"
+          inputMode="decimal"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
+          placeholder="Yours"
+          aria-describedby="sched-budget-hint"
+        />
+        <span id="sched-budget-hint" className="quiet sched-small">
+          Empty uses your budget for scheduled runs, on General. A call that could pass it is not sent: the run goes on with a local model in your chain, or stops and says so.
+        </span>
       </label>
       <label className="sched-check">
         <input type="checkbox" checked={incognito} onChange={(e) => setIncognito(e.target.checked)} />

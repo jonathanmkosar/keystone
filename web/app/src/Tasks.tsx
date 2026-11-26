@@ -12,6 +12,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router";
+import { AgentsSwitch } from "./AgentsSwitch";
 import { ApiError, followTask, listTasks, stopTask, type Task } from "./api";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
@@ -36,9 +37,9 @@ function useKept(chatId: string): Task[] {
   return useSyncExternalStore(subscribe, () => byChat.get(chatId) ?? none);
 }
 
-/** A task has not ended, or has and its note is not yet written. */
+/** A task has not ended (paused by the switch that pauses every agent is not ended, P8-05), or has and its note is not yet written. */
 function underWay(t: Task): boolean {
-  return t.status === "queued" || t.status === "running" || !t.note_message_id;
+  return t.status === "queued" || t.status === "running" || t.status === "paused" || !t.note_message_id;
 }
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {
@@ -70,6 +71,7 @@ async function follow(chatId: string, task: Task, signal: AbortSignal, onTask: (
 
 function where(t: Task, own: boolean): string {
   if (t.waiting) return own ? "Waiting for your approval, above" : "Waiting for your approval, in its chat";
+  if (t.status === "paused") return t.progress || "Paused: every agent is paused. It goes on when they are resumed.";
   if (t.status === "queued") return "Waiting to start";
   if (t.status !== "running") return "Writing its result in this chat";
   const done = t.steps === 0 ? "" : t.steps === 1 ? " · 1 step done" : ` · ${t.steps} steps done`;
@@ -94,12 +96,12 @@ function TaskCard({ chatId, task }: { chatId: string; task: Task }) {
   }
 
   return (
-    <section className={task.waiting ? "task is-waiting" : "task"} aria-label="Background task">
+    <section className={task.waiting ? "task is-waiting" : task.status === "paused" ? "task is-paused" : "task"} aria-label="Background task">
       <div className="task-head">
         <Icon name="agents" size={16} />
-        <span className="task-kind">Background task</span>
+        <span className="task-kind">{task.status === "paused" ? "Background task, paused" : "Background task"}</span>
         <span className="task-title">{task.title}</span>
-        {(task.status === "queued" || task.status === "running") && (
+        {(task.status === "queued" || task.status === "running" || task.status === "paused") && (
           <button type="button" className="task-stop" disabled={stopping} onClick={() => void stop()}>
             <Icon name="stop" size={14} />
             {stopping ? "Stopping" : "Stop"}
@@ -181,6 +183,7 @@ export function Tasks({ chatId, onEnded }: { chatId: string; onEnded: () => void
   if (shown.length === 0) return null;
   return (
     <div className="tasks">
+      <AgentsSwitch onChange={() => setListed((n) => n + 1)} />
       {shown.map((t) => (
         <TaskCard key={t.id} chatId={chatId} task={t} />
       ))}

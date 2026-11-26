@@ -24,6 +24,11 @@
   border-color: var(--strong);
 }
 
+/* Paused by the switch that pauses every agent (P8-05). */
+.task.is-paused {
+  border-color: var(--accent);
+}
+
 .task-head {
   display: flex;
   align-items: center;

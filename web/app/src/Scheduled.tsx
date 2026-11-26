@@ -23,6 +23,7 @@ import {
   type ScheduleRun,
   type SchedulesReply,
 } from "./api";
+import { AgentsSwitch } from "./AgentsSwitch";
 import { useChats } from "./chats";
 import { Icon } from "./Icon";
 import { ScheduleForm } from "./ScheduleForm";
@@ -67,6 +68,13 @@ function Row({ s, chosen, onChoose }: { s: Schedule; chosen: boolean; onChoose: 
       </span>
     </button>
   );
+}
+
+/** Each run's budget in words: the schedule's own, or the person's for scheduled runs (P8-05). */
+function runBudget(s: Schedule, fallback: string): string {
+  if (s.budget_usd !== undefined) return `${dollars(Math.round(s.budget_usd * 1e6))} a run, this schedule's own`;
+  if (s.run_budget_micros !== undefined) return `${dollars(s.run_budget_micros)} a run, your budget for scheduled runs`;
+  return fallback ? `$${fallback} a run` : "Your budget for scheduled runs, each run";
 }
 
 function RunRow({ r }: { r: ScheduleRun }) {
@@ -136,7 +144,7 @@ function Detail({
 
   let next = "";
   if (!s.enabled) next = "Paused: it starts no run until you turn it on.";
-  else if (s.held) next = "Held, with every schedule. Resume all to let it run.";
+  else if (s.held) next = "Held, with every schedule, by Pause all or by the switch that pauses every agent. Resume them to let it run.";
   else if (s.next) next = `Next run ${when(s.next)}.`;
   else if (s.recurrence.kind === "once") next = "Its time has passed.";
 
@@ -234,7 +242,7 @@ function Detail({
         </div>
         <div>
           <p className="sched-over">BUDGET</p>
-          <div>{budget ? `$${budget} a run, your background task budget` : "Your background task budget, each run"}</div>
+          <div>{runBudget(s, budget)}</div>
         </div>
         <div>
           <p className="sched-over">IF A RUN IS MISSED</p>
@@ -329,7 +337,7 @@ export function Scheduled() {
     void refreshList();
     listSettings().then(
       ({ settings }) => {
-        const b = settings.find((x) => x.key === "agents.task_budget_usd");
+        const b = settings.find((x) => x.key === "agents.schedule_budget_usd");
         if (live.current && b) setBudget(b.value);
       },
       () => {},
@@ -418,6 +426,7 @@ export function Scheduled() {
           </button>
         </div>
       </header>
+      <AgentsSwitch onChange={() => void changed()} />
       {zone && (
         <p className="quiet sched-zone">
           Times are in {zoneWords(zone)}. <Link to="/settings/general">Change it on General</Link>, under Agents.
