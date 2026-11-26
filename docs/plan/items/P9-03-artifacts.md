@@ -1,6 +1,6 @@
 # P9-03. Artifacts
 
-Status: doing (interface)
+Status: provisional
 Lane: agents + interface
 Depends on: P7-01
 Owner gate: Approval of the workspace mockups (P1-06), for the panel only.
@@ -25,4 +25,15 @@ Branch `interface/p9-03-artifacts`, cut from `reboot` at 8106f15. Built on the t
 7. **Settings** in a new `settings/artifacts.json`: the largest artifact, versions kept, the longest title, and the sandbox's permissions.
 
 Left for later: artifacts in the test tenant's fixture; editing an artifact by hand in the panel; sharing outside Keystone (P10).
+
+### Result (interface lane, November 25, 2026)
+
+Provisional on the workspace mockups (P1-06) for the panel; the server side, the sandbox and the proof are complete.
+
+- Built as planned: `internal/artifacts` (store, tools, routes, the sandbox page, the line diff), migration `20261125T221947_artifacts.sql`, `settings/artifacts.json`, one call in `chat.Delete`, and the screen (`ArtifactCard.tsx`, `ArtifactPanel.tsx`, `ArtifactFrame.tsx`, `ArtifactPage.tsx`, `artifacts.ts`, `artifacts.css`) with the renderers in `src/sandbox/` built by `vite.sandbox.config.ts`. Decisions 0420 to 0423.
+- Changed from the plan: the renderers are written into the sandbox page, not loaded from `/sandbox/`, so a page of no origin fetches nothing at all (decision 0422); `update_artifact` and `read_artifact` also take an artifact's exact title; the test tenant has a recorded turn that makes one artifact of each type and one that changes it, which the plan had left for later.
+- The proof: each type renders in the sandbox (a test per type of what the sandbox page serves and its policy, in `sandbox_test.go`, and each type drawn in the browser); versions are compared and restored (`diff_test.go`, the routes' and the store's tests, and in the browser); the sandbox cannot read the session (its policy's `sandbox` directive and the frame's attribute without same-origin, in tests and the check; in the browser its origin was `null` and cookie, storage and a fetch of the session were refused). A new standing check, `artifacts`, makes `verify` 27 of 27.
+- Provisional: the panel, the card, the publish page and the Artifacts screen (no mockup); and the frame drawn inside the app, which the desktop app's browser pane refuses (it blocks every request from a sandboxed frame) and which has not been seen in Chrome, Edge or Safari.
+- `web/dist/` is not committed: `npm ci && npm run build` in `web/app` builds the page and both renderers.
+- See `docs/journal/2026-11-25-interface-006.md` and `docs/architecture/artifacts.md`.
 

@@ -157,6 +157,8 @@ All in `settings/core.json`, all for the whole install. `app.ReadConfig` reads t
 
 The server also reads `secrets.keeper` and passes it to `Install.NewInstallKeeper`, because the tenant package reads no setting ([secrets.md](secrets.md)).
 
+**A route that serves a page or a file** sets its own headers over the server's. Since P9-03 the artifact sandbox route (`GET /artifacts/{artifact}/versions/{version}/sandbox`) answers with a policy of its own in place of `default-src 'self'`, `X-Frame-Options: SAMEORIGIN` in place of `DENY`, and `Cache-Control: private, no-cache` with an ETag in place of `no-store`, for that answer alone; the download route answers under `default-src 'none'; sandbox` as an attachment, as the upload content route does. See [artifacts.md](artifacts.md).
+
 ## Checked by
 
 - `go test ./internal/api ./internal/app`. Every route but the door is refused with no session. A handler is given its session's tenant and no other, whatever else the request says. Sign-in sets a cookie scripts cannot read and puts the token in no body. Sign-ins are in the right tenant's log. A write from another site, a body over the limit and a body that is not the route's JSON are refused. A panic is answered and recorded. The log names each call and holds no token. A stream arrives as it is sent, resumes from `Last-Event-ID`, sends its heartbeat, and is recorded when the client leaves. The committed OpenAPI document matches the routes.

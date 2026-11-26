@@ -170,6 +170,10 @@ Since P7-04 a person's connectors bring tools too, made like the knowledge looku
 
 Since P12-02 a tool may say, from one call's input, that the call reaches other people (`Tool.ReachesOthers`, `Info.ReachesOthers`): an email sent, an invitation or an update to an event's guests. `Run` refuses such a call unless its approval is the person's own answer to it (`approval.CheckReach`), and never runs it as a tool that only reads. See [approvals.md](approvals.md) and [google.md](google.md).
 
+## Artifacts' tools
+
+Since P9-03, `create_artifact`, `update_artifact` and `read_artifact` are in the server's registry, added in `app.Tools` by `artifacts.Add` ([artifacts.md](artifacts.md)). Each acts on the chat it is called from. All three say `ReadOnly` and `Inside`, although two of them write: for these tools `ReadOnly` means what the approval rule reads it as, that nothing outside Keystone changes and nothing is lost, since every version is kept. So they run under the default `always`, and do not ask because a chat read outside content; a person can set each to ask or never (decision [0420](decisions/0420-artifact-tools-run-without-asking.md)). The chat screen draws a call that made or changed an artifact as its card, not as a row.
+
 ## The knowledge lookups
 
 The three knowledge lookups of recall (P6-05) are tools too, but not in the server's registry, because what a lookup may return depends on the call. Each call that offers tools, for a person whose knowledge store opened, also offers the lookups made for the least of its route, and the calls the model makes in reply run those same ones through a registry of their own. The code is `internal/turn/lookups.go`; the lookups themselves are in [knowledge-recall.md](knowledge-recall.md).

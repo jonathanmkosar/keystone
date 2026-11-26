@@ -402,6 +402,23 @@ Seen in a browser on November 25, 2026, against the server built from this branc
 
 The composer takes files: a plus button opens the file picker, and files dropped on the composer are taken too. Each is a chip with its ending, name, size and a remove button; a file `GET /uploads/limits` refuses is not taken, with the reason. A message may be files alone. The files are uploaded when the message is sent, and the message goes with their blocks first. In the person's message an image is a thumbnail from the content route and other files are downloads; a reply that did not see an image, or that a fallback wrote to see one, has a notice above it. The inspector lists each file's text in the attachments part and has a section, Images and files. `Attachments.tsx`, `uploads.ts` and `uploads.css`; small edits in `Composer.tsx`, `Chat.tsx`, `turns.ts`, `api.ts`, `layout.ts`, `Conversation.tsx` and `Inspector.tsx`. Provisional until the workspace mockups (P1-06): built from the tokens, after the composer's "Add files or a chat" button and the attached chat's chip in `design/screens`. See [uploads.md](uploads.md).
 
+## Artifacts (P9-03)
+
+A card in the reply for each artifact a model made or changed, the panel beside the chat, the publish page and the Artifacts screen. The server's side, the sandbox and the screen are in [artifacts.md](artifacts.md). Provisional until the workspace mockups (P1-06): built from the tokens.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The card | `src/ArtifactCard.tsx` | Drawn in the reply's steps in place of the row of a `create_artifact` or `update_artifact` call that did not fail: the title, the type and the version, and a button that opens the panel. |
+| The panel | `src/ArtifactPanel.tsx`, `src/artifacts.css` | Beside the chat from 1,100 pixels wide, over it below. Version picker, Preview, Source, Compare, Restore, Download, Copy, Copy link, Open alone, the sensitive notice. Which artifact is open is kept outside the screens, as the inspector's turn is. |
+| The frame | `src/ArtifactFrame.tsx` | HTML, React, SVG and Mermaid in an `iframe` with `sandbox`, its permissions the server's filtered to an allowed list that never holds same-origin; Markdown with `Markdown.tsx` and code as a code block, in the app. |
+| The publish page and the list | `src/ArtifactPage.tsx` | `/artifacts/<id>` alone, outside the shell, and `/artifacts`, which replaces its placeholder. |
+| The renderers | `src/sandbox/`, `vite.sandbox.config.ts` | React with Sucrase, and Mermaid, built by `npm run build` into `dist/sandbox/react.js` and `mermaid.js` after the main build; the server writes them into the sandbox's pages. Never part of the main bundle. |
+| The way in | `src/Conversation.tsx`, `src/Chat.tsx`, `src/App.tsx`, `src/ApprovalSettings.tsx`, `src/steps.ts`, `src/Icon.tsx` | The card in `Steps`; one line drawing the panel; the publish page drawn in place of the shell when the address matches, and the list's route; the Approvals screen's words for the two writing tools; words for a failed or asking call; three icons. |
+
+Its calls are in `src/artifacts.ts`, through `api.ts`'s `call`: `GET /chats/{id}/artifacts` (`chatArtifacts`), `GET /artifacts` (`allArtifacts`), `GET /artifacts/{id}` (`readArtifact`), `GET /artifacts/{id}/versions/{n}` (`readVersion`), `GET /artifacts/{id}/compare` (`compareVersions`), `POST /artifacts/{id}/versions/{n}/restore` (`restoreVersion`), and the download and sandbox addresses as links and the frame's `src`. The main page's policy is unchanged: no inline script, no `style` attribute, nothing from another site.
+
+`npm run build` now runs three builds: the main page, then the two renderers. It still empties `web/dist/` first.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).
