@@ -1,0 +1,33 @@
+{
+  "lane": "artifacts",
+  "settings": [
+    {
+      "key": "artifacts.max_bytes",
+      "type": "int",
+      "default": "1048576",
+      "scope": "install",
+      "description": "The largest one version of an artifact may be, in bytes. A model that writes a larger one is told so and nothing is kept."
+    },
+    {
+      "key": "artifacts.versions_kept",
+      "type": "int",
+      "default": "0",
+      "scope": "install",
+      "description": "How many of an artifact's newest versions are kept. Zero keeps every version. When a new version would pass the number, the oldest is removed, and the newest is never removed."
+    },
+    {
+      "key": "artifacts.title_max_chars",
+      "type": "int",
+      "default": "120",
+      "scope": "install",
+      "description": "The most characters an artifact's title may have."
+    },
+    {
+      "key": "artifacts.sandbox",
+      "type": "string",
+      "default": "allow-scripts allow-forms allow-modals",
+      "scope": "install",
+      "description": "What an artifact's sandboxed frame may do, as sandbox permissions separated by spaces, from allow-scripts, allow-forms, allow-modals, allow-downloads and allow-pointer-lock. Same-origin, top navigation and popups are never allowed, whatever this says. Without allow-scripts, HTML runs no script and React and Mermaid artifacts are not drawn."
+    }
+  ]
+}

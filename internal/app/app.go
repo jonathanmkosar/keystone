@@ -16,6 +16,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/artifacts"
 	"github.com/jonathanmkosar/keystone/internal/connectors"
 	"github.com/jonathanmkosar/keystone/internal/jobs"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
@@ -90,6 +91,9 @@ type Config struct {
 	// Uploads is what may be uploaded to a chat (P9-02), in
 	// settings/uploads.json.
 	Uploads uploads.Options
+	// Artifacts is what artifacts are kept and shown with (P9-03), in
+	// settings/artifacts.json.
+	Artifacts artifacts.Options
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -134,6 +138,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Uploads' settings (P9-02), in settings/uploads.json.
 	if c.Uploads, err = uploads.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
+	// Artifacts' settings (P9-03), in settings/artifacts.json.
+	if c.Artifacts, err = artifacts.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -216,6 +224,9 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, schedules.Routes(c.schedules)...) // scheduled tasks' (P8-03)
 	// Uploads to a chat (P9-02).
 	all = append(all, uploads.Routes(c.Uploads)...)
+	// Artifacts (P9-03): a chat's, one with its versions, compare, restore,
+	// download and the sandboxed page.
+	all = append(all, artifacts.Routes(c.Artifacts)...)
 	return all
 }
 
