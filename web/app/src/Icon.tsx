@@ -97,6 +97,19 @@ const shapes = {
   tool: <path d="M5 19h14M7 15h10M9.5 11h5" />,
   // A connector (P7-04): a plug.
   plug: <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" />,
+  // Gmail and Calendar's steps (P12-02).
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m4 7 8 6 8-6" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M4 10h16M9 3v4M15 3v4" />
+    </>
+  ),
   alert: (
     <>
       <path d="M12 4 3 19h18z" />

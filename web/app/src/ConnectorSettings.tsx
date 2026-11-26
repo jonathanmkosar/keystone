@@ -16,6 +16,7 @@ import {
   type Connector,
   type ConnectorBody,
 } from "./api";
+import { GoogleSettings } from "./GoogleSettings";
 import { Icon } from "./Icon";
 import "./connectors.css";
 
@@ -40,11 +41,13 @@ function bodyOf(c: Connector, change: Partial<ConnectorBody>): ConnectorBody {
 }
 
 function where(c: Connector): string {
+  if (c.transport === "google") return c.name === "calendar" ? "Google Calendar" : "Gmail"; // P12-02
   if (c.transport === "stdio") return [c.command ?? "", ...c.args].join(" ").trim();
   return c.url ?? "";
 }
 
 function kindOf(c: Connector): string {
+  if (c.transport === "google") return "Google"; // P12-02
   if (c.transport === "stdio") return "on this machine";
   return c.local ? "your own server" : "remote";
 }
@@ -103,6 +106,7 @@ function ConnectorRow({ c, onChanged, onRemoved, onSignedOut }: { c: Connector; 
   }
 
   const tokenPill = c.secret === "" ? <span className="set-pill">no token</span> : <span className={c.token_present ? "set-pill is-ok" : "set-pill is-bad"}>token {c.token_present ? "stored" : "missing"}</span>;
+  const google = c.transport === "google"; // its token is the Google sign-in above (P12-02)
   return (
     <div className="set-item" data-connector={c.name}>
       <div className="set-item-main">
@@ -112,7 +116,7 @@ function ConnectorRow({ c, onChanged, onRemoved, onSignedOut }: { c: Connector; 
         <span className="set-hint set-mono con-where">{where(c)}</span>
         <span className="set-pills">
           <span className="set-pill">{kindOf(c)}</span>
-          {tokenPill}
+          {google ? <span className={c.token_present ? "set-pill is-ok" : "set-pill is-bad"}>{c.token_present ? "signed in" : "not signed in"}</span> : tokenPill}
           {c.outside ? <span className="set-pill">outside content</span> : <span className="set-pill is-ok">trusted results</span>}
           {c.added_by === "command line" && <span className="set-pill">added from the command line</span>}
         </span>
@@ -187,9 +191,11 @@ function ConnectorRow({ c, onChanged, onRemoved, onSignedOut }: { c: Connector; 
             <Icon name="retry" size={16} />
             Check now
           </button>
-          <button type="button" className="button set-small" disabled={busy} onClick={() => setToken(token === null ? "" : null)}>
-            {c.secret && c.token_present ? "Replace the token" : "Store a token"}
-          </button>
+          {!google && (
+            <button type="button" className="button set-small" disabled={busy} onClick={() => setToken(token === null ? "" : null)}>
+              {c.secret && c.token_present ? "Replace the token" : "Store a token"}
+            </button>
+          )}
           <Remove disabled={busy} onRemove={() => void run(async () => { await removeConnector(c.name); onRemoved(); }, "The connector could not be removed.")} />
         </span>
       </div>
@@ -309,6 +315,7 @@ export function ConnectorSettings({ onSignedOut }: { onSignedOut: () => void }) 
 
   return (
     <>
+      <GoogleSettings onSignedOut={onSignedOut} onChanged={() => setTurn((n) => n + 1)} />
       <section className="set-section">
         <div className="set-section-head">
           <h2 className="set-heading">Connectors</h2>
