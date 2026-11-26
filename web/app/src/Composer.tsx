@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { AttachButton, AttachChips, useAttachments } from "./Attachments";
 import { Icon } from "./Icon";
 
 /**
@@ -26,13 +27,15 @@ export function Composer({
   focusKey?: string;
   /** What the box holds at first: a message that could not be sent. */
   initial?: string;
-  onSend: (text: string) => void;
+  /** The message, and the files to upload with it (P9-02). */
+  onSend: (text: string, files: File[]) => void;
   onStop?: () => void;
   /** Drawn just before the send button: the model picker. */
   beside?: ReactNode;
 }) {
   const [text, setText] = useState(initial);
   const area = useRef<HTMLTextAreaElement>(null);
+  const attach = useAttachments(); // the files that go with the message (P9-02, Attachments.tsx)
 
   // The box grows with what is typed, up to the limit the stylesheet sets.
   // The height is set through the element, which the content security policy
@@ -48,12 +51,13 @@ export function Composer({
     area.current?.focus();
   }, [focusKey]);
 
-  const ready = text.trim() !== "" && !busy;
+  const ready = (text.trim() !== "" || attach.files.length > 0) && !busy;
 
   function send() {
     if (!ready) return;
-    onSend(text.trim());
+    onSend(text.trim(), attach.files);
     setText("");
+    attach.clear();
   }
 
   function submit(e: FormEvent) {
@@ -69,7 +73,8 @@ export function Composer({
   }
 
   return (
-    <form className={large ? "composer composer-large" : "composer"} onSubmit={submit}>
+    <form className={(large ? "composer composer-large" : "composer") + (attach.dragging ? " is-dropping" : "")} onSubmit={submit} {...attach.dropProps}>
+      <AttachChips attach={attach} />
       <label className="offscreen" htmlFor="composer-message">
         Message
       </label>
@@ -84,6 +89,7 @@ export function Composer({
         onKeyDown={keyDown}
       />
       <div className="composer-row">
+        <AttachButton attach={attach} />
         <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
         {beside}
         {busy ? (

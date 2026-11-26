@@ -14,6 +14,7 @@ import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
+import { messageWith } from "./uploads";
 
 const footnote = "Keystone can make mistakes. Check what matters against its sources.";
 
@@ -34,14 +35,14 @@ export function Start({ person }: { person: Person }) {
   const [unsent, setUnsent] = useState({ text: "", tries: 0 });
   const part = partOfDay();
 
-  async function begin(text: string) {
+  async function begin(text: string, files: File[]) {
     setBusy(true);
     setProblem("");
     try {
       const made = await createChat();
       put(made.chat, true);
       await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
-      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id));
+      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
       setBusy(false);
@@ -147,9 +148,9 @@ function OneChat({ id }: { id: string }) {
     if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   }
 
-  function sendHere(text: string) {
+  function sendHere(text: string, files: File[]) {
     stick.current = true;
-    send(id, text, takePick(id));
+    send(id, text, takePick(id), files.length > 0 ? () => messageWith(id, text, files) : undefined);
   }
 
   if (loaded.state === "missing" || loaded.state === "failed") {
