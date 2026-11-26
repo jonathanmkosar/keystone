@@ -20,6 +20,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/connectors"
 	"github.com/jonathanmkosar/keystone/internal/jobs"
 	"github.com/jonathanmkosar/keystone/internal/operations"
+	"github.com/jonathanmkosar/keystone/internal/research"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/shareapi"
@@ -118,6 +119,12 @@ type Config struct {
 	// and routes make it before the turn runner, so run_subagents can be
 	// given it, and bind it to the turn runner after.
 	subagents *subagents.Runner
+	// Research is what research mode runs with (P8-04), in settings/agents.json.
+	Research research.Config
+	// research starts and works research tasks. Handler, Open and routes make
+	// it after the sub-agents' runner and before the turn runner, and bind it
+	// to the turn runner after.
+	research *research.Runner
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -184,6 +191,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	if c.Subagents, err = subagents.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
+	// Research mode's settings (P8-04), in settings/agents.json.
+	if c.Research, err = research.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
 	read := func(key string, parse func(string) error) {
 		if err != nil {
 			return
@@ -242,12 +253,16 @@ func routes(c Config, log *api.Log) []api.Route {
 	if c.subagents == nil {
 		c.subagents = c.newSubagents(log) // sub-agents (P8-02), before the turn runner and its tools
 	}
+	if c.research == nil {
+		c.research = c.newResearch(log) // research mode (P8-04), after the sub-agents' runner and before the turn runner
+	}
 	runner := c.runner
 	if runner == nil {
 		runner = turn.NewRunner(c.turnOptions(log))
 	}
 	c.jobs.Bind(runner)
 	c.subagents.Bind(runner)
+	c.research.Bind(runner) // research mode (P8-04)
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
@@ -291,6 +306,9 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, shareapi.Routes(shareapi.Options{Install: c.Install, Log: log})...)
 	// Sub-agents (P8-02): a chat's lanes, and a stop for one.
 	all = append(all, subagents.Routes(c.subagents)...)
+	// Research mode (P8-04): what a task would run with, a chat's tasks, one,
+	// and its stop.
+	all = append(all, research.Routes(c.research)...)
 	return all
 }
 
@@ -302,6 +320,9 @@ func Handler(c Config) (http.Handler, error) {
 	}
 	if c.subagents == nil {
 		c.subagents = c.newSubagents(log) // sub-agents (P8-02), before the turn runner and its tools
+	}
+	if c.research == nil {
+		c.research = c.newResearch(log) // research mode (P8-04), after the sub-agents' runner and before the turn runner
 	}
 	if c.runner == nil {
 		c.runner = turn.NewRunner(c.turnOptions(log))
@@ -321,6 +342,10 @@ func Handler(c Config) (http.Handler, error) {
 	// the turns that started them were (P8-02).
 	c.subagents.Bind(c.runner)
 	c.subagents.Recover()
+	// Then a research task a stop left unfinished goes on from its stage,
+	// with what its parts had (P8-04).
+	c.research.Bind(c.runner)
+	c.research.Recover()
 	// Then the scheduler starts, and a run missed while the server was
 	// stopped starts once (P8-03).
 	c.schedules = c.newSchedules(log)
@@ -378,6 +403,10 @@ func (c Config) turnOptions(log *api.Log) turn.Options {
 			o.MaxSteps = c.subagents.MaxSteps
 			o.SkipMemory = c.subagents.SkipMemory(o.SkipMemory)
 		}
+		// Research mode (P8-04): no memory pass reads a research task's own chat.
+		if c.research != nil {
+			o.SkipMemory = c.research.SkipMemory(o.SkipMemory)
+		}
 		return o
 	}
 	return turn.Options{Install: c.Install, Log: log, Config: c.Turns, PageLimit: c.PageLimit, Adapters: c.Adapters}
@@ -393,6 +422,7 @@ func Open(c Config) (http.Handler, func(), error) {
 
 	// Sub-agents (P8-02): their supervisors are closed with the turn runner.
 	c.subagents = c.newSubagents(api.NewLog(c.Log))
+	c.research = c.newResearch(api.NewLog(c.Log)) // research mode (P8-04): closed with the turn runner
 	c.runner = turn.NewRunner(c.turnOptions(api.NewLog(c.Log)))
 	h, err := Handler(c)
 	if err != nil {
