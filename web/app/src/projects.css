@@ -1,0 +1,472 @@
+/* Projects (P9-01): the projects screen, a project's page, and the project
+   chip in a chat's header. Every colour is a token. There is no mockup
+   (the workspace mockups, P1-06, wait on the owner), so the cards follow
+   the settings screens and the rows the chat list: provisional. */
+
+.textarea {
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1px solid var(--strong);
+  border-radius: 8px;
+  background: var(--page);
+  color: var(--ink);
+  font: 400 15px/22px var(--font-sans);
+  resize: vertical;
+}
+
+.textarea-tall {
+  min-height: 200px;
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+}
+
+/* The projects screen */
+
+.project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+}
+
+.project-optional {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.project-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 116px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.project-card:hover {
+  border-color: var(--strong);
+}
+
+.project-card.is-archived {
+  opacity: 0.72;
+}
+
+.project-card-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font: 600 15px/22px var(--font-sans);
+}
+
+.project-card-name .ico {
+  color: var(--c3);
+}
+
+.project-card-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre-line;
+}
+
+.project-card-meta {
+  margin-top: auto;
+  color: var(--muted);
+  font: 12px var(--font-mono);
+}
+
+.project-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 32px;
+  padding: 0 8px;
+  margin-bottom: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: 600 12px var(--font-sans);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.project-toggle:hover {
+  background: var(--raised);
+  color: var(--ink);
+}
+
+/* A project's page */
+
+.project-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
+  gap: 20px 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.project-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.project-crumb {
+  flex: none;
+  color: var(--muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+a.project-crumb:hover {
+  color: var(--ink);
+}
+
+.project-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.project-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 2px 8px;
+  margin-left: -8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.project-title:hover {
+  background: var(--raised);
+}
+
+.project-title .ico {
+  color: var(--muted);
+}
+
+.project-head .title-wrap {
+  flex: 1;
+}
+
+.project-title-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.project-note,
+.project-problem {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.project-note {
+  padding: 10px 14px;
+  border: 1px dashed var(--strong);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.project-main,
+.project-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.project-main .list-section {
+  gap: 0;
+}
+
+.project-main .nav-heading {
+  padding-top: 8px;
+}
+
+.project-empty {
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.project-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+}
+
+.project-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.project-panel-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font: 600 14px/20px var(--font-sans);
+}
+
+.project-small {
+  min-height: 30px;
+  padding: 0 10px;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.project-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-count {
+  color: var(--muted);
+  font: 400 12px var(--font-mono);
+}
+
+.project-count.is-over {
+  color: var(--err);
+}
+
+.project-instructions {
+  max-height: 280px;
+  overflow: auto;
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.project-hint {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.project-fine {
+  font-size: 12px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+}
+
+.project-code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--page);
+  color: var(--ink);
+  font: 12px var(--font-mono);
+}
+
+.project-files {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 0;
+  border-top: 1px solid var(--line);
+}
+
+.project-file > .ico {
+  color: var(--muted);
+}
+
+.project-file-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.project-file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.project-file-meta {
+  color: var(--muted);
+  font: 11px var(--font-mono);
+}
+
+.project-tag {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 500 11px/18px var(--font-sans);
+}
+
+button.project-tag {
+  cursor: pointer;
+}
+
+button.project-tag:hover {
+  border-color: var(--strong);
+  color: var(--ink);
+}
+
+.project-tag.is-on {
+  border-color: var(--soft);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+/* Written out in full: two stylesheets give .button-danger different
+   colours, and the later one leaves its text the colour of its ground. */
+.menu-row .project-danger {
+  border-color: var(--err);
+  background: var(--err);
+  color: var(--page);
+}
+
+.project-remove {
+  width: 30px;
+  height: 30px;
+}
+
+/* The project chip in a chat's header */
+
+.project-chip-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.project-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--soft);
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--softink);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.project-chip-empty {
+  border-color: var(--line);
+  background: none;
+  color: var(--muted);
+}
+
+.project-chip:hover {
+  border-color: var(--strong);
+}
+
+.project-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-menu {
+  width: 280px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+a.menu-item {
+  text-decoration: none;
+}
+
+.project-menu-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .project-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .project-page {
+    padding: 20px 14px 60px;
+  }
+
+  /* On a phone the chip is its icon alone; its label names the project. */
+  .project-chip {
+    flex: none;
+    padding: 0 8px;
+  }
+
+  .project-chip-name {
+    display: none;
+  }
+
+  .project-menu {
+    position: fixed;
+    top: 56px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+  }
+}

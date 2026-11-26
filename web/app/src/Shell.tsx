@@ -6,6 +6,7 @@ import { ChatLinks } from "./ChatLinks";
 import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { Mark } from "./Mark";
+import { ChatProjectChip, SidebarProjects } from "./Projects";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
 
@@ -28,6 +29,7 @@ function initials(name: string): string {
 function titleFor(path: string): string {
   if (path === "/") return "New chat";
   if (path === "/settings" || path.startsWith("/settings/")) return "Settings";
+  if (path.startsWith("/projects/")) return "Projects";
   const place = places.find((p) => p.to === path);
   return place ? place.label : "Keystone";
 }
@@ -110,6 +112,7 @@ export function Shell({
             ))}
           </div>
         )}
+        <SidebarProjects />
         <div className="nav-group nav-grow">
           <div className="nav-heading">RECENTS</div>
           {recent.slice(0, recentShown).map((c) => (
@@ -153,6 +156,7 @@ export function Shell({
               <Icon name="sidebar" />
             </button>
             {openChat ? <ChatTitle id={openChat} /> : <span className="header-title">{titleFor(location.pathname)}</span>}
+            {openChat && <ChatProjectChip key={openChat} chatId={openChat} />}
           </div>
           {openChat && <ChatLinks key={openChat} id={openChat} />}
         </header>

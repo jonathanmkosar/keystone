@@ -384,6 +384,37 @@ Its calls, all in `src/api.ts`:
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7961 with a data folder inside the worktree (removed afterwards), as the test tenant: the picker filtered to "ferry" and attached North ferry times as a chip; Hand off on the lighthouse walk opened a new chat with "Continued from Planning the lighthouse walk" in the header and as its chip; "What did we settle in the chat this one continues from?" was answered from the parent's summary by the recorded turn; the parent's header then read "Continued in" with the new chat's title. At phone width the header kept the titles and the icon. The only console error was the session check before sign-in. Not seen: dark theme, the `sensitive` and `incognito` marks, `too_many`.
 
+## Projects (P9-01)
+
+The projects screen, a project's page, the projects in the sidebar, and the project chip in a chat's header. The server's side is [projects.md](projects.md). There is no mockup for any of it (the workspace mockups, P1-06, wait on the owner), so it is built from the tokens, after the settings screens' cards and the chat list's rows, and is provisional.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The projects screen | `src/Projects.tsx` (`Projects`), `src/projects.css` | `/projects`: **New project** opens a form (a name, and instructions if wanted) that makes the project and opens its page; a card for each project with its name, the start of its instructions, its chats and files and when it changed; the archived ones apart, under "Archived (n)". It replaces the placeholder. |
+| A project's page | `src/Projects.tsx` (`ProjectPage`) | `/projects/<id>`: "Projects /" and the name, which opens a menu (Rename, Archive or Bring back, Delete, which asks once more and says the chats are kept); a composer that starts a chat in the project, sends the message and opens the chat; the project's chats; and on the right, Instructions (Edit, with a count against the limit), Files (Add files, each file with its size and characters, a `sensitive` switch and a button that takes it off, and the server's reason for a file it refused) and Memory (the knowledge store space its facts go to, which can be changed). On a narrow screen the right column goes under the chats. |
+| The sidebar | `src/Projects.tsx` (`SidebarProjects`) | "PROJECTS", the eight changed last that are not archived, between the starred chats and the recents, with "All projects" past eight. |
+| The chip | `src/Projects.tsx` (`ChatProjectChip`) | After a chat's title: the project's name in a copper chip, or "Add to project". Its menu puts the chat in a project, moves it to another, takes it out, or opens the project. On a phone it is its icon alone. |
+| Shared state | `src/projectStore.ts` | The list of projects and the project each chat is in, kept outside the screens, so the sidebar, the screens and the chip agree. |
+| Icons | `src/Icon.tsx` | `file`, a page with a folded corner. |
+| The way in | `src/App.tsx`, `src/Shell.tsx`, `src/api.ts` | In `App.tsx`: the import, the `/projects` route's element and the `/projects/:id` route. In `Shell.tsx`: the import, the header's title for a project's page, the sidebar's group and the chip. In `api.ts`: the types and calls, after the scheduled tasks'. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/projects` | `listProjects` | The screen, the sidebar and the chip's menu. |
+| `POST /api/v1/projects` | `createProject` | The new project form. |
+| `GET`, `PATCH`, `DELETE /api/v1/projects/{id}` | `readProject`, `changeProject`, `deleteProject` | The page, and its renaming, instructions, memory space, archiving and deleting. |
+| `POST /api/v1/projects/{id}/files?name=` | `addProjectFile` | Add files: each file's bytes as the body, one at a time. A file larger than the limit is refused in the page first. |
+| `PATCH`, `DELETE /api/v1/projects/{id}/files/{file}` | `markProjectFile`, `removeProjectFile` | The `sensitive` switch, and taking a file off. |
+| `POST /api/v1/projects/{id}/chats` | `startProjectChat` | The page's composer. |
+| `PUT`, `DELETE /api/v1/projects/{id}/chats/{chat}` | `moveChat` | The chip's menu. |
+| `GET /api/v1/chats/{id}/project` | `chatProject` | The chip. |
+
+The delete button of the project's confirmation sets its colours itself (`.project-danger`), because `scheduled.css` and `chat.css` both define `.button-danger` and the later one leaves the button's text the colour of its ground; the chat's own Delete confirmation shows the same fault.
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7962 with a data folder inside the worktree (removed afterwards), as the test tenant: a project made from the form, two text files added, a chat started from the project's page whose turn inspector showed the project part and the files sent with the attachments, the copper chip in its header, an older chat moved in from its chip and taken out again, a file marked sensitive, and the project deleted with its chat kept and its files gone from `files/`. In dark at desktop width and in light at phone width, where the chip was made its icon alone after it crowded the header. The only console error was the session check before sign-in. Not seen: the archived state, renaming from the page, the memory space form, and a refused file.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

@@ -92,8 +92,9 @@ type ProjectFileReply struct {
 	// Text is the text read from the file, as a call is given it before it
 	// is cut to projects.file_context_max_chars.
 	Text string `json:"text"`
-	// Added is false when the project had the same file already.
-	Added bool `json:"added"`
+	// New is false when the project had the same file already. (The file's
+	// own "added" is when it was added.)
+	New bool `json:"new"`
 }
 
 // ProjectFileBody marks a knowledge file.
@@ -137,7 +138,7 @@ func ProjectRoutes(r *Runner) []api.Route {
 			Summary: "Delete a project and its knowledge files. Its chats are kept, as ordinary chats."},
 		{Method: "POST", Path: files, Handle: r.projectFileAdd, Reply: ProjectFileReply{},
 			Query:   []api.Param{{Name: "name", Description: "The file's name. Its ending says what kind of text file it is."}},
-			Summary: "Add a knowledge file to a project. The body is the file's bytes: a UTF-8 text file whose ending is in projects.text_extensions, no larger than projects.file_max_bytes. Its text is read once, and every call of the project's chats carries it with the attachments. It is kept under its SHA-256, which is its id. The same file twice is one file (200, added false); a new one answers 201."},
+			Summary: "Add a knowledge file to a project. The body is the file's bytes: a UTF-8 text file whose ending is in projects.text_extensions, no larger than projects.file_max_bytes. Its text is read once, and every call of the project's chats carries it with the attachments. It is kept under its SHA-256, which is its id. The same file twice is one file (200, new false); a new one answers 201."},
 		{Method: "GET", Path: file, Handle: r.projectFileRead, Reply: ProjectFileReply{},
 			Summary: "One knowledge file of a project, with the text read from it."},
 		{Method: "PATCH", Path: file, Handle: r.projectFilePatch, Body: ProjectFileBody{}, Reply: ProjectFileReply{},
@@ -410,7 +411,7 @@ func (r *Runner) projectFileAdd(w http.ResponseWriter, req *http.Request, c api.
 	if added {
 		status = http.StatusCreated
 	}
-	api.WriteJSON(w, status, ProjectFileReply{File: f, Text: f.Text(), Added: added})
+	api.WriteJSON(w, status, ProjectFileReply{File: f, Text: f.Text(), New: added})
 }
 
 func (r *Runner) projectFileRead(w http.ResponseWriter, req *http.Request, c api.Call) {

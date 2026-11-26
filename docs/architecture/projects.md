@@ -96,7 +96,7 @@ In `internal/turn/projects.go`, listed in `internal/app` from `turn.ProjectRoute
 | `GET /projects/{id}` | One project | `ProjectReply`: the project, its files (no text), its chats (newest message first), the limits |
 | `PATCH /projects/{id}` | `name`, `instructions`, `archived`, `memory_space`; absent fields are left | `ProjectReply` |
 | `DELETE /projects/{id}` | Delete it; its chats are kept | `{"deleted": true}` |
-| `POST /projects/{id}/files?name=` | Add a file: the body is its bytes | 201 `ProjectFileReply` (with its text), or 200 with `added` false for the same file again |
+| `POST /projects/{id}/files?name=` | Add a file: the body is its bytes | 201 `ProjectFileReply` (with its text), or 200 with `new` false for the same file again |
 | `GET /projects/{id}/files/{file}` | One file, with its text | `ProjectFileReply` |
 | `PATCH /projects/{id}/files/{file}` | `{"sensitive": true}` or false | `ProjectFileReply` |
 | `DELETE /projects/{id}/files/{file}` | Take it off | `{"removed": true}` |

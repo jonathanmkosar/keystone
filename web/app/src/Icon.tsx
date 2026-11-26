@@ -144,6 +144,13 @@ const shapes = {
       <path d="M13 15h7M17 12l3 3-3 3" />
     </>
   ),
+  // A project's knowledge file (P9-01): a page with a folded corner.
+  file: (
+    <>
+      <path d="M6 3h8l4 4v14H6z" />
+      <path d="M14 3v4h4M9 12h6M9 16h6" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;

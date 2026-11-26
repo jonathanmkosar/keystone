@@ -1268,3 +1268,167 @@ export async function runScheduleNow(id: string): Promise<ScheduleRun> {
 export async function holdSchedules(on: boolean): Promise<SchedulesReply> {
   return schedulesFrom(await call("POST", `${schedulesPath}/${on ? "pause-all" : "resume-all"}`));
 }
+
+// ---------------------------------------------------------------------------
+// Projects (P9-01): a name, instructions, knowledge files and the chats in
+// it. Every call of a chat in a project carries its instructions and files.
+// docs/architecture/projects.md has the routes.
+// ---------------------------------------------------------------------------
+
+export type Project = {
+  id: string;
+  name: string;
+  instructions: string;
+  /** The knowledge store space the project's chats keep their facts in. Empty keeps them with the rest. */
+  memory_space: string;
+  archived: boolean;
+  created: string;
+  changed: string;
+};
+
+export type ProjectSummary = Project & { files: number; chats: number };
+
+export type ProjectFile = {
+  /** The file's SHA-256: its id. */
+  id: string;
+  project_id: string;
+  name: string;
+  media_type: string;
+  size: number;
+  /** How many characters of text were read from it. */
+  chars: number;
+  /** Only a local or trusted model may read it. */
+  sensitive: boolean;
+  added: string;
+};
+
+export type ProjectLimits = {
+  max_projects: number;
+  name_max_chars: number;
+  instructions_max_chars: number;
+  max_files: number;
+  file_max_bytes: number;
+  text_extensions: string[];
+};
+
+/** One project as its page shows it. */
+export type ProjectView = { project: Project; files: ProjectFile[]; chats: Chat[]; limits: ProjectLimits };
+
+export type ProjectChange = { name?: string; instructions?: string; archived?: boolean; memory_space?: string };
+
+const projectsPath = "/api/v1/projects";
+const projectPath = (id: string) => `${projectsPath}/${encodeURIComponent(id)}`;
+
+function isProject(v: unknown): v is Project {
+  if (typeof v !== "object" || v === null) return false;
+  const p = v as Record<string, unknown>;
+  return typeof p.id === "string" && typeof p.name === "string" && typeof p.archived === "boolean";
+}
+
+function limitsFrom(v: unknown): ProjectLimits {
+  const l = (v ?? {}) as Partial<ProjectLimits>;
+  return {
+    max_projects: l.max_projects ?? 0,
+    name_max_chars: l.name_max_chars ?? 100,
+    instructions_max_chars: l.instructions_max_chars ?? 0,
+    max_files: l.max_files ?? 0,
+    file_max_bytes: l.file_max_bytes ?? 0,
+    text_extensions: Array.isArray(l.text_extensions) ? l.text_extensions : [],
+  };
+}
+
+function projectViewFrom(data: Record<string, unknown>): ProjectView {
+  if (!isProject(data.project)) throw new ApiError("not-ready", 200);
+  return {
+    project: data.project,
+    files: Array.isArray(data.files) ? (data.files as ProjectFile[]) : [],
+    chats: Array.isArray(data.chats) ? data.chats.filter(isChat) : [],
+    limits: limitsFrom(data.limits),
+  };
+}
+
+/** The person's projects, archived ones included, the one changed last first. */
+export async function listProjects(): Promise<{ projects: ProjectSummary[]; limits: ProjectLimits }> {
+  const data = await object("GET", projectsPath);
+  if (!Array.isArray(data.projects) || !data.projects.every(isProject)) throw new ApiError("not-ready", 200);
+  return { projects: data.projects as ProjectSummary[], limits: limitsFrom(data.limits) };
+}
+
+/** Makes a project. */
+export async function createProject(name: string, instructions: string): Promise<ProjectView> {
+  return projectViewFrom(await object("POST", projectsPath, { name, instructions }));
+}
+
+/** One project with its files and chats. */
+export async function readProject(id: string): Promise<ProjectView> {
+  return projectViewFrom(await object("GET", projectPath(id)));
+}
+
+/** Renames a project, changes its instructions or memory space, or archives it. */
+export async function changeProject(id: string, change: ProjectChange): Promise<ProjectView> {
+  return projectViewFrom(await object("PATCH", projectPath(id), change));
+}
+
+/** Deletes a project and its files. Its chats are kept. */
+export async function deleteProject(id: string): Promise<void> {
+  await call("DELETE", projectPath(id));
+}
+
+/** Adds a knowledge file: the body is the file's bytes. `isNew` is false when the project had it already. */
+export async function addProjectFile(id: string, file: File): Promise<{ file: ProjectFile; isNew: boolean }> {
+  let res: Response;
+  try {
+    res = await fetch(`${projectPath(id)}/files?name=${encodeURIComponent(file.name)}`, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { Accept: "application/json", "Content-Type": "application/octet-stream" },
+      body: file,
+    });
+  } catch {
+    throw new ApiError("not-ready", 0);
+  }
+  if (!res.ok) throw await errorFrom(res);
+  let data: Record<string, unknown>;
+  try {
+    data = (await res.json()) as Record<string, unknown>;
+  } catch {
+    throw new ApiError("not-ready", res.status);
+  }
+  if (typeof data.id !== "string") throw new ApiError("not-ready", res.status);
+  return { file: data as unknown as ProjectFile, isNew: data.new === true };
+}
+
+/** Marks a knowledge file sensitive, or ordinary again. */
+export async function markProjectFile(id: string, fileId: string, sensitive: boolean): Promise<ProjectFile> {
+  const data = await object("PATCH", `${projectPath(id)}/files/${encodeURIComponent(fileId)}`, { sensitive });
+  if (typeof data.id !== "string") throw new ApiError("not-ready", 200);
+  return data as unknown as ProjectFile;
+}
+
+/** Takes a knowledge file off a project. */
+export async function removeProjectFile(id: string, fileId: string): Promise<void> {
+  await call("DELETE", `${projectPath(id)}/files/${encodeURIComponent(fileId)}`);
+}
+
+/** Starts a chat in a project. */
+export async function startProjectChat(id: string): Promise<OpenChat> {
+  return openChatFrom(await call("POST", `${projectPath(id)}/chats`));
+}
+
+/** Which project a chat is in. */
+export type ChatProject = { chat_id: string; project?: Project };
+
+function chatProjectFrom(data: Record<string, unknown>): ChatProject {
+  if (typeof data.chat_id !== "string") throw new ApiError("not-ready", 200);
+  return { chat_id: data.chat_id, project: isProject(data.project) ? data.project : undefined };
+}
+
+/** The project a chat is in, if any. */
+export async function chatProject(chatId: string): Promise<ChatProject> {
+  return chatProjectFrom(await object("GET", `${chatPath(chatId)}/project`));
+}
+
+/** Moves a chat into a project, out of any other, or takes it out of that project. */
+export async function moveChat(projectId: string, chatId: string, into: boolean): Promise<ChatProject> {
+  return chatProjectFrom(await object(into ? "PUT" : "DELETE", `${projectPath(projectId)}/chats/${encodeURIComponent(chatId)}`));
+}

@@ -11607,7 +11607,7 @@
                       ],
                       "type": "object"
                     },
-                    "added": {
+                    "new": {
                       "type": "boolean"
                     },
                     "text": {
@@ -11617,7 +11617,7 @@
                   "required": [
                     "File",
                     "text",
-                    "added"
+                    "new"
                   ],
                   "type": "object"
                 }
@@ -11636,7 +11636,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Add a knowledge file to a project. The body is the file's bytes: a UTF-8 text file whose ending is in projects.text_extensions, no larger than projects.file_max_bytes. Its text is read once, and every call of the project's chats carries it with the attachments. It is kept under its SHA-256, which is its id. The same file twice is one file (200, added false); a new one answers 201."
+        "summary": "Add a knowledge file to a project. The body is the file's bytes: a UTF-8 text file whose ending is in projects.text_extensions, no larger than projects.file_max_bytes. Its text is read once, and every call of the project's chats carries it with the attachments. It is kept under its SHA-256, which is its id. The same file twice is one file (200, new false); a new one answers 201."
       }
     },
     "/api/v1/projects/{id}/files/{file}": {
@@ -11756,7 +11756,7 @@
                       ],
                       "type": "object"
                     },
-                    "added": {
+                    "new": {
                       "type": "boolean"
                     },
                     "text": {
@@ -11766,7 +11766,7 @@
                   "required": [
                     "File",
                     "text",
-                    "added"
+                    "new"
                   ],
                   "type": "object"
                 }
@@ -11867,7 +11867,7 @@
                       ],
                       "type": "object"
                     },
-                    "added": {
+                    "new": {
                       "type": "boolean"
                     },
                     "text": {
@@ -11877,7 +11877,7 @@
                   "required": [
                     "File",
                     "text",
-                    "added"
+                    "new"
                   ],
                   "type": "object"
                 }

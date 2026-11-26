@@ -89,7 +89,7 @@ func (sv *served) newProject(tenantID, name, instructions, fileName, fileText st
 	if fileName != "" {
 		var f ProjectFileReply
 		sv.call(tenantID, "POST", "projects/"+made.Project.ID+"/files?name="+url.QueryEscape(fileName), fileText, http.StatusCreated, &f)
-		if !f.Added || f.Text != fileText {
+		if !f.New || f.Text != fileText || f.Added.IsZero() {
 			sv.g.t.Fatalf("adding the file answered %+v", f)
 		}
 	}
@@ -326,7 +326,7 @@ func TestTheProjectRoutes(t *testing.T) {
 	pid := made.Project.ID
 	var again ProjectFileReply
 	sv.call(g.test.ID, "POST", "projects/"+pid+"/files?name=copy.md", hoursText, http.StatusOK, &again)
-	if again.Added || again.Name != hoursName {
+	if again.New || again.Name != hoursName {
 		t.Errorf("the same file again answered %+v", again)
 	}
 	for _, c := range []struct {
