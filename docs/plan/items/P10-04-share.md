@@ -1,6 +1,6 @@
 # P10-04. Share a chat
 
-Status: doing (interface)
+Status: provisional
 Lane: chats + interface
 Depends on: P4-03
 Owner gate: none
@@ -23,3 +23,14 @@ Branch `interface/p10-04-share`, cut from `reboot` at c91b356. New code goes in 
 
 Left for later: a limit on how often the door may be tried from one address (with P10-05); copying a link again after it was made (only its hash is kept, so a new link is made instead); a title or note the person gives a link.
 
+
+### Result (interface lane, November 26, 2026)
+
+Provisional on the mockups for the screens only: there is a mockup of the Share button and none of the popover, Settings → Shared links or the shared page. The server side, the doors, the rules and the proof are complete.
+
+- Built as planned: `internal/share` (the token, `Find`, `Usable`, `Create`, `List`, `Revoke`, `Read`), `internal/shareapi` (four routes and two doors), migration `20261126T004100_share_links.sql`, `settings/share.json`, one line in `audit.Scrub`, and the screens (`ShareControl.tsx`, `ShareSettings.tsx`, `Shared.tsx`, `share.ts`, `share.css`) with one line in `ChatLinks.tsx`, three in `Settings.tsx` and the shared page drawn by `main.tsx`. Decisions 0470 to 0473.
+- Changed from the plan: `share.max_links` is a tenant-admin setting, not an install one, because no install value an admin changes is stored yet and a test could not set it; 0 makes no new link.
+- The proof: a shared link shows only that chat, not another of the same person and nothing of another tenant (tests in both packages, the `share` check, and `shareProbes` in the tenant isolation walk, which now covers the two doors); a revoked link is refused with 410 and an expired one too; held and incognito chats are not shared and a link of a chat held since is refused with 403; the doors set no cookie and read none; every view is in its tenant's audit log and no log or file holds the token. A new standing check, `share`, makes `verify` 32 of 32. Seen in the desktop app's browser pane on a server of its own.
+- On the owner's install every path is behind Cloudflare Access, so a link opens only for people his Access policy lets in; that is his to change, and nothing in Keystone depends on it.
+- `web/dist/` is not committed: `npm ci && npm run build` in `web/app`.
+- See `docs/journal/2026-11-26-interface-007.md` and `docs/architecture/share.md`.

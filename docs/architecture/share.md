@@ -125,6 +125,12 @@ In `settings/share.json`, lane `share`. The guard reads none of them; `shareapi.
 - `go test ./internal/shareapi`: through the API shell, a link shows only its chat with no session and with another person's, sets no cookie, writes each view in its tenant's log under the route and the link and nowhere else, and no log holds the token; another person cannot list or turn off a link; each refusal's status and code; images only of the view, under their policy, and none when switched off; artifacts as source; the admin's most.
 - The `tenant isolation` check (`shareProbes` in `tools/verify/share.go`): the doors are on the list, and the share door finds its tenant from the token alone.
 - The `share` check (`tools/verify/share.go`), the item's proof on the real server: only that chat, every view recorded and the token nowhere, no cookie, revoked and expired refused, snapshot and live, held and incognito; and from the source, the shared page reads with credentials omitted, sets no HTML, and is drawn before the session check.
+- In the desktop app's browser pane, on November 26, 2026, against the server built from this branch on `127.0.0.1:7984` with a data folder inside the worktree (removed afterwards), as the test tenant: Share on the lighthouse walk made a live link; opened in another tab it showed the chat alone, with one request (`GET /api/v1/shared/…`, 200) and no console message, in light at desktop width and in dark at phone width. A chat of the recorded web search and artifact turns, shared as a snapshot, showed the search step by name with "failed" and the six artifacts as source; a message sent afterwards did not appear in it. Turned off from Settings → Shared links, it read "This link is closed". The popover at phone width in dark. The server's log held `/api/v1/shared/[removed]` and the link's id, never the token.
+
+## Provisional
+
+- The screens: there is a mockup of the Share button and none of the popover, the Shared links screen or the shared page. Chosen without one: the popover's place and words, the two choices' wording, the address shown once with Copy link, the list's rows, the shared page's header and footer, tool steps as words without a way to open them, artifacts as a code block with a copy button.
+- A failed tool step reads as done with a "failed" tag ("Searched the web", failed), because the page is told only the tool's name and whether it failed.
 
 ## Not here yet
 

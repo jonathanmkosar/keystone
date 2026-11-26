@@ -461,6 +461,10 @@ Its calls are in `src/artifacts.ts`, through `api.ts`'s `call`: `GET /chats/{id}
 
 `npm run build` now runs three builds: the main page, then the two renderers. It still empties `web/dist/` first.
 
+## Share links (P10-04)
+
+The Share button in a chat's header, where the mockups draw it, and its popover (`ShareControl.tsx`, one line in `ChatLinks.tsx`); Settings → Shared links (`ShareSettings.tsx`, three lines in `Settings.tsx`); and the shared page at `/share/<token>` (`Shared.tsx`), which `main.tsx` draws in place of the app, so nothing asks who is signed in. The page reads the link with `credentials: "omit"`, imports nothing from `api.ts`, and draws text only: replies through `Markdown.tsx`, artifacts as source in a code block. Calls in `share.ts`; styles in `share.css`, from the tokens. Provisional: only the button has a mockup. See [share.md](share.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

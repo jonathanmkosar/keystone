@@ -63,6 +63,8 @@ A door route is served before sign-in. It sets `Door: true` and has `Open` in pl
 
 There are two, and both are for signing in. `tools/verify/routes.go` repeats the list. A route marked as a door that is not on that list fails the `tenant isolation` check, so a door cannot be added in one place only.
 
+Since P10-04 there are four: the two share doors, `GET /api/v1/shared/{token}` and `GET /api/v1/shared/{token}/images/{image}`, show one chat through a share link to someone who has not signed in. Each finds its one tenant from the link's token alone, with `share.Find`, the way `signin.Resolve` finds a session's; reads no cookie and sets none; and writes each call that finds a link in that tenant's audit log under the route's pattern, never the token. See [share.md](share.md) and decision [0470](decisions/0470-a-share-link-is-a-door-that-finds-its-tenant-from-its-token.md).
+
 ## Errors
 
 Every answer that is not a success has this body, `api.ErrorBody`:
