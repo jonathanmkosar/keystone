@@ -141,6 +141,19 @@ In `settings/models.json`.
 
 `DefaultOptions` reads both from the registry. Tests pass their own `Options`, with no wait. Reading a tenant's own values comes with tenant settings (P2-04) and the registry (P3-02).
 
+Since P6-08, `fake.embedding_size` (`1024`, from 1 to 65536) is the size of the fake's vectors, which `DefaultOptions` reads too.
+
+## Vectors
+
+Since P6-08 the fake is an embedding model too: `Provider.Embed` answers a `seam.EmbedRequest` ([embeddings.md](embeddings.md)). Its vectors are deterministic and need no network:
+
+- A text's words are lower-cased, and a word with a plural or verb ending (`s`, `es`, `ies`, `ed`, `ing`) is the same word without it.
+- A word in one of `Options.Meanings`, groups of words the fake takes to mean one thing, stands for its group; any other word stands for itself.
+- Each distinct word or group is hashed (FNV-1a) to one place of the vector, with a sign, and adds to it once: a group 1, another word a quarter, so a text's few known meanings stay ahead of its many other words.
+- The vector is made unit length, so the dot product of two vectors is their cosine. A text with no word points at one fixed place.
+
+So a question finds a page that shares a meaning group with it and no word. The groups are test data: the `embeddings` check gives the fake those in `fixtures/test-tenant/knowledge/meaning.json`. A fake with `EmbeddingSize` 0 makes no vectors and refuses, as a model that makes none would; a size out of range, a group of one word, a word in two groups and a word that is not letters and digits are refused by `New`. The usage it reports is a count of the texts' words.
+
 ## In code
 
 ```go

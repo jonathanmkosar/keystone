@@ -19,7 +19,7 @@ Decisions: [0030](decisions/0030-knowledge-store-interface.md) for the shape of 
 | `ReadSource` | One source by id, with its text. | |
 | `AddSource` | Stores a new source made of facts, and returns it as stored. | `AddSource` |
 | `CatalogMarker` | A short text that stays the same while the catalog does. | `CatalogMarker` |
-| `VectorsNeeded` | Lists the pages with no vector, or a stale one. | `PageVectors` |
+| `VectorsNeeded` | Lists the pages with no vector of the embedding model named, or a stale one. A vector of another model counts as none (P6-08). | `PageVectors` |
 | `PutVector` | Stores the vector made from one revision of a page. | `PageVectors` |
 | `RemoveSource` | Takes a source out for good; a page that cited it no longer does. | `RemoveSource` |
 | `Close` | Lets go of the handle. | |
@@ -65,6 +65,8 @@ The flags are fixed while a handle is open.
 The marker changes when a page is added, removed, renamed or moved, or when a space's label changes. It may also change when nothing in the catalog did.
 
 A vector carries the name of the embedding model that made it. A store may refuse a model or a size it is not set up for.
+
+Since P6-08, `VectorsNeeded(ctx, model, limit)` names the model, and a store counts a vector of another model as none, so when a person's embedding model changes every page is listed again. An empty model takes a vector of any model. Waymarks knows its one model from its owner's settings, so its adapter does not send the name. Keystone makes the vectors and pushes them, and recall searches with a query vector of the same model ([embeddings.md](embeddings.md), decision [0414](decisions/0414-the-refresh-is-a-sweep-and-the-store-lists-by-model.md)).
 
 ## Errors
 

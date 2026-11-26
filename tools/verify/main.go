@@ -94,7 +94,9 @@ var componentDocs = map[string]string{
 	"internal/knowledge/memory/forget.go":    "docs/architecture/memory-screens.md",
 	"internal/knowledge/memory/incognito.go": "docs/architecture/memory-screens.md",
 
-	"internal/projects": "docs/architecture/projects.md",
+	"internal/projects":           "docs/architecture/projects.md",
+	"internal/embedding":          "docs/architecture/embeddings.md",
+	"internal/turn/embeddings.go": "docs/architecture/embeddings.md",
 }
 
 var checks = []check{
@@ -127,6 +129,7 @@ var checks = []check{
 	{"memory screens", checkMemoryScreens},
 	{"projects", checkProjects},
 	{"usage report", checkUsageReport},
+	{"embeddings", checkEmbeddings},
 }
 
 func main() {

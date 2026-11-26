@@ -29,6 +29,14 @@ type Options struct {
 	DeltaSize int
 	// Delay is how long the fake waits before each piece.
 	Delay time.Duration
+	// EmbeddingSize is how many numbers each vector from Embed holds
+	// (P6-08). Zero means the fake makes no vectors.
+	EmbeddingSize int
+	// Meanings are groups of words the fake takes to mean one thing when it
+	// makes a vector, so a text that says one word of a group lands near a
+	// text that says another. They are test data: beyond them the fake
+	// knows no language. See embed.go.
+	Meanings [][]string
 }
 
 // DefaultOptions reads the options from the defaults in the settings
@@ -50,6 +58,12 @@ func DefaultOptions() (Options, error) {
 	if opts.Delay, err = time.ParseDuration(delay.Default); err != nil {
 		return Options{}, err
 	}
+	// The size of the fake's vectors (P6-08).
+	if size, ok := settings.Lookup(reg, SettingEmbeddingSize); ok {
+		if opts.EmbeddingSize, err = strconv.Atoi(size.Default); err != nil {
+			return Options{}, err
+		}
+	}
 	return opts, nil
 }
 
@@ -58,6 +72,8 @@ func DefaultOptions() (Options, error) {
 type Provider struct {
 	scripts []Script
 	opts    Options
+	// meaning maps each word of a meaning group to its group (P6-08).
+	meaning map[string]int
 }
 
 // New checks the scripts and returns a provider that plays them. Their
@@ -73,7 +89,11 @@ func New(scripts []Script, opts Options) (*Provider, error) {
 	if err := checkSet(scripts); err != nil {
 		return nil, err
 	}
-	return &Provider{scripts: scripts, opts: opts}, nil
+	meaning, err := meanings(opts) // P6-08, embed.go
+	if err != nil {
+		return nil, err
+	}
+	return &Provider{scripts: scripts, opts: opts, meaning: meaning}, nil
 }
 
 // Stream answers one request, as seam.Provider describes. A request no

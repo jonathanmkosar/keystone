@@ -74,10 +74,17 @@ type Options struct {
 	// "what": words that say nothing of what a message is about. A message
 	// made of them alone searches for nothing. Letter case does not matter.
 	IgnoreWords []string
+	// Meaning is the search by meaning beside the search by words (P6-08,
+	// meaning.go). With no vector in it, recall is by words alone, exactly
+	// as before.
+	Meaning Meaning
 }
 
 // CheckOptions refuses options nothing can be recalled with.
 func CheckOptions(o Options) error {
+	if err := checkMeaning(o.Meaning); err != nil {
+		return err
+	}
 	switch {
 	case o.MinScore < 0:
 		return fmt.Errorf("%w: the relevance threshold cannot be negative", ErrOptions)
@@ -132,6 +139,14 @@ type HitRecord struct {
 	Reason string `json:"reason,omitempty"`
 	// Chars is the length of the item's text, when it was kept.
 	Chars int `json:"chars,omitempty"`
+	// FoundBy says which search found the hit when the store was searched
+	// by meaning too (P6-08): FoundByWords, FoundByMeaning or FoundByBoth.
+	// Score is then the words' score, or the meaning's for a hit only the
+	// meaning found, and MeaningScore the meaning's. Merged is the hit's
+	// score in the merged list.
+	FoundBy      string  `json:"found_by,omitempty"`
+	MeaningScore float64 `json:"meaning_score,omitempty"`
+	Merged       float64 `json:"merged,omitempty"`
 }
 
 // Record is what one recall found, kept and dropped, and why. It is for
@@ -157,6 +172,16 @@ type Record struct {
 	// one only a local or trusted model may be sent.
 	Sensitive bool        `json:"sensitive"`
 	Hits      []HitRecord `json:"hits,omitempty"`
+	// MeaningModel names the embedding model the query's vector came from,
+	// when the store was searched by meaning too (P6-08), MeaningFound
+	// counts what that search found, and MeaningMinScore is its threshold.
+	MeaningModel    string  `json:"meaning_model,omitempty"`
+	MeaningFound    int     `json:"meaning_found,omitempty"`
+	MeaningMinScore float64 `json:"meaning_min_score,omitempty"`
+	// MeaningNote says why the store was searched by words alone when it
+	// could have been searched by meaning. The caller sets it, or Find
+	// when the search by meaning failed.
+	MeaningNote string `json:"meaning_note,omitempty"`
 }
 
 // Outcome is a recall for one model.
@@ -177,6 +202,11 @@ type candidate struct {
 	sensitive bool
 	reason    string // why no view keeps it; empty when it was read
 	item      Item
+	// What the search by meaning added (P6-08, meaning.go). Empty when the
+	// store was searched by words alone.
+	foundBy      string
+	meaningScore float64
+	merged       float64
 }
 
 // Found is what one search of the store brought back, for every kind of
@@ -186,6 +216,8 @@ type Found struct {
 	minScore   float64
 	maxItems   int
 	candidates []candidate
+	// meaning is what the search by meaning was, for the record (P6-08).
+	meaning meaningRecord
 }
 
 // mayRead is fixed rule 3 for one piece of content: a model reads content
@@ -228,14 +260,22 @@ func Find(ctx context.Context, ks knowledge.Store, message string, o Options) (F
 	if err != nil {
 		return f, err
 	}
+	// With a query vector, the store is searched by meaning too, and the
+	// two lists are merged (P6-08, meaning.go). Without one, each hit
+	// passes by its own score, as before.
+	ranked, err := f.rank(ctx, ks, hits, o)
+	if err != nil {
+		return f, err
+	}
 	// read counts the hits that were read, and open the ones of them a
 	// model that may not read sensitive content can be given. A hit is
 	// read while either kind of model still has room for it.
 	read, open := 0, 0
-	for _, h := range hits {
-		c := candidate{hit: h, sensitive: h.Label.Sensitive()}
+	for _, r := range ranked {
+		h := r.hit
+		c := candidate{hit: h, sensitive: h.Label.Sensitive(), foundBy: r.foundBy, meaningScore: r.meaningScore, merged: r.merged}
 		switch {
-		case h.Score < o.MinScore:
+		case !r.passes:
 			c.reason = ReasonBelowThreshold
 		case read >= o.MaxItems && (c.sensitive || open >= o.MaxItems):
 			c.reason = ReasonOverLimit
@@ -301,12 +341,14 @@ func Query(message string, o Options) string {
 // This is the only way to what Find read.
 func (f Found) For(mayReadSensitive bool) Outcome {
 	out := Outcome{Record: Record{Query: f.query, MinScore: f.minScore, Found: len(f.candidates)}}
+	f.meaning.into(&out.Record) // the search by meaning, when there was one (P6-08)
 	for _, c := range f.candidates {
 		label := knowledge.LabelNormal
 		if c.sensitive {
 			label = knowledge.LabelSensitive
 		}
 		hr := HitRecord{Type: c.hit.Type, ID: c.hit.ID, Space: oneLine(c.hit.Space), Title: oneLine(c.hit.Title), Score: c.hit.Score, Sensitive: c.sensitive}
+		hr.FoundBy, hr.MeaningScore, hr.Merged = c.foundBy, c.meaningScore, c.merged
 		switch {
 		case c.reason == ReasonBelowThreshold || c.reason == ReasonUnreadable:
 			hr.Reason = c.reason

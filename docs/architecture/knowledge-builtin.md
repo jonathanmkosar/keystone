@@ -118,6 +118,6 @@ A call whose context is done returns the context's error. Any other failure of t
 
 - The Markdown folder. See decision 0060.
 - The server does not import this package yet, so the binary cannot open `built-in`. The line is `_ "github.com/jonathanmkosar/keystone/internal/knowledge/builtin"` where the server is put together, in `cmd/keystone`, which belongs to the core lane.
-- A real embedding model (P6-08). Vector search is proven with the suite's four-number vectors. When the embedding model is chosen, `VectorsNeeded` should also list a page whose vector came from another model. See decision 0062.
+- A real embedding model (P6-08). Vector search is proven with the suite's four-number vectors. When the embedding model is chosen, `VectorsNeeded` should also list a page whose vector came from another model. See decision 0062. Since P6-08 it does: `VectorsNeeded(ctx, model, limit)` lists a page whose vector came from another model as having none of this one, not stale, and an empty model keeps the old meaning. Keystone's refresh fills the table with the person's embedding model, the fake in the checks, and recall searches it by meaning with a cosine threshold of `knowledge.recall_meaning_min_score_built_in` ([embeddings.md](embeddings.md)).
 - Tuning. How a word score and a cosine weigh against each other, and recall's relevance threshold for this store, wait for recall on the test tenant (P6-05).
 - Correcting and forgetting (P6-07), and moving a page to another path.

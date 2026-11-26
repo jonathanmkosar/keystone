@@ -417,7 +417,7 @@ func checkUnsupported(p *probe) {
 		want("Search with words and a vector", err)
 	}
 	if !caps.PageVectors {
-		_, err := s.VectorsNeeded(ctx, 0)
+		_, err := s.VectorsNeeded(ctx, VectorModel, 0)
 		want("VectorsNeeded", err)
 		want("PutVector", s.PutVector(ctx, knowledge.PageVector{PageID: noSuchID, Revision: "1", Model: VectorModel, Vector: vecGarden}))
 	}
@@ -462,7 +462,7 @@ func checkCancelled(p *probe) {
 			_, err := s.Search(ctx, knowledge.Query{Vector: nearGarden, Model: VectorModel})
 			return err
 		}},
-		{"VectorsNeeded", caps.PageVectors, func() error { _, err := s.VectorsNeeded(ctx, 0); return err }},
+		{"VectorsNeeded", caps.PageVectors, func() error { _, err := s.VectorsNeeded(ctx, VectorModel, 0); return err }},
 		{"PutVector", caps.PageVectors, func() error {
 			return s.PutVector(ctx, knowledge.PageVector{PageID: pageID, Revision: revision, Model: VectorModel, Vector: vecGarden})
 		}},
@@ -860,7 +860,7 @@ func checkPageVectors(p *probe) {
 		return
 	}
 	needs := func(when string) map[string]knowledge.PageNeed {
-		list, err := s.VectorsNeeded(ctx, 0)
+		list, err := s.VectorsNeeded(ctx, VectorModel, 0)
 		if err != nil {
 			p.errorf("VectorsNeeded %s: %v", when, err)
 		}
@@ -885,7 +885,7 @@ func checkPageVectors(p *probe) {
 		}
 		p.label(what, n.Label, baseSensitive[want.Space])
 	}
-	if list, err := s.VectorsNeeded(ctx, 1); err != nil || len(list) != 1 {
+	if list, err := s.VectorsNeeded(ctx, VectorModel, 1); err != nil || len(list) != 1 {
 		p.errorf("VectorsNeeded with limit 1: %d needs, error %v", len(list), err)
 	}
 

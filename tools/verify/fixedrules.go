@@ -64,6 +64,14 @@ func init() {
 	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/knowledge/recall")
 }
 
+// Embeddings (P6-08) decide which pages reach an embedding model, and
+// whether a held chat's query may: embedding.MayEmbed and MayEmbedQuery take
+// the registry's plain answer, and Refresh is the one way a page is sent.
+// The package enforces rule 3 for embedding models.
+func init() {
+	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/embedding")
+}
+
 // settingsPackages are the ways to read a setting's value.
 var settingsPackages = []string{module + "/settings", module + "/internal/tenantsettings"}
 

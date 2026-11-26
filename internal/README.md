@@ -42,6 +42,7 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `compact` | chats | When a long chat's oldest turns are summarised and which, the summary request, the stored summaries, and whether one may go to a call |
 | `knowledge/memory` | knowledge | The memory pass: the request for an exchange's durable facts, reading the answer, where the facts may land, the queue of passes, the incognito flag and the memory reserve |
 | `knowledge/memory` (`forget.go`, `incognito.go`) | knowledge | The memory screens (P6-07): what the memory pass added, correcting and forgetting a fact by replacing its source, the profile line that follows, and when a person left an incognito chat |
+| `embedding` | knowledge | Embeddings (P6-08): which embedding model makes a person's vectors, which pages and queries may reach it (a guard of fixed rule 3), the refresh of missing and stale page vectors, the embedding reserve and the refresh's state |
 | `inspector` | chats | The turn inspector's calls and totals from a turn's records, and what a person takes out of a chat's next turn |
 | `jobs` | agents | Background tasks: rounds of turns in a chat of their own, resumed after a restart, with a budget, the task routes, `start_background_task`, and the note of the result |
 | `recap` | chats | Each chat's recap (a summary, its topics and decisions): the request and the answer, when a chat is due, keeping and searching recaps, and fixed rule 3's answer for past chats |

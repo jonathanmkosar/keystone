@@ -1,6 +1,6 @@
 # P11-03. Operations and Monitor
 
-Status: todo
+Status: doing (core)
 Lane: core + interface
 Depends on: P8-01, P4-01
 Owner gate: Approval of the settings mockups (P1-07), for the screens only.

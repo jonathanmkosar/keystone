@@ -351,7 +351,11 @@ func (s *store) CatalogMarker(ctx context.Context) (string, error) {
 	return "catalog " + hex.EncodeToString(h.Sum(nil)[:12]), nil
 }
 
-func (s *store) VectorsNeeded(ctx context.Context, limit int) ([]knowledge.PageNeed, error) {
+// VectorsNeeded lists what Waymarks says needs a vector. The model is not
+// sent: an instance takes vectors of one model, set by its owner, and
+// counts a vector of any other as none. A model that is not the instance's
+// is refused when its vector is stored.
+func (s *store) VectorsNeeded(ctx context.Context, _ string, limit int) ([]knowledge.PageNeed, error) {
 	if s.embedder == "" {
 		return nil, knowledge.ErrNotSupported
 	}

@@ -160,7 +160,7 @@ In `settings/knowledge.json`. The package exports each key as a constant, and `S
 
 ## Not here yet
 
-- **Search by meaning.** Recall searches by words. The query vector is P6-08.
+- **Search by meaning.** Recall searches by words. The query vector is P6-08. Built since: when the store takes a query vector, `knowledge.recall_meaning` is on and the person has an embedding model, the turn makes a vector of the query (`meaningFor` in `internal/turn/embeddings.go`, one line in `searchKnowledge`) and passes it as `Options.Meaning`; `Find` searches by the vector alone beside the words and merges the two lists by weighted reciprocal rank, each held to its own threshold (`meaning.go`, decision [0411](decisions/0411-words-and-meaning-are-merged-by-weighted-reciprocal-rank.md)). The record gains the meaning's model, count, threshold and note, and each hit `found_by`, `meaning_score` and `merged`. A chat whose route is sensitive sends its query only to a local or trusted embedding model. With no vector, `Find` is exactly as before. See [embeddings.md](embeddings.md).
 - **The inspector.** The records are kept and `recall.Saved` reads them. The route and the screen are P5-04, which can also offer pinning or removing an item for the next turn.
 - **A threshold tuned on real scores.** Both ship at 0. The Waymarks adapter has met only a fake.
 - **The share over time.** The recall check compares the share with a floor in the fixture. Nothing keeps the share of each run.

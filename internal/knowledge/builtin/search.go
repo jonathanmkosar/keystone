@@ -242,7 +242,11 @@ func (s *store) pageHit(ctx context.Context, n int64) (knowledge.Hit, error) {
 	return knowledge.Hit{Type: knowledge.HitPage, ID: p.ID, Space: p.Space, Label: p.Label, Path: p.Path, Title: p.Title, Snippet: snippet}, nil
 }
 
-func (s *store) VectorsNeeded(ctx context.Context, limit int) ([]knowledge.PageNeed, error) {
+// VectorsNeeded lists the pages with no vector of the model named, and
+// those whose vector of it was made from an earlier revision, marked stale.
+// A page whose vector came from another model has none of this one, as in
+// Waymarks (P6-08). An empty model takes a vector of any model.
+func (s *store) VectorsNeeded(ctx context.Context, model string, limit int) ([]knowledge.PageNeed, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -252,10 +256,10 @@ func (s *store) VectorsNeeded(ctx context.Context, limit int) ([]knowledge.PageN
 	rows, err := s.t.DB().QueryContext(ctx, `
 		SELECT p.id, p.space, COALESCE(sp.label, ''), p.title, v.page_id IS NOT NULL
 		FROM knowledge_pages p
-			LEFT JOIN knowledge_page_vectors v ON v.page_id = p.id
+			LEFT JOIN knowledge_page_vectors v ON v.page_id = p.id AND (?1 = '' OR v.model = ?1)
 			LEFT JOIN knowledge_spaces sp ON sp.name = p.space
 		WHERE v.page_id IS NULL OR v.revision <> p.revision
-		ORDER BY p.space, p.path LIMIT ?`, limit)
+		ORDER BY p.space, p.path LIMIT ?2`, strings.TrimSpace(model), limit)
 	if err != nil {
 		return nil, fail(ctx, err)
 	}

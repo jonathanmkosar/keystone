@@ -230,7 +230,7 @@ func TestASpaceWithNoLabelReadsAsSensitive(t *testing.T) {
 					sensitive("a "+h.Type+" hit", h.Label)
 				}
 			}
-			needs, err := s.VectorsNeeded(bg, 0)
+			needs, err := s.VectorsNeeded(bg, "", 0)
 			if err != nil || len(needs) != 1 {
 				t.Fatalf("VectorsNeeded: %d, error %v", len(needs), err)
 			}
@@ -271,7 +271,7 @@ func TestTwoTenantsDoNotShare(t *testing.T) {
 			t.Errorf("tenant two's Search(%+v) found %d of tenant one's things, error %v", q, len(hits), err)
 		}
 	}
-	if needs, err := two.VectorsNeeded(bg, 0); err != nil || len(needs) != 0 {
+	if needs, err := two.VectorsNeeded(bg, "", 0); err != nil || len(needs) != 0 {
 		t.Errorf("tenant two is asked for vectors for %d of tenant one's pages, error %v", len(needs), err)
 	}
 	if err := two.PutVector(bg, knowledge.PageVector{PageID: page.ID, Revision: page.Revision, Model: "test-embed", Vector: []float32{0, 1}}); !errors.Is(err, knowledge.ErrNotFound) {
@@ -343,7 +343,7 @@ func TestWritePage(t *testing.T) {
 	if same.ID != first.ID || same.Revision != first.Revision {
 		t.Errorf("writing the same page again gave id %s revision %s, want %s and %s", same.ID, same.Revision, first.ID, first.Revision)
 	}
-	if needs, err := s.VectorsNeeded(bg, 0); err != nil || len(needs) != 0 {
+	if needs, err := s.VectorsNeeded(bg, "", 0); err != nil || len(needs) != 0 {
 		t.Errorf("an unchanged page needs a vector again: %+v, error %v", needs, err)
 	}
 	if marker() != added {
@@ -395,7 +395,7 @@ func TestWritePage(t *testing.T) {
 	if hits, _ := s.Search(bg, knowledge.Query{Text: "oiled latch", Vector: []float32{1, 0}, Model: "test-embed"}); len(hits) != 1 || hits[0].ID != src.ID {
 		t.Errorf("after the page was removed a search finds %+v, want its source alone", hits)
 	}
-	if needs, _ := s.VectorsNeeded(bg, 0); len(needs) != 0 {
+	if needs, _ := s.VectorsNeeded(bg, "", 0); len(needs) != 0 {
 		t.Errorf("a removed page needs a vector: %+v", needs)
 	}
 	if err := RemovePage(bg, ts, first.ID); !errors.Is(err, knowledge.ErrNotFound) {
@@ -587,7 +587,7 @@ func TestSearchByVector(t *testing.T) {
 	if got := ids(q); !slices.Equal(got, []string{a.ID, b.ID}) {
 		t.Errorf("after the page changed the vector finds %v", got)
 	}
-	needs, err := s.VectorsNeeded(bg, 0)
+	needs, err := s.VectorsNeeded(bg, "", 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -597,6 +597,25 @@ func TestSearchByVector(t *testing.T) {
 	}
 	if len(needs) != 2 || !stale[a.ID] {
 		t.Errorf("the pages needing a vector: %+v, want the changed page as stale and the page with none", needs)
+	}
+	// For one model, a vector of another counts as none (P6-08): the page
+	// is listed, and not as stale.
+	needs, err = s.VectorsNeeded(bg, "test-embed", 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	listed := map[string]knowledge.PageNeed{}
+	for _, n := range needs {
+		listed[n.Title] = n
+	}
+	if n, ok := listed["c"]; !ok || n.Stale {
+		t.Errorf("for the model test-embed, the page with another model's vector is %+v (listed %v), want it listed as having none", n, ok)
+	}
+	if n, ok := listed["a"]; !ok || !n.Stale {
+		t.Errorf("for the model test-embed, the changed page is %+v (listed %v), want it stale", n, ok)
+	}
+	if _, ok := listed["b"]; ok || len(needs) != 3 {
+		t.Errorf("for the model test-embed, %d pages are listed (%v), want the changed page, the page of another model and the page with none", len(needs), needs)
 	}
 	// A limit of one, with words and a vector, returns the best of both.
 	if got := ids(knowledge.Query{Text: "beta", Vector: []float32{0.6, 0.8}, Model: "test-embed", Limit: 1}); !slices.Equal(got, []string{b.ID}) {

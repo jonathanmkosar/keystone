@@ -30,6 +30,9 @@ type fakeWaymarks struct {
 	spaces  map[string]string // name to label
 	pages   []wmPage
 	sources []wmSource
+	// vectors are the page vectors pushed to it, by page id, for the
+	// embeddings check (P6-08, waymarksvectors.go).
+	vectors map[int64]wmVector
 }
 
 type wmPage struct {
@@ -53,6 +56,10 @@ func newFakeWaymarks() *fakeWaymarks {
 	mux.HandleFunc("GET /v1/pages/{id}", f.wrap(f.page))
 	mux.HandleFunc("GET /v1/sources/{id}/text", f.wrap(f.sourceText))
 	mux.HandleFunc("GET /v1/search", f.wrap(f.search))
+	// Page vectors, and search by one (P6-08, waymarksvectors.go).
+	mux.HandleFunc("GET /v1/vectors/needed", f.wrap(f.vectorsNeeded))
+	mux.HandleFunc("PUT /v1/pages/{id}/vector", f.wrap(f.vectorPut))
+	mux.HandleFunc("POST /v1/search/hybrid", f.wrap(f.hybrid))
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		wmError(w, http.StatusNotFound, "not_found", "no such call")
 	})

@@ -35,6 +35,8 @@ Since P5-03 the cache counts come from every adapter whose provider reports them
 
 Since P6-06, the memory pass's call is one too, made after the turn under its request id, with the kind `memory`. `usage.SpentOn(ctx, store, month, kind)` sums one kind of task on models that are not local, which is what the memory pass's reserve, a part of the monthly cap, is measured against ([memory-pass.md](memory-pass.md)).
 
+Since P6-08, every embedding call is one too, with the kind `embedding`: the query recall makes a vector of, under the turn's request id, and the background refresh's, under a request id of its own (`embeddings-<hex>`) or the route's. Only input tokens are counted, at the entry's input price, estimated when the endpoint does not say. The embedding reserve, `knowledge.embedding_reserve_usd`, is measured with `SpentOn(month, "embedding")` as the memory pass's is ([embeddings.md](embeddings.md)).
+
 ## Reading them
 
 ```go
