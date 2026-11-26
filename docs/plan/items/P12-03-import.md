@@ -1,6 +1,6 @@
 # P12-03. Import from New Keystone
 
-Status: doing (chats)
+Status: provisional
 Lane: chats
 Depends on: P4-02, P8-03
 Owner gate: A copy of New Keystone's workspace database, and Jonathan's go-ahead to import it.
@@ -35,3 +35,15 @@ What New Keystone keeps, read from its source (`keystone/store.py`, `routines.py
 7. **The write-up**: `docs/architecture/import.md`, decisions from 0510, the runbook `docs/runbooks/import-new-keystone.md`, the journal, the status (`provisional` until the integrator has run the owner's real import and he has seen his chats).
 
 Left for later: recaps for all imported chats in one go (a sweep belongs with the background jobs); a per-reply view of the steps New Keystone recorded; importing the files of New Keystone's built apps.
+
+### Result (chats lane, November 26, 2026)
+
+Provisional until the integrator has run the owner's own import, with `docs/runbooks/import-new-keystone.md`, and he has seen his chats. Everything that can be built without his database is built and proven, on databases generated in New Keystone's schema with invented words. His real database was never opened.
+
+- Built as planned: `internal/imported` with migration `20261126T022700_imports.sql`, `chat.Import`, `internal/importer` (`OpenSource`, `Copy`, `Read`, `MakePlan`, `Check`, `Run` and the report), the commands `tools/tenant import` and `import-copy`, the mark on `Chat` in the API and on the screen, four settings in `settings/chats.json`, the standing check `import`, and `importertest` with the generated sources and the proof. Decisions 0510 to 0516.
+- Changed from the plan: `import-copy` reads a database at rest as immutable, so no file is made beside it (found on the first hand run); the mark is also on the chats screen's rows (`pages.tsx`) and is kept when a chat is renamed or starred (the one changed line in `internal/turn/handlers.go`); a seventh decision, 0516, records how a routine becomes a schedule.
+- The proof: imported chats open through the API in order, with their original times, roles and the models New Keystone named, wear their mark, and are found by the chat search and by `search_chats`; the imported morning brief is a paused schedule that does not run while paused and runs, with the fake provider, once switched on; a second import adds nothing; the dry run writes nothing and neither it nor the import prints a word of a message; the import calls no model and is in the audit log; another tenant holds and reaches none of it. `verify` is 36 of 36.
+- Imported: the continuing chat as chats cut at gaps of more than an hour, each routine run and each build as a chat of its own, messages as plain text with web sources and attached text, routines as paused schedules. Left out and counted: turns still under way, manual, proposed, deleted and past one-time routines, notebook entries, decisions, drafts, proposals, built apps (their summaries are in the build chats' notes), and New Keystone's own bookkeeping.
+- Sensitive content: New Keystone marked nothing, so no imported chat is held by default; `chats.import_hold` (`wiki` or `all`) holds them, and must be set before the import. This is the first question for the owner in the journal.
+- Not done: the owner's import; a look at the mark in a browser (`web/dist/` is not committed: `npm ci && npm run build` in `web/app`); recaps for every imported chat at once.
+- See `docs/journal/2026-11-26-chats-011.md` and `docs/architecture/import.md`.

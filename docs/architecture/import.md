@@ -4,7 +4,7 @@ Folders: `internal/importer` (reads New Keystone's database and writes a tenant)
 
 New Keystone is the owner's earlier Python app. The import brings one person's chats and routines from a copy of its database into one tenant: the chats open and are found by search like any other, and each routine is a paused schedule, the morning brief among them. It is run from the command line, by whoever has a shell on the machine, and is the plan's cutover step "import of old chats and routines" (P12-03).
 
-Built in P12-03. Decisions [0510](decisions/0510-the-continuing-chat-is-cut-into-chats-at-its-gaps.md) to [0515](decisions/0515-the-import-reads-a-whole-copy-and-prints-no-words.md) say why it is built this way. The steps for the owner are in [the runbook](../runbooks/import-new-keystone.md).
+Built in P12-03. Decisions [0510](decisions/0510-the-continuing-chat-is-cut-into-chats-at-its-gaps.md) to [0516](decisions/0516-a-routine-becomes-a-paused-schedule-with-its-times-on-the-clock.md) say why it is built this way. The steps for the owner are in [the runbook](../runbooks/import-new-keystone.md).
 
 ## What New Keystone keeps
 
@@ -69,7 +69,7 @@ Nothing is rewritten on the way: a message's words are the source's, and the imp
 
 Columns and tables later builds added are read when they are there and taken as empty when not, so a database only an old build opened is read too.
 
-`importer.Copy` (the command `import-copy`) makes the whole copy: it opens the database read-only and runs `VACUUM INTO`, which writes one file holding everything the database and its log hold at one moment, then reads the copy back. It works while New Keystone is running. Reading a database in write-ahead mode makes SQLite keep its shared-memory file beside it, as any reader does; nothing else is written there.
+`importer.Copy` (the command `import-copy`) makes the whole copy: it opens the database read-only and runs `VACUUM INTO`, which writes one file holding everything the database and its log hold at one moment, then reads the copy back. It works while New Keystone is running: a database some program has open has its shared-memory file (`workspace.sqlite-shm`) and its log beside it already, and is read through them as any reader reads one. A database with neither is open nowhere, and is read as a file nothing writes, so SQLite makes no file beside it. Either way the database's folder holds afterwards what it held before.
 
 ## The command
 
@@ -139,7 +139,8 @@ Every existing line this item changed or added to in shared files:
 - `tools/verify/main.go`: `{"import", checkImport},` after the share check (an added line). The `componentDocs` lines and the network line are in an `init` in the new `tools/verify/importcheck.go`.
 - `settings/chats.json`: the four settings above, before `chats.context_pinned_heading` (added lines).
 - `docs/api/openapi.json`: regenerated, for the field on `Chat`.
-- `web/app/src/api.ts`: the `imported` field on `Chat` and its type; `Shell.tsx` and `Chat.tsx`: an import and one line each.
+- `web/app/src/api.ts`: the `imported` field on `Chat` and its type; `Shell.tsx`, `pages.tsx` and `Chat.tsx`: an import and one line each (added lines).
+- Docs: `overview.md` (a part row and seven decision rows), `tools.md` (two paragraphs), `internal/README.md` (two rows), and a section each in `web.md`, `turns.md` and `chat.md` (added lines).
 
 New files: `internal/importer/*`, `internal/imported/*`, `internal/chat/imported.go` and its test, `internal/turn/imported.go`, `tools/tenant/importcmd.go` and its test, `tools/verify/importcheck.go`, the migration, `web/app/src/Imported.tsx` and `imported.css`.
 
@@ -154,7 +155,7 @@ Every source in the tests is generated in New Keystone's schema by `importertest
   - a later copy brings only the turn that has ended since and the new one, in chats of their own;
   - `chats.import_hold` as `wiki` holds the one chat New Keystone read the wiki in, and as `all` every chat; each held chat is sensitive to `recap.Sensitive` and may not be shown to a hosted model;
   - the gap decides how many chats there are, and each bad setting is refused by its name; a person's own zone is kept;
-  - a file that is not there, a text file, another app's database and a database in use are each refused, the last with the way out; `Copy` copies a database in use whole, leaves no log beside the copy and replaces no file; two workspaces need one named, and only that one is brought;
+  - a file that is not there, a text file, another app's database and a database in use are each refused, the last with the way out; `Copy` copies a database in use whole, leaves no log beside the copy and replaces no file, and copies a database at rest with no file made beside it; two workspaces need one named, and only that one is brought;
   - a database in the first build's schema is read;
   - the plan's odd cases: a reply read from the job's own copy, a turn waiting on a decision, a blank turn, a run of a routine that is gone, sources that are not links, routines with no hour or an unknown cadence.
 - `go test ./internal/chat`: an imported chat keeps its times and its place in the list, is one branch, is found by the search and only in its own tenant, takes a later message, and goes when deleted; what cannot be a chat is refused and a caller's failure leaves no row.
@@ -163,6 +164,8 @@ Every source in the tests is generated in New Keystone's schema by `importertest
 - `verify`, the standing check `import` (`tools/verify/importcheck.go`): the proof above, and that `internal/importer` names no part that calls a model or a knowledge store or runs a turn. The `offline` check holds it to no network package.
 
 Two faults were put in by hand and each was caught: the mark left off the list of chats (the proof), and a routine that is here already planned again (three tests).
+
+By hand, on November 26, 2026: the built `tools/tenant` binary ran `import-copy`, `import --check`, `import` and `import` again on a generated database and a data folder inside the worktree, with the test tenant, and printed what the tests expect: five chats, three paused schedules, then nothing. The web source passes `tsc --noEmit`. The mark has not been seen in a browser: `web/dist/` is not rebuilt on the branch.
 
 ## Not here yet
 
