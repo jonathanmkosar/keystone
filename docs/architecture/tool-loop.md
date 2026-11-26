@@ -174,6 +174,10 @@ Since P12-02 a tool may say, from one call's input, that the call reaches other 
 
 Since P9-03, `create_artifact`, `update_artifact` and `read_artifact` are in the server's registry, added in `app.Tools` by `artifacts.Add` ([artifacts.md](artifacts.md)). Each acts on the chat it is called from. All three say `ReadOnly` and `Inside`, although two of them write: for these tools `ReadOnly` means what the approval rule reads it as, that nothing outside Keystone changes and nothing is lost, since every version is kept. So they run under the default `always`, and do not ask because a chat read outside content; a person can set each to ask or never (decision [0420](decisions/0420-artifact-tools-run-without-asking.md)). The chat screen draws a call that made or changed an artifact as its card, not as a row.
 
+## Sub-agents' tool
+
+Since P8-02, `run_subagents` is in the server's registry, added in `app.Tools` by `subagents.Runner.AddTool` ([sub-agents.md](sub-agents.md)). It says `ReadOnly` and `Inside`, as the artifact tools do (decision [0481](decisions/0481-run-subagents-runs-without-asking.md)), and it waits for its sub-agents for `agents.subagent_timeout`: a tool may carry a longer limit of its own, `Tool.Timeout`, over `agents.tool_timeout`. A tool is now told the id of the call it answers, `Input.CallID`. A sub-agent's chat has `agents.subagent_max_steps` as its step limit, through `turn.Options.MaxSteps`. The chat screen draws a call of it as its lanes, not as a row.
+
 ## The knowledge lookups
 
 The three knowledge lookups of recall (P6-05) are tools too, but not in the server's registry, because what a lookup may return depends on the call. Each call that offers tools, for a person whose knowledge store opened, also offers the lookups made for the least of its route, and the calls the model makes in reply run those same ones through a registry of their own. The code is `internal/turn/lookups.go`; the lookups themselves are in [knowledge-recall.md](knowledge-recall.md).

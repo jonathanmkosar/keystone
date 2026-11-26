@@ -136,6 +136,7 @@ In `settings/agents.json`.
 ## Not here yet
 
 - **Sub-agents** (P8-02). The kind, `agents.subagent_budget_usd` and the registry are the seam; nothing registers a sub-agent, and the switch pauses one when P8-02 reads it in its loop.
+  - Built in P8-02 ([sub-agents.md](sub-agents.md)): each sub-agent registers as `subagent` with its budget in the transaction that writes its row, its chat is told of its notices and its result carries their summary, and its supervisor reads the switch at every look and ends it as `paused` (decision [0484](decisions/0484-the-pause-switch-ends-sub-agents.md)). Sub-agents are not counted in `SwitchReply`.
 - **A budget for a month of a schedule's runs.** The budget is each run's.
 - **A list of every task and run**, across chats, with the switch, on Operations (P11-03).
   - Built in P11-03 ([operations.md](operations.md)): the page draws the switch, lists every task and run by state, and shows the budget of each run under way as a limit, its spend summed from its usage records as the gate sums it, with a watch level, `operations.watch_run_budget_percent`.

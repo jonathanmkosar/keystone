@@ -329,7 +329,7 @@
       "type": "float",
       "default": "0.25",
       "scope": "tenant",
-      "description": "The most one sub-agent may spend, in US dollars, on models that are not local. Sub-agents come with P8-02; until then nothing uses it."
+      "description": "The most one sub-agent may spend, in US dollars, on models that are not local. It is a sub-agent's budget when the call names none, and the most a call may give one."
     },
     {
       "key": "agents.unattended_fallback",
@@ -337,6 +337,48 @@
       "default": "true",
       "scope": "tenant",
       "description": "When the monthly cap or its own budget refuses a call of a background task, a scheduled run or a sub-agent, it goes on with the next model in your fallback chain, a local one at no cost, and says which model wrote the reply. Off, it stops there and says so. Your own chats always go on with a local model in the chain."
+    },
+    {
+      "key": "agents.subagents_at_once",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "How many of the sub-agents one call of run_subagents starts may work at the same time. The rest wait for one to end, and each starts as soon as a lane is free."
+    },
+    {
+      "key": "agents.subagents_per_turn",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "The most sub-agents one turn may start, across all its calls of run_subagents. A call that would start more is refused, and the model is told how many are left."
+    },
+    {
+      "key": "agents.subagent_max_steps",
+      "type": "int",
+      "default": "8",
+      "scope": "install",
+      "description": "The most model calls one sub-agent makes, counting each call that follows a tool. At the limit it stops and its result says so; what it had written is passed back."
+    },
+    {
+      "key": "agents.subagent_result_max_chars",
+      "type": "int",
+      "default": "4000",
+      "scope": "install",
+      "description": "The most characters of each sub-agent's result that go back to the turn that started it. The rest is in the sub-agent's own chat, which the result names. agents.tool_result_max_chars still cuts the whole."
+    },
+    {
+      "key": "agents.subagent_timeout",
+      "type": "duration",
+      "default": "30m",
+      "scope": "install",
+      "description": "How long one call of run_subagents waits for its sub-agents, a wait for your approval included. Past it, the ones still working are stopped and the turn goes on with what came back."
+    },
+    {
+      "key": "agents.subagent_brief",
+      "type": "string",
+      "default": "You are a sub-agent: another assistant started you to do one part of a larger piece of work, and is waiting for your answer. You see nothing of its conversation but what follows. Use your tools as you need to, and keep to your task. When you have finished, answer with your result in full: your last reply is all that is passed back.",
+      "scope": "install",
+      "description": "The words each sub-agent's first message opens with, before its task and what it was given. The model reads them."
     },
     {
       "key": "agents.schedule_poll",

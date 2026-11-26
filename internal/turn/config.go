@@ -178,4 +178,9 @@ type Options struct {
 	// upkeep job's run, wikijobs.SkipMemory, so a job's report never comes
 	// back to the store as a source). Nil skips none.
 	SkipMemory func(ctx context.Context, s *tenant.Store, chatID string) bool
+	// MaxSteps is the most model calls one turn of a chat makes, when it is
+	// not chats.turn_max_steps (P8-02: a sub-agent's chat, which has
+	// agents.subagent_max_steps, subagents.Runner.MaxSteps). Nil, or an
+	// answer below 1, means chats.turn_max_steps.
+	MaxSteps func(ctx context.Context, s *tenant.Store, chatID string) int
 }

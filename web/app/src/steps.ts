@@ -97,6 +97,13 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
       meta: "",
     };
   },
+  // Sub-agents (P8-02). A call is drawn as its row and lanes (Subagents.tsx);
+  // these words are for an approval card of a person who set it to ask.
+  run_subagents: (args) => {
+    const n = Array.isArray(args.agents) ? args.agents.length : 0;
+    const many = n === 1 ? "a sub-agent" : n > 1 ? `${n} sub-agents in parallel` : "sub-agents";
+    return { icon: "agents", running: `Running ${many}`, asked: `Run ${many}`, done: `Ran ${many}`, meta: "" };
+  },
   // Artifacts (P9-03). A call that made or changed one is drawn as its card
   // (ArtifactCard.tsx); these words are for a call that failed, the
   // approval card of a person who set one to ask, and reading one.

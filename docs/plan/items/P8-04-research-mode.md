@@ -1,6 +1,6 @@
 # P8-04. Research mode
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P8-02, P7-03
 Owner gate: none

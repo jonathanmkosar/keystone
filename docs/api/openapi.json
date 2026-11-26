@@ -5998,6 +5998,508 @@
         "summary": "Choose a chat's style: a built-in style or one of the person's own. The chat's next call carries its instructions at the start; nothing else about the call changes."
       }
     },
+    "/api/v1/chats/{id}/subagents": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only those one run_subagents call started: the tool call's id.",
+            "in": "query",
+            "name": "call",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only those one turn started: the turn's id.",
+            "in": "query",
+            "name": "turn",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "subagents": {
+                      "items": {
+                        "properties": {
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "call_id": {
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "max_steps": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "notice": {
+                            "type": "string"
+                          },
+                          "outside": {
+                            "type": "boolean"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "position": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          },
+                          "work_turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "turn_id",
+                          "call_id",
+                          "position",
+                          "work_chat_id",
+                          "title",
+                          "task",
+                          "status",
+                          "progress",
+                          "waiting",
+                          "steps",
+                          "max_steps",
+                          "budget_micros",
+                          "spent_micros",
+                          "outside",
+                          "sensitive",
+                          "passed",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "subagents"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The sub-agents started from this chat's turns, oldest first, each with where it is, what it has spent and its result once it has ended; or, in a sub-agent's own chat, that sub-agent."
+      }
+    },
+    "/api/v1/chats/{id}/subagents/{sub}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sub",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "call_id": {
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "max_steps": {
+                      "type": "integer"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "outside": {
+                      "type": "boolean"
+                    },
+                    "passed": {
+                      "type": "boolean"
+                    },
+                    "position": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    },
+                    "sensitive": {
+                      "type": "boolean"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    },
+                    "work_turn_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "turn_id",
+                    "call_id",
+                    "position",
+                    "work_chat_id",
+                    "title",
+                    "task",
+                    "status",
+                    "progress",
+                    "waiting",
+                    "steps",
+                    "max_steps",
+                    "budget_micros",
+                    "spent_micros",
+                    "outside",
+                    "sensitive",
+                    "passed",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One sub-agent: where it is, what it has spent, and its result once it has ended."
+      }
+    },
+    "/api/v1/chats/{id}/subagents/{sub}/stop": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sub",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "call_id": {
+                      "type": "string"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "max_steps": {
+                      "type": "integer"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "outside": {
+                      "type": "boolean"
+                    },
+                    "passed": {
+                      "type": "boolean"
+                    },
+                    "position": {
+                      "type": "integer"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "string"
+                    },
+                    "sensitive": {
+                      "type": "boolean"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "steps": {
+                      "type": "integer"
+                    },
+                    "task": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "turn_id": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    },
+                    "work_turn_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "turn_id",
+                    "call_id",
+                    "position",
+                    "work_chat_id",
+                    "title",
+                    "task",
+                    "status",
+                    "progress",
+                    "waiting",
+                    "steps",
+                    "max_steps",
+                    "budget_micros",
+                    "spent_micros",
+                    "outside",
+                    "sensitive",
+                    "passed",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Stop one sub-agent. Its turn is stopped, what it did is kept in its chat, and the turn that started it goes on with the others; its result says it was stopped. It takes no body. Stopping one that has ended changes nothing."
+      }
+    },
     "/api/v1/chats/{id}/tasks": {
       "get": {
         "parameters": [
