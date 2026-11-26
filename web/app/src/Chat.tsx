@@ -16,6 +16,7 @@ import { Mark } from "./Mark";
 import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
+import { applyNewChatStyle, StylePicker } from "./StylePicker";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
 import { messageWith } from "./uploads";
 
@@ -46,6 +47,7 @@ export function Start({ person }: { person: Person }) {
       const made = incognito ? await createIncognitoChat() : await createChat();
       put(made.chat, true);
       await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
+      await applyNewChatStyle(person.id, made.chat.id); // the style picker's pick (P9-05)
       send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
@@ -66,7 +68,7 @@ export function Start({ person }: { person: Person }) {
         </h1>
       </div>
       <div className="composer-column">
-        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
+        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
         <IncognitoSwitch on={incognito} onChange={setIncognito} />
         {problem && (
           <p className="composer-problem" role="alert">
@@ -222,7 +224,7 @@ function OneChat({ id }: { id: string }) {
             focusKey={id}
             onSend={sendHere}
             onStop={busy ? () => stop(id) : undefined}
-            beside={<><ConnectorMenu chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
+            beside={<><ConnectorMenu chatId={id} /><StylePicker chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
           />
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>

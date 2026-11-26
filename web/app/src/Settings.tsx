@@ -26,6 +26,7 @@ import {
 import { ApprovalSettings } from "./ApprovalSettings";
 import { ConnectorSettings } from "./ConnectorSettings";
 import { Icon } from "./Icon";
+import { StyleSettings } from "./StyleSettings";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
 
@@ -39,6 +40,7 @@ const screens: { to: string; label: string }[] = [
   { to: "general", label: "General" },
   { to: "connectors", label: "Connectors" },
   { to: "approvals", label: "Approvals" },
+  { to: "styles", label: "Styles" },
   { to: "spend", label: "Spend" },
 ];
 
@@ -150,6 +152,7 @@ export function Settings(props: Props) {
         <Route path="general" element={<General {...props} />} />
         <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="styles" element={<StyleSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route
           path="spend"
