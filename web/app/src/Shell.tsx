@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation, useMatch } from "react-router";
 import type { Chat, Person } from "./api";
 import { titleOf, useChats } from "./chats";
+import { ChatLinks } from "./ChatLinks";
 import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { Mark } from "./Mark";
@@ -153,6 +154,7 @@ export function Shell({
             </button>
             {openChat ? <ChatTitle id={openChat} /> : <span className="header-title">{titleFor(location.pathname)}</span>}
           </div>
+          {openChat && <ChatLinks key={openChat} id={openChat} />}
         </header>
         <div className="content">{children}</div>
       </main>

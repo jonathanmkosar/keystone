@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P12-02 Gmail and Calendar (agents). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-05 unattended spend and the pause switch (agents), P9-01 projects (chats), P6-07 memory screens and incognito (knowledge), P9-02 uploads (interface). Gmail and Calendar are built and wait on the owner's Google OAuth client (`docs/runbooks/google.md`). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,10 +11,10 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | nothing | scheduled backups once the owner answers; P13-01 to P13-03 drills, held |
 | models | nothing | P6-08 with knowledge, after P6-05 |
-| chats | P5-04, the turn inspector | P5-05, P9-05 |
-| knowledge | nothing | P12-01 Waymarks cutover (needs the owner), P6-07, P6-08 |
-| agents | P12-02 Gmail and Calendar | P8-05 unattended spend, P7-05 skills, P8-02 sub-agents |
-| interface | nothing | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
+| chats | P9-01 projects | P9-05 styles, P12-03 import |
+| knowledge | P6-07 memory screens and incognito | P12-01 Waymarks cutover (needs the owner), P6-08 |
+| agents | P8-05 unattended spend and the pause switch | P7-05 skills, P8-02 sub-agents, the morning brief as a schedule |
+| interface | P9-02 uploads | the model route reporting a held chat and missing keys (decisions 0240, 0241), P11-02 |
 | design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
 
 ## In flight
@@ -23,7 +23,10 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P12-02 Gmail and Calendar | agents | `agents/p12-02-gmail-calendar` |
+| P8-05 unattended spend and the pause switch | agents | `agents/p8-05-unattended-spend` |
+| P9-01 projects | chats | `chats/p9-01-projects` |
+| P6-07 memory screens and incognito | knowledge | `knowledge/p6-07-memory-screens` |
+| P9-02 uploads | interface | `interface/p9-02-uploads` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
@@ -76,6 +79,11 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Who may add a connector that runs a program on this machine (agents 005) | The command line only for now; once there is an admin role, the admin from the browser too, never a regular person | Command line only | P7-04 |
 | Should a connector tool its server says only reads run without asking (agents 005) | Yes; any can be set to ask on Settings → Approvals | Yes | Nothing |
 | Scheduled tasks: one late run for several missed times; set `agents.time_zone` explicitly (America/Chicago); per-schedule budgets and pausing background tasks with P8-05; a morning brief after Gmail and Calendar (agents 006) | As listed | Built that way; the zone is the computer's | Nothing |
+| Should an incognito chat be kept out of attaching and handoff, or should handing one off make an incognito chat (chats 008) | Keep it out until P6-07 settles what incognito keeps | Kept out | Nothing |
+| Should the first reply wait for a summary when an attached chat has none or has moved on (chats 008) | Yes, up to 30 seconds and only on the turn's first call; past that, the chat is carried as its title | As recommended | Nothing |
+| A Google OAuth client for Gmail and Calendar: the Gmail and Calendar APIs on, a Web application client with the redirect `https://<the owner's domain>/settings/connectors/google`, then its id as `agents.google_client_id` and its secret as `google.client_secret` in each person's vault (agents 007, `docs/runbooks/google.md`) | The owner creates it; the live check is a sign-in, a search and a send to himself | Tested against a stand-in Google only | P12-02 |
+| The Google client's publishing status: Testing ends a sign-in after 7 days (agents 007) | Publish it "In production" without verification, which is fine for personal use, and click past the unverified-app warning at each sign-in | Either works | Nothing |
+| Where the Google client id lives (agents 007) | An install setting, and the secret in an install vault, once those exist; a per-person tenant-admin setting until then | Per person | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
 
 ## Done
@@ -121,6 +129,8 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P5-05, chat summaries and past-chat search: each chat gets a recap (summary, topics, decisions) after its first turn and every three more, once it has been idle two minutes, written by the summary model; the chat list carries it. The model's `search_chats` tool now searches titles, recaps and messages and returns each chat's recap and best passages, and `read_chat` returns the recap; both leave held chats out for a model that may not read sensitive content. The `past chats` check proves test-tenant questions about earlier chats are answered through the tool. `verify` is 22 of 22.
 - P7-04, connectors, provisional on the agent mockups and one owner question: MCP servers, local programs over stdio and remote servers over HTTPS, per person, with tokens in the vault. A chat is offered each connector tool by name, and `load_tools` gives the full definitions when needed; a tools menu in the composer switches connectors per chat; Settings → Connectors adds remote ones. A connector tool asks first unless its server says it only reads, and its results are outside content. Programs on this machine are added from the command line only (`go run ./tools/tenant connector add`). Only a test server has been reached.
 - P8-03, scheduled tasks: schedules (hourly, daily, weekdays, weekly on chosen days, or once) in the person's time zone (`agents.time_zone`, the computer's when empty), each run a background task in a chat titled by the schedule and date. Due times missed while the server was down make one late run, never one per slot. A switch pauses all of a person's schedules. The Scheduled screen at `/scheduled`, provisional on the mockups. The `scheduled tasks` check proves a missed run fires once after an outage. `verify` is 23 of 23.
+- P5-06, attach a chat and handoff, provisional on the chat mockups for the screen only: a chat can attach up to five of the person's other chats, and every call carries each as its recap, made during the turn when it is missing or stale; while a chat has attachments the model may call `open_attached_chat` to read one a page at a time, without tool results or thinking, so it stays Keystone's own content. Handoff opens a new chat with this one attached as its parent for good, linked both ways, on the parent's model. A sensitive attached chat reaches a call only when every model on the route may read it, and the chat is held first; otherwise it is left out and counted. Incognito chats cannot attach, be attached or be handed off. A new standing check, `attached chats`, makes `verify` 24 of 24. Decisions 0360 to 0363.
+- P12-02, Gmail and Calendar, provisional on the owner's Google OAuth client and the agent mockups: Gmail (search, read, draft, send) and Calendar (list, read, create, change, delete) as built-in connectors with a third transport, `google`, so they share the connectors' switches, policies and audit path. A call that reaches other people (a send, an event with guests) asks under every policy but `never`, enforced in the approval decision and again when the tool runs; a change to an event must name its current title and guests, checked against the live event first. The sign-in is OAuth with PKCE and the narrowest scopes; the refresh token lives in the person's vault and access tokens only in memory. Tested against a stand-in Google on this machine. Decisions 0350 to 0353; runbook `docs/runbooks/google.md`.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 
 - The brief (`docs/briefs/keystone-reboot.md`), its review (`docs/reviews/keystone-reboot-brief-review.md`), the plan, and the parallel plan (`docs/plan/PARALLEL.md`).

@@ -35,6 +35,8 @@ func Build(ctx context.Context, in Input) (seam.Request, Record, error)
 
 The first seven are filled, and so are `Profile` and `PersonMap` (P6-04), `Recall` ([knowledge-recall.md](knowledge-recall.md)), and `Summary`, `SummaryCovers` and `Pinned` ([compaction.md](compaction.md)). The others are empty, and an empty part takes no room and is listed in the record as `empty`. An item that fills one changes its caller and nothing in this package. An `Item` is a label for the inspector, the text that is sent, and `Pinned`.
 
+Since P5-06 the turn fills `Attached` with the chats attached to the chat, the one it continues from first and pinned, each as its title, id and recap, and a pinned line for those left out for fixed rule 3 ([attach-and-handoff.md](attach-and-handoff.md)). Attachments that are files are still to come (P9-02), in the same part.
+
 The only errors are a branch with no messages (`ErrNoMessages`), options that are not valid, and a cancelled context.
 
 ## The parts and their order
@@ -159,6 +161,7 @@ All in `settings/chats.json`, and all a person may set for themselves. The runne
 ## Not here yet
 
 - Every slot but the rules, the tools, the current turn, the earlier turns, the profile, the person map, recall, the summary and pinned messages is empty: attachments and attached chats (P5-06), project (P9-01), style (P9-05).
+- Attached chats (P5-06). Built since: each call carries them in the `attached` part, and `open_attached_chat` reads the rest ([attach-and-handoff.md](attach-and-handoff.md)). Files attached to a message are P9-02.
 - Since P7-01 the turn fills `Tools` with every tool in the server's registry, for a model with the `tools` capability, unless the person has switched tools off ([tool-loop.md](tool-loop.md)).
 - Cache marks on the standing start (P5-03). Built since: recall moved into the current turn's first message, the system blocks after the standing start change only when compaction runs or turns are left out, and the request carries cache points the Anthropic adapter marks ([caching.md](caching.md)).
 - The inspector's route and screen (P5-04). The records are stored and `turn.Contexts` reads them. Built since: `GET /chats/{id}/turns/{turn}/inspect` returns them with each call's usage records ([inspector.md](inspector.md)).

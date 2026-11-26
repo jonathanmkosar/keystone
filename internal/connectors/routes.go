@@ -118,7 +118,7 @@ func Routes(o Options) []api.Route {
 		menu = api.Prefix + "chats/{id}/connectors"
 	)
 	h := handlers{o: o}
-	return []api.Route{
+	return append([]api.Route{
 		{Method: "GET", Path: all, Handle: h.list, Reply: ListReply{},
 			Summary: "The person's connectors: MCP servers whose tools a chat may use. Each names the secret its token is stored under and says whether it is stored, with the tools it last listed. Never a token."},
 		{Method: "POST", Path: all, Handle: h.add, Body: Body{}, Reply: Row{},
@@ -133,7 +133,7 @@ func Routes(o Options) []api.Route {
 			Summary: "The chat's tools menu: each connector, whether it is on in Settings, and whether its tools are offered in this chat."},
 		{Method: "PUT", Path: menu + "/{name}", Handle: h.chatSet, Body: SwitchBody{}, Reply: ChatReply{},
 			Summary: "Switch one connector on or off in one chat. A connector that is off in Settings stays off."},
-	}
+	}, googleRoutes(o)...) // Connect Google (P12-02, googleroutes.go)
 }
 
 type handlers struct{ o Options }

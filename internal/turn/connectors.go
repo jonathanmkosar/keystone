@@ -106,7 +106,7 @@ func (r *Runner) knownConnectorTools(ctx context.Context, s *tenant.Store) []Too
 		if _, ok := r.o.Tools.Get(t.Name); ok {
 			continue // the server's own tool keeps the name
 		}
-		out = append(out, ToolPolicy{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside})
+		out = append(out, ToolPolicy{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside, ReachesOthers: t.ReachesOthers})
 	}
 	return out
 }

@@ -189,6 +189,7 @@ func (r *Runner) sensitive(ctx context.Context, s *tenant.Store, t row, mayRead 
 		r.logf("turns: %s turn %s: reading whether the chat was sent sensitive content, so it is taken that it was: %v", t.requestID, t.ID, err)
 		return true
 	}
+	held = held || (mayRead && r.attachedSensitive(ctx, s, t)) // an attached chat with sensitive content holds the route too (P5-06, attach.go)
 	return held || (mayRead && t.recalled != nil && t.recalled.found.For(true).Sensitive)
 }
 

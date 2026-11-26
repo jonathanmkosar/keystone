@@ -287,6 +287,19 @@ Its calls, all in `src/api.ts`:
 
 Seen in a browser on November 25, 2026: see "Checked by" in [connectors.md](connectors.md).
 
+## Connect Google (P12-02)
+
+The Google section at the top of Settings → Connectors (`GoogleSettings.tsx`), and the page Google sends the browser back to, `/settings/connectors/google`, which is the same screen: it posts the code and state once, replaces the address with `/settings/connectors` so the code leaves the bar and the history, and reloads the list. The server's side is [google.md](google.md). `ConnectorSettings.tsx` draws a Google connector as "Google", "signed in", with no token field. `ApprovalSettings.tsx` marks a tool with `reaches_others`. The approval card shows each line of its summary on its own line (`approval.css`). `steps.ts` has words for the nine Gmail and Calendar tools, with a mail and a calendar icon.
+
+| Call | Function | Where |
+| --- | --- | --- |
+| `GET /api/v1/google` | `googleStatus` | The Google section. |
+| `POST /api/v1/google/start` | `startGoogle` | Connect Google, Connect again: the browser then goes to the answer's `url`. |
+| `POST /api/v1/google/finish` | `finishGoogle` | The return page. |
+| `DELETE /api/v1/google` | `disconnectGoogle` | Disconnect, after asking once more. |
+
+Seen in a browser on November 25, 2026: see "Checked by" in [google.md](google.md).
+
 ## The turn inspector and pins (P5-04)
 
 The panel that shows what went into a turn, and Pin beside Copy on every message. The server's side and the panel's contents are in [inspector.md](inspector.md). Provisional until the inspector mockup (P1-06): there is none, so it is built from the tokens and the patterns of the chat screen (decision [0273](decisions/0273-the-inspector-is-a-panel-opened-from-a-reply.md)).
@@ -347,6 +360,29 @@ Seen in a browser on November 25, 2026, against the server built from this branc
 | `POST /api/v1/schedules/pause-all`, `…/resume-all` | `holdSchedules` | Pause all and Resume all. |
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7991 with a data folder inside the worktree (removed afterwards), as the test tenant: a daily schedule made for two minutes ahead ran at its time, and its run was a chat in the sidebar titled "Harbour brief, Wed 25 Nov 2026" with the prompt, its step and the reply; a weekdays schedule made for a minute ahead, the server stopped before its time and started again more than two hours later: **one run, "Done, late", "Missed at 14:39 because Keystone was not running. Ran once when it was back."**, and the other schedule, whose time had already run, ran nothing more; Pause all and the held banner, Resume all; Edit to Mondays and Thursdays; Run now, in a chat of its own. In light and dark, and at phone width, where a table that ran wider than the screen was fixed. No console errors.
+
+## Attached chats and handoff (P5-06)
+
+The chips of the chats attached to a chat, the control that attaches one, and the handoff's button and links. The server's side is [attach-and-handoff.md](attach-and-handoff.md). There is no mockup for any of it, so it is provisional until the chat mockups cover it (P1-04); it is built from the tokens.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The chips | `src/AttachedChats.tsx`, `src/attach.css` | Over the composer, a chip for each attached chat: its title, a link that opens it, its summary as the chip's tooltip, a `sensitive` mark (only a local or trusted model is given it) or an `incognito` one (no reply is given it, and its title is struck through), and a button that takes it off. The chat it continues from, after a handoff, is a copper chip that reads "Continued from …" and has no button. |
+| The attach control | `src/AttachedChats.tsx` | "Attach a chat" (then "Attach") after the chips, a dashed pill that opens a picker upwards: a box that filters the person's chats by the words of their title and summary as they type, at most thirty, and a sentence on what attaching does. A pick attaches the chat and closes the picker. Disabled at `chats.attach_max`; nothing is drawn in an incognito chat. |
+| The header | `src/ChatLinks.tsx`, `src/attach.css` | At the right of a chat's header, where the mockups put Share: "Continued from" and the parent's title as a link, "Continued in" and the newest handoff's title as a link (with +N for more), and **Hand off**, which is disabled while a reply streams and in an incognito chat. Hand off makes the new chat, puts it at the top of the sidebar, picks for it the model the parent would use next (sent with its first message, as a pick is), and opens it. On a phone the words go and the titles and the icon stay. |
+| Shared state | `src/attached.ts` | A chat's answer of `GET /attached`, kept outside the screens so the header and the chips agree; read when a screen first asks and again when a turn of the chat ends, since a turn may have given an attached chat its summary. |
+| Icons | `src/Icon.tsx` | `chatlink` (a bubble with a link) and `handoff` (out of one chat and on into the next). |
+| The way in | `src/Chat.tsx`, `src/Shell.tsx`, `src/api.ts` | One line in `Chat.tsx` draws the chips over the composer, and one in `Shell.tsx` the header's links, each with its import. The calls are added to `api.ts` after the inspector's. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/chats/{id}/attached` | `listAttached` | The chips and the header's links. |
+| `PUT`, `DELETE /api/v1/chats/{id}/attached/{other}` | `setAttached` | Attaching from the picker, and a chip's button. |
+| `POST /api/v1/chats/{id}/handoff` | `handOff` | Hand off. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7961 with a data folder inside the worktree (removed afterwards), as the test tenant: the picker filtered to "ferry" and attached North ferry times as a chip; Hand off on the lighthouse walk opened a new chat with "Continued from Planning the lighthouse walk" in the header and as its chip; "What did we settle in the chat this one continues from?" was answered from the parent's summary by the recorded turn; the parent's header then read "Continued in" with the new chat's title. At phone width the header kept the titles and the icon. The only console error was the session check before sign-in. Not seen: dark theme, the `sensitive` and `incognito` marks, `too_many`.
 
 ## Uploads (P9-02)
 

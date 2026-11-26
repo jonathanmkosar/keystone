@@ -47,6 +47,11 @@ function ToolRow({ tool, policies, onChanged, onSignedOut }: { tool: ToolPolicy;
         <span className="set-hint">
           {kind(tool)} {tool.description}
         </span>
+        {tool.reaches_others && (
+          <span className="set-pills">
+            <span className="set-pill">Asks every time it sends to or tells other people, whatever is set here</span>
+          </span>
+        )}
         {error && (
           <span className="form-error" role="alert">
             {error}

@@ -1,6 +1,6 @@
 # P6-07. Memory screens and incognito
 
-Status: todo
+Status: doing (knowledge)
 Lane: knowledge + interface
 Depends on: P6-06
 Owner gate: Approval of the memory mockups (P1-06), for the screens only.

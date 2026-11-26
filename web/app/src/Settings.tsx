@@ -149,6 +149,7 @@ export function Settings(props: Props) {
         <Route path="models" element={<ModelsAndKeys {...props} />} />
         <Route path="general" element={<General {...props} />} />
         <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route
           path="spend"

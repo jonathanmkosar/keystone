@@ -12,7 +12,10 @@
 // turns data into an Approval.
 //
 // Whatever the policy says, a tool that changes something asks once the
-// turn has read outside content. No policy and no setting can change that:
+// turn has read outside content, and a call that reaches other people (an
+// email sent, an invitation or an update to an event's guests) always asks
+// and runs only on a person's own answer (P12-02). No policy and no setting
+// can change that:
 // the package imports nothing of Keystone's, so it can read no setting, and
 // the fixed rules check in verify fails if that ever changes. What a caller
 // stores or reads (the person's policies, whether the turn read outside
@@ -39,6 +42,10 @@ var ErrNotBuilt = ErrNoApproval
 // ErrNotThisCall refuses a call whose approval was given for another call:
 // another tool, or the same tool with other input.
 var ErrNotThisCall = errors.New("this tool changes something, and it was not run: the approval it came with was given for another call")
+
+// ErrNotAnswered refuses a call that reaches other people when its approval
+// is not a person's own answer to it: a standing policy never covers one.
+var ErrNotAnswered = errors.New("this call reaches other people, and it was not run: such a call runs only when the person approves it themselves")
 
 // Approval says a person agreed to one tool call. The zero value says
 // nobody did. Its fields are not exported and only this package sets them,
@@ -88,6 +95,20 @@ func CheckCall(readOnly bool, a Approval, tool string, input []byte) error {
 	}
 	if !a.Covers(tool, input) {
 		return ErrNotThisCall
+	}
+	return nil
+}
+
+// CheckReach is the second guard of a call that reaches other people: it
+// runs only with an approval a person gave by answering that call. Decide
+// never makes a standing approval for one; this refuses one if it ever came.
+// A call that reaches nobody is not refused here.
+func CheckReach(others bool, a Approval) error {
+	if !others {
+		return nil
+	}
+	if !a.granted || a.standing {
+		return ErrNotAnswered
 	}
 	return nil
 }
@@ -147,6 +168,9 @@ const (
 	// ReasonOutside: the tool changes something and the turn has read
 	// outside content, so it asks whatever its policy.
 	ReasonOutside Reason = "outside"
+	// ReasonOthers: the call reaches other people, so it asks whatever its
+	// policy (P12-02).
+	ReasonOthers Reason = "others"
 )
 
 // Call is what Decide is told about one call.
@@ -163,6 +187,11 @@ type Call struct {
 	// page, a fetched file, an email, a connector's answer, a source from
 	// the knowledge store.
 	Outside bool
+	// Others says the call reaches other people: it sends them a message,
+	// or invites, updates or tells the guests of an event. Such a call asks
+	// whatever its policy, since what it does cannot be taken back from
+	// them (P12-02).
+	Others bool
 }
 
 // Decision is what Decide says of one call.
@@ -178,6 +207,7 @@ type Decision struct {
 // Decide is the rule for one call.
 //
 //   - never refuses, whatever else is true;
+//   - a call that reaches other people asks, whatever its policy;
 //   - a tool that changes something asks once the turn has read outside
 //     content, whatever its policy: content the agent read never grants
 //     approval;
@@ -192,6 +222,8 @@ func Decide(c Call) Decision {
 	switch {
 	case p == Never:
 		return Decision{Verdict: VerdictRefuse, Reason: ReasonPolicy}
+	case c.Others:
+		return Decision{Verdict: VerdictAsk, Reason: ReasonOthers}
 	case !c.ReadOnly && c.Outside:
 		return Decision{Verdict: VerdictAsk, Reason: ReasonOutside}
 	case p != Always:

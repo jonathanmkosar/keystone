@@ -379,6 +379,8 @@ func checkApproval(string) error {
 		return err
 	}
 	problems = append(problems, more...)
+	// A call that reaches other people asks under every policy (P12-02). See google.go.
+	problems = append(problems, googleRule()...)
 
 	if len(problems) > 0 {
 		return fmt.Errorf("%s", strings.Join(problems, "\n"))

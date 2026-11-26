@@ -280,7 +280,7 @@ func uploadProblems() ([]string, error) {
 	switch {
 	case len(heard) == 0:
 		say("the model that cannot see was not called with the turn")
-	case !strings.Contains(strings.Join(systemOf(heard[len(heard)-1]), "\n"), uploadNotesText):
+	case !strings.Contains(strings.Join(uploadSystem(heard[len(heard)-1]), "\n"), uploadNotesText):
 		say("the call to the model that cannot see does not hold the text file's text in its attachments")
 	}
 	err = with(person.ID, func(s *tenant.Store) error {
@@ -381,7 +381,7 @@ func uploadProblems() ([]string, error) {
 	return problems, nil
 }
 
-func systemOf(req seam.Request) []string {
+func uploadSystem(req seam.Request) []string {
 	var out []string
 	for _, b := range req.System {
 		out = append(out, b.Text)

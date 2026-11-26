@@ -92,6 +92,9 @@ func (p *Pool) acquire(ctx context.Context, s *tenant.Store, c Connector) (*sess
 	if err != nil {
 		return nil, err
 	}
+	if r.transport == nil {
+		return nil, errors.New("it is not reached through a session") // a Google connector (P12-02)
+	}
 	k := key(s, c.Name)
 	p.mu.Lock()
 	if p.closed {
@@ -278,6 +281,16 @@ func (p *Pool) relist(s *tenant.Store, name string, ses *session) {
 // time, unless an earlier try failed less than Options.RetryAfter ago. It
 // returns the connector as kept after.
 func (p *Pool) listNow(ctx context.Context, s *tenant.Store, k Kept) Kept {
+	if k.Transport == TransportGoogle {
+		// Keystone's own tools: kept without reaching anything (P12-02).
+		if err := saveGoogleTools(ctx, s, k.Connector, p.o.MaxTools); err != nil {
+			p.logf("connectors: tenant %s: keeping %s's tools: %v", s.TenantID(), k.Name, err)
+		}
+		if got, err := Get(ctx, s, k.Name); err == nil {
+			return got
+		}
+		return k
+	}
 	rk := key(s, k.Name)
 	p.mu.Lock()
 	wait := time.Now().Before(p.retry[rk])

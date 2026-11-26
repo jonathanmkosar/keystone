@@ -48,6 +48,8 @@
   font-weight: 500;
   line-height: 22px;
   overflow-wrap: anywhere;
+  /* A summary of several facts (P12-02: recipients, subject, words) puts each on its own line. */
+  white-space: pre-line;
 }
 
 .approval-toggle {

@@ -202,6 +202,7 @@ func routes(c Config, log *api.Log) []api.Route {
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, turn.RecapRoutes(runner)...)        // chat recaps (P5-05)
+	all = append(all, turn.AttachRoutes(runner)...)       // attached chats and handoff (P5-06)
 	all = append(all, connectors.Routes(c.Connectors)...) // the connectors' (P7-04)
 	all = append(all, settingsapi.Routes()...)
 	all = append(all, jobs.Routes(c.jobs)...) // background tasks' (P8-01)

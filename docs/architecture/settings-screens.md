@@ -111,6 +111,7 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/models` | Keys and models. See below. |
 | `/settings/general` | One control for every setting that is the person's to change. See "How General is drawn". |
 | `/settings/connectors` | Since P7-04, each connector with its switch, its token, its tools and why it could not be reached, and a form to add a remote one. See [connectors.md](connectors.md). |
+| `/settings/connectors/google` | Since P12-02, the Connectors screen with a Google section at its top: not set up and what the admin adds, Connect Google, connected as an account, Disconnect. Google sends the browser back to this address. See [google.md](google.md). |
 | `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
 | `/settings/spend` | Not built yet. Says it comes with P11-02, with the cap from P8-05. |
 

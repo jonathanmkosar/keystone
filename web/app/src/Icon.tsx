@@ -97,6 +97,19 @@ const shapes = {
   tool: <path d="M5 19h14M7 15h10M9.5 11h5" />,
   // A connector (P7-04): a plug.
   plug: <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" />,
+  // Gmail and Calendar's steps (P12-02).
+  mail: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="m4 7 8 6 8-6" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M4 10h16M9 3v4M15 3v4" />
+    </>
+  ),
   alert: (
     <>
       <path d="M12 4 3 19h18z" />
@@ -117,6 +130,20 @@ const shapes = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  // An attached chat (P5-06): a chat's bubble with a link.
+  chatlink: (
+    <>
+      <path d="M4 5h12v8H8l-4 4z" />
+      <path d="M14 17h2a2.5 2.5 0 0 0 0-5M20 17h-2a2.5 2.5 0 0 1 0-5" />
+    </>
+  ),
+  // A handoff (P5-06): out of one chat and on into the next.
+  handoff: (
+    <>
+      <path d="M4 5h9v6M4 5v9h6" />
+      <path d="M13 15h7M17 12l3 3-3 3" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;

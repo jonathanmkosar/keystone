@@ -174,6 +174,7 @@ Faults were put in by hand and each was caught: the per-call tools always made f
 - **The screen.** `GET /chats` gives each summary and the routes read and make one; showing them is the interface lane's. The chat screen's step row for `search_chats` still reads its result's opening, "N matches for", as before.
 - **Incognito** (P6-07). An incognito chat is given a recap and is found by the search like any other; the flag stops the memory pass only.
 - **Attaching a chat and handing off** (P5-06) can start from a recap: it is the short form of a chat the plan asks for.
+- Built since: an attached chat, and the chat a handoff continues from, come into each call as their recap, made by `makeRecap` in the turn when it is missing or stale ([attach-and-handoff.md](attach-and-handoff.md)).
 - **Search by meaning.** The search matches words. Vectors are P6-08.
 - **A real summary model.** Only the fake has written a recap. How well a cheap model keeps to the shape, and how many decisions it finds, is unknown.
 - **A held chat on another branch.** A chat is held as a whole, so all of it is left out, even a branch from before the sensitive turn.

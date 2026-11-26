@@ -373,6 +373,34 @@
       "description": "How long a chat whose summary failed waits before it is tried again."
     },
     {
+      "key": "chats.attach_max",
+      "type": "int",
+      "default": "5",
+      "scope": "tenant",
+      "description": "The most chats one chat may have attached, the chat it continues from included, from 1 to 50. Each comes into every call of the chat as its summary."
+    },
+    {
+      "key": "chats.attached_page_messages",
+      "type": "int",
+      "default": "40",
+      "scope": "tenant",
+      "description": "The most messages one page of an attached chat holds when the model opens it with open_attached_chat, from 1 to 500."
+    },
+    {
+      "key": "chats.attached_page_max_chars",
+      "type": "int",
+      "default": "12000",
+      "scope": "tenant",
+      "description": "The most characters one page of an attached chat holds when the model opens it, from 500 to 200000. A message longer than that is cut short."
+    },
+    {
+      "key": "chats.attached_summary_wait",
+      "type": "duration",
+      "default": "30s",
+      "scope": "tenant",
+      "description": "How long the first call of a turn waits for an attached chat's summary to be made, when it has none or its chat has moved on since, from 1s to 10m. A summary not made in time is left for the next turn, and the chat is carried as it is."
+    },
+    {
       "key": "chats.context_pinned_heading",
       "type": "string",
       "default": "A message from earlier in this chat that the person pinned, so it is always shown to you.",
