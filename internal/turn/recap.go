@@ -186,6 +186,9 @@ func (r *Runner) recapLater(s *tenant.Store, t row, status string) {
 	if r.setting(ctx, s, KeyRecap) != "true" {
 		return
 	}
+	if r.incognitoRecap(ctx, s, t.ChatID) { // P6-07: an incognito chat gets no recap (incognito.go)
+		return
+	}
 	plan, err := r.recapPlanOf(ctx, s)
 	if err != nil {
 		r.logf("turns: %s turn %s: the chat is not given a recap: %v", t.requestID, t.ID, err)
@@ -342,6 +345,9 @@ func (r *Runner) makeRecap(ctx context.Context, s *tenant.Store, t row) (recap.R
 	c, err := chat.Get(s, t.ChatID)
 	if err != nil {
 		return recap.Recap{}, err
+	}
+	if r.incognitoRecap(ctx, s, t.ChatID) { // P6-07: an incognito chat gets no recap (incognito.go)
+		return recap.Recap{}, &recapFailure{status: http.StatusConflict, code: "incognito", why: "the chat is incognito, so it keeps no recap"}
 	}
 	path, err := chat.Path(s, t.ChatID)
 	if err != nil {

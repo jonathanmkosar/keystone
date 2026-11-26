@@ -241,6 +241,34 @@
       "description": "How long one memory pass may take, its model call included, from 5s to 30m. A pass that runs out of time keeps nothing and says so in the server's log."
     },
     {
+      "key": "knowledge.incognito_keep",
+      "type": "duration",
+      "default": "24h",
+      "scope": "tenant",
+      "description": "How long an incognito chat you have not left is kept once nothing more is said in it, from 5m to 720h. Then it is deleted with its messages, as it is at once when you leave it. Its model calls stay in the audit log, as every call does."
+    },
+    {
+      "key": "knowledge.incognito_sweep_every",
+      "type": "duration",
+      "default": "1m",
+      "scope": "install",
+      "description": "How often Keystone looks for incognito chats to delete: those you left, and those idle for longer than knowledge.incognito_keep. From 5s to 1h."
+    },
+    {
+      "key": "knowledge.memory_screen_memories",
+      "type": "int",
+      "default": "200",
+      "scope": "tenant",
+      "description": "The most sources the memory pass added that the Memory screen shows, the newest first, from 1 to 5000."
+    },
+    {
+      "key": "knowledge.memory_screen_pages",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "The most pages of each space the Memory screen lists, from 0 to 1000. The rest are counted."
+    },
+    {
       "key": "knowledge.lookup_max_results",
       "type": "int",
       "default": "10",

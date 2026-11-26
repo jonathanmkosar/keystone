@@ -191,6 +191,10 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
+	// The Memory screen's, view, correct and forget, and incognito chats
+	// that keep no record (P6-07).
+	all = append(all, turn.MemoryScreenRoutes(runner)...)
+	all = append(all, turn.IncognitoRoutes(runner)...)
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, turn.RecapRoutes(runner)...)        // chat recaps (P5-05)
@@ -215,6 +219,9 @@ func Handler(c Config) (http.Handler, error) {
 	}
 	// A turn that was waiting when the server last stopped runs now.
 	c.runner.Recover()
+	// Incognito chats that were left, or idle too long, are deleted now and
+	// from then on (P6-07).
+	c.runner.SweepIncognito()
 	// Then a background task whose round the stop cut short goes on (P8-01).
 	c.jobs.Bind(c.runner)
 	c.jobs.Recover()
