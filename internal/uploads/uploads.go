@@ -166,11 +166,13 @@ func keepFile(s *tenant.Store, id string, data []byte) error {
 	return nil
 }
 
-// dropUnheld removes a file no chat holds. A failure leaves the file, which
-// a later upload of the same bytes finds and keeps.
+// dropUnheld removes a file no chat and no project holds: a project's
+// knowledge file of the same bytes is the same file (P9-01). A failure
+// leaves the file, which a later upload of the same bytes finds and keeps.
 func dropUnheld(s *tenant.Store, id string) {
 	var n int
-	if err := s.DB().QueryRow("SELECT count(*) FROM chat_files WHERE name = ?", id).Scan(&n); err == nil && n == 0 {
+	const held = "SELECT (SELECT count(*) FROM chat_files WHERE name = ?) + (SELECT count(*) FROM project_files WHERE hash = ?)"
+	if err := s.DB().QueryRow(held, id, id).Scan(&n); err == nil && n == 0 {
 		s.Files().Remove(id)
 	}
 }
@@ -282,8 +284,8 @@ func Remove(ctx context.Context, s *tenant.Store, chatID, id string) error {
 		if _, err := tx.Exec("DELETE FROM chat_files WHERE chat_id = ? AND name = ?", chatID, id); err != nil {
 			return err
 		}
-		var held int
-		if err := tx.QueryRow("SELECT count(*) FROM chat_files WHERE name = ?", id).Scan(&held); err != nil {
+		var held int // a project's knowledge file of the same bytes holds it too (P9-01)
+		if err := tx.QueryRow("SELECT (SELECT count(*) FROM chat_files WHERE name = ?) + (SELECT count(*) FROM project_files WHERE hash = ?)", id, id).Scan(&held); err != nil {
 			return err
 		}
 		if held == 0 {

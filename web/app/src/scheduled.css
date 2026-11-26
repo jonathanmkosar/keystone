@@ -294,7 +294,10 @@
   margin: 0;
 }
 
-.button-danger {
+/* An outlined danger button, for the Scheduled screen. Named apart from
+   chat.css's filled .button-danger: the two under one name gave the filled
+   button red text on its red ground wherever both stylesheets loaded. */
+.button-danger-outline {
   border-color: var(--err);
   color: var(--err);
 }

@@ -1,6 +1,6 @@
 # P9-05. Styles
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P5-01
 Owner gate: none

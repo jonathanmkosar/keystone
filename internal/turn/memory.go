@@ -197,6 +197,7 @@ func (r *Runner) memoryPass(s *tenant.Store, p memory.Pass) {
 		broke("The memory pass's settings do not read.", err)
 		return
 	}
+	o.Space = r.projectMemorySpace(bg, s, t, o.Space) // a project chat's facts go to its project's space (P9-01, projects.go)
 	ctx, cancel := context.WithTimeout(audit.WithRequestID(r.base, t.requestID), timeout)
 	defer cancel()
 

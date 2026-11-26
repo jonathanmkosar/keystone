@@ -104,6 +104,7 @@ func (r *Runner) searchKnowledge(ctx context.Context, s *tenant.Store, t row) *t
 	}
 	sctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
+	ks = r.preferProject(ctx, s, t, ks) // a project chat searches its project's memory space first (P9-01, projects.go)
 	found, err := recall.Find(sctx, ks, newestText(s, t), o)
 	if err != nil {
 		tr.note = noteNoAnswer
@@ -190,6 +191,7 @@ func (r *Runner) sensitive(ctx context.Context, s *tenant.Store, t row, mayRead 
 		return true
 	}
 	held = held || (mayRead && r.attachedSensitive(ctx, s, t)) // an attached chat with sensitive content holds the route too (P5-06, attach.go)
+	held = held || (mayRead && r.projectSensitive(ctx, s, t))  // and so does a sensitive file of the chat's project (P9-01, projects.go)
 	return held || (mayRead && t.recalled != nil && t.recalled.found.For(true).Sensitive)
 }
 

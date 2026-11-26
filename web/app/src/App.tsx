@@ -9,6 +9,7 @@ import { Chats, Missing, Soon } from "./pages";
 import { Settings } from "./Settings";
 import { Scheduled } from "./Scheduled";
 import { Memory } from "./Memory";
+import { ProjectPage, Projects } from "./Projects";
 import { useTheme, type ThemeChoice } from "./theme";
 
 // The setting that holds a person's theme, so it follows them to another
@@ -116,7 +117,8 @@ export function App() {
           <Route path="/search" element={<Soon title="Search" />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:id" element={<ChatPage />} />
-          <Route path="/projects" element={<Soon title="Projects" />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectPage />} />
           <Route path="/artifacts" element={<Soon title="Artifacts" />} />
           <Route path="/agents" element={<Soon title="Agents" />} />
           <Route path="/scheduled" element={<Scheduled />} />

@@ -40,6 +40,9 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	// files' text after the attached chats (P9-02, uploads.go).
 	messages, uploaded := r.withUploads(ctx, s, t, step, m, p, messages)
 	attached = append(attached, uploaded...)
+	// The project's instructions in the standing start, and its knowledge files after the attached chats (P9-01, projects.go).
+	project, files := r.projectParts(ctx, s, t, p, m)
+	attached = append(attached, files...)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Tools: offered,
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
@@ -49,6 +52,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 		Summary: older.text, SummaryCovers: older.covers, Pinned: older.pins,
 		SummaryRef: summaryRef(older.summary), // the inspector's name for it (P5-04)
 		Attached:   attached,
+		Project:    project,
 	})
 	if err != nil {
 		return seam.Request{}, err

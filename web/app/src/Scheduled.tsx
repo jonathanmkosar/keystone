@@ -201,7 +201,7 @@ function Detail({
           <div className="sched-actions">
             <button
               type="button"
-              className="button button-danger"
+              className="button button-danger-outline"
               disabled={busy !== ""}
               onClick={() =>
                 void (async () => {

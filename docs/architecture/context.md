@@ -37,6 +37,8 @@ The first seven are filled, and so are `Profile` and `PersonMap` (P6-04), `Recal
 
 Since P5-06 the turn fills `Attached` with the chats attached to the chat, the one it continues from first and pinned, each as its title, id and recap, and a pinned line for those left out for fixed rule 3 ([attach-and-handoff.md](attach-and-handoff.md)). Attachments that are files are still to come (P9-02), in the same part.
 
+Since P9-01 the turn fills `Project` with the instructions of the project the chat is in, under a heading, and adds the project's knowledge files to `Attached` after the attached chats, each a file's heading and text cut to `projects.file_context_max_chars`, with a pinned line for files left out for fixed rule 3 ([projects.md](projects.md)). A chat in no project leaves `Project` empty.
+
 The only errors are a branch with no messages (`ErrNoMessages`), options that are not valid, and a cancelled context.
 
 ## The parts and their order

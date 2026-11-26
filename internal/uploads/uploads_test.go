@@ -132,6 +132,28 @@ func TestAFileIsKeptUnderItsHashAndTiedToItsChat(t *testing.T) {
 	}
 }
 
+// A project's knowledge file of the same bytes is the same file in the files
+// folder, so removing the upload keeps it (P9-01).
+func TestRemovingAnUploadKeepsAProjectsFileOfTheSameBytes(t *testing.T) {
+	_, s, _ := stores(t)
+	chatID := newChat(t, s)
+	notes := []byte("Invented notes for a test project.\n")
+	up := add(t, s, chatID, "notes.txt", notes)
+	const now = "2026-11-25T00:00:00Z"
+	if _, err := s.DB().Exec(`INSERT INTO projects(id, name, created_at, updated_at) VALUES('p1', 'Test project', ?, ?)`, now, now); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.DB().Exec(`INSERT INTO project_files(project_id, hash, name, media_type, size, added_at) VALUES('p1', ?, 'notes.txt', 'text/plain', ?, ?)`, up.ID, len(notes), now); err != nil {
+		t.Fatal(err)
+	}
+	if err := Remove(bg, s, chatID, up.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Files().Stat(up.ID); err != nil {
+		t.Errorf("the project's file went with the upload: %v", err)
+	}
+}
+
 func TestAnImageOrADocumentIsKnownByItsBytes(t *testing.T) {
 	_, s, _ := stores(t)
 	chatID := newChat(t, s)

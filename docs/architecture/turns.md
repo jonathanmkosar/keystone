@@ -467,3 +467,7 @@ Since P5-06, `Runner.build` fills the context's `attached` part with the chats a
 ## Uploads
 
 Since P9-02 a message may name the chat's uploads in image and file blocks, checked and written as each upload says when it is sent (`uploadedBlocks` in `checkSend`). Before the route, `mediaOf` reads whether the turn's message, or an earlier one, holds an image, and the route asks for vision; a turn that went to a fallback only to see its image writes the chat's own model on its row. Each call's branch is readied for its route, with the record kept in `upload_calls`. See [uploads.md](uploads.md).
+
+## Projects
+
+Since P9-01, `Runner.build` asks `projectParts` (`projects.go`) for the project of the turn's chat: its instructions go in the context's `project` part, in the standing start, and its knowledge files in the `attached` part after the attached chats, a file marked sensitive only for a call whose every model may read it, holding the chat first. `Runner.sensitive` counts a project with a sensitive file for a chat whose own model may read it. The memory pass writes a project chat's facts to the project's memory space, and `searchKnowledge` hands recall a store that searches that space first. Thirteen routes, listed in `internal/app` from `turn.ProjectRoutes`: the projects, their files and their chats under `/projects`, and `GET /chats/{id}/project`. See [projects.md](projects.md).
