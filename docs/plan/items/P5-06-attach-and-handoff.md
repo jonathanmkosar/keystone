@@ -1,9 +1,9 @@
 # P5-06. Attach a chat and handoff
 
-Status: doing (chats)
+Status: provisional
 Lane: chats
 Depends on: P5-05
-Owner gate: none
+Owner gate: none for the server side; the screen is provisional until the chat mockups (P1-04) show attached chats and the handoff.
 Scope: Attach another chat as its summary with access to the rest; handoff opens a linked fresh chat with a summary.
 Proof: A handoff chat answers a question about its parent; an attached chat's detail is reachable.
 
@@ -28,3 +28,15 @@ Settings, in `settings/chats.json`: `chats.attach_max`, `chats.attached_page_mes
 
 Left for later: attaching from the new chat screen before the chat exists; attaching projects or files (P9-01, P9-02); a sweep that gives older chats recaps.
 
+
+### Result
+
+Provisional on the screen only: there is no mockup of attached chats or the handoff, so the chips, the picker and the header's links are built from the tokens and wait on the chat mockups (P1-04). Everything else in the plan is built and proven.
+
+- **Built:** the migration `20261125T195300_chat_attachments.sql`; `internal/attach` (the links, fixed rule 3's and the incognito rule's answer, the text a call carries, the pages of `open_attached_chat`), a guard of rule 3 in `fixed rules`; `internal/turn/attach.go` (four routes, the attached part of each call with a recap made in the turn when missing or stale, the tool made for each call, the routing line); the screen (`AttachedChats.tsx`, `ChatLinks.tsx`, `attached.ts`, `attach.css`); the `attached chats` check in `verify`, which is 24 of 24.
+- **The proof**, with the fake provider, in `internal/turn/attach_test.go` and the `attached chats` check: a handoff chat answers a question about its parent, whose summary is in the request the model gets; an attached chat's detail is reached through `open_attached_chat`, recorded in the audit log; a chat of another tenant cannot be attached from either end; a sensitive attached chat is held back from a hosted model, told only that one was left out, and carried to a local one, which holds the chat. An incognito chat is neither attached, nor attaches, nor is handed off.
+- **Decisions:** 0360 to 0363. **Settings:** `chats.attach_max`, `chats.attached_page_messages`, `chats.attached_page_max_chars`, `chats.attached_summary_wait`.
+- **Seen in a browser** on the server built from the branch, as the test tenant: attach from the picker, Hand off, the answer from the parent's summary, the links both ways, at desktop and phone width.
+- **Not done:** attaching from the new chat screen before the chat exists; files as attachments (P9-02); a real summary model has not written an attached chat's recap. `web/dist/` is not committed: it is rebuilt at the merge.
+
+Write-up: `docs/architecture/attach-and-handoff.md`, the journal entry `docs/journal/2026-11-25-chats-008.md`.

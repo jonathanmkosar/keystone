@@ -101,6 +101,13 @@ In the shell like every chat route ([turns.md](turns.md)), listed in `internal/a
 | `DELETE /chats/{id}/attached/{other}` | `AttachedReply`, after taking it off. A chat not attached changes nothing; the parent is `bad_request`. |
 | `POST /chats/{id}/handoff` | `HandoffReply` (201): `chat`, the new chat as `GET /chats/{id}` gives it; `parent`; `model`. `409 incognito`; `bad_request` for a chat with no messages. |
 
+## The screen
+
+Provisional: there is no mockup for it. [web.md](web.md) has the parts.
+
+- **Over the composer**, a chip for each attached chat, which opens it, shows its summary as a tooltip, is marked `sensitive` or `incognito` when it is, and has a button that takes it off; the parent's chip reads "Continued from …" and stays. After the chips, **Attach a chat** opens a picker that filters the person's chats by title and summary as they type.
+- **In the header**, where the mockups put Share: "Continued from" with a link to the parent, "Continued in" with a link to the newest handoff, and **Hand off**, which opens the new chat with the parent's model picked.
+
 ## Settings
 
 In `settings/chats.json`, all a person may set for themselves.
@@ -124,8 +131,15 @@ Every existing line of shared code this item changed. All are added lines; none 
 - `internal/app/app.go`: `all = append(all, turn.AttachRoutes(runner)...)` after the recap routes.
 - `tools/verify/main.go`: one `componentDocs` line and the check `attached chats`.
 - `settings/chats.json`: the four settings above, after `chats.compact_retry_after`.
+- `web/app/src/Chat.tsx`: the import of `AttachedChats`, and `<AttachedChats chatId={id} />` before the `Composer`.
+- `web/app/src/Shell.tsx`: the import of `ChatLinks`, and `{openChat && <ChatLinks key={openChat} id={openChat} />}` after the header's left part.
+- `web/app/src/api.ts`: the attached chats' types and three calls, after `setSkip`.
+- `web/app/src/Icon.tsx`: the icons `chatlink` and `handoff`, after `close`.
+- `docs/architecture/overview.md` (a part row and four decision rows), `tools.md` (one paragraph), `web.md` (one section), `fixtures/test-tenant/README.md` (one row). `docs/api/openapi.json` regenerated.
 
-New files: `internal/attach/*`, `internal/turn/attach.go` and `attach_test.go`, the migration, `fixtures/test-tenant/turns/attached-chats.json`, `fixtures/test-tenant/attached-chats.json` and `tools/verify/attach.go`.
+`web/dist/` was built to look at the screen and not committed: it is rebuilt at the merge.
+
+New files: `internal/attach/*`, `internal/turn/attach.go` and `attach_test.go`, the migration, `fixtures/test-tenant/turns/attached-chats.json`, `fixtures/test-tenant/attached-chats.json`, `tools/verify/attach.go`, and `web/app/src/AttachedChats.tsx`, `ChatLinks.tsx`, `attached.ts` and `attach.css`.
 
 ## Checked by
 

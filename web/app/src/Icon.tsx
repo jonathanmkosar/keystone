@@ -117,6 +117,20 @@ const shapes = {
     </>
   ),
   close: <path d="M6 6l12 12M18 6 6 18" />,
+  // An attached chat (P5-06): a chat's bubble with a link.
+  chatlink: (
+    <>
+      <path d="M4 5h12v8H8l-4 4z" />
+      <path d="M14 17h2a2.5 2.5 0 0 0 0-5M20 17h-2a2.5 2.5 0 0 1 0-5" />
+    </>
+  ),
+  // A handoff (P5-06): out of one chat and on into the next.
+  handoff: (
+    <>
+      <path d="M4 5h9v6M4 5v9h6" />
+      <path d="M13 15h7M17 12l3 3-3 3" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;
