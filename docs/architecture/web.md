@@ -384,6 +384,20 @@ Its calls, all in `src/api.ts`:
 
 Seen in a browser on November 25, 2026, against the server built from this branch on port 7961 with a data folder inside the worktree (removed afterwards), as the test tenant: the picker filtered to "ferry" and attached North ferry times as a chip; Hand off on the lighthouse walk opened a new chat with "Continued from Planning the lighthouse walk" in the header and as its chip; "What did we settle in the chat this one continues from?" was answered from the parent's summary by the recorded turn; the parent's header then read "Continued in" with the new chat's title. At phone width the header kept the titles and the icon. The only console error was the session check before sign-in. Not seen: dark theme, the `sensitive` and `incognito` marks, `too_many`.
 
+## Memory and incognito (P6-07)
+
+Provisional on the memory mockups (P1-06), which are not approved: built from the tokens alone. `/memory`, `src/Memory.tsx` with `src/memory.css`, is in the sidebar after Scheduled: the store's note on what forgetting does there; each space as a card, with its facts grouped by the reply they came from, a link to the chat (or "a chat since deleted"), Correct as an inline box and Forget after a question, its pages folded away, and a sensitive space's facts hidden until Show; beside them the profile, with a link to Settings → Profile, and the map. `src/Incognito.tsx`: a switch under the new-chat composer that makes the first message start an incognito chat, and a dashed copper mark at the top of an incognito chat. Leaving that chat's screen sends `POST /chats/{id}/close` a moment later (coming straight back cancels it, as React's strict mode does), and the page going sends it with `navigator.sendBeacon`. The calls are in `src/memoryCalls.ts`, apart from `api.ts`, which now exports `call`.
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/memory` | `memoryOverview` | The Memory screen. |
+| `POST /api/v1/memory/forget`, `…/correct` | `forgetFact`, `correctFact` | Forget and Correct. |
+| `POST /api/v1/chats/incognito` | `createIncognitoChat` | The first message of a new chat with the switch on. |
+| `GET /api/v1/chats/{id}/memory` | `isIncognito` | Whether a chat wears the mark. |
+| `POST /api/v1/chats/{id}/close` | `closeIncognito`, `closeIncognitoAsPageGoes` | Leaving an incognito chat. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7973 with a data folder inside the worktree, as the test tenant with the built-in store: the beehives facts listed with their chat, one forgotten and one corrected, each with the server's note; an incognito chat with its mark, deleted (404) once the person went to a new chat, and dropped from the sidebar. Light and dark, and at phone width. No console errors but the sign-in check's 401 and the 404 asked for.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

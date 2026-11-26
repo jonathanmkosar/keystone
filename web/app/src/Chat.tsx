@@ -9,6 +9,8 @@ import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
 import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
+import { IncognitoMark, IncognitoSwitch } from "./Incognito";
+import { createIncognitoChat } from "./memoryCalls";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
 import { Tasks } from "./Tasks";
@@ -33,13 +35,14 @@ export function Start({ person }: { person: Person }) {
   const [problem, setProblem] = useState("");
   // A message that could not be sent goes back into the box.
   const [unsent, setUnsent] = useState({ text: "", tries: 0 });
+  const [incognito, setIncognito] = useState(false); // P6-07: a chat that keeps no record
   const part = partOfDay();
 
   async function begin(text: string) {
     setBusy(true);
     setProblem("");
     try {
-      const made = await createChat();
+      const made = incognito ? await createIncognitoChat() : await createChat();
       put(made.chat, true);
       await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
       send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id));
@@ -63,6 +66,7 @@ export function Start({ person }: { person: Person }) {
       </div>
       <div className="composer-column">
         <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
+        <IncognitoSwitch on={incognito} onChange={setIncognito} />
         {problem && (
           <p className="composer-problem" role="alert">
             {problem}
@@ -187,6 +191,7 @@ function OneChat({ id }: { id: string }) {
   return (
     <div className="chat">
       <div className="chat-scroll" ref={scroller} onScroll={scrolled}>
+        <IncognitoMark chatId={id} />
         {loaded.state === "loading" ? (
           <div className="chat-state" aria-busy="true">
             <p className="quiet">Opening the chat.</p>

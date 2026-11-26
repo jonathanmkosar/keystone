@@ -321,7 +321,7 @@ func TestAnswersThatAreNotWaymarks(t *testing.T) {
 		"a refused token", "a fault", "an answer too large",
 	} {
 		s, f := allTokens(t)
-		s.(*store).replyMax = 1024
+		knowledge.Unwrap(s).(*store).replyMax = 1024
 		f.set(func(f *fake) { f.mode, f.elsewhere = mode, other.URL })
 		wantUnavailable(t, mode, s, 10*time.Second)
 	}

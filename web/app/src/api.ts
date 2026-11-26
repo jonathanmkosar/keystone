@@ -76,7 +76,7 @@ function headersFor(body: unknown, accept = "application/json"): Record<string, 
   return body === undefined ? { Accept: accept } : { Accept: accept, "Content-Type": "application/json" };
 }
 
-async function call(method: Method, path: string, body?: unknown): Promise<unknown> {
+export async function call(method: Method, path: string, body?: unknown): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(path, {

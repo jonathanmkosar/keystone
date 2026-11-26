@@ -181,7 +181,7 @@ export function ScheduleForm({
       </label>
       <label className="sched-check">
         <input type="checkbox" checked={incognito} onChange={(e) => setIncognito(e.target.checked)} />
-        Incognito: no memory is kept from its runs
+        Incognito: no memory is kept, and each run's chat is deleted once you leave it or it sits idle
       </label>
       {problem && (
         <p className="form-error" role="alert">

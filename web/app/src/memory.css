@@ -1,0 +1,329 @@
+/* The Memory screen and incognito chats (P6-07), provisional on the memory
+   mockups: built from the design tokens alone, copper as the accent. */
+
+.mem {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.mem-pad {
+  padding: 24px 28px;
+}
+
+.mem-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 28px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mem-store {
+  margin: 6px 0 0;
+  max-width: 760px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.mem-problem,
+.mem-said {
+  margin: 12px 28px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.mem-problem {
+  border: 1px solid var(--err);
+  color: var(--err);
+}
+
+.mem-said {
+  border: 1px solid var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.mem-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 16px 28px 32px;
+}
+
+.mem-main {
+  flex: 1 1 420px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mem-side {
+  flex: 1 1 280px;
+  max-width: 360px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mem-space,
+.mem-card {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.mem-space-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mem-space-name,
+.mem-card-title {
+  margin: 0;
+  font: 600 18px/24px var(--font-serif);
+}
+
+.mem-count {
+  margin-left: auto;
+  font-size: 13px;
+}
+
+.mem-badge {
+  padding: 1px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  color: var(--accent);
+  font: 500 12px/18px var(--font-sans);
+}
+
+.mem-small {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.mem-mono {
+  font: 12px var(--font-mono);
+}
+
+.mem-sources,
+.mem-facts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mem-source {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.mem-from {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mem-from a {
+  color: var(--link);
+}
+
+.mem-fact {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 15px;
+  line-height: 23px;
+}
+
+.mem-fact-text {
+  min-width: 0;
+}
+
+.mem-fact-actions,
+.mem-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.mem-confirm .button {
+  min-height: 30px;
+  padding: 0 12px;
+}
+
+.mem-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.mem-link:hover {
+  color: var(--ink);
+}
+
+.mem-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.button.mem-danger {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.mem-fact.is-editing {
+  display: block;
+}
+
+.mem-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mem-edit-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mem-edit-box {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--strong);
+  border-radius: 8px;
+  background: var(--page);
+  color: var(--ink);
+  font: 15px/23px var(--font-sans);
+  resize: vertical;
+}
+
+.mem-edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mem-pages {
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.mem-pages summary {
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.mem-pages ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  line-height: 22px;
+}
+
+.mem-profile {
+  margin: 10px 0 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.mem-map {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  max-height: 360px;
+  overflow: auto;
+  border-radius: 8px;
+  background: var(--sunk);
+  white-space: pre-wrap;
+  font: 12px/18px var(--font-mono);
+}
+
+/* Incognito: the switch on the new-chat screen and the mark on a chat. */
+
+.incognito-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.incognito-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.incognito-switch:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.incognito-switch.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.incognito-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 760px;
+  margin: 12px auto 0;
+  padding: 8px 14px;
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+@media (max-width: 760px) {
+  .mem-head,
+  .mem-body,
+  .mem-pad {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .mem-problem,
+  .mem-said {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .mem-fact {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mem-side {
+    max-width: none;
+  }
+}

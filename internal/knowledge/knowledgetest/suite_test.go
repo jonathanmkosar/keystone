@@ -7,7 +7,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/knowledge"
 )
 
-var every = knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true}
+var every = knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true, RemoveSource: true}
 
 // A correct store passes, whichever capabilities it has. Each flag is tried
 // alone, so both the "set" and the "not set" side of every flag is run.
@@ -19,6 +19,7 @@ func TestCorrectStorePasses(t *testing.T) {
 		"catalog marker only": {CatalogMarker: true},
 		"vector search only":  {VectorSearch: true},
 		"page vectors only":   {PageVectors: true},
+		"remove source only":  {RemoveSource: true},
 	} {
 		t.Run(name, func(t *testing.T) {
 			Run(t, memoryHarness(caps, ""))
@@ -69,6 +70,8 @@ func TestFaultyStoreFails(t *testing.T) {
 		{faultIgnoresVector, "vector search"},
 		{faultAcceptsStale, "page vectors"},
 		{faultForgetsStale, "page vectors"},
+		{faultSearchesRemoved, "remove source"},
+		{faultKeepsCitation, "remove source"},
 	} {
 		t.Run(tc.fault+", caught by "+tc.caughtBy, func(t *testing.T) {
 			found := problems(t, memoryHarness(every, tc.fault))
@@ -99,7 +102,7 @@ func TestUnsupportedCallsAreChecked(t *testing.T) {
 		Seed: func(_ *testing.T, s knowledge.Store, c Content) { s.(claims).memory.seed(c) },
 	}
 	found := problems(t, h)
-	for _, name := range []string{"catalog marker", "add source", "vector search", "page vectors"} {
+	for _, name := range []string{"catalog marker", "add source", "vector search", "page vectors", "remove source"} {
 		if len(found[name]) == 0 {
 			t.Errorf("the %q check passed a store that sets the flag and does not support the call", name)
 		}

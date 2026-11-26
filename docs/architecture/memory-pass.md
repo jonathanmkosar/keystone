@@ -174,8 +174,8 @@ Faults were put in by hand and each was caught: no reserve on the memory route, 
 ## Not here yet
 
 - **A sweep at start.** A pass left `queued` by a stop runs with the chat's next turn, not when the server starts. P8-01's background jobs are the place for it.
-- **Incognito chats that keep no record**, as the plan's memory screens have them (P6-07). The flag stops the memory pass and nothing else; recall still reads the store in an incognito chat.
-- **Forgetting.** A fact cannot be corrected or removed yet, and the facts of a deleted chat stay in the store (P6-07).
+- **Incognito chats that keep no record** came with P6-07: made incognito from the start, no recap, left out of past-chat search, deleted when left or once idle ([memory-screens.md](memory-screens.md)). Recall still reads the store in an incognito chat.
+- **Forgetting** came with P6-07: a fact the pass added is corrected or forgotten on the Memory screen, and its row follows the new source ([memory-screens.md](memory-screens.md)). The facts of a deleted chat still stay in the store until forgotten.
 - **Facts merged across turns.** Each pass adds its own source, and the same fact told twice is added twice. Turning sources into pages is the wiki upkeep jobs' (P8-06).
 - **What the store already holds.** The pass is not shown the turn's recall, so it does not know which facts the store has.
 - **A response format in the model seam**, so a provider can be asked for JSON that fits a schema.
