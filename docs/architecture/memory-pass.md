@@ -181,3 +181,5 @@ Faults were put in by hand and each was caught: no reserve on the memory route, 
 - **A response format in the model seam**, so a provider can be asked for JSON that fits a schema.
 - **A real model.** Only the fake has extracted facts so far. How well the owner's local model follows the prompt is unknown.
 - **A screen.** The routes are there; showing the passes and the flag is the interface lane's.
+
+Since P9-01, a chat in a project with a memory space keeps its facts there in place of `knowledge.memory_space` (one added line in `memoryPass`). A chat that was sent sensitive content is unchanged: its facts go to `knowledge.memory_sensitive_space` or nowhere, whatever its project. See [projects.md](projects.md) and decision [0400](decisions/0400-a-projects-memory-is-a-space-of-the-knowledge-store.md).

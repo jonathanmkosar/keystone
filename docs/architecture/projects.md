@@ -55,7 +55,7 @@ At the merge with P9-02: the uploads' `dropUnheld` must also count `project_file
 
 ## Into each call
 
-`Runner.build` (`internal/turn/context.go`, three added lines) asks `projectParts` for the project of the turn's chat:
+`Runner.build` (`internal/turn/context.go`, four added lines) asks `projectParts` for the project of the turn's chat:
 
 - **The instructions** go in the context builder's `project` part, which was waiting for this item: the standing start, after the rules, the profile and the person map ([context.md](context.md)). They are the heading of `projects.instructions_heading`, with `{name}` the project's name, a blank line and the instructions; nothing at all when the project has none. They change only when the person changes the name or the instructions, so the call's first cache point covers them and a provider caches them with the rest of the start ([caching.md](caching.md)).
 - **The files** go in the `attached` part, after the attached chats, one item each, in the order they were added: the heading of `projects.file_heading` and the text, cut to `projects.file_context_max_chars` characters with `projects.file_cut_note` after it. They share `chats.context_attached_percent` with the attached chats, and a file that does not fit is left out and listed in the turn inspector's record. The part is in the system text after the standing start, which changes rarely.
@@ -107,6 +107,17 @@ In `internal/turn/projects.go`, listed in `internal/app` from `turn.ProjectRoute
 
 The limits carry `file_max_bytes` as the smaller of `projects.file_max_bytes` and `server.max_body_bytes`, since the API refuses a larger body before the route reads it.
 
+`ProjectFileReply` embeds the file, whose `added` is when it was added, so the flag that says the file was new to the project is `new`.
+
+## The screens
+
+Provisional: the workspace mockups (P1-06) are not approved, so they are built from the tokens in `design/README.md`. Described in [web.md](web.md), "Projects (P9-01)":
+
+- **The sidebar** lists the projects changed last that are not archived, under "PROJECTS".
+- **`/projects`**: the projects as cards, a form that makes one, and the archived ones apart.
+- **`/projects/<id>`**: the name with its menu (rename, archive or bring back, delete), a composer that starts a chat in the project, its chats, and its instructions, files (add, mark sensitive, take off) and memory space.
+- **A chat's header** has a chip with the project's name, or "Add to project", whose menu moves the chat in, to another project, or out.
+
 ## Settings
 
 In `settings/projects.json`.
@@ -138,6 +149,10 @@ Every existing line of shared code this item changed:
 - `internal/chat/chat.go`, in `Delete`: the query that finds the files to remove gained `AND name NOT IN (SELECT hash FROM project_files)` (one line changed, one added).
 - `internal/app/app.go`: `all = append(all, turn.ProjectRoutes(runner)...)` after the attach routes.
 - `tools/verify/main.go`: a `componentDocs` line for `internal/projects` and the check `projects`.
+- `web/app/src/App.tsx`: the import; the `/projects` route's element, `<Soon title="Projects" />`, became `<Projects />` (one line changed); the `/projects/:id` route added.
+- `web/app/src/Shell.tsx`: the import, a line in `titleFor` for a project's page, `<SidebarProjects />` after the starred chats, and the chip after the chat's title (added lines).
+- `web/app/src/api.ts`: the project types and calls after `holdSchedules` (added lines). `web/app/src/Icon.tsx`: the `file` icon after `handoff` (added lines).
+- Docs, added lines only: the part row and four decision rows in `overview.md`, a paragraph in `tools.md`, a section in `turns.md` and in `web.md`, and a paragraph each in `context.md`, `knowledge-recall.md` and `memory-pass.md`.
 
 `contextbuild` itself did not change: the `project` part and the `attached` part's share were there.
 
@@ -165,6 +180,8 @@ Every existing line of shared code this item changed:
 
 Faults put in by hand and caught: the routing line switched off, and the files chosen as if every model may read sensitive content.
 
+In a browser, against the server built from the branch on port 7962 with a data folder inside the worktree: see "Projects (P9-01)" in [web.md](web.md).
+
 `verify`, `projects` (`tools/verify/projects.go`), on the real server with the shipped settings and a throwaway folder: a chat started in a project is sent the instructions in the standing start and the file with the attachments; a chat outside is sent neither, moved in both, moved out neither; another tenant reaches the project on no route and no chat crosses; on an invented tenant with a hosted and a local model, a sensitive file reaches no request the hosted model is sent (whose call says one was left out, and whose chat stays unheld) and is carried to the local model, whose chat is held ([tools.md](tools.md)).
 
 ## Not here yet
@@ -176,3 +193,5 @@ Faults put in by hand and caught: the routing line switched off, and the files c
 - **A handoff, a background task or a scheduled run from a project chat** does not put its new chat in the project.
 - **Searching a project's files** with a tool, for files too large to go whole into a call.
 - **A project's instructions or files marked for some models only** beyond the sensitive mark.
+- **On the screens**: a model picker and the tools menu on the project page's composer (its chat starts on the person's default model), dragging a chat onto a project in the sidebar, and a file's text shown on the page. The route `GET /projects/{id}/files/{file}` gives the text already.
+- **The test tenant** has no project of its own; the proof makes its projects through the routes.

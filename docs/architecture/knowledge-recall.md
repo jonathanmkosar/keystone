@@ -59,6 +59,8 @@ With `false`, every hit from a sensitive space is left out, and the record count
 
 The record names sensitive pages, so it is shown to the person and never sent to a model.
 
+Since P9-01, in a chat that is in a project with a memory space, the store recall searches is wrapped by `projects.Prefer`: the project's space is searched first and its hits come first, then the rest of the store's, each hit once, within `knowledge.recall_search_max_results`. Every hit keeps the label its store gave it, so what is kept or withheld here is unchanged. `projects.recall_prefer` turns it off ([projects.md](projects.md), decision [0400](decisions/0400-a-projects-memory-is-a-space-of-the-knowledge-store.md)).
+
 ## Fixed rule 3, twice
 
 1. **What a call is given.** `Found.For` and `Lookups` take a plain yes or no, `Model.MayReadSensitive()` from the registry ([models.md](models.md)), and there is no other way to the content. The package is a guard of `rules.sensitive_content` in `tools/verify/fixedrules.go`: `verify` fails if it ever imports `settings` or `internal/tenantsettings`, itself or through another package.

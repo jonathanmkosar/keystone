@@ -1,6 +1,6 @@
 # P9-01. Projects
 
-Status: doing (chats)
+Status: provisional
 Lane: chats + interface
 Depends on: P5-01, P6-01
 Owner gate: Approval of the workspace mockups (P1-06), for the screens only.
@@ -29,4 +29,16 @@ Branch `chats/p9-01-projects`, cut from `reboot` at c268a41. The owner gate hold
 Settings, in a new `settings/projects.json`: the most projects, the longest name and instructions, files per project, file size, the text endings, how much of each file goes into a call, the headings and the cut note, the memory space's pattern, and whether recall prefers the project's space.
 
 Left for later: PDF and other documents (P9-02's extraction, once the stores are one); a file larger than `server.max_body_bytes` until P9-02's per-route body limit is merged; project memory for the knowledge lookups the model calls itself; tags in the knowledge store interface.
+
+### Result
+
+Provisional on the screens only: the workspace mockups (P1-06) are not approved, so the sidebar's projects, the projects screen, the project page and the chip in a chat's header are built from the tokens. Everything else in the plan is built and proven.
+
+- **Built:** the migration `20261125T214700_projects.sql`; `internal/projects` (the record, the files kept by hash behind `Blobs` and `TextReader`, what a call carries, fixed rule 3's answer for a file, the memory space and `Prefer`), a guard of rules 1 and 3 in `fixed rules`; `internal/turn/projects.go` (thirteen routes, the project parts of each call, the routing line, the memory space, the preferring store); one condition in `chat.Delete`; the screens (`Projects.tsx`, `projectStore.ts`, `projects.css`); the `projects` check in `verify`, which is 25 of 25.
+- **The proof**, with the fake provider, in `internal/turn/projects_test.go` and the `projects` check: a project chat's call carries the instructions in the standing start, under the first cache point, and the files with the attachments, checked in the request the audit log holds and in the context record; a chat outside carries neither, moved in it does, moved out it does not; another tenant's project is unreachable on every route and no chat crosses; a sensitive file is held back from a hosted model, which is told one was left out, and given to a local one, which holds the chat. A project chat's facts land in the project's space, and recall there gives the project's hits first.
+- **Decisions:** 0400 to 0403. **Settings:** `settings/projects.json`, twelve: `projects.max_projects`, `name_max_chars`, `instructions_max_chars`, `max_files`, `file_max_bytes`, `text_extensions`, `file_context_max_chars`, `instructions_heading`, `file_heading`, `file_cut_note`, `memory_space`, `recall_prefer`.
+- **Seen in a browser** on the server built from the branch, as the test tenant: a project made, files added, a chat started in it carrying the project, a chat moved in and out from its chip, a file marked sensitive, the project deleted with its chat kept. Dark at desktop width and light at phone width.
+- **Not done:** PDFs, images and HTML as files; a file larger than `server.max_body_bytes`; project memory for the lookups the model calls itself; a handoff, task or schedule from a project chat staying in the project; the model picker on the project page. `web/dist/` is not committed: it is rebuilt at the merge.
+
+Write-up: `docs/architecture/projects.md`, the journal entry `docs/journal/2026-11-25-chats-009.md`.
 
