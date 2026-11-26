@@ -6,7 +6,7 @@
 // read by api.ts. Decision 0151 says why this is a small store of its own.
 
 import { useSyncExternalStore } from "react";
-import { ApiError, followTurn, openChat, sendMessage, stopTurn, type Message, type StreamReader, type TurnEvent } from "./api";
+import { ApiError, followTurn, openChat, sendMessage, stopTurn, type Block, type Message, type StreamReader, type TurnEvent } from "./api";
 
 /** A block of the reply that is still being written. */
 export type DraftBlock =
@@ -341,10 +341,10 @@ function begin(chatId: string, live: Partial<Live>): Entry {
   return entry;
 }
 
-/** Sends a message to a chat and follows the reply. `model` names the model to answer; absent means the chat's own. */
-export function send(chatId: string, text: string, model?: string): void {
+/** Sends a message to a chat and follows the reply. `model` names the model to answer; absent means the chat's own. `blocks`, when given, makes the message's blocks first: its files uploaded (P9-02, uploads.ts). */
+export function send(chatId: string, text: string, model?: string, blocks?: () => Promise<Block[]>): void {
   const entry = begin(chatId, { said: text });
-  void run(entry, (reader) => sendMessage(chatId, text, reader, model), true);
+  void run(entry, async (reader) => sendMessage(chatId, text, reader, model, blocks && (await blocks())), true);
 }
 
 /** Joins a turn that is already queued or running, from its first event. */

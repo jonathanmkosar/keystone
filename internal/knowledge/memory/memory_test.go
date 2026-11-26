@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -296,6 +297,9 @@ func TestFactsLandOnlyWhereTheyMay(t *testing.T) {
 	}
 }
 
+// turnCount numbers the turns newTurn writes.
+var turnCount int
+
 // newTurn writes a chat and a turn row in it, as the turn runner would.
 func newTurn(t *testing.T, s *tenant.Store, chatID string) string {
 	t.Helper()
@@ -306,7 +310,8 @@ func newTurn(t *testing.T, s *tenant.Store, chatID string) string {
 		}
 		chatID = c.ID
 	}
-	id := chatID + "-" + time.Now().Format("150405.000000000")
+	turnCount++ // the clock alone gave two turns one id on Windows
+	id := chatID + "-" + time.Now().Format("150405.000000000") + "-" + strconv.Itoa(turnCount)
 	if _, err := s.DB().Exec("INSERT INTO turns(id, chat_id, status, request_id, actor, input, created_at) VALUES(?, ?, 'done', 'req', 'person', '{}', '2026-11-25T09:00:00.000Z')", id, chatID); err != nil {
 		t.Fatal(err)
 	}

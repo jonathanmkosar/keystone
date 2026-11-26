@@ -85,7 +85,7 @@ func (r *Runner) routed(ctx context.Context, s *tenant.Store, t row, kind routin
 	// Fixed rule 3: a call that carries content from a sensitive space goes
 	// only to models that may read it, first or as a fallback (P6-05).
 	sensitive := r.sensitive(ctx, s, t, first != nil && first.m.MayReadSensitive())
-	route, err := routing.Plan(r.rules(ctx, s), routing.Ask{Kind: kind, Model: picked, Sensitive: sensitive}, usable)
+	route, err := r.planRoute(r.rules(ctx, s), routing.Ask{Kind: kind, Model: picked, Sensitive: sensitive}, usable, t) // P9-02: a turn's image asks for vision (uploads.go)
 	if err != nil {
 		if errors.Is(err, routing.ErrSensitive) {
 			return none(&TurnError{Code: CodeSensitive, Message: "This chat holds content from a sensitive space, and none of the models it could be sent to is local or trusted, so it was not sent. Pick a local or trusted model for it."})

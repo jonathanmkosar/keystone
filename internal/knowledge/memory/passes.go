@@ -239,7 +239,7 @@ func Incognito(ctx context.Context, s *tenant.Store, chatID string) (bool, error
 // when its turn comes, while the flag is on.
 func SetIncognito(ctx context.Context, s *tenant.Store, chatID string, on bool) error {
 	_, err := s.DB().ExecContext(ctx, `INSERT INTO memory_chats(chat_id, incognito, changed_at) VALUES(?, ?, ?)
-		ON CONFLICT(chat_id) DO UPDATE SET incognito = excluded.incognito, changed_at = excluded.changed_at`, chatID, on, stamp())
+		ON CONFLICT(chat_id) DO UPDATE SET incognito = excluded.incognito, changed_at = excluded.changed_at, left_at = ''`, chatID, on, stamp())
 	if err != nil {
 		return fmt.Errorf("memory: setting chat %s's incognito flag: %w", chatID, err)
 	}

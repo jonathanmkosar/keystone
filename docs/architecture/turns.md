@@ -459,3 +459,11 @@ Since P6-06, `runTurn` calls `memoryLater` in `memory.go` once it has closed the
 ## Chat recaps and the past-chat search
 
 Since P5-05, `runTurn` calls `recapLater` in `recap.go` after `memoryLater`. A turn that ended as `done`, in a chat that has no recap or one `chats.recap_after_turns` turns old, starts a wait of `chats.recap_after_idle`, which a later turn's end moves on; then the chat's recap, a short summary, its topics and its decisions, is made by the route for the `summary` task, under the turn's request id, with a usage record of the kind `summary`. A turn never waits for it. Two routes read a chat's recap and make it now: `GET` and `POST /chats/{id}/recap`, listed in `internal/app` from `turn.RecapRoutes`, and `GET /chats` gives each chat's `summary`. Each model call also makes `search_chats` and `read_chat` for the least of its route (`pastchats.go`, from `lookupTools`), which the calls the model makes in reply run in place of the registry's. See [chat-summaries.md](chat-summaries.md).
+
+## Attached chats and handoff
+
+Since P5-06, `Runner.build` fills the context's `attached` part with the chats attached to the turn's chat (`attach.go`): in the first call of a turn, an attached chat with no recap or a stale one is given one by `makeRecap` under the turn's request id, and the turn waits up to `chats.attached_summary_wait`. Each call offers `open_attached_chat` while the chat carries one, made for the least of its route and kept with the past-chat tools. `Runner.sensitive` counts a sensitive attached chat for a chat whose own model may read it. Four routes, listed in `internal/app` from `turn.AttachRoutes`: `GET /chats/{id}/attached`, `PUT` and `DELETE /chats/{id}/attached/{other}`, and `POST /chats/{id}/handoff`. See [attach-and-handoff.md](attach-and-handoff.md).
+
+## Uploads
+
+Since P9-02 a message may name the chat's uploads in image and file blocks, checked and written as each upload says when it is sent (`uploadedBlocks` in `checkSend`). Before the route, `mediaOf` reads whether the turn's message, or an earlier one, holds an image, and the route asks for vision; a turn that went to a fallback only to see its image writes the chat's own model on its row. Each call's branch is readied for its route, with the record kept in `upload_calls`. See [uploads.md](uploads.md).

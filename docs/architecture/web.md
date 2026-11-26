@@ -372,6 +372,47 @@ Seen in a browser on November 25, 2026, against the server built from this branc
 
 Seen in a browser on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree (removed afterwards), as the test tenant: with every agent paused, a task started in a chat showed the bar and a card "Background task, paused" with "Held: every agent is paused. It starts when they are resumed."; Resume all agents started it, and its note came into the chat. On Scheduled, the bar in both states; a schedule with a budget of its own of $0.50 showed "$0.50 a run, this schedule's own"; Pause all agents marked it held with the words that say which switch may hold it; the form's budget field; Settings → General's control for the switch. At phone width the bar wraps under its words. The only console error was the sign-in probe's 401.
 
+## Attached chats and handoff (P5-06)
+
+The chips of the chats attached to a chat, the control that attaches one, and the handoff's button and links. The server's side is [attach-and-handoff.md](attach-and-handoff.md). There is no mockup for any of it, so it is provisional until the chat mockups cover it (P1-04); it is built from the tokens.
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The chips | `src/AttachedChats.tsx`, `src/attach.css` | Over the composer, a chip for each attached chat: its title, a link that opens it, its summary as the chip's tooltip, a `sensitive` mark (only a local or trusted model is given it) or an `incognito` one (no reply is given it, and its title is struck through), and a button that takes it off. The chat it continues from, after a handoff, is a copper chip that reads "Continued from …" and has no button. |
+| The attach control | `src/AttachedChats.tsx` | "Attach a chat" (then "Attach") after the chips, a dashed pill that opens a picker upwards: a box that filters the person's chats by the words of their title and summary as they type, at most thirty, and a sentence on what attaching does. A pick attaches the chat and closes the picker. Disabled at `chats.attach_max`; nothing is drawn in an incognito chat. |
+| The header | `src/ChatLinks.tsx`, `src/attach.css` | At the right of a chat's header, where the mockups put Share: "Continued from" and the parent's title as a link, "Continued in" and the newest handoff's title as a link (with +N for more), and **Hand off**, which is disabled while a reply streams and in an incognito chat. Hand off makes the new chat, puts it at the top of the sidebar, picks for it the model the parent would use next (sent with its first message, as a pick is), and opens it. On a phone the words go and the titles and the icon stay. |
+| Shared state | `src/attached.ts` | A chat's answer of `GET /attached`, kept outside the screens so the header and the chips agree; read when a screen first asks and again when a turn of the chat ends, since a turn may have given an attached chat its summary. |
+| Icons | `src/Icon.tsx` | `chatlink` (a bubble with a link) and `handoff` (out of one chat and on into the next). |
+| The way in | `src/Chat.tsx`, `src/Shell.tsx`, `src/api.ts` | One line in `Chat.tsx` draws the chips over the composer, and one in `Shell.tsx` the header's links, each with its import. The calls are added to `api.ts` after the inspector's. |
+
+Its calls, all in `src/api.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/chats/{id}/attached` | `listAttached` | The chips and the header's links. |
+| `PUT`, `DELETE /api/v1/chats/{id}/attached/{other}` | `setAttached` | Attaching from the picker, and a chip's button. |
+| `POST /api/v1/chats/{id}/handoff` | `handOff` | Hand off. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7961 with a data folder inside the worktree (removed afterwards), as the test tenant: the picker filtered to "ferry" and attached North ferry times as a chip; Hand off on the lighthouse walk opened a new chat with "Continued from Planning the lighthouse walk" in the header and as its chip; "What did we settle in the chat this one continues from?" was answered from the parent's summary by the recorded turn; the parent's header then read "Continued in" with the new chat's title. At phone width the header kept the titles and the icon. The only console error was the session check before sign-in. Not seen: dark theme, the `sensitive` and `incognito` marks, `too_many`.
+
+## Memory and incognito (P6-07)
+
+Provisional on the memory mockups (P1-06), which are not approved: built from the tokens alone. `/memory`, `src/Memory.tsx` with `src/memory.css`, is in the sidebar after Scheduled: the store's note on what forgetting does there; each space as a card, with its facts grouped by the reply they came from, a link to the chat (or "a chat since deleted"), Correct as an inline box and Forget after a question, its pages folded away, and a sensitive space's facts hidden until Show; beside them the profile, with a link to Settings → Profile, and the map. `src/Incognito.tsx`: a switch under the new-chat composer that makes the first message start an incognito chat, and a dashed copper mark at the top of an incognito chat. Leaving that chat's screen sends `POST /chats/{id}/close` a moment later (coming straight back cancels it, as React's strict mode does), and the page going sends it with `navigator.sendBeacon`. The calls are in `src/memoryCalls.ts`, apart from `api.ts`, which now exports `call`.
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/memory` | `memoryOverview` | The Memory screen. |
+| `POST /api/v1/memory/forget`, `…/correct` | `forgetFact`, `correctFact` | Forget and Correct. |
+| `POST /api/v1/chats/incognito` | `createIncognitoChat` | The first message of a new chat with the switch on. |
+| `GET /api/v1/chats/{id}/memory` | `isIncognito` | Whether a chat wears the mark. |
+| `POST /api/v1/chats/{id}/close` | `closeIncognito`, `closeIncognitoAsPageGoes` | Leaving an incognito chat. |
+
+Seen in a browser on November 25, 2026, against the server built from this branch on port 7973 with a data folder inside the worktree, as the test tenant with the built-in store: the beehives facts listed with their chat, one forgotten and one corrected, each with the server's note; an incognito chat with its mark, deleted (404) once the person went to a new chat, and dropped from the sidebar. Light and dark, and at phone width. No console errors but the sign-in check's 401 and the 404 asked for.
+
+## Uploads (P9-02)
+
+The composer takes files: a plus button opens the file picker, and files dropped on the composer are taken too. Each is a chip with its ending, name, size and a remove button; a file `GET /uploads/limits` refuses is not taken, with the reason. A message may be files alone. The files are uploaded when the message is sent, and the message goes with their blocks first. In the person's message an image is a thumbnail from the content route and other files are downloads; a reply that did not see an image, or that a fallback wrote to see one, has a notice above it. The inspector lists each file's text in the attachments part and has a section, Images and files. `Attachments.tsx`, `uploads.ts` and `uploads.css`; small edits in `Composer.tsx`, `Chat.tsx`, `turns.ts`, `api.ts`, `layout.ts`, `Conversation.tsx` and `Inspector.tsx`. Provisional until the workspace mockups (P1-06): built from the tokens, after the composer's "Add files or a chat" button and the attached chat's chip in `design/screens`. See [uploads.md](uploads.md).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

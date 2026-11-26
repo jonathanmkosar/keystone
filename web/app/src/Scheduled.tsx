@@ -250,7 +250,7 @@ function Detail({
         </div>
       </div>
       <div className="sched-prompt">{s.prompt}</div>
-      {s.incognito && <p className="quiet sched-small">Incognito: no memory is kept from its runs.</p>}
+      {s.incognito && <p className="quiet sched-small">Incognito: no memory is kept, and each run's chat is deleted once you leave it or it sits idle.</p>}
       <div>
         <p className="sched-over">RUNS</p>
         {runs.length === 0 ? (

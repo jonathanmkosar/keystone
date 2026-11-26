@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/jonathanmkosar/keystone/internal/chat"
+	"github.com/jonathanmkosar/keystone/internal/knowledge/memory"
 	"github.com/jonathanmkosar/keystone/internal/recap"
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tools"
@@ -213,6 +214,11 @@ func searchChats(o Options, mayRead bool, hold Hold) tools.Tool {
 				if f.id == in.ChatID {
 					continue
 				}
+				// An incognito chat is found from no other chat (P6-07). A
+				// flag that cannot be read counts as on.
+				if on, err := memory.Incognito(ctx, in.Store, f.id); err != nil || on {
+					continue
+				}
 				// Fixed rule 3. A mark that cannot be read counts as sensitive.
 				sens, _ := recap.Sensitive(ctx, in.Store, f.id)
 				if !recap.MayShow(sens, mayRead) {
@@ -302,6 +308,10 @@ func readChat(o Options, mayRead bool, hold Hold) tools.Tool {
 					return "", gone
 				}
 				return "", errors.New("the chat could not be read")
+			}
+			// An incognito chat is read from no other chat (P6-07).
+			if on, err := memory.Incognito(ctx, in.Store, id); id != in.ChatID && (err != nil || on) {
+				return "", gone
 			}
 			// Fixed rule 3. A mark that cannot be read counts as sensitive.
 			sensitive, _ := recap.Sensitive(ctx, in.Store, id)

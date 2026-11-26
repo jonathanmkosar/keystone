@@ -21,6 +21,7 @@ Decisions: [0030](decisions/0030-knowledge-store-interface.md) for the shape of 
 | `CatalogMarker` | A short text that stays the same while the catalog does. | `CatalogMarker` |
 | `VectorsNeeded` | Lists the pages with no vector, or a stale one. | `PageVectors` |
 | `PutVector` | Stores the vector made from one revision of a page. | `PageVectors` |
+| `RemoveSource` | Takes a source out for good; a page that cited it no longer does. | `RemoveSource` |
 | `Close` | Lets go of the handle. | |
 
 Every call but `Capabilities` and `Close` takes a context, and a supported call whose context is done returns the context's error.
@@ -55,6 +56,7 @@ An adapter reads the label fresh. If a space is made sensitive after the handle 
 | `CatalogMarker` | Say cheaply whether the catalog changed. | The person map (P6-04), to know when to rebuild. With the flag off it can read the catalog and compare. |
 | `VectorSearch` | Search with a query vector as well as words. | Recall (P6-08). With the flag off a search is by words alone, and no query vector need be made. |
 | `PageVectors` | List the pages that need a vector, and take one. | The embedding job (P6-08). |
+| `RemoveSource` | Remove a source for good. | The Memory screen (P6-07), to forget a fact. With the flag off, Keystone withdraws the source instead ([memory-screens.md](memory-screens.md)). The built-in store has it; Waymarks does not, because only its owner erases a source. |
 
 A caller asks the flags and never the adapter's type. A call whose flag is off returns `ErrNotSupported`.
 
@@ -93,6 +95,8 @@ The `knowledge.adapter` setting, in `settings/knowledge.json`, names a person's 
 `knowledge.Open(ctx, name, tenantStore)` opens the store. The name is a plain argument. Stored per-tenant values are in `internal/tenantsettings`. Whoever opens the store for a turn reads the tenant's value of `knowledge.SettingAdapter` through P2-04's lookup and passes it in.
 
 `Open` refuses a name this build does not have, and says which names it has.
+
+For a tenant, and any adapter but `none`, `Open` hands back the adapter's store with the tenant's withdrawn sources left out of searches, reads and page citations (P6-07, `withdrawn.go`, decision [0371](decisions/0371-with-waymarks-a-forgotten-source-is-withdrawn.md)). `Unwrap` gives an adapter's own tests their type back.
 
 ## How to write an adapter
 
@@ -137,6 +141,7 @@ Run it with `go test ./internal/knowledge/...`. Each check is a subtest:
 | add source | A source with facts is returned, reads back the same, is found by search, and takes the label of its space. A source with no space, name or facts is refused. |
 | vector search | The page nearest the query vector comes first. Words and a vector together find what either finds. |
 | page vectors | Pages with no vector are listed. A stored vector takes a page off the list, a changed page comes back as stale, and a vector for an old revision is refused. |
+| remove source | A removed source is not read or found, a page that cited it no longer does and moves on a revision, an unknown or removed id is `ErrNotFound`, and the other sources stay. |
 
 A check behind a flag is skipped when the flag is off. A check that needs content is skipped when the harness has no `Seed`. Only a store that can hold nothing leaves `Seed` out, and the suite fails such a store if it claims a capability.
 
@@ -173,4 +178,4 @@ What shaped the interface:
 - The server does not import an adapter's package yet, so the binary has `none` alone. The test that every option of the setting opens is in `internal/knowledge/waymarks`, the one package whose tests have every adapter in their build, until the server has a place for it.
 - Stored per-tenant values of `knowledge.adapter` exist (`internal/tenantsettings`). A turn calls `Open` for the person map and for recall ([knowledge-recall.md](knowledge-recall.md)), and the memory pass opens it after the turn to add a source of facts when the store has the `AddSource` flag ([memory-pass.md](memory-pass.md)). With Waymarks that source goes out under the intake token.
 - Roles. The plan gives Waymarks one token for each Keystone role. The interface has no role: the Waymarks adapter picks the token by the call, so reads go out under the reader token, `AddSource` under the intake token, and page vectors under a third, the embedder (decision [0090](decisions/0090-waymarks-three-tokens.md)). Chat is handed the whole store, and recall and the lookups only read (decision [0213](decisions/0213-the-lookups-are-plain-values.md)).
-- Correcting and forgetting a fact (P6-07), and writing pages, which the wiki upkeep jobs do (P8-06). Each adds a flag and a call when its item is built.
+- Writing pages, which the wiki upkeep jobs do (P8-06), adds a flag and a call when its item is built. Correcting and forgetting a fact (P6-07) added `RemoveSource` ([memory-screens.md](memory-screens.md)).

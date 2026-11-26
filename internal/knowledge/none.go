@@ -62,4 +62,8 @@ func (none) PutVector(context.Context, PageVector) error {
 	return ErrNotSupported
 }
 
+func (none) RemoveSource(context.Context, string) error {
+	return ErrNotSupported
+}
+
 func (none) Close() error { return nil }

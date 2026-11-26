@@ -164,6 +164,8 @@ Nothing below was checked against the real API in this build. "Sure" means it is
 
 Other servers that speak this API (a gateway, a local model server) may differ in any of these. The adapter is lenient where that is free: it takes an event's type from the `event:` line when the data has none, ignores `[DONE]` and comments, and accepts an item that arrives whole.
 
+Since P9-02 the adapter refuses, while it builds the body and before anything is sent, a request that holds an image for an entry without `vision`, with the seam's `invalid`. `vision_test.go` proves it against a stand-in, and that an entry with `vision` sends the image as an `input_image` data address (decision [0383](decisions/0383-the-adapters-refuse-an-image-to-a-model-without-vision.md)).
+
 ## What proves it
 
 `go test ./internal/adapters/responses`. The exchanges are in `fixtures/responses-adapter/`, 21 cases in five files, all invented and written by hand. An `httptest` server on this machine replays them. For each case the test checks the path, the header and the body the adapter sends, how many calls it makes, the whole reply through the seam's `Collector` or the error's kind and whether it may be retried, and that the key is in no event and no error.

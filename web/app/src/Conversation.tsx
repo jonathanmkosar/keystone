@@ -3,9 +3,12 @@
 // This file only draws. layout.ts turns the record and a reply still
 // arriving into the items drawn here.
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useParams } from "react-router";
+import type { Block } from "./api";
 import { useWaitingFor } from "./Approval";
+import { ReplyNotices, SaidMedia } from "./Attachments";
+import { useChatUploads } from "./uploads";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
 import { InspectButton, PinButton, SaidActions } from "./MessageActions";
@@ -28,8 +31,9 @@ export type Part =
   | { kind: "task"; text: string; messageId: number; chatId: string };
 
 export type Item =
-  // id is the message's, for its Pin action (P5-04).
-  | { kind: "user"; key: string; text: string; files: string[]; id?: number }
+  // id is the message's, for its Pin action (P5-04). blocks are its content,
+  // for its images and files (P9-02).
+  | { kind: "user"; key: string; text: string; files: string[]; id?: number; blocks?: Block[] }
   // turnId is the turn that wrote the reply, for Inspect, and pinId the
   // message of it a pin goes on: its last with text (P5-04).
   | { kind: "reply"; key: string; parts: Part[]; streaming: boolean; turnId?: string; pinId?: number };
@@ -221,27 +225,23 @@ function CitedReply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
 /** Every message on the current branch, oldest first, then a reply still arriving. */
 export function Conversation({ items }: { items: Item[] }) {
   const { id: chatId = "" } = useParams();
+  const known = useChatUploads(chatId); // the chat's uploads and the notices on its replies (P9-02)
   return (
     <div className="conversation">
       {items.map((item) =>
         item.kind === "user" ? (
           <div key={item.key} className="said-wrap">
             <div className="said">
-              {item.files.length > 0 && (
-                <div className="said-files">
-                  {item.files.map((f, i) => (
-                    <span key={i} className="said-file">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <SaidMedia chatId={chatId} blocks={item.blocks} files={item.files} known={known} />
               {item.text}
             </div>
             {chatId !== "" && item.id !== undefined && <SaidActions chatId={chatId} messageId={item.id} text={item.text} />}
           </div>
         ) : (
-          <CitedReply key={item.key} item={item} />
+          <Fragment key={item.key}>
+            <ReplyNotices notices={known.notices.filter((n) => item.turnId !== undefined && n.turn_id === item.turnId)} />
+            <CitedReply item={item} />
+          </Fragment>
         ),
       )}
     </div>

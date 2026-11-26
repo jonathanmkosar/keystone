@@ -26,6 +26,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/internal/unattended"
+	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -90,6 +91,9 @@ type Config struct {
 	// Unattended is what the switch that pauses every agent and schedule
 	// runs with (P8-05), in settings/agents.json.
 	Unattended unattended.Config
+	// Uploads is what may be uploaded to a chat (P9-02), in
+	// settings/uploads.json.
+	Uploads uploads.Options
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -134,6 +138,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// The pause switch's settings (P8-05), in settings/agents.json.
 	if c.Unattended, err = unattended.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// Uploads' settings (P9-02), in settings/uploads.json.
+	if c.Uploads, err = uploads.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -199,9 +207,14 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, turn.Routes(runner)...)
 	all = append(all, turn.ApprovalRoutes(runner)...) // the approval policy's (P7-02)
 	all = append(all, turn.MemoryRoutes(runner)...)   // the memory pass's: a chat's passes and its incognito flag (P6-06)
+	// The Memory screen's, view, correct and forget, and incognito chats
+	// that keep no record (P6-07).
+	all = append(all, turn.MemoryScreenRoutes(runner)...)
+	all = append(all, turn.IncognitoRoutes(runner)...)
 	// The turn inspector's (P5-04).
 	all = append(all, turn.InspectorRoutes(runner)...)
 	all = append(all, turn.RecapRoutes(runner)...)        // chat recaps (P5-05)
+	all = append(all, turn.AttachRoutes(runner)...)       // attached chats and handoff (P5-06)
 	all = append(all, connectors.Routes(c.Connectors)...) // the connectors' (P7-04)
 	all = append(all, settingsapi.Routes()...)
 	all = append(all, jobs.Routes(c.jobs)...) // background tasks' (P8-01)
@@ -212,6 +225,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// The switch that pauses every agent and schedule (P8-05).
 	all = append(all, unattended.Routes(unattended.Options{Config: c.Unattended, Log: log,
 		Runs: c.jobs.Runs, Pause: c.jobs.PauseAll, Rearm: c.schedules.Rearm, Resume: c.jobs.ResumeAll})...)
+	// Uploads to a chat (P9-02).
+	all = append(all, uploads.Routes(c.Uploads)...)
 	return all
 }
 
@@ -226,6 +241,9 @@ func Handler(c Config) (http.Handler, error) {
 	}
 	// A turn that was waiting when the server last stopped runs now.
 	c.runner.Recover()
+	// Incognito chats that were left, or idle too long, are deleted now and
+	// from then on (P6-07).
+	c.runner.SweepIncognito()
 	// Then a background task whose round the stop cut short goes on (P8-01).
 	c.jobs.Bind(c.runner)
 	c.jobs.Recover()

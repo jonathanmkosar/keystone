@@ -2,18 +2,22 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useNavigate, useParams } from "react-router";
 import { ApiError, createChat, openChat, type Message, type ModelChoice, type Person } from "./api";
 import { Approvals } from "./Approval";
+import { AttachedChats } from "./AttachedChats";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
 import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
 import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
 import { Inspector } from "./Inspector";
+import { IncognitoMark, IncognitoSwitch } from "./Incognito";
+import { createIncognitoChat } from "./memoryCalls";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
 import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
+import { messageWith } from "./uploads";
 
 const footnote = "Keystone can make mistakes. Check what matters against its sources.";
 
@@ -32,16 +36,17 @@ export function Start({ person }: { person: Person }) {
   const [problem, setProblem] = useState("");
   // A message that could not be sent goes back into the box.
   const [unsent, setUnsent] = useState({ text: "", tries: 0 });
+  const [incognito, setIncognito] = useState(false); // P6-07: a chat that keeps no record
   const part = partOfDay();
 
-  async function begin(text: string) {
+  async function begin(text: string, files: File[]) {
     setBusy(true);
     setProblem("");
     try {
-      const made = await createChat();
+      const made = incognito ? await createIncognitoChat() : await createChat();
       put(made.chat, true);
       await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
-      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id));
+      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
       setBusy(false);
@@ -62,6 +67,7 @@ export function Start({ person }: { person: Person }) {
       </div>
       <div className="composer-column">
         <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
+        <IncognitoSwitch on={incognito} onChange={setIncognito} />
         {problem && (
           <p className="composer-problem" role="alert">
             {problem}
@@ -147,9 +153,9 @@ function OneChat({ id }: { id: string }) {
     if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   }
 
-  function sendHere(text: string) {
+  function sendHere(text: string, files: File[]) {
     stick.current = true;
-    send(id, text, takePick(id));
+    send(id, text, takePick(id), files.length > 0 ? () => messageWith(id, text, files) : undefined);
   }
 
   if (loaded.state === "missing" || loaded.state === "failed") {
@@ -186,6 +192,7 @@ function OneChat({ id }: { id: string }) {
   return (
     <div className="chat">
       <div className="chat-scroll" ref={scroller} onScroll={scrolled}>
+        <IncognitoMark chatId={id} />
         {loaded.state === "loading" ? (
           <div className="chat-state" aria-busy="true">
             <p className="quiet">Opening the chat.</p>
@@ -207,6 +214,7 @@ function OneChat({ id }: { id: string }) {
               {(loaded.state === "ready" && loaded.model.reason) || "There is no model to answer in this chat."}
             </p>
           )}
+          <AttachedChats chatId={id} />
           <Composer
             placeholder="Reply to Keystone…"
             busy={busy || loaded.state === "loading"}

@@ -38,6 +38,7 @@ type memPage struct {
 
 type memSource struct {
 	id, space, name, origin, dated, text string
+	removed                              bool // only with faultSearchesRemoved
 }
 
 // The faults a memory store can be given. Each breaks one promise.
@@ -57,6 +58,8 @@ const (
 	faultIgnoresVector   = "claims VectorSearch and ignores the vector"
 	faultAcceptsStale    = "takes a vector for a revision that is gone"
 	faultForgetsStale    = "does not list a page whose vector is stale"
+	faultSearchesRemoved = "removes a source and still finds it"
+	faultKeepsCitation   = "removes a source and leaves the page citing it"
 )
 
 func newMemory(caps knowledge.Capabilities, fault string) *memory {
@@ -285,7 +288,7 @@ func (m *memory) ReadSource(ctx context.Context, id string) (knowledge.Source, e
 		return knowledge.Source{}, err
 	}
 	for _, src := range m.sources {
-		if src.id == id {
+		if src.id == id && !src.removed {
 			return m.source(src), nil
 		}
 	}
@@ -368,6 +371,34 @@ func (m *memory) PutVector(ctx context.Context, v knowledge.PageVector) error {
 		return knowledge.ErrStale
 	}
 	pg.vec, pg.vecRev = slices.Clone(v.Vector), pg.rev
+	return nil
+}
+
+func (m *memory) RemoveSource(ctx context.Context, id string) error {
+	if !m.caps.RemoveSource {
+		return knowledge.ErrNotSupported
+	}
+	if err := m.done(ctx); err != nil {
+		return err
+	}
+	at := slices.IndexFunc(m.sources, func(src *memSource) bool { return src.id == id && !src.removed })
+	if at < 0 {
+		return knowledge.ErrNotFound
+	}
+	if m.fault == faultSearchesRemoved {
+		m.sources[at].removed = true // read as gone, and still searched
+	} else {
+		m.sources = slices.Delete(m.sources, at, at+1)
+	}
+	if m.fault == faultKeepsCitation {
+		return nil
+	}
+	for _, pg := range m.pages {
+		if i := slices.Index(pg.cites, id); i >= 0 {
+			pg.cites = slices.Delete(pg.cites, i, i+1)
+			pg.rev++
+		}
+	}
 	return nil
 }
 

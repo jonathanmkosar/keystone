@@ -68,6 +68,8 @@ Files are named by hash, so two chats can hold the same file. A name that is not
 
 Writing the file, its media type and its extracted text are uploads, P9-02.
 
+Since P9-02 the files a chat holds are mostly its uploads: kept under their SHA-256, with a row each in `uploads`, and tied to the chat here so deleting it removes them. A message names an upload by its hash in a block's `ref` ([uploads.md](uploads.md)).
+
 ## Deleting a chat
 
 `Delete` removes, in one transaction:

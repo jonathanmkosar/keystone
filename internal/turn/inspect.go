@@ -18,6 +18,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/knowledge/recall"
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/internal/usage"
 )
 
@@ -116,6 +117,10 @@ type InspectReply struct {
 	Pinned []int64 `json:"pinned"`
 	// Skips are what the chat's next turn will leave out.
 	Skips []inspector.Skip `json:"skips"`
+	// Uploads are what each model call was given of the chat's images and
+	// files, and what was withheld and why (P9-02). Absent when the turn's
+	// branch held none.
+	Uploads []uploads.StepCall `json:"uploads,omitempty"`
 }
 
 // SkipsReply answers the skip routes: what the chat's next turn leaves out.
@@ -198,6 +203,9 @@ func (r *Runner) inspection(ctx context.Context, s *tenant.Store, t row) (Inspec
 		reply.Pinned = []int64{}
 	}
 	if reply.Skips, err = inspector.Waiting(ctx, s, t.ChatID); err != nil {
+		return InspectReply{}, err
+	}
+	if reply.Uploads, err = uploads.Calls(ctx, s, t.ID); err != nil { // P9-02
 		return InspectReply{}, err
 	}
 	return reply, nil

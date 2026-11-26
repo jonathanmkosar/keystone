@@ -62,6 +62,10 @@ type Capabilities struct {
 	// PageVectors: the store lists the pages that need a vector and takes
 	// one through PutVector.
 	PageVectors bool
+	// RemoveSource: the store removes a source for good through
+	// RemoveSource (P6-07). A store that keeps every source unchanged, as
+	// Waymarks does for anyone but its owner, does not have it.
+	RemoveSource bool
 }
 
 // Entry is one page in the catalog.
@@ -253,6 +257,12 @@ type Store interface {
 	// returns ErrStale when that revision is no longer the page's own, and
 	// ErrInvalid for a vector the store cannot take. Needs PageVectors.
 	PutVector(ctx context.Context, v PageVector) error
+
+	// RemoveSource takes a source out of the store for good: it can no
+	// longer be read or found, and a page that cited it no longer does. The
+	// page itself stays. It returns ErrNotFound for an id the store does not
+	// hold. Needs RemoveSource.
+	RemoveSource(ctx context.Context, id string) error
 
 	// Close lets go of whatever the handle holds.
 	Close() error

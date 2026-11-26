@@ -115,6 +115,9 @@ func unpackSignature(s string) (signature, bool) {
 // body builds the request body. An error is one the person can read: it
 // never holds the key, which is not part of the body.
 func (p *Provider) body(req seam.Request) ([]byte, error) {
+	if n := seam.Images(req); n > 0 && !p.model.Has(models.CapVision) { // P9-02: never an image to a model without vision
+		return nil, fmt.Errorf("the request holds %d images, and the registry entry of %s does not say it can see: an image is never sent to a model without vision", n, p.model.Name)
+	}
 	w := wireRequest{Model: p.model.ProviderModel, Input: []any{}, Stream: true}
 
 	var system []string

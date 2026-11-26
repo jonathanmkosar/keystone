@@ -88,6 +88,11 @@ type Route struct {
 	Door bool
 	Open func(w http.ResponseWriter, r *http.Request)
 
+	// MaxBodyBytes is the most this route's body may hold, for a route that
+	// takes more than Options.MaxBodyBytes, as an upload does (P9-02). Zero,
+	// or anything less, means the handler's limit.
+	MaxBodyBytes int64
+
 	// The rest describes the route in the OpenAPI document.
 
 	// Query lists the query parameters the route reads.
@@ -184,8 +189,12 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 	}
 
 	door, inside := http.NewServeMux(), http.NewServeMux()
+	bodyLimits := map[string]int64{} // P9-02: the routes that take a larger body, by pattern
 	for _, rt := range routes {
 		pattern := rt.Method + " " + rt.Path
+		if rt.MaxBodyBytes > o.MaxBodyBytes {
+			bodyLimits[pattern] = rt.MaxBodyBytes
+		}
 		if rt.Door {
 			door.HandleFunc(pattern, rt.Open)
 			continue
@@ -259,7 +268,7 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 		}()
 
 		if r.Body != nil {
-			r.Body = http.MaxBytesReader(rec, r.Body, o.MaxBodyBytes)
+			r.Body = http.MaxBytesReader(rec, r.Body, bodyLimit(inside, bodyLimits, r, o.MaxBodyBytes))
 		}
 		if err := crossOrigin.Check(r); err != nil {
 			Error(rec, r, http.StatusForbidden, "cross_origin", "a page on another site may not make this call")
@@ -271,6 +280,19 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 		}
 		recorded.ServeHTTP(rec, r)
 	}), nil
+}
+
+// bodyLimit is the most a request's body may hold: the limit of the route
+// it is for, when that route takes a larger body (P9-02), and otherwise
+// most.
+func bodyLimit(inside *http.ServeMux, limits map[string]int64, r *http.Request, most int64) int64 {
+	if len(limits) == 0 {
+		return most
+	}
+	if _, pattern := inside.Handler(r); limits[pattern] > most {
+		return limits[pattern]
+	}
+	return most
 }
 
 // Token returns the session token a request carries, or "" when it has

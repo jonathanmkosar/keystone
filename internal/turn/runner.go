@@ -377,13 +377,14 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 	}
 
 	t.recalled = r.searchKnowledge(ctx, s, t) // before the route: what it finds decides the route (P6-05)
+	t.media = r.mediaOf(s, t)                 // P9-02: so do the turn's images (uploads.go)
 	m, provider, secrets, failure := r.open(ctx, s, t, t.input.Model)
 	if failure != nil {
 		return failure, false
 	}
-	t.Model = m.Name
+	t.Model = t.media.chatModel(m.Name) // P9-02: the chat keeps its model when a fallback saw an image for it
 	err := inTx(context.Background(), s, func(tx *sql.Tx) error {
-		if _, err := tx.Exec("UPDATE turns SET model = ? WHERE id = ?", m.Name, t.ID); err != nil {
+		if _, err := tx.Exec("UPDATE turns SET model = ? WHERE id = ?", t.Model, t.ID); err != nil {
 			return err
 		}
 		_, err := emitTurn(tx, t.ID, EventTurn)

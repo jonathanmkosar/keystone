@@ -76,7 +76,7 @@ function headersFor(body: unknown, accept = "application/json"): Record<string, 
   return body === undefined ? { Accept: accept } : { Accept: accept, "Content-Type": "application/json" };
 }
 
-async function call(method: Method, path: string, body?: unknown): Promise<unknown> {
+export async function call(method: Method, path: string, body?: unknown): Promise<unknown> {
   let res: Response;
   try {
     res = await fetch(path, {
@@ -167,6 +167,8 @@ export type Block = {
   content?: Block[];
   is_error?: boolean;
   media_type?: string;
+  /** An image's or a file's upload, by its id (P9-02). */
+  ref?: string;
 };
 
 export type Message = {
@@ -346,9 +348,9 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   return ended;
 }
 
-/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. See readTurn for what it returns. */
-export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string): Promise<boolean> {
-  return readTurn("POST", turnsPath(chatId), model ? { text, model } : { text }, "", reader);
+/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. `blocks`, when given, is the message in place of `text` (P9-02). See readTurn for what it returns. */
+export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string, blocks?: Block[]): Promise<boolean> {
+  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...(model ? { model } : {}) }, "", reader);
 }
 
 /**
@@ -926,6 +928,8 @@ export type Inspection = {
   totals: Totals;
   pinned: number[];
   skips: Skip[];
+  /** What each call was given of the chat's images and files (P9-02); Attachments.tsx reads it. */
+  uploads?: unknown[];
 };
 
 /** What went into each model call of one turn. */
@@ -940,6 +944,7 @@ export async function inspectTurn(chatId: string, turnId: string): Promise<Inspe
     totals: data.totals as Totals,
     pinned: Array.isArray(data.pinned) ? (data.pinned as number[]) : [],
     skips: Array.isArray(data.skips) ? (data.skips as Skip[]) : [],
+    uploads: Array.isArray(data.uploads) ? data.uploads : undefined,
   };
 }
 
@@ -971,6 +976,69 @@ export async function listSkips(chatId: string): Promise<Skip[]> {
 /** Takes an item out of the chat's next turn, or puts it back, and returns what the next turn leaves out. */
 export async function setSkip(chatId: string, kind: string, ref: string, skipped: boolean): Promise<Skip[]> {
   return skipsFrom(await object(skipped ? "PUT" : "DELETE", `${chatPath(chatId)}/skips/${encodeURIComponent(kind)}/${encodeURIComponent(ref)}`));
+}
+
+// ---------------------------------------------------------------------------
+// Attached chats and handoff (P5-06). AttachedChats.tsx and ChatLinks.tsx
+// draw them. docs/architecture/attach-and-handoff.md.
+// ---------------------------------------------------------------------------
+
+/** One chat attached to a chat. */
+export type AttachedChat = {
+  id: string;
+  title: string;
+  /** The summary of its recap, absent until it has one. */
+  summary?: string;
+  /** The chat continues from this one, and it cannot be taken off. */
+  parent: boolean;
+  /** It holds content from a sensitive space: only a local or trusted model is given it. */
+  sensitive: boolean;
+  /** It was made incognito after it was attached, so no call carries it. */
+  incognito: boolean;
+  added: string;
+};
+
+/** A chat named for a link to it. */
+export type ChatRef = { id: string; title: string; created: string };
+
+/** A chat's attached chats, the chat it continues from, and the chats handed off from it. */
+export type Attached = {
+  chat_id: string;
+  attached: AttachedChat[];
+  parent?: ChatRef;
+  handoffs: ChatRef[];
+  /** How many it may have attached. */
+  max: number;
+  /** The chat is incognito: it attaches nothing and is not handed off. */
+  incognito: boolean;
+};
+
+function attachedFrom(data: Record<string, unknown>): Attached {
+  if (typeof data.chat_id !== "string" || !Array.isArray(data.attached)) throw new ApiError("not-ready", 200);
+  return {
+    chat_id: data.chat_id,
+    attached: data.attached as AttachedChat[],
+    parent: (data.parent as ChatRef | undefined) ?? undefined,
+    handoffs: Array.isArray(data.handoffs) ? (data.handoffs as ChatRef[]) : [],
+    max: typeof data.max === "number" ? data.max : 0,
+    incognito: data.incognito === true,
+  };
+}
+
+/** A chat's attached chats and its links. */
+export async function listAttached(chatId: string): Promise<Attached> {
+  return attachedFrom(await object("GET", `${chatPath(chatId)}/attached`));
+}
+
+/** Attaches another of the person's chats to a chat, or takes it off, and returns the chat's attached chats. */
+export async function setAttached(chatId: string, otherId: string, attached: boolean): Promise<Attached> {
+  return attachedFrom(await object(attached ? "PUT" : "DELETE", `${chatPath(chatId)}/attached/${encodeURIComponent(otherId)}`));
+}
+
+/** Hands a chat off: a fresh chat that continues from it. `model` is the one the parent would use next. */
+export async function handOff(chatId: string): Promise<{ chat: OpenChat; parent: ChatRef; model?: string }> {
+  const data = await object("POST", `${chatPath(chatId)}/handoff`);
+  return { chat: openChatFrom(data.chat), parent: data.parent as ChatRef, model: typeof data.model === "string" ? data.model : undefined };
 }
 
 // Background tasks (P8-01). A task works in a chat of its own and writes its

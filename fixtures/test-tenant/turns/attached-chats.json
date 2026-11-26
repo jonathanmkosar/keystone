@@ -1,0 +1,67 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a question about the chat a handoff continues from, with its summary in the call",
+      "when": { "user_text": "What did we settle in the chat this one continues from?", "system_contains": "Walk to the old lighthouse on Saturday." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "In the chat this one continues from, **Planning the lighthouse walk**, you settled on walking to the old lighthouse on Saturday, and on what to bring: water, a windproof jacket, shoes with a good grip, food and a paper map.\n\nThis reply is a recorded turn: the summary of the earlier chat was in the call for real, and these words were written in advance." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 520, "output_tokens": 60 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "the same question, with no summary in the call",
+      "when": { "user_text": "What did we settle in the chat this one continues from?" },
+      "steps": [
+        {
+          "reply": {
+            "message": { "role": "assistant", "blocks": [ { "type": "text", "text": "I cannot see the chat this one continues from, so I cannot say what was settled in it." } ] },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 300, "output_tokens": 25 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a question only the attached chat's messages answer",
+      "when": { "user_text": "Where does the phone signal drop on the way to the lighthouse?" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The summary does not say, so I will open the attached chat." },
+                { "type": "tool_call", "id": "call_open_attached", "name": "open_attached_chat", "input": { "page": 1 } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 540, "output_tokens": 30 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "In the attached chat the reply says the signal drops after the second gate on the headland, which is why it suggests a paper map.\n\nThis reply is a recorded turn: the attached chat was opened for real, and these words were written in advance." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 900, "output_tokens": 45 }
+          }
+        }
+      ]
+    }
+  ]
+}

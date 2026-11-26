@@ -8,6 +8,7 @@ import { ChatsProvider } from "./chats";
 import { Chats, Missing, Soon } from "./pages";
 import { Settings } from "./Settings";
 import { Scheduled } from "./Scheduled";
+import { Memory } from "./Memory";
 import { useTheme, type ThemeChoice } from "./theme";
 
 // The setting that holds a person's theme, so it follows them to another
@@ -119,6 +120,7 @@ export function App() {
           <Route path="/artifacts" element={<Soon title="Artifacts" />} />
           <Route path="/agents" element={<Soon title="Agents" />} />
           <Route path="/scheduled" element={<Scheduled />} />
+          <Route path="/memory" element={<Memory />} />
           <Route
             path="/settings/*"
             element={<Settings person={session.person} theme={theme} onTheme={chooseTheme} onThemeKept={setTheme} onSignedOut={check} />}

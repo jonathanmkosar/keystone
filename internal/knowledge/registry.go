@@ -75,5 +75,10 @@ func Open(ctx context.Context, name string, t *tenant.Store) (Store, error) {
 	if s == nil {
 		return nil, fmt.Errorf("knowledge store %s: the adapter returned no store", name)
 	}
+	if t != nil && name != None {
+		// The tenant's withdrawn sources are left out of every answer (P6-07,
+		// withdrawn.go).
+		return &withdrawing{Store: s, t: t, adapter: name}, nil
+	}
 	return s, nil
 }

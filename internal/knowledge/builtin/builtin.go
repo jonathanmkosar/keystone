@@ -143,7 +143,7 @@ type querier interface {
 }
 
 func (s *store) Capabilities() knowledge.Capabilities {
-	return knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true}
+	return knowledge.Capabilities{AddSource: true, CatalogMarker: true, VectorSearch: true, PageVectors: true, RemoveSource: true}
 }
 
 func (s *store) Catalog(ctx context.Context) ([]knowledge.Entry, error) {
