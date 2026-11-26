@@ -26,6 +26,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/internal/uploads"
+	"github.com/jonathanmkosar/keystone/internal/usagereport"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -216,6 +217,7 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, schedules.Routes(c.schedules)...) // scheduled tasks' (P8-03)
 	// Uploads to a chat (P9-02).
 	all = append(all, uploads.Routes(c.Uploads)...)
+	all = append(all, usagereport.Routes(usagereport.Options{PageLimit: c.PageLimit, Log: log})...) // the usage report (P11-02)
 	return all
 }
 

@@ -14428,6 +14428,799 @@
         },
         "summary": "What may be uploaded: the largest size, the image and document types, and the endings of text files."
       }
+    },
+    "/api/v1/usage": {
+      "get": {
+        "parameters": [
+          {
+            "description": "this_month, last_month, last_7_days or last_30_days.",
+            "in": "query",
+            "name": "period",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "A calendar month in UTC, such as 2026-11.",
+            "in": "query",
+            "name": "month",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The first day of a range in UTC, such as 2026-11-01, with to.",
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The last day of a range, included, with from. A range covers at most usage.report_max_days days.",
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The most lines each breakdown shows before the rest are added up in one more line, up to server.page_limit. Without it, your usage.report_rows.",
+            "in": "query",
+            "name": "rows",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Breakdowns": {
+                      "properties": {
+                        "chats": {
+                          "items": {
+                            "properties": {
+                              "Sum": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "hosted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "local": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "trusted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "local",
+                                  "hosted",
+                                  "trusted"
+                                ],
+                                "type": "object"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "rest": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "label",
+                              "Sum"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "kinds": {
+                          "items": {
+                            "properties": {
+                              "Sum": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "hosted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "local": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "trusted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "local",
+                                  "hosted",
+                                  "trusted"
+                                ],
+                                "type": "object"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "rest": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "label",
+                              "Sum"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "Sum": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "hosted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "local": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "trusted": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "local",
+                                  "hosted",
+                                  "trusted"
+                                ],
+                                "type": "object"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "key": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "rest": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "label",
+                              "Sum"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "rows": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "properties": {
+                            "Total": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "hosted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "local": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "trusted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "Total",
+                            "local",
+                            "hosted",
+                            "trusted"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "models",
+                        "chats",
+                        "kinds",
+                        "rows"
+                      ],
+                      "type": "object"
+                    },
+                    "cap": {
+                      "properties": {
+                        "left_micros": {
+                          "type": "integer"
+                        },
+                        "limit_micros": {
+                          "type": "integer"
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "warn_at_micros": {
+                          "type": "integer"
+                        },
+                        "warn_percent": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "month",
+                        "spent_micros",
+                        "limit_micros",
+                        "warn_percent",
+                        "warn_at_micros",
+                        "left_micros",
+                        "state"
+                      ],
+                      "type": "object"
+                    },
+                    "memory_reserve": {
+                      "properties": {
+                        "left_micros": {
+                          "type": "integer"
+                        },
+                        "limit_micros": {
+                          "type": "integer"
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "problem": {
+                          "type": "string"
+                        },
+                        "spent_micros": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "month",
+                        "spent_micros",
+                        "limit_micros",
+                        "left_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "period": {
+                      "properties": {
+                        "from": {
+                          "type": "string"
+                        },
+                        "month": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "from",
+                        "to"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "Breakdowns",
+                    "cap",
+                    "memory_reserve"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Your usage for a period: what your model calls cost and their tokens, in total and by model, by chat and by kind of work, each split into local, hosted and trusted models, with this month against the monthly cap and the memory pass's reserve. Summed from the usage records, so the lines of each breakdown add up to the total. With no query, the period is your usage.report_period."
+      }
     }
   },
   "security": [
