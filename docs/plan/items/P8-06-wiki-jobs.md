@@ -1,6 +1,6 @@
 # P8-06. Wiki upkeep jobs
 
-Status: todo
+Status: doing (agents)
 Lane: agents + knowledge
 Depends on: P8-03, P6-03, P6-06
 Owner gate: none
