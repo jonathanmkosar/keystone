@@ -18,6 +18,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/connectors"
 	"github.com/jonathanmkosar/keystone/internal/jobs"
+	"github.com/jonathanmkosar/keystone/internal/operations"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
@@ -95,6 +96,9 @@ type Config struct {
 	// Uploads is what may be uploaded to a chat (P9-02), in
 	// settings/uploads.json.
 	Uploads uploads.Options
+	// Operations is what the sampler of every person's limits runs with
+	// (P11-03), in settings/core.json.
+	Operations operations.Config
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -143,6 +147,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Uploads' settings (P9-02), in settings/uploads.json.
 	if c.Uploads, err = uploads.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
+	// The sampler's settings for Operations (P11-03), in settings/core.json.
+	if c.Operations, err = operations.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -232,6 +240,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// Uploads to a chat (P9-02).
 	all = append(all, uploads.Routes(c.Uploads)...)
 	all = append(all, usagereport.Routes(usagereport.Options{PageLimit: c.PageLimit, Log: log})...) // the usage report (P11-02)
+	// Operations and Monitor (P11-03).
+	all = append(all, operations.Routes(operations.Options{Schedules: c.schedules.List, Log: log, Now: c.Clock})...)
 	return all
 }
 
@@ -259,6 +269,9 @@ func Handler(c Config) (http.Handler, error) {
 	// stopped starts once (P8-03).
 	c.schedules = c.newSchedules(log)
 	c.schedules.Start(c.runner)
+	// Then every person's limits are recorded now and every
+	// operations.snapshot_every, for Operations' trends (P11-03).
+	operations.Start(c.runner, c.Install, c.Operations, log, c.Clock)
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,

@@ -150,6 +150,125 @@
       "description": "The most days one usage report may cover when it is asked for a range of days."
     },
     {
+      "key": "operations.snapshot_every",
+      "type": "duration",
+      "default": "1h",
+      "scope": "install",
+      "description": "How often the server records where each person's limits stand (the monthly cap, the memory reserve, the disk, their database, files and artifacts), so Operations can show each limit's trend. From 1m to 24h."
+    },
+    {
+      "key": "operations.snapshot_keep",
+      "type": "duration",
+      "default": "840h",
+      "scope": "install",
+      "description": "How long a snapshot of a limit is kept before it is removed. 840h is 35 days."
+    },
+    {
+      "key": "operations.database_room_mb",
+      "type": "int",
+      "default": "2048",
+      "scope": "install",
+      "description": "The size, in megabytes, a person's database (keystone.db with its write-ahead log) is planned to grow to. Operations shows the database against it."
+    },
+    {
+      "key": "operations.files_room_mb",
+      "type": "int",
+      "default": "20480",
+      "scope": "install",
+      "description": "The room, in megabytes, set for one person's files folder: uploads and project files. Operations shows the folder against it."
+    },
+    {
+      "key": "operations.artifacts_room_mb",
+      "type": "int",
+      "default": "5120",
+      "scope": "install",
+      "description": "The room, in megabytes, set for one person's artifacts folder. Operations shows the folder against it."
+    },
+    {
+      "key": "operations.trend_window",
+      "type": "duration",
+      "default": "168h",
+      "scope": "tenant",
+      "description": "How far back Operations looks to tell each limit's trend: its growth a day and when it would fill at that rate. 168h is a week; the monthly cap and the memory reserve look back no further than the start of the month."
+    },
+    {
+      "key": "operations.health_window",
+      "type": "duration",
+      "default": "24h",
+      "scope": "tenant",
+      "description": "The recent window Operations reads each model's calls, errors, refusals and median time over, and the background tasks that failed."
+    },
+    {
+      "key": "operations.jobs_shown",
+      "type": "int",
+      "default": "10",
+      "scope": "tenant",
+      "description": "How many of the newest background tasks and scheduled runs Operations lists, and how many of those that failed. From 1 to 100."
+    },
+    {
+      "key": "operations.traces_shown",
+      "type": "int",
+      "default": "20",
+      "scope": "tenant",
+      "description": "How many of the newest traces Operations lists: each turn or run with its calls, tool steps, tokens, cost and outcome. From 1 to 100."
+    },
+    {
+      "key": "operations.stuck_after",
+      "type": "duration",
+      "default": "30m",
+      "scope": "tenant",
+      "description": "A background task or scheduled run whose round has gone on longer than this, and is not paused or waiting for your approval, is listed as stuck on Operations."
+    },
+    {
+      "key": "operations.model_error_watch_percent",
+      "type": "int",
+      "default": "10",
+      "scope": "tenant",
+      "description": "The share of a model's calls in the health window, in percent, that may fail before Operations shows the model as having errors."
+    },
+    {
+      "key": "operations.watch_disk_percent",
+      "type": "int",
+      "default": "90",
+      "scope": "tenant",
+      "description": "How full the volume that holds Keystone's data folder may get, in percent, before Operations and the home screen tell you."
+    },
+    {
+      "key": "operations.watch_database_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "How much of its planned size your database may reach, in percent, before Operations and the home screen tell you."
+    },
+    {
+      "key": "operations.watch_files_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "How much of its room your files folder may use, in percent, before Operations and the home screen tell you."
+    },
+    {
+      "key": "operations.watch_artifacts_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "How much of its room your artifacts folder may use, in percent, before Operations and the home screen tell you."
+    },
+    {
+      "key": "operations.watch_reserve_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "How much of the memory pass's reserve may be spent in a month, in percent, before Operations and the home screen tell you. The monthly cap's own level is usage.cap_warn_percent."
+    },
+    {
+      "key": "operations.watch_run_budget_percent",
+      "type": "int",
+      "default": "80",
+      "scope": "tenant",
+      "description": "How much of its own budget a background task or scheduled run under way may spend, in percent, before Operations and the home screen tell you."
+    },
+    {
       "key": "data.dir",
       "type": "string",
       "default": "data",

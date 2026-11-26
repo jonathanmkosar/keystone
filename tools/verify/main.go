@@ -130,6 +130,7 @@ var checks = []check{
 	{"projects", checkProjects},
 	{"usage report", checkUsageReport},
 	{"embeddings", checkEmbeddings},
+	{"operations", checkOperations},
 }
 
 func main() {
