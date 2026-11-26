@@ -287,6 +287,19 @@ Its calls, all in `src/api.ts`:
 
 Seen in a browser on November 25, 2026: see "Checked by" in [connectors.md](connectors.md).
 
+## Connect Google (P12-02)
+
+The Google section at the top of Settings → Connectors (`GoogleSettings.tsx`), and the page Google sends the browser back to, `/settings/connectors/google`, which is the same screen: it posts the code and state once, replaces the address with `/settings/connectors` so the code leaves the bar and the history, and reloads the list. The server's side is [google.md](google.md). `ConnectorSettings.tsx` draws a Google connector as "Google", "signed in", with no token field. `ApprovalSettings.tsx` marks a tool with `reaches_others`. The approval card shows each line of its summary on its own line (`approval.css`). `steps.ts` has words for the nine Gmail and Calendar tools, with a mail and a calendar icon.
+
+| Call | Function | Where |
+| --- | --- | --- |
+| `GET /api/v1/google` | `googleStatus` | The Google section. |
+| `POST /api/v1/google/start` | `startGoogle` | Connect Google, Connect again: the browser then goes to the answer's `url`. |
+| `POST /api/v1/google/finish` | `finishGoogle` | The return page. |
+| `DELETE /api/v1/google` | `disconnectGoogle` | Disconnect, after asking once more. |
+
+Seen in a browser on November 25, 2026: see "Checked by" in [google.md](google.md).
+
 ## The turn inspector and pins (P5-04)
 
 The panel that shows what went into a turn, and Pin beside Copy on every message. The server's side and the panel's contents are in [inspector.md](inspector.md). Provisional until the inspector mockup (P1-06): there is none, so it is built from the tokens and the patterns of the chat screen (decision [0273](decisions/0273-the-inspector-is-a-panel-opened-from-a-reply.md)).

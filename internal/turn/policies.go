@@ -28,6 +28,9 @@ type ToolPolicy struct {
 	// Keystone's own and not outside content.
 	ReadOnly bool `json:"read_only"`
 	Inside   bool `json:"inside"`
+	// ReachesOthers says some calls of the tool reach other people, and
+	// those always ask, whatever the policy (P12-02).
+	ReachesOthers bool `json:"reaches_others"`
 	// Default is the policy the tool has until the person sets one.
 	Default string `json:"default"`
 	// Policy is the one in force: the person's own, or the default.
@@ -93,7 +96,7 @@ func (r *Runner) withoutNever(ctx context.Context, s *tenant.Store, defs []seam.
 func (r *Runner) knownTools(ctx context.Context, s *tenant.Store) []ToolPolicy {
 	var out []ToolPolicy
 	for _, t := range r.o.Tools.List() {
-		out = append(out, ToolPolicy{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside})
+		out = append(out, ToolPolicy{Name: t.Name, Description: t.Description, ReadOnly: t.ReadOnly, Inside: t.Inside, ReachesOthers: t.ReachesOthers})
 	}
 	if list, err := recall.Lookups(false, recall.LookupOptions{MaxResults: 10, MaxChars: 6000}); err == nil {
 		for _, l := range list {

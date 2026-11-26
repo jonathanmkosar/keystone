@@ -1,6 +1,6 @@
 # P8-05. Unattended spend and the pause switch
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P8-01, P3-08
 Owner gate: none

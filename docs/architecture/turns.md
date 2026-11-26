@@ -269,6 +269,12 @@ Since scheduled tasks (P8-03), added and nothing changed. `docs/api/openapi.json
 - `GET /chats/{id}/tasks` on a run's chat lists the run's task, whose `chat_id` and `work_chat_id` are both that chat.
 - Ten schedule routes under `/schedules`, in `internal/schedules`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
 
+Since Gmail and Calendar (P12-02), added and nothing changed. `docs/api/openapi.json` gains four routes and their shapes. The whole of it is [google.md](google.md).
+
+- `GET /google`, `POST /google/start`, `POST /google/finish` and `DELETE /google`: the person's Google sign-in. 409 `not_set_up`, 400 `no_redirect`, `bad_state` or `refused`, 502 `google_refused`.
+- An `approval` event and `Approval` may have the reason `others`: the call reaches other people, so it asks whatever its policy. `ToolPolicy` gains `reaches_others`.
+- A turn may call the Gmail and Calendar tools, `gmail_*` and `calendar_*`, once the person has connected Google.
+
 ## How a turn runs
 
 Decisions [0140](decisions/0140-a-turn-and-its-events-are-rows.md) to [0144](decisions/0144-the-test-tenants-model-is-in-no-registry.md) say why it is built this way.
@@ -421,6 +427,8 @@ The three chat record settings in [chat.md](chat.md) and the budget's in [budget
 ## Connectors
 
 Since P7-04, `build` in `context.go` asks `withConnectors` in `connectors.go` for what the call offers from the person's connectors, after the server's tools and the knowledge lookups, and keeps on the turn's row (`t.connectors`, made in `work`) every connector tool the call's replies may name. `toolFor` and `runPlanned` in `approvals.go` find those tools there, run each through a registry of its own, and `noteOutside` marks the chat once one that is not inside has run. A paused step asks for them again in `resumeStep`. `policies.go` lists them for the approvals screen. `Options.Connectors` is the server's `connectors.Pool`, closed with the runner. See [connectors.md](connectors.md).
+
+Since P12-02, `approveStep` passes `tool.Reaches(input)` to `approval.Decide` as `Others`, and `askWhy` gives the card's sentence for the reason `others`. `policies.go` and `connectors.go` copy `ReachesOthers` onto each `ToolPolicy`. See [approvals.md](approvals.md) and [google.md](google.md).
 
 ## Routing, usage and the spend cap
 

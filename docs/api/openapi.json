@@ -8005,6 +8005,405 @@
         "summary": "Reach a connector now and keep the tools it lists, or why it could not be reached."
       }
     },
+    "/api/v1/google": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    },
+                    "connected_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "missing": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "redirect": {
+                      "type": "string"
+                    },
+                    "redirect_path": {
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "services": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "type": "boolean"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "granted": {
+                            "type": "boolean"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "service": {
+                            "type": "string"
+                          },
+                          "tools": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "label",
+                          "granted",
+                          "added",
+                          "enabled",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "set_up": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "set_up",
+                    "missing",
+                    "connected",
+                    "scopes",
+                    "services",
+                    "redirect_path"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Disconnect Google: the sign-in is revoked at Google, taken out of the vault, and the Gmail and Calendar connectors and their tools' policies are removed."
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    },
+                    "connected_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "missing": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "redirect": {
+                      "type": "string"
+                    },
+                    "redirect_path": {
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "services": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "type": "boolean"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "granted": {
+                            "type": "boolean"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "service": {
+                            "type": "string"
+                          },
+                          "tools": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "label",
+                          "granted",
+                          "added",
+                          "enabled",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "set_up": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "set_up",
+                    "missing",
+                    "connected",
+                    "scopes",
+                    "services",
+                    "redirect_path"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The person's Google sign-in for the Gmail and Calendar connectors: whether Google is set up on this install and what is missing, the account connected, and each service. Never a token."
+      }
+    },
+    "/api/v1/google/finish": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "state",
+                  "code",
+                  "error"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "connected": {
+                      "type": "boolean"
+                    },
+                    "connected_at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "missing": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "redirect": {
+                      "type": "string"
+                    },
+                    "redirect_path": {
+                      "type": "string"
+                    },
+                    "scopes": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "services": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "type": "boolean"
+                          },
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "granted": {
+                            "type": "boolean"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "service": {
+                            "type": "string"
+                          },
+                          "tools": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "label",
+                          "granted",
+                          "added",
+                          "enabled",
+                          "tools"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "set_up": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "set_up",
+                    "missing",
+                    "connected",
+                    "scopes",
+                    "services",
+                    "redirect_path"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Finish a Google sign-in with the state and code Google sent the browser back with: the refresh token is kept in the person's vault, and the Gmail and Calendar connectors are added for what was granted."
+      }
+    },
+    "/api/v1/google/start": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "services": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "services"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "redirect": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "redirect"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Start a Google sign-in with PKCE for Gmail, Calendar or both, and answer with Google's sign-in address. Google sends the browser back to the page at /settings/connectors/google, or to agents.google_redirect_url."
+      }
+    },
     "/api/v1/models": {
       "get": {
         "responses": {
@@ -11521,6 +11920,9 @@
                           "policy": {
                             "type": "string"
                           },
+                          "reaches_others": {
+                            "type": "boolean"
+                          },
                           "read_only": {
                             "type": "boolean"
                           }
@@ -11530,6 +11932,7 @@
                           "description",
                           "read_only",
                           "inside",
+                          "reaches_others",
                           "default",
                           "policy",
                           "overridden"
@@ -11599,6 +12002,9 @@
                     "policy": {
                       "type": "string"
                     },
+                    "reaches_others": {
+                      "type": "boolean"
+                    },
                     "read_only": {
                       "type": "boolean"
                     }
@@ -11608,6 +12014,7 @@
                     "description",
                     "read_only",
                     "inside",
+                    "reaches_others",
                     "default",
                     "policy",
                     "overridden"
@@ -11684,6 +12091,9 @@
                     "policy": {
                       "type": "string"
                     },
+                    "reaches_others": {
+                      "type": "boolean"
+                    },
                     "read_only": {
                       "type": "boolean"
                     }
@@ -11693,6 +12103,7 @@
                     "description",
                     "read_only",
                     "inside",
+                    "reaches_others",
                     "default",
                     "policy",
                     "overridden"

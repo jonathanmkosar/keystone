@@ -46,6 +46,10 @@ import (
 const (
 	TransportStdio = "stdio"
 	TransportHTTP  = "http"
+	// TransportGoogle is a built-in connector: Gmail or Google Calendar,
+	// whose tools are Keystone's own, reached with the person's Google
+	// sign-in (P12-02, google.go).
+	TransportGoogle = "google"
 )
 
 // Who added a connector.
@@ -176,6 +180,8 @@ func Check(c Connector) error {
 		return checkStdio(c)
 	case TransportHTTP:
 		return checkHTTP(c)
+	case TransportGoogle:
+		return checkGoogle(c) // P12-02, google.go
 	}
 	return bad("its transport must be stdio or http")
 }

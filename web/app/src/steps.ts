@@ -103,6 +103,34 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
     const which = names.length === 0 ? "connector tools" : cut(names.join(", "), 64);
     return { icon: "plug", running: `Loading ${which}`, asked: `Load ${which}`, done: `Loaded ${which}`, meta: names.length > 1 ? `${names.length} tools` : "" };
   },
+  // Gmail and Calendar (P12-02): their tools, read as what they do to the person's mail and calendar.
+  gmail_search: (args) => {
+    const q = quoted(args.query);
+    return { icon: "mail", running: q ? `Searching your mail for ${q}` : "Reading your newest mail", asked: q ? `Search your mail for ${q}` : "Read your newest mail", done: q ? `Searched your mail for ${q}` : "Read your newest mail", meta: "" };
+  },
+  gmail_read: () => ({ icon: "mail", running: "Reading an email", asked: "Read an email", done: "Read an email", meta: "" }),
+  gmail_draft: (args) => {
+    const to = recipients(args.to);
+    return { icon: "mail", running: `Drafting an email${to}`, asked: `Draft an email${to}`, done: `Drafted an email${to}`, meta: "not sent" };
+  },
+  gmail_send: (args) => {
+    const to = recipients(args.to);
+    return { icon: "mail", running: `Sending an email${to}`, asked: `Send an email${to}`, done: `Sent an email${to}`, meta: "" };
+  },
+  calendar_list_events: () => ({ icon: "calendar", running: "Reading your calendar", asked: "Read your calendar", done: "Read your calendar", meta: "" }),
+  calendar_get_event: () => ({ icon: "calendar", running: "Reading an event", asked: "Read an event", done: "Read an event", meta: "" }),
+  calendar_create_event: (args) => {
+    const t = quoted(args.title);
+    return { icon: "calendar", running: `Adding ${t || "an event"} to your calendar`, asked: `Add ${t || "an event"} to your calendar`, done: `Added ${t || "an event"} to your calendar`, meta: guestCount(args.guests) };
+  },
+  calendar_update_event: (args) => {
+    const t = quoted(args.title) || "an event";
+    return { icon: "calendar", running: `Changing ${t}`, asked: `Change ${t}`, done: `Changed ${t}`, meta: guestCount(args.guests) };
+  },
+  calendar_delete_event: (args) => {
+    const t = quoted(args.title) || "an event";
+    return { icon: "calendar", running: `Deleting ${t}`, asked: `Delete ${t}`, done: `Deleted ${t}`, meta: guestCount(args.guests) };
+  },
   // The web tools (P7-03). Their results are numbered sources: citations.tsx.
   web_search: (args, result) => {
     const q = quoted(args.query);
@@ -128,6 +156,18 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
     };
   },
 };
+
+/** " to a, b" for an email's recipients (P12-02), cut short; empty for none. */
+function recipients(v: unknown): string {
+  const list = Array.isArray(v) ? v.filter((x): x is string => typeof x === "string" && x.trim() !== "") : [];
+  return list.length === 0 ? "" : ` to ${cut(list.join(", "), 56)}`;
+}
+
+/** How many guests an event's call names (P12-02), for the right of its row. */
+function guestCount(v: unknown): string {
+  const n = Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim() !== "").length : 0;
+  return n === 0 ? "" : n === 1 ? "1 guest" : `${n} guests`;
+}
 
 /** The site of an address, for a row: its host without "www.". */
 function siteOf(v: unknown): string {

@@ -79,7 +79,15 @@ func (p *Pool) ForCall(ctx context.Context, s *tenant.Store, chatID string, mess
 				p.logf("connectors: tenant %s: %s's tool %s is not offered, because a tool of that name already is", s.TenantID(), k.Name, t.Tool)
 				continue
 			}
-			run[t.Name] = p.tool(s.TenantID(), k.Connector, t)
+			if k.Transport == TransportGoogle {
+				gt, ok := p.googleTool(s.TenantID(), k.Connector, t) // Gmail and Calendar (P12-02)
+				if !ok {
+					continue
+				}
+				run[t.Name] = gt
+			} else {
+				run[t.Name] = p.tool(s.TenantID(), k.Connector, t)
+			}
 			if loaded[t.Name] {
 				offer = append(offer, seam.Tool{Name: t.Name, Description: fullDescription(k.Connector, t), InputSchema: t.Schema})
 				continue
@@ -122,7 +130,13 @@ func Known(ctx context.Context, s *tenant.Store) []tools.Info {
 	var out []tools.Info
 	for _, k := range kept {
 		for _, t := range k.Tools {
-			out = append(out, tools.Info{Name: t.Name, Description: fullDescription(k.Connector, t), ReadOnly: t.ReadOnly, Inside: !k.Outside})
+			info := tools.Info{Name: t.Name, Description: fullDescription(k.Connector, t), ReadOnly: t.ReadOnly, Inside: !k.Outside}
+			if ro, reaches, ok := googleFlags(k, t); ok {
+				info.ReadOnly, info.ReachesOthers = ro, reaches // P12-02
+			} else if k.Transport == TransportGoogle {
+				continue // a tool Keystone no longer has
+			}
+			out = append(out, info)
 		}
 	}
 	if len(out) > 0 {

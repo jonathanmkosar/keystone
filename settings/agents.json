@@ -58,6 +58,76 @@
       "description": "How long Keystone waits before it tries again to reach a connector that has never listed its tools and could not be reached when a chat asked for tools."
     },
     {
+      "key": "agents.google_client_id",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "The id of the Google OAuth client this person's Gmail and Calendar connectors sign in with, from the Google Cloud console. Empty means Google is not set up for them. The client's secret is stored in their vault as google.client_secret, never here."
+    },
+    {
+      "key": "agents.google_redirect_url",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "The address Google sends the browser back to after this person signs in, as registered on the OAuth client, such as https://keystone.example/settings/connectors/google. Empty means the address of the page Connect Google was pressed on, with /settings/connectors/google."
+    },
+    {
+      "key": "agents.google_auth_endpoint",
+      "type": "string",
+      "default": "https://accounts.google.com/o/oauth2/v2/auth",
+      "scope": "install",
+      "description": "Google's sign-in page, where Connect Google sends the browser."
+    },
+    {
+      "key": "agents.google_token_endpoint",
+      "type": "string",
+      "default": "https://oauth2.googleapis.com/token",
+      "scope": "install",
+      "description": "Google's token address, where Keystone trades a sign-in's code for tokens and gets new access tokens."
+    },
+    {
+      "key": "agents.google_revoke_endpoint",
+      "type": "string",
+      "default": "https://oauth2.googleapis.com/revoke",
+      "scope": "install",
+      "description": "Google's address for revoking a sign-in, used when a person disconnects Google."
+    },
+    {
+      "key": "agents.google_gmail_endpoint",
+      "type": "string",
+      "default": "https://gmail.googleapis.com/gmail/v1",
+      "scope": "install",
+      "description": "The Gmail API, up to and not including /users."
+    },
+    {
+      "key": "agents.google_calendar_endpoint",
+      "type": "string",
+      "default": "https://www.googleapis.com/calendar/v3",
+      "scope": "install",
+      "description": "The Google Calendar API, up to and not including /calendars."
+    },
+    {
+      "key": "agents.google_timeout",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long one call to Google may take, its sign-in included."
+    },
+    {
+      "key": "agents.google_sign_in_window",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "How long a Google sign-in may take from Connect Google to the browser's return. A sign-in that takes longer is refused, and the person connects again."
+    },
+    {
+      "key": "agents.google_list_max",
+      "type": "int",
+      "default": "25",
+      "scope": "install",
+      "description": "The most messages one Gmail search, or events one calendar list, returns. From 1 to 100."
+    },
+    {
       "key": "agents.approval_timeout",
       "type": "duration",
       "default": "24h",

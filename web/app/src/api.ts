@@ -627,6 +627,8 @@ export type ToolPolicy = {
   read_only: boolean;
   /** Its result is Keystone's own, not outside content. */
   inside: boolean;
+  /** Some calls of it reach other people, and those always ask (P12-02). */
+  reaches_others?: boolean;
   default: string;
   policy: string;
   overridden: boolean;
@@ -666,7 +668,8 @@ export type ConnectorTool = { name: string; tool: string; title?: string; descri
 export type Connector = {
   name: string;
   label: string;
-  transport: "http" | "stdio";
+  /** google is Gmail or Calendar, built in (P12-02). */
+  transport: "http" | "stdio" | "google";
   command?: string;
   args: string[];
   /** A stdio connector's environment, by the names of its variables only. */
@@ -738,6 +741,55 @@ export async function chatConnectors(chatId: string): Promise<ChatConnector[]> {
 /** Switches one connector on or off in one chat. */
 export async function switchChatConnector(chatId: string, name: string, on: boolean): Promise<ChatConnector[]> {
   return chatConnectorsFrom(await object("PUT", `${chatPath(chatId)}/connectors/${encodeURIComponent(name)}`, { on }));
+}
+
+// Connect Google (P12-02): the person's Google sign-in for the Gmail and
+// Calendar connectors. docs/architecture/google.md has the server's side. No
+// call here returns a token: the code Google sends back is posted once and
+// dropped.
+
+/** One Google service in the person's status. */
+export type GoogleService = { service: string; label: string; granted: boolean; added: boolean; enabled: boolean; tools: number; problem?: string };
+
+/** Whether Google is set up, and whether and as whom the person is connected. */
+export type GoogleStatus = {
+  set_up: boolean;
+  /** What the admin must add, in words. */
+  missing: string[];
+  connected: boolean;
+  email?: string;
+  scopes: string[];
+  connected_at?: string;
+  services: GoogleService[];
+  /** The admin's fixed return address, when set. */
+  redirect?: string;
+  redirect_path: string;
+};
+
+function googleStatusFrom(data: unknown): GoogleStatus {
+  const s = data as Partial<GoogleStatus> | undefined;
+  if (!s || typeof s.set_up !== "boolean" || !Array.isArray(s.services) || !Array.isArray(s.missing)) throw new ApiError("not-ready", 200);
+  return s as GoogleStatus;
+}
+
+export async function googleStatus(): Promise<GoogleStatus> {
+  return googleStatusFrom(await call("GET", "/api/v1/google"));
+}
+
+/** Starts a sign-in, and answers with Google's sign-in page to send the browser to. */
+export async function startGoogle(services: string[]): Promise<{ url: string; redirect: string }> {
+  const data = (await call("POST", "/api/v1/google/start", { services })) as { url?: unknown; redirect?: unknown } | undefined;
+  if (typeof data?.url !== "string" || !/^https?:\/\//.test(data.url)) throw new ApiError("not-ready", 200);
+  return { url: data.url, redirect: typeof data.redirect === "string" ? data.redirect : "" };
+}
+
+/** Finishes a sign-in with what Google sent the browser back with. */
+export async function finishGoogle(body: { state: string; code?: string; error?: string }): Promise<GoogleStatus> {
+  return googleStatusFrom(await call("POST", "/api/v1/google/finish", body));
+}
+
+export async function disconnectGoogle(): Promise<GoogleStatus> {
+  return googleStatusFrom(await call("DELETE", "/api/v1/google"));
 }
 
 // ---------------------------------------------------------------------------
