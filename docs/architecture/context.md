@@ -125,6 +125,8 @@ The record is the request: the tests put the request together again from the rec
 
 The turn runner stores the record of every model call in `turn_contexts` (migration `20261125T070000_turn_contexts.sql`): the turn, the step, and the record as JSON. `turn.Contexts(ctx, store, turnID)` reads them back in order. That is what the turn inspector (P5-04) will show. The rows go when the turn's chat is deleted. A record that cannot be stored is logged and does not stop the call, because the audit log still holds what was sent.
 
+Since P9-02 the turn fills `Attached`: `Runner.withUploads` (`internal/turn/uploads.go`) readies the branch's images and files for the call's route before `Build`, and gives the text of the chat's text files as items, the newest file first, each labelled `file: <name>` with the ref `upload:<id>`. They are packed within `chats.context_attached_percent` like any attachment and listed in the record with their tokens ([uploads.md](uploads.md)).
+
 ## Settings
 
 All in `settings/chats.json`, and all a person may set for themselves. The runner reads them for each call.

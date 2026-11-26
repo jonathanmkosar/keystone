@@ -55,6 +55,8 @@ After adding or changing a route, bring the committed document up to date:
 
     go run ./cmd/keystone openapi --out docs/api/openapi.json
 
+Since P9-02 a route may take a larger body than `server.max_body_bytes`: its `MaxBodyBytes`, when it is larger, is the limit for that route alone, found by the shell's own mux before the body is read. The upload route uses it ([uploads.md](uploads.md), decision [0384](decisions/0384-a-route-may-take-a-larger-body.md)).
+
 ## Door routes
 
 A door route is served before sign-in. It sets `Door: true` and has `Open` in place of `Handle`. It is given no store.

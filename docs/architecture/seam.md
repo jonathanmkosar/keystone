@@ -100,6 +100,8 @@ A provider is safe to use from several goroutines at once. Decision [0015](decis
 
 Every type has JSON tags, and that JSON is how the format is stored and sent: in the chat record, the audit log, the API's event stream and the fake provider's fixtures. The `Encode` functions validate before writing. The `Decode` functions refuse an unknown field and validate after reading.
 
+Since P9-02, `Images(r)` counts the image blocks a request carries, in its messages and in tool results. The three real adapters refuse a request where it is more than zero for an entry without `vision` ([uploads.md](uploads.md), decision [0383](decisions/0383-the-adapters-refuse-an-image-to-a-model-without-vision.md)).
+
 ## Checked by
 
 `go test ./internal/seam`. Every block type and every event type goes through JSON and comes back the same. Every block type a model can write goes through a stream and comes back the same. Malformed blocks, messages, requests, events and out-of-order streams are each refused. `Call` returns a whole reply, the stream's own error, an error for a stream with no stop event, and the context's error when the call is cancelled.

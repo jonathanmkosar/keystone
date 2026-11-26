@@ -162,6 +162,8 @@ A provider holds nothing that changes and is safe to use from several goroutines
 
 The SSE reader and the retry loop are this package's own. The other two adapters keep theirs. Nothing is shared between them yet.
 
+Since P9-02 the adapter refuses, while it builds the body and before anything is sent, a request that holds an image for an entry without `vision`, with the seam's `invalid`. `vision_test.go` proves it against a stand-in, and that an entry with `vision` sends the image as an `image_url` part (decision [0383](decisions/0383-the-adapters-refuse-an-image-to-a-model-without-vision.md)).
+
 ## Checked by
 
 `go test ./internal/adapters/chatcompletions`, with no key and no network. Every server is on this machine.
