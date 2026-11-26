@@ -1,0 +1,100 @@
+/* Dictation (P10-01): the composer's microphone button and the line under
+   the text. There is no mockup of either, so they are built from the tokens
+   after the composer of MainDark.html and MainLight.html, and are
+   provisional. Every colour is a token. */
+
+/* Just before the send button. Without the pickers in the row it pushes
+   itself and the send button to the right; after them it does not, or the
+   row's room would be shared. */
+.dictation-button {
+  flex: none;
+  margin-left: auto;
+}
+
+.composer-row > :is(.tools-menu, .style-picker, .model-picker) ~ .dictation-button {
+  margin-left: 0;
+}
+
+.dictation-button.is-listening {
+  background: var(--accent);
+  color: var(--on);
+  animation: dictation-pulse 1.4s ease-in-out infinite;
+}
+
+.dictation-button.is-listening:hover {
+  background: var(--c3);
+  color: var(--on);
+}
+
+.dictation-button.is-finishing {
+  background: var(--soft);
+  color: var(--softink);
+  cursor: progress;
+}
+
+.dictation-button.is-unavailable {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.dictation-status {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.dictation-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.dictation-message.is-problem {
+  color: var(--err);
+}
+
+.dictation-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--strong);
+}
+
+.dictation-dot.is-live {
+  background: var(--accent);
+  animation: working 1.1s ease-in-out infinite;
+}
+
+/* The words still being heard: not in the box yet, so quieter than it. */
+.dictation-interim {
+  max-height: 72px;
+  margin: 0;
+  overflow-y: auto;
+  color: var(--muted);
+  font-size: 14px;
+  font-style: italic;
+  line-height: 22px;
+}
+
+@keyframes dictation-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent), transparent 55%);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent), transparent 85%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dictation-button.is-listening,
+  .dictation-dot.is-live {
+    animation: none;
+  }
+}

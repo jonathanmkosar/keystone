@@ -1,0 +1,40 @@
+{
+  "lane": "voice",
+  "settings": [
+    {
+      "key": "voice.dictation",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether the composer has the microphone button for dictation. In Chrome and Edge the browser sends what you say to its maker's speech service, and Keystone receives only the words; off, the button is not drawn."
+    },
+    {
+      "key": "voice.language",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The language dictation listens for, as a language tag such as en-US or fr-FR. Empty uses the browser's own language."
+    },
+    {
+      "key": "voice.interim",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether dictation shows the words it is still hearing, under the box, before they are final and put in it."
+    },
+    {
+      "key": "voice.max_listen",
+      "type": "duration",
+      "default": "2m",
+      "scope": "tenant",
+      "description": "The longest dictation listens at one go, such as 2m. It then stops and leaves what it heard in the box for you to review. 0s listens until you stop it or the browser does."
+    },
+    {
+      "key": "voice.finish_wait",
+      "type": "duration",
+      "default": "5s",
+      "scope": "install",
+      "description": "How long dictation waits for the browser's last words after it is stopped, before it stops waiting and keeps what it has."
+    }
+  ]
+}
