@@ -100,6 +100,9 @@ func (r *Runner) memoryLater(s *tenant.Store, t row, status string) {
 	if incognito {
 		return
 	}
+	if r.o.SkipMemory != nil && r.o.SkipMemory(ctx, s, t.ChatID) {
+		return // a wiki upkeep job's run (P8-06)
+	}
 	if _, err := memory.Queue(ctx, s, t.ID, t.ChatID); err != nil {
 		r.logf("turns: %s turn %s: the memory pass was not queued: %v", t.requestID, t.ID, err)
 		return

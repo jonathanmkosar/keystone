@@ -123,6 +123,7 @@ var checks = []check{
 	{"uploads", checkUploads},
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
+	{"wiki jobs", checkWikiJobs},
 }
 
 func main() {
