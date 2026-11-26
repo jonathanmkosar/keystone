@@ -61,6 +61,7 @@ A run is started in steps, each noted on the run before the next: the row (`star
 - **One schedule**: `POST …/pause` and `…/resume`. A paused schedule starts no run; resumed, it is due at its first due time after now. The times that passed while it was paused are not made up.
 - **Every schedule**: the person's switch, the tenant setting `agents.schedules_paused`, which `POST /schedules/pause-all` and `…/resume-all` set and which Settings → General shows too. While it is on, no schedule starts a run, and their due times pass and are moved on; when it goes off, every schedule is due at its first due time after now. Nothing is made up (decision [0343](decisions/0343-the-pause-switch-holds-schedules-and-nothing-is-made-up.md)).
 - The switch holds schedules only. A run already under way goes on (it is a background task: it can be stopped in its chat), and it does not hold background tasks. **Run now** still runs. The plan's switch that pauses all agents and schedules at once is P8-05's.
+- **Every agent and schedule** (since P8-05): the person's switch `agents.paused` sits over this one ([unattended-spend.md](unattended-spend.md), decision [0390](decisions/0390-one-switch-pauses-every-agent-over-the-schedules-switch.md)). While it is on, schedules are held as above and each shows as `held`, while `paused` in `SchedulesReply` stays this switch; a run under way is stopped and marked `paused`, and goes on when it goes off; a run started meanwhile, by Run now too, is held. The route that turns it off moves every due time that passed on first, so nothing is made up.
 
 ## The routes
 
@@ -183,6 +184,7 @@ A run is a background task, so `agents.task_budget_usd` is each run's budget, an
 ## Not here yet
 
 - **A budget of its own for each schedule** and the switch that pauses all agents and schedules at once (P8-05). Each run has the background task budget, `agents.task_budget_usd`.
+  - Built in P8-05 ([unattended-spend.md](unattended-spend.md)): each run's budget is the schedule's own (`budget_usd` on `ScheduleBody` and `Schedule`, and `run_budget_micros`, the one in force), or the person's `agents.schedule_budget_usd`, no longer `agents.task_budget_usd`; a run is registered as a scheduled run, so its refusals say so. The budget is each run's, not a month's.
 - **A schedule a model makes** with a tool. A person makes them on the screen or through the routes.
 - **Runs on Operations** (P11-03), across schedules.
 - **A step-by-step run panel** as in the mockup: the run's chat has its steps, and the inspector its tokens.

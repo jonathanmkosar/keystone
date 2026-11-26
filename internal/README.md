@@ -44,3 +44,4 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `jobs` | agents | Background tasks: rounds of turns in a chat of their own, resumed after a restart, with a budget, the task routes, `start_background_task`, and the note of the result |
 | `recap` | chats | Each chat's recap (a summary, its topics and decisions): the request and the answer, when a chat is due, keeping and searching recaps, and fixed rule 3's answer for past chats |
 | `schedules` | agents | Scheduled tasks: schedules in the person's time zone, the scheduler that starts each run as a background task in a chat of its own, a missed run once, the pause switch, and the schedule routes |
+| `unattended` | agents | Unattended spend: the registry of runs (task, scheduled run, sub-agent) with their budgets, the budget gate, the hook that lets a refused call go on to a local model with a notice or ends it, the switch that pauses every agent and schedule, and its routes |

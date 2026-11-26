@@ -73,9 +73,13 @@ Beside these, P8-05 adds to routes that were there:
 - `Task.status` may be `paused` ([jobs.md](jobs.md)), and `StartBody` takes `budget_usd`.
 - `Schedule` has `budget_usd`, its own budget for each run when it has one, and `run_budget_micros`, the one each run has; `ScheduleBody` takes `budget_usd`; `Schedule.held` is true under either switch; a run's `status` may be `paused` ([schedules.md](schedules.md)).
 
+## On the screen
+
+One bar with the switch, `web/app/src/AgentsSwitch.tsx`, drawn under the Scheduled screen's header and above the task cards in a chat: running, **Pause all agents**; paused, the words that say what waits and **Resume all agents**. Settings → General draws the setting from the registry like every other. A paused task's card reads "Background task, paused" with the server's words and keeps Stop; a paused run's pill is "Paused". The schedule form takes a budget for each run, and the schedule's BUDGET fact says whether it is its own. There is no mockup for any of it: the look is a first draft from the tokens until the agent mockups (P1-05). [web.md](web.md) has the calls and what was seen in a browser.
+
 ## Tables
 
-In `internal/tenant/migrations/20261125T200000_unattended_spend.sql`.
+In `internal/tenant/migrations/20261125T224500_unattended_spend.sql`.
 
 | Table or column | Holds |
 | --- | --- |

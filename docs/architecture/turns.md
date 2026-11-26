@@ -257,6 +257,11 @@ Since background tasks (P8-01), added and nothing changed. `docs/api/openapi.jso
 - Five task routes under `/chats/{id}/tasks`, in `internal/jobs`, added to the one list by `internal/app/app.go`. The tenant isolation, calls recorded and no keys in output walks call them like every other.
 - One option, `Options.Gate`, asked before each call to a model that is not local, after the monthly cap. `route.go` changed one line, so a route's gate is the cap and then the option. And one new file, `jobs.go`, of what tasks use: `Send` (a turn with no client), `Get`, `Latest`, `Calls`, `Pending`, `Events`, `ReplyText`, `Stop`, `Changed`, `Go`, `ChatModel`, `Carried` and `Note`. Nothing in it changes how a turn runs.
 
+Since unattended spend (P8-05), added and nothing changed for a chat. `docs/api/openapi.json` was regenerated: it gains the switch's three routes (`GET /agents`, `POST /agents/pause`, `POST /agents/resume`), `budget_usd` on a task's start body and on a schedule, and `run_budget_micros` on a schedule. The whole of it is [unattended-spend.md](unattended-spend.md).
+
+- One option, `Options.Moved` (`unattended.go`), told when a route moves past a model and before the next is tried, which may end the call with an error of its own instead: the failed model's call is recorded with it, and the next is never started. `route.go` changed one line, so a route's `Moved` hook asks the option first. `internal/app` sets it to `unattended.Moved`, which answers only for a turn that is an unattended run's, at the cap or its budget.
+- A background task's rounds may be stopped by the switch that pauses every agent, as the stop route stops them: the call is recorded as stopped. Notes Keystone writes in a task's own chat, for a pause or for a model that stood in at the cap, are `task` notes under a request id of their own.
+
 Since connectors (P7-04), added and nothing changed. `docs/api/openapi.json` was regenerated: it gains the seven routes of `connectors.Routes` and their shapes, and every path and shape it had is the same. The whole of it is [connectors.md](connectors.md).
 
 - `GET /connectors`, `POST /connectors`, `PUT /connectors/{name}`, `DELETE /connectors/{name}` and `POST /connectors/{name}/check`: the person's connectors. 403 `command_line_only` for a command sent through the API, 400 `bad_connector`, 409 `exists` or `full`, 404 `not_found`.

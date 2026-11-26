@@ -1,6 +1,6 @@
 # P8-05. Unattended spend and the pause switch
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P8-01, P3-08
 Owner gate: none
@@ -23,4 +23,14 @@ What is built, in this order, each step ending green:
 6. **The proof**, with the fake provider: tests in `internal/unattended` and `internal/jobs` (at the cap a task falls back to a local model and says so, or stops when fallback is off; a run past its own budget stops and says so; the switch stops every running task within a bound, with a model call that blocks until cancelled, holds a new one, touches only the person's own, and resumes them), and a `verify` standing check, `unattended spend`, on the real server.
 
 Left for later: the sub-agent side (wired when P8-02 lands); a budget per month for a schedule (the budget is each run's); a list of every task (P11-03).
+
+### Result
+
+Done on November 25, 2026. The item has no owner gate, and the proof passes.
+
+- **A budget for every unattended run.** `internal/unattended` keeps a registry of runs, keyed by the request id their turns are sent under, with the kind (task, scheduled run, sub-agent), the id and the budget. The turn runner's gate (`jobs.Gate`, now `unattended.Gate`) sums a run's usage records and refuses a paid call that could take it past its budget, naming the kind. Budgets: `agents.task_budget_usd` with `budget_usd` on the start route for one task (never from a model), `agents.schedule_budget_usd` with `budget_usd` on a schedule for each of its runs, and `agents.subagent_budget_usd`. The sub-agent part is the seam P8-02 uses (`unattended.Register` with `KindSubagent`), proven with a stand-in run; it is wired when P8-02 lands.
+- **At the cap or a run's budget.** A new turn option, `Options.Moved`, set to `unattended.Moved`: an unattended run's refused call goes on to the next model of the person's chain and the run's chat is told, after the round, which model wrote the reply in place of which, as is the note of a task's end; with `agents.unattended_fallback` off it stops with `spend_cap` and says why. The audit log holds the refused call (outcome `refused`, with the reason) and the model that took over. Interactive chats are unchanged.
+- **The pause switch.** `agents.paused`, a person's setting over `agents.schedules_paused` (decision 0390): running tasks and scheduled runs are stopped within seconds through their model call's context (recorded as stopped) and marked `paused` with a note in their chat, new ones are held, no schedule runs; off again, paused tasks go on with a new round (`agents.task_unpause_text`), held ones start, and nothing is made up. Routes `GET /agents`, `POST /agents/pause` (waits up to `agents.pause_wait`), `POST /agents/resume`. One bar on the Scheduled screen and above a chat's task cards; Settings → General draws the setting.
+- **The proof**, with the fake provider: `TestThePauseSwitchStopsEveryRunningTask` (two tasks whose model calls block until cancelled are stopped by the pause route in under five seconds, recorded, paused not failed, another person's task untouched, a new task held, all finish after the resume), `TestAtTheCapATaskFallsBackOrStops`, `TestARunPastItsOwnBudgetStops`, and tests in `internal/unattended` and `internal/schedules`; and the new standing check `unattended spend` on the real server. `verify` is 24 of 24.
+- The doc is `docs/architecture/unattended-spend.md`; decisions 0390 to 0393; the journal is agents 008. The screens have no mockup and are provisional on the agent mockups (P1-05) for their look.
 

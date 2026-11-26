@@ -196,5 +196,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0351 | [A call that reaches other people always asks, whatever the policy, and only a person's answer covers it](decisions/0351-a-call-that-reaches-other-people-always-asks.md) |
 | 0352 | [The Google sign-in uses PKCE and returns to a page; the refresh token is in the vault and access tokens in memory](decisions/0352-google-sign-in-returns-to-a-page-and-keeps-the-refresh-token-in-the-vault.md) |
 | 0353 | [A change to an event names its title and guests, and is checked against the event before it is made](decisions/0353-a-change-to-an-event-names-its-guests-and-is-checked.md) |
+| 0390 | [One switch pauses every agent and schedule, over the schedules' own switch](decisions/0390-one-switch-pauses-every-agent-over-the-schedules-switch.md) |
+| 0391 | [A paused task is stopped through its context, marked paused, and goes on with a new round](decisions/0391-a-paused-task-is-stopped-through-its-context-and-goes-on-with-a-new-round.md) |
+| 0392 | [Unattended work at the cap or its budget goes on with a local model and says so, or stops when the person says it may not](decisions/0392-unattended-work-at-the-cap-falls-back-with-a-notice-or-stops.md) |
+| 0393 | [Every unattended run is registered by its request id, with its kind and its own budget](decisions/0393-every-unattended-run-is-registered-with-its-own-budget.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
