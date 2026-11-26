@@ -1,6 +1,6 @@
 # P12-03. Import from New Keystone
 
-Status: todo
+Status: doing (chats)
 Lane: chats
 Depends on: P4-02, P8-03
 Owner gate: A copy of New Keystone's workspace database, and Jonathan's go-ahead to import it.

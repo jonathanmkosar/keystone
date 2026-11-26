@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-02 sub-agents (agents), P10-01 dictation (interface, on the chat screen, whose only open part is the mockups), P13-02 isolation drill (core, on Operations, whose only open part is the mockups). Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built and wait on the owner's Google OAuth client (`docs/runbooks/google.md`). Waymarks is being connected with the owner's tokens; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-02 sub-agents (agents), P10-01 dictation (interface, on the chat screen, whose only open part is the mockups), P13-02 isolation drill (core, on Operations, whose only open part is the mockups), P12-03 import from New Keystone (chats; the owner gave his go-ahead on November 26, 2026). These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,7 +11,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | P13-02 isolation drill | P13-03 load test; scheduled backups once the owner answers |
 | models | nothing | the live checks of the adapters and embeddings, with the owner's keys and models |
-| chats | nothing | P12-03 import (needs the owner's copy of New Keystone's database); sub-agents (P8-02) when the agents lane is free |
+| chats | P12-03 import from New Keystone | the owner's real import, run by the integrator once the importer is merged |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
 | agents | P8-02 sub-agents | P7-05 skills, P8-04 research mode, P10-03 browser use, the morning brief as a schedule |
 | interface | P10-01 dictation | P9-04 inline visuals, P10-02 voice mode, the model route reporting a held chat and missing keys (decisions 0240, 0241) |
@@ -26,6 +26,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | P8-02 sub-agents | agents | `agents/p8-02-sub-agents` |
 | P10-01 dictation | interface | `interface/p10-01-dictation` |
 | P13-02 isolation drill | core | `core/p13-02-isolation-drill` |
+| P12-03 import from New Keystone | chats | `chats/p12-03-import` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
@@ -110,7 +111,9 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | How long an incognito chat that was never left is kept (knowledge 007) | 24 hours, each person can change it (5 minutes to 30 days) | 24 hours | Nothing |
 | Should an incognito chat be kept out of attaching and handoff, or should handing one off make an incognito chat (chats 008) | Keep it out until P6-07 settles what incognito keeps | Kept out | Nothing |
 | Should the first reply wait for a summary when an attached chat has none or has moved on (chats 008) | Yes, up to 30 seconds and only on the turn's first call; past that, the chat is carried as its title | As recommended | Nothing |
-| A Google OAuth client for Gmail and Calendar: the Gmail and Calendar APIs on, a Web application client with the redirect `https://<the owner's domain>/settings/connectors/google`, then its id as `agents.google_client_id` and its secret as `google.client_secret` in each person's vault (agents 007, `docs/runbooks/google.md`) | The owner creates it; the live check is a sign-in, a search and a send to himself | Tested against a stand-in Google only | P12-02 |
+| The Google client for Gmail and Calendar. New Keystone's Calendar client was copied into the owner's vault on November 26, 2026 (`agents.google_client_id`, `google.client_secret`). It is registered for New Keystone's redirect address and the Calendar scope only, so the owner still adds the redirect `https://<Keystone's address>/settings/connectors/google`, the Gmail API and the Gmail scopes to it in the Google Cloud console (agents 007, `docs/runbooks/google.md`) | The owner adds them; the live check is a sign-in, a search and a send to himself | Tested against a stand-in Google only | P12-02 |
+| Keystone's own Waymarks tokens. Since November 26, 2026 the owner's Keystone uses New Keystone's token, principal `keystone`, as reader and as intake: it may read, search, add sources, and write and delete pages in the space `personal`, which is more than a reader should hold (PLAN: one token per role) | The owner types his Waymarks admin token once, and Keystone gets a reader (`*:read,search`) and an intake (`memory:add_sources`) of its own | New Keystone's token in both places | P6-03's live check, P12-01 |
+| Where the memory pass writes in the owner's Waymarks. `knowledge.memory_space` is `memory`, and the token in use may add sources only to `personal`, so the memory pass is refused there and nothing is written | Set `knowledge.memory_space` to `personal` for the owner until the intake token of its own exists; New Keystone writes there with the same token today | Refused; recall reads, memory writes nothing | Nothing |
 | The Google client's publishing status: Testing ends a sign-in after 7 days (agents 007) | Publish it "In production" without verification, which is fine for personal use, and click past the unverified-app warning at each sign-in | Either works | Nothing |
 | Where the Google client id lives (agents 007) | An install setting, and the secret in an install vault, once those exist; a per-person tenant-admin setting until then | Per person | Nothing |
 | Where the build agents run | Decided: the owner hands the build to Codex | | nothing |
