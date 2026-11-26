@@ -134,6 +134,7 @@ var checks = []check{
 	{"styles", checkStyles},
 	{"wiki jobs", checkWikiJobs},
 	{"operations", checkOperations},
+	{"isolation drill", checkIsolationDrill},
 	{"share", checkShare},
 	{"sub-agents", checkSubagents},
 }

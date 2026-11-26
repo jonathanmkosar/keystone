@@ -129,6 +129,8 @@ The form adds a model or changes one: name, label, adapter, class, endpoint, mod
 
 The form does not show `ca_cert`, `cache_read` or `cache_write`. An edit keeps the values an entry already has. The command line sets them ([adding-a-model.md](../runbooks/adding-a-model.md)).
 
+Since P13-02 the routes take `ca_cert` as PEM text only: `POST /api/v1/models`, and `PUT` with a path the entry does not already hold, answer 400 `bad_model`, because the adapter reads a path with the server's own rights, so any person could have named another person's file or a share on another host. A path is set from the command line, and an edit that sends back the path an entry holds is taken (decision [0490](decisions/0490-a-ca-cert-path-is-set-from-the-command-line-only.md), `internal/settingsapi/cacert.go`).
+
 ### How General is drawn
 
 General is generated from `GET /api/v1/settings` and has no code for any one setting. `Settings.tsx` names no setting key in that screen.
