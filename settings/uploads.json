@@ -1,0 +1,75 @@
+{
+  "lane": "uploads",
+  "settings": [
+    {
+      "key": "uploads.max_bytes",
+      "type": "int",
+      "default": "5242880",
+      "scope": "install",
+      "description": "The largest file one upload may be, in bytes. A larger one is refused. Providers have limits of their own: the Anthropic Messages API takes an image of up to about 5 MB."
+    },
+    {
+      "key": "uploads.image_types",
+      "type": "string",
+      "default": "image/png,image/jpeg,image/gif,image/webp",
+      "scope": "install",
+      "description": "The kinds of image a person may upload, as media types separated by commas. An image is known by its bytes, not its name, and goes only to a model whose registry entry says it can see images."
+    },
+    {
+      "key": "uploads.text_extensions",
+      "type": "string",
+      "default": ".txt,.md,.markdown,.csv,.tsv,.json,.html,.htm,.xml,.yaml,.yml,.toml,.ini,.log,.go,.py,.js,.ts,.tsx,.jsx,.css,.java,.c,.h,.cpp,.cs,.rs,.rb,.sh,.ps1,.sql",
+      "scope": "install",
+      "description": "The endings of the text files a person may upload, separated by commas. A text file must be UTF-8. Its text is read, and goes into a chat's calls as an attachment, to any model."
+    },
+    {
+      "key": "uploads.document_types",
+      "type": "string",
+      "default": "application/pdf",
+      "scope": "install",
+      "description": "The kinds of document a person may upload, as media types separated by commas, known by their bytes. Keystone reads no text from them yet: a document is sent whole, as a file, only to a model whose registry entry says it takes files."
+    },
+    {
+      "key": "uploads.text_max_chars",
+      "type": "int",
+      "default": "60000",
+      "scope": "tenant",
+      "description": "The most characters of one file's text that go into a call. The rest is left out, with a note. All attachments together take no more than chats.context_attached_percent of a call."
+    },
+    {
+      "key": "uploads.file_heading",
+      "type": "string",
+      "default": "The person attached the file {name} to this chat. Its text:",
+      "scope": "tenant",
+      "description": "The line a call is given before a text file's text, with the attachments. {name} becomes the file's name."
+    },
+    {
+      "key": "uploads.file_marker",
+      "type": "string",
+      "default": "[The person attached the file {name} here. Its text is with the attachments, if it fitted.]",
+      "scope": "tenant",
+      "description": "What stands in the person's message where a text file was attached. {name} becomes the file's name."
+    },
+    {
+      "key": "uploads.text_cut_note",
+      "type": "string",
+      "default": "[The rest of {name}, {chars} more characters, is left out.]",
+      "scope": "tenant",
+      "description": "The line after a file's text that was cut to uploads.text_max_chars. {name} becomes the file's name and {chars} the number of characters left out."
+    },
+    {
+      "key": "uploads.image_withheld_note",
+      "type": "string",
+      "default": "[The person attached an image here, {name}. It is not shown to you, because you cannot see images. If they ask about it, say so.]",
+      "scope": "tenant",
+      "description": "What a model that cannot see images is given in place of an image the person attached. {name} becomes the image's name."
+    },
+    {
+      "key": "uploads.document_withheld_note",
+      "type": "string",
+      "default": "[The person attached the file {name} here. It is not shown to you: Keystone cannot read its text, and you do not take files. If they ask about it, say so.]",
+      "scope": "tenant",
+      "description": "What a model that takes no files is given in place of a document the person attached. {name} becomes the file's name."
+    }
+  ]
+}

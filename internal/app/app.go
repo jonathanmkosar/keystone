@@ -25,6 +25,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
+	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -86,6 +87,9 @@ type Config struct {
 	// schedules keeps the schedules and starts their runs. Handler and
 	// routes make it, after the task runner; Handler starts it.
 	schedules *schedules.Scheduler
+	// Uploads is what may be uploaded to a chat (P9-02), in
+	// settings/uploads.json.
+	Uploads uploads.Options
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -126,6 +130,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Scheduled tasks' settings (P8-03), in settings/agents.json.
 	if c.Schedules, err = schedules.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// Uploads' settings (P9-02), in settings/uploads.json.
+	if c.Uploads, err = uploads.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -201,6 +209,8 @@ func routes(c Config, log *api.Log) []api.Route {
 		c.schedules = c.newSchedules(log) // scheduled tasks (P8-03), after the task runner
 	}
 	all = append(all, schedules.Routes(c.schedules)...) // scheduled tasks' (P8-03)
+	// Uploads to a chat (P9-02).
+	all = append(all, uploads.Routes(c.Uploads)...)
 	return all
 }
 
