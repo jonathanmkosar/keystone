@@ -27,6 +27,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/builtin"
 	"github.com/jonathanmkosar/keystone/internal/turn"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -153,12 +154,18 @@ func (g *rig) serve(provider seam.Provider) *served {
 	for name, build := range g.extra {
 		set[name] = build
 	}
-	runner := turn.NewRunner(turn.Options{Install: g.install, Config: cfg, PageLimit: 50, TestProvider: provider, Adapters: set, Tools: reg, Gate: Gate})
+	runner := turn.NewRunner(turn.Options{Install: g.install, Config: cfg, PageLimit: 50, TestProvider: provider, Adapters: set, Tools: reg, Gate: Gate,
+		Moved: unattended.Moved}) // P8-05
 	runner.Recover()
 	jobs.Bind(runner)
 	jobs.Recover()
 	routes := append(turn.Routes(runner), turn.ApprovalRoutes(runner)...)
 	routes = append(routes, Routes(jobs)...)
+	uc, err := unattended.DefaultConfig() // the switch's routes (P8-05)
+	if err != nil {
+		g.t.Fatal(err)
+	}
+	routes = append(routes, unattended.Routes(unattended.Options{Config: uc, Runs: jobs.Runs, Pause: jobs.PauseAll, Resume: jobs.ResumeAll})...)
 	h, err := api.Handler(api.Options{Install: g.install, MaxBodyBytes: 1 << 20, Heartbeat: time.Minute}, routes)
 	if err != nil {
 		g.t.Fatal(err)

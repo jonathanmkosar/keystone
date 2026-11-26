@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -17,10 +16,8 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/knowledge/memory"
 	"github.com/jonathanmkosar/keystone/internal/seam"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
-	"github.com/jonathanmkosar/keystone/internal/tenantsettings"
 	"github.com/jonathanmkosar/keystone/internal/turn"
-	"github.com/jonathanmkosar/keystone/internal/usage"
-	"github.com/jonathanmkosar/keystone/settings"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 )
 
 // Why a round was sent, which decides the message it is sent with.
@@ -65,10 +62,6 @@ type Runner struct {
 	turns   *turn.Runner
 	working map[string]bool          // tenant/task: a goroutine is working it
 	waiting map[string]chan struct{} // tenant/task (the worker) and tenant/task/events (streams)
-
-	once   sync.Once
-	reg    []settings.Setting
-	regErr error
 }
 
 // NewRunner returns a runner. It works nothing until it is bound to the
@@ -96,11 +89,6 @@ func (r *Runner) bound() *turn.Runner {
 }
 
 func (r *Runner) logf(format string, args ...any) { r.o.Log.Printf(format, args...) }
-
-func (r *Runner) registry() ([]settings.Setting, error) {
-	r.once.Do(func() { r.reg, r.regErr = settings.Registry() })
-	return r.reg, r.regErr
-}
 
 func (r *Runner) waitFor(key string) <-chan struct{} {
 	r.mu.Lock()
@@ -181,7 +169,7 @@ func (r *Runner) Start(ctx context.Context, s *tenant.Store, chatID, startedRequ
 	if inWork > 0 {
 		return Task{}, fmt.Errorf("%w: a background task cannot start another background task", errInvalid)
 	}
-	budget, err := r.budget(ctx, s)
+	budget, err := r.budget(ctx, s, body, unattended.KindTask)
 	if err != nil {
 		return Task{}, err
 	}
@@ -235,11 +223,17 @@ func (r *Runner) Start(ctx context.Context, s *tenant.Store, chatID, startedRequ
 		if err := tooMany(tx); err != nil {
 			return err
 		}
+		requestID := audit.NewRequestID()
 		if _, err := tx.ExecContext(ctx, `INSERT INTO jobs(id, chat_id, work_chat_id, title, task, started_by, status, request_id,
 			started_request, actor, model, budget_micros, max_rounds, progress, created_at)
 			VALUES(?, ?, ?, ?, ?, ?, 'queued', ?, ?, ?, ?, ?, ?, ?, ?)`,
-			id, chatID, work.ID, title, text, startedBy, audit.NewRequestID(), startedRequest, actor, model,
+			id, chatID, work.ID, title, text, startedBy, requestID, startedRequest, actor, model,
 			budget, r.o.Config.MaxRounds, "Waiting to start", stamp()); err != nil {
+			return err
+		}
+		// The task is an unattended run, with its budget, before any of its
+		// turns can be sent (P8-05).
+		if err := unattended.Register(ctx, tx, unattended.Run{Kind: unattended.KindTask, ID: id, RequestID: requestID, Title: title, BudgetMicros: budget}); err != nil {
 			return err
 		}
 		j, err = emitTask(ctx, tx, id, EventTask)
@@ -252,25 +246,18 @@ func (r *Runner) Start(ctx context.Context, s *tenant.Store, chatID, startedRequ
 	return j.Task, nil
 }
 
-// budget reads the person's budget for a task, in millionths of a dollar.
-func (r *Runner) budget(ctx context.Context, s *tenant.Store) (int64, error) {
-	reg, err := r.registry()
-	if err != nil {
-		return 0, err
+// budget is a task's budget, in millionths of a dollar: the one its body
+// gives (P8-05), or the person's for its kind, agents.task_budget_usd or
+// agents.schedule_budget_usd.
+func (r *Runner) budget(ctx context.Context, s *tenant.Store, body StartBody, kind unattended.Kind) (int64, error) {
+	if body.BudgetUSD != nil {
+		n, err := unattended.Micros(*body.BudgetUSD)
+		if err != nil {
+			return 0, fmt.Errorf("%w: %s", errInvalid, strings.TrimPrefix(err.Error(), unattended.ErrInvalid.Error()+": "))
+		}
+		return n, nil
 	}
-	v, err := tenantsettings.Get(ctx, s, reg, KeyBudget)
-	if err != nil {
-		return 0, err
-	}
-	usd, err := strconv.ParseFloat(strings.TrimSpace(v), 64)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %w", KeyBudget, err)
-	}
-	c, err := usage.NewCap(usd, 0)
-	if err != nil {
-		return 0, fmt.Errorf("%s: %w", KeyBudget, err)
-	}
-	return c.LimitMicros, nil
+	return unattended.Budget(ctx, s, kind)
 }
 
 // titleOf is a task's title: the one given, or the first words of the
@@ -365,6 +352,9 @@ func (r *Runner) next(ctx context.Context, s *tenant.Store, j row, w *watch) (<-
 		r.finish(ctx, s, j, StatusStopped, nil, "")
 		return nil, false
 	}
+	if done, wait := r.pause(ctx, s, j); done { // the switch that pauses every agent (P8-05, pause.go)
+		return nil, wait
+	}
 	if j.Status == StatusQueued {
 		if _, err := r.change(ctx, s, j.ID, "status = 'running', started_at = ?, progress = ?", stamp(), "Starting"); err != nil {
 			r.logf("tasks: %s starting task %s: %v", j.requestID, j.ID, err)
@@ -392,6 +382,7 @@ func (r *Runner) next(ctx context.Context, s *tenant.Store, j row, w *watch) (<-
 		return news, true
 	}
 	r.follow(ctx, s, j, cur, rounds, w)
+	r.tell(ctx, s, j, cur) // the round's calls the cap or its budget refused, in its chat (P8-05, pause.go)
 	return nil, !r.after(ctx, s, j, cur, rounds)
 }
 
@@ -439,6 +430,8 @@ func (r *Runner) send(ctx context.Context, s *tenant.Store, j row, why string, r
 		text, words = r.o.Config.ContinueText, fmt.Sprintf("Carrying on, round %d", round)
 	case whyResume:
 		text, words = r.o.Config.ResumeText, "Resuming after a restart"
+	case whyUnpause: // P8-05, pause.go
+		text, words = r.o.Config.UnpauseText, "Going on after a pause"
 	}
 	var carry turn.Carry
 	if why == whyTask {
@@ -605,7 +598,7 @@ func (r *Runner) deliver(ctx context.Context, s *tenant.Store, j row) {
 	if carry.Outside != "" {
 		carry.Outside = "this chat holds the result of a background task that read outside content"
 	}
-	blocks := []seam.Block{{Type: seam.BlockText, Text: noteText(j)}}
+	blocks := []seam.Block{{Type: seam.BlockText, Text: r.withNotices(ctx, s, j, noteText(j))}} // P8-05: and any model that stood in
 	msg, err := t.Note(ctx, s.TenantID(), j.ChatID, j.noteTurnID, j.requestID, j.actor, blocks, carry)
 	if err != nil {
 		if !errors.Is(err, chat.ErrNotFound) && !errors.Is(err, turn.ErrClosing) && ctx.Err() == nil {

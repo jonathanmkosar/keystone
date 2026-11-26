@@ -33,23 +33,38 @@ type row struct {
 	model          string
 	noteTurnID     string
 	stopAsked      bool
+
+	// The switch that pauses every agent (P8-05, pause.go): paused says it
+	// holds the task, pausedTurn is the round it stopped, and pauseNote the
+	// turn of the note that says so in the task's chat, until it is written.
+	// stored is the status in the database, which Status shows as paused.
+	paused     bool
+	pausedTurn string
+	pauseNote  string
+	stored     string
 }
 
 const jobColumns = `id, chat_id, work_chat_id, title, task, started_by, status, request_id, started_request,
 	actor, model, budget_micros, max_rounds, rounds, steps, turn_id, waiting, progress, spent_micros, result,
-	error, note_turn_id, note_message_id, stop_requested, last_event, created_at, started_at, ended_at`
+	error, note_turn_id, note_message_id, stop_requested, last_event, created_at, started_at, ended_at,
+	paused, paused_turn, pause_note_turn`
 
 func scanJob(sc interface{ Scan(...any) error }) (row, error) {
 	var j row
 	var failure, created, started, ended string
 	err := sc.Scan(&j.ID, &j.ChatID, &j.WorkChatID, &j.Title, &j.Task.Task, &j.StartedBy, &j.Status, &j.requestID, &j.startedRequest,
 		&j.actor, &j.model, &j.BudgetMicros, &j.MaxRounds, &j.Rounds, &j.Steps, &j.TurnID, &j.Waiting, &j.Progress, &j.SpentMicros, &j.Result,
-		&failure, &j.noteTurnID, &j.NoteMessageID, &j.stopAsked, &j.LastEventID, &created, &started, &ended)
+		&failure, &j.noteTurnID, &j.NoteMessageID, &j.stopAsked, &j.LastEventID, &created, &started, &ended,
+		&j.paused, &j.pausedTurn, &j.pauseNote)
 	if errors.Is(err, sql.ErrNoRows) {
 		return row{}, errNoTask
 	}
 	if err != nil {
 		return row{}, err
+	}
+	j.stored = j.Status
+	if j.paused && (j.Status == StatusQueued || j.Status == StatusRunning) {
+		j.Status = StatusPaused
 	}
 	if failure != "" {
 		j.Error = &TaskError{}
@@ -218,4 +233,6 @@ func eventsAfter(ctx context.Context, s *tenant.Store, id string, after int64, l
 	return out, rows.Err()
 }
 
-func ended(status string) bool { return status != StatusQueued && status != StatusRunning }
+func ended(status string) bool {
+	return status != StatusQueued && status != StatusRunning && status != StatusPaused
+}

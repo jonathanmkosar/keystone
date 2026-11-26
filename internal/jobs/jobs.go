@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/settings"
 )
 
@@ -38,6 +39,10 @@ const (
 	StatusStopped = "stopped"
 	// StatusFailed is a task that ended without finishing. Error says why.
 	StatusFailed = "failed"
+	// StatusPaused is a task the switch that pauses every agent holds
+	// (P8-05, pause.go): its round was stopped part of the way, or it has
+	// not started. It goes on when the switch goes off. It has not ended.
+	StatusPaused = "paused"
 )
 
 // Who started a task.
@@ -89,7 +94,7 @@ type Task struct {
 	Task  string `json:"task"`
 	// StartedBy is person or tool.
 	StartedBy string `json:"started_by"`
-	// Status is queued, running, done, stopped or failed.
+	// Status is queued, running, paused, done, stopped or failed.
 	Status string `json:"status"`
 	// Waiting says a tool call of its round waits for the person's
 	// approval, in its work chat.
@@ -129,6 +134,14 @@ type StartBody struct {
 	// Title names the task in a few words. Absent means the first words of
 	// the text.
 	Title string `json:"title,omitempty"`
+	// BudgetUSD is what this one task may spend on models that are not
+	// local, in US dollars (P8-05). Absent means the person's budget for
+	// its kind: agents.task_budget_usd, or agents.schedule_budget_usd for a
+	// scheduled run. A model's start_background_task cannot give one.
+	BudgetUSD *float64 `json:"budget_usd,omitempty"`
+	// Kind is the kind of unattended run the task is: a task, or a
+	// scheduled run. It is not part of the API: the scheduler sets it.
+	Kind unattended.Kind `json:"-"`
 }
 
 // TasksReply answers GET chats/{id}/tasks.
@@ -152,6 +165,7 @@ type Config struct {
 	OpenMax      int    // agents.task_open_max
 	ContinueText string // agents.task_continue_text
 	ResumeText   string // agents.task_resume_text
+	UnpauseText  string // agents.task_unpause_text (P8-05)
 }
 
 // KeyBudget is the person's budget for each background task, in US dollars.
@@ -162,7 +176,7 @@ const KeyBudget = "agents.task_budget_usd"
 func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	var c Config
 	text := map[string]string{}
-	for _, key := range []string{"agents.task_max_rounds", "agents.task_open_max", "agents.task_continue_text", "agents.task_resume_text"} {
+	for _, key := range []string{"agents.task_max_rounds", "agents.task_open_max", "agents.task_continue_text", "agents.task_resume_text", "agents.task_unpause_text"} {
 		v, ok := get(key)
 		if !ok {
 			return Config{}, fmt.Errorf("the %s setting is missing", key)
@@ -178,13 +192,14 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	c.ContinueText = strings.TrimSpace(text["agents.task_continue_text"])
 	c.ResumeText = strings.TrimSpace(text["agents.task_resume_text"])
+	c.UnpauseText = strings.TrimSpace(text["agents.task_unpause_text"])
 	switch {
 	case c.MaxRounds < 1:
 		return Config{}, errors.New("agents.task_max_rounds must be 1 or more")
 	case c.OpenMax < 1:
 		return Config{}, errors.New("agents.task_open_max must be 1 or more")
-	case c.ContinueText == "" || c.ResumeText == "":
-		return Config{}, errors.New("agents.task_continue_text and agents.task_resume_text cannot be empty: each is the message a round is sent with")
+	case c.ContinueText == "" || c.ResumeText == "" || c.UnpauseText == "":
+		return Config{}, errors.New("agents.task_continue_text, agents.task_resume_text and agents.task_unpause_text cannot be empty: each is the message a round is sent with")
 	}
 	return c, nil
 }
