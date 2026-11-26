@@ -41,6 +41,7 @@ const screens: { to: string; label: string }[] = [
   { to: "connectors", label: "Connectors" },
   { to: "approvals", label: "Approvals" },
   { to: "usage", label: "Usage" },
+  { to: "operations", label: "Operations" }, // the page at /operations (P11-03)
 ];
 
 type Props = {
@@ -154,6 +155,7 @@ export function Settings(props: Props) {
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route path="usage" element={<UsageSettings onSignedOut={props.onSignedOut} />} />
         <Route path="spend" element={<Navigate to="/settings/usage" replace />} />
+        <Route path="operations" element={<Navigate to="/operations" replace />} />
         <Route path="*" element={<Navigate to="/settings/profile" replace />} />
       </Routes>
     </div>

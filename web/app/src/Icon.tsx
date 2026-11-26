@@ -116,6 +116,7 @@ const shapes = {
       <path d="M12 10v4M12 16.5v.5" />
     </>
   ),
+  operations: <path d="M4 13h4l2-6 4 12 2-6h4" />, // Operations, as in the sidebar of Operations.html (P11-03)
   // The turn inspector's, as in the chat header of MainDark.html (P5-04).
   layers: (
     <>

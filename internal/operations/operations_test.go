@@ -593,6 +593,12 @@ func TestJobsAndRunBudgets(t *testing.T) {
 	if len(part.Stuck) != 1 || part.Stuck[0].ID != "stuck" {
 		t.Errorf("stuck: %+v", part.Stuck)
 	}
+	// A task's spend is its usage records', not the column on its row.
+	for _, l := range part.Newest {
+		if l.ID == "running" && (l.SpentMicros != 850_000 || l.BudgetMicros != 1_000_000) {
+			t.Errorf("the running task spent %d of %d, and its records say 850000", l.SpentMicros, l.BudgetMicros)
+		}
+	}
 	if part.FailedCount != 1 || len(part.Failed) != 1 || part.Failed[0].ID != "failed" || strings.Contains(part.Failed[0].Error, fakeKey) || !strings.Contains(part.Failed[0].Error, "refused") {
 		t.Errorf("failed in the window: %d %+v", part.FailedCount, part.Failed)
 	}

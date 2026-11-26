@@ -64,24 +64,33 @@ type JobsPart struct {
 	FailedCount int        `json:"failed_count"`
 }
 
-func taskLine(t jobs.Listed) TaskLine {
+// taskLine is a task as Operations lists it. Its spend is summed from the
+// usage records of its request id, as its budget's gate sums it, and not
+// read from the task's row.
+func taskLine(ctx context.Context, s *tenant.Store, t jobs.Listed) (TaskLine, error) {
 	l := TaskLine{
 		ID: t.ID, Title: t.Title, Scheduled: t.Scheduled, Status: t.Status, Waiting: t.Waiting, Progress: t.Progress,
 		ChatID: t.ChatID, WorkChatID: t.WorkChatID, TurnID: t.TurnID, Rounds: t.Rounds, Steps: t.Steps,
-		BudgetMicros: t.BudgetMicros, SpentMicros: t.SpentMicros, Created: t.Created, Ended: t.Ended, RoundStarted: t.RoundStarted,
+		BudgetMicros: t.BudgetMicros, Created: t.Created, Ended: t.Ended, RoundStarted: t.RoundStarted,
 	}
 	if t.Error != nil {
 		l.Error = audit.Scrub(t.Error.Message)
 	}
-	return l
+	var err error
+	l.SpentMicros, err = unattended.Spent(ctx, s, t.RequestID)
+	return l, err
 }
 
-func lines(ts []jobs.Listed) []TaskLine {
+func lines(ctx context.Context, s *tenant.Store, ts []jobs.Listed) ([]TaskLine, error) {
 	out := make([]TaskLine, 0, len(ts))
 	for _, t := range ts {
-		out = append(out, taskLine(t))
+		l, err := taskLine(ctx, s, t)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, l)
 	}
-	return out
+	return out, nil
 }
 
 // readJobs is the person's tasks by state, the newest, the stuck and the
@@ -100,7 +109,9 @@ func readJobs(ctx context.Context, s *tenant.Store, cfg Settings, now time.Time)
 	if err != nil {
 		return part, err
 	}
-	part.Newest = lines(newest)
+	if part.Newest, err = lines(ctx, s, newest); err != nil {
+		return part, err
+	}
 	open, err := jobs.List(ctx, s, jobs.Filter{Open: true})
 	if err != nil {
 		return part, err
@@ -117,7 +128,11 @@ func readJobs(ctx context.Context, s *tenant.Store, cfg Settings, now time.Time)
 			began = *t.Started
 		}
 		if now.Sub(began) > cfg.StuckAfter {
-			part.Stuck = append(part.Stuck, taskLine(t))
+			l, err := taskLine(ctx, s, t)
+			if err != nil {
+				return part, err
+			}
+			part.Stuck = append(part.Stuck, l)
 		}
 	}
 	failed, err := jobs.List(ctx, s, jobs.Filter{Status: jobs.StatusFailed, EndedSince: now.Add(-cfg.HealthWindow)})
@@ -125,8 +140,8 @@ func readJobs(ctx context.Context, s *tenant.Store, cfg Settings, now time.Time)
 		return part, err
 	}
 	part.FailedCount = len(failed)
-	part.Failed = lines(failed[:min(len(failed), cfg.JobsShown)])
-	return part, nil
+	part.Failed, err = lines(ctx, s, failed[:min(len(failed), cfg.JobsShown)])
+	return part, err
 }
 
 // ScheduleLine is one schedule, as Operations lists it.
