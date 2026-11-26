@@ -126,6 +126,7 @@ var checks = []check{
 	{"attached chats", checkAttached},
 	{"memory screens", checkMemoryScreens},
 	{"projects", checkProjects},
+	{"styles", checkStyles},
 }
 
 func main() {

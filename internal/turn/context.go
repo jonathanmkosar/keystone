@@ -43,6 +43,8 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	// The project's instructions in the standing start, and its knowledge files after the attached chats (P9-01, projects.go).
 	project, files := r.projectParts(ctx, s, t, p, m)
 	attached = append(attached, files...)
+	// The chat's style in the standing start, after the project's instructions (P9-05, styles.go).
+	style := r.styleFor(ctx, s, t)
 	req, rec, err := contextbuild.Build(ctx, contextbuild.Input{
 		Tools: offered,
 		Model: m, Budget: r.o.Config.Budget, Options: opts,
@@ -53,6 +55,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 		SummaryRef: summaryRef(older.summary), // the inspector's name for it (P5-04)
 		Attached:   attached,
 		Project:    project,
+		Style:      style,
 	})
 	if err != nil {
 		return seam.Request{}, err
