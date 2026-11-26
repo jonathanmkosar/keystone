@@ -87,6 +87,8 @@ var componentDocs = map[string]string{
 	"internal/mcp":         "docs/architecture/connectors.md",
 	"internal/mcp/mcptest": "docs/architecture/connectors.md",
 	"internal/connectors":  "docs/architecture/connectors.md",
+
+	"internal/attach": "docs/architecture/attach-and-handoff.md",
 }
 
 var checks = []check{
@@ -113,6 +115,7 @@ var checks = []check{
 	{"background tasks", checkBackgroundTasks},
 	{"past chats", checkPastChats},
 	{"scheduled tasks", checkSchedules},
+	{"attached chats", checkAttached},
 }
 
 func main() {

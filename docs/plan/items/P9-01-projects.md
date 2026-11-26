@@ -1,6 +1,6 @@
 # P9-01. Projects
 
-Status: todo
+Status: doing (chats)
 Lane: chats + interface
 Depends on: P5-01, P6-01
 Owner gate: Approval of the workspace mockups (P1-06), for the screens only.

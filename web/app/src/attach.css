@@ -1,0 +1,231 @@
+/* Attached chats and handoff (P5-06): the chips over the composer, the
+   picker that attaches a chat, and the links and the Hand off button in the
+   chat's header. There is no mockup for them, so they are provisional: the
+   chips use the composer's lines and radius, the picker is the model
+   picker's menu (model-picker.css) opening upwards from the left, and the
+   Hand off button is drawn as Share is in MainDark.html. Every colour is a
+   token. */
+
+.attached {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.attached-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attached-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  height: 30px;
+  padding: 0 4px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--raised);
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+}
+
+.attached-chip.is-parent {
+  padding-right: 10px;
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.attached-chip.is-off .attached-chip-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.attached-chip-title {
+  min-width: 0;
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--ink);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attached-chip.is-parent .attached-chip-title {
+  color: var(--softink);
+}
+
+.attached-chip-title:hover {
+  text-decoration: underline;
+}
+
+.attached-chip-title:focus-visible,
+.attached-remove:focus-visible,
+.attached-add:focus-visible,
+.chat-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* A mark like the model picker's class mark. */
+.attached-mark {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font: 500 11px/18px var(--font-mono);
+}
+
+.attached-mark.is-private {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.attached-remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 11px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.attached-remove:hover:not(:disabled) {
+  background: var(--sunk);
+  color: var(--ink);
+}
+
+.attached-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px 0 10px;
+  border: 1px dashed var(--strong);
+  border-radius: 15px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.attached-add:hover:not(:disabled),
+.attached-add[aria-expanded="true"] {
+  background: var(--sunk);
+  color: var(--ink);
+}
+
+.attached-add:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* The picker opens upwards, from the left of the strip. */
+.attached-menu {
+  right: auto;
+  left: 0;
+}
+
+.attached-search {
+  margin: 2px 4px 6px;
+}
+
+.attached-item > .ico {
+  flex: none;
+  color: var(--muted);
+}
+
+.attached-item-why {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The chat's header. */
+
+.chat-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.chat-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.chat-link:hover {
+  color: var(--ink);
+}
+
+.chat-link-title {
+  min-width: 0;
+  max-width: 200px;
+  overflow: hidden;
+  color: var(--link);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-link-more {
+  color: var(--muted);
+  font: 500 12px var(--font-mono);
+}
+
+.handoff-button {
+  flex: none;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.handoff-button > .ico {
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .chat-link-words,
+  .handoff-label,
+  .attached-chip-words {
+    display: none;
+  }
+
+  .chat-link-title {
+    max-width: 110px;
+  }
+
+  .handoff-button {
+    padding: 0 10px;
+  }
+
+  .attached-chip-title {
+    max-width: 160px;
+  }
+
+  .attached-menu {
+    right: 0;
+    width: auto;
+    max-width: none;
+  }
+}

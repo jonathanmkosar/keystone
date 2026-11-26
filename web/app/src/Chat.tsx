@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Link, useNavigate, useParams } from "react-router";
 import { ApiError, createChat, openChat, type Message, type ModelChoice, type Person } from "./api";
 import { Approvals } from "./Approval";
+import { AttachedChats } from "./AttachedChats";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
 import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
@@ -207,6 +208,7 @@ function OneChat({ id }: { id: string }) {
               {(loaded.state === "ready" && loaded.model.reason) || "There is no model to answer in this chat."}
             </p>
           )}
+          <AttachedChats chatId={id} />
           <Composer
             placeholder="Reply to Keystone…"
             busy={busy || loaded.state === "loading"}
