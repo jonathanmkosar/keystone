@@ -19,6 +19,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/artifacts"
 	"github.com/jonathanmkosar/keystone/internal/connectors"
 	"github.com/jonathanmkosar/keystone/internal/jobs"
+	"github.com/jonathanmkosar/keystone/internal/operations"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
@@ -106,6 +107,9 @@ type Config struct {
 	// wiki keeps the wiki jobs' schedules and writes their answers. Handler
 	// and routes make it, after the scheduler; Handler starts it.
 	wiki *wikijobs.Runner
+	// Operations is what the sampler of every person's limits runs with
+	// (P11-03), in settings/core.json.
+	Operations operations.Config
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -162,6 +166,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// The wiki upkeep jobs' settings (P8-06), in settings/agents.json.
 	if c.WikiJobs, err = wikijobs.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// The sampler's settings for Operations (P11-03), in settings/core.json.
+	if c.Operations, err = operations.ReadConfig(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -260,6 +268,8 @@ func routes(c Config, log *api.Log) []api.Route {
 		c.wiki = c.newWiki(log)
 	}
 	all = append(all, wikijobs.Routes(c.wiki)...)
+	// Operations and Monitor (P11-03).
+	all = append(all, operations.Routes(operations.Options{Schedules: c.schedules.List, Log: log, Now: c.Clock})...)
 	return all
 }
 
@@ -291,6 +301,9 @@ func Handler(c Config) (http.Handler, error) {
 	// answers (P8-06).
 	c.wiki = c.newWiki(log)
 	c.wiki.Start(c.runner)
+	// Then every person's limits are recorded now and every
+	// operations.snapshot_every, for Operations' trends (P11-03).
+	operations.Start(c.runner, c.Install, c.Operations, log, c.Clock)
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,

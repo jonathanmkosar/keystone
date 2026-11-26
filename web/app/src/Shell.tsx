@@ -18,6 +18,7 @@ const places: { to: string; label: string; icon: IconName }[] = [
   { to: "/agents", label: "Agents", icon: "agents" },
   { to: "/scheduled", label: "Scheduled", icon: "scheduled" },
   { to: "/memory", label: "Memory", icon: "memory" },
+  { to: "/operations", label: "Operations", icon: "operations" }, // P11-03
 ];
 
 function initials(name: string): string {

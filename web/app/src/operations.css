@@ -1,0 +1,307 @@
+/* Operations and Monitor (P11-03), and its notice on the home screen.
+   Every colour is a token; the sizes follow design/screens/Operations.html
+   and Home.html. Provisional on the settings mockups. */
+
+.ops {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.ops-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ops-sub {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.ops-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ops-over {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.ops-over-small {
+  margin-top: 10px;
+}
+
+.ops-small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}
+
+.ops-err {
+  color: var(--err);
+}
+
+.ops-mono {
+  font: 13px/20px var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ops-hide {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* The tiles. */
+
+.ops-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.ops-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+}
+
+.ops-tile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ops-big {
+  font: 600 28px/34px var(--font-serif);
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-big-of {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+/* Pills: a word with the colour of its state. */
+
+.ops-pill {
+  display: inline-block;
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.ops-pill.is-ok {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.ops-pill.is-warn {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.ops-pill.is-bad {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+.ops-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--sunk);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 18px;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
+/* Tables. A table wider than a phone scrolls inside its card. */
+
+.ops-table-wrap {
+  position: relative; /* holds the hidden header words inside the scroll */
+  overflow-x: auto;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ops-table th,
+.ops-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ops-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ops-table thead th {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ops-name {
+  min-width: 160px;
+  font-weight: 500;
+}
+
+.ops-used {
+  min-width: 190px;
+}
+
+.ops-trend {
+  min-width: 140px;
+}
+
+/* Bars and trends are inline SVG, drawn to the width of their box. */
+
+.ops-bar {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ops-tile .ops-bar {
+  max-width: none;
+}
+
+.ops-bar-track {
+  fill: var(--sunk);
+}
+
+.ops-bar-fill.is-ok {
+  fill: var(--ok);
+}
+
+.ops-bar-fill.is-warn {
+  fill: var(--accent);
+}
+
+.ops-bar-fill.is-bad {
+  fill: var(--err);
+}
+
+.ops-bar-mark {
+  fill: var(--ink);
+  opacity: 0.55;
+}
+
+.ops-spark {
+  display: block;
+  width: 120px;
+  height: 30px;
+  margin-bottom: 2px;
+}
+
+.ops-spark-line {
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ops-spark-line.is-ok {
+  stroke: var(--ok);
+}
+
+.ops-spark-line.is-warn {
+  stroke: var(--accent);
+}
+
+.ops-spark-line.is-bad {
+  stroke: var(--err);
+}
+
+/* The notice on the home screen. */
+
+.ops-notice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.ops-notice.is-bad {
+  border-color: var(--err);
+}
+
+.ops-notice .ops-over {
+  color: inherit;
+}
+
+.ops-notice-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ops-notice-list {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.ops-notice-link {
+  align-self: flex-start;
+  color: inherit;
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  .ops {
+    padding: 24px 16px 64px;
+  }
+}

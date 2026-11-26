@@ -14,6 +14,7 @@ import { IncognitoMark, IncognitoSwitch } from "./Incognito";
 import { createIncognitoChat } from "./memoryCalls";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
+import { OperationsNotice } from "./OperationsNotice";
 import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
@@ -77,6 +78,7 @@ export function Start({ person }: { person: Person }) {
           </p>
         )}
       </div>
+      <OperationsNotice />
     </div>
   );
 }

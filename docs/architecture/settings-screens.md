@@ -115,6 +115,7 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
 | `/settings/usage` | Since P11-02, what the person's model calls cost for a period against the monthly cap, by model, by chat and by kind of work. See [usage-report.md](usage-report.md). It took the place of the Spend placeholder. |
 | `/settings/spend` | Goes to `/settings/usage`. |
+| `/settings/operations` | Since P11-03, a tab that goes to the Operations page, `/operations`, which is wider than the settings column. See [operations.md](operations.md). Its twelve settings for a person (watch levels, windows and how much is listed) are drawn on General from the registry. |
 
 The seven are tabs in a row under the title, and the row scrolls sideways on a phone.
 

@@ -133,6 +133,7 @@ var checks = []check{
 	{"embeddings", checkEmbeddings},
 	{"styles", checkStyles},
 	{"wiki jobs", checkWikiJobs},
+	{"operations", checkOperations},
 }
 
 func main() {

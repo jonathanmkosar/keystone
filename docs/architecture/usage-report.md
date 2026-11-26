@@ -146,6 +146,7 @@ In `verify`: the standing check `usage report`, in `tools/verify/usagereport.go`
 
 - **Unattended spend.** The per-run budgets of background tasks, schedules and sub-agents (P8-05) read the same records. The report counts a task's calls under its kind of work and does not show a run against its budget.
 - **Operations.** The spend line on Operations and Monitor (P11-03) can call `Read` with the month.
+  - Built in P11-03 ([operations.md](operations.md)): the cap and the memory reserve on Operations, and on the home screen's notice, are `Read` with the month, and the `operations` check compares them with `GET /api/v1/usage`.
 - **A chart over time.** The report is totals for a period. Spend by day would be one more breakdown over the same records.
 - **An admin's view of every person.** There is no admin role; each person sees their own.
 

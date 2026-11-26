@@ -1,6 +1,6 @@
 # P13-02. Tenant isolation drill
 
-Status: todo
+Status: doing (core)
 Lane: core
 Depends on: P11-03
 Owner gate: none

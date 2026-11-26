@@ -12868,6 +12868,905 @@
         "summary": "This document."
       }
     },
+    "/api/v1/operations": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "crossed": {
+                      "type": "integer"
+                    },
+                    "jobs": {
+                      "properties": {
+                        "counts": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        },
+                        "failed": {
+                          "items": {
+                            "properties": {
+                              "budget_micros": {
+                                "type": "integer"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "created": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "round_started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "rounds": {
+                                "type": "integer"
+                              },
+                              "scheduled": {
+                                "type": "boolean"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "turn_id": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              },
+                              "work_chat_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "scheduled",
+                              "status",
+                              "waiting",
+                              "chat_id",
+                              "work_chat_id",
+                              "rounds",
+                              "steps",
+                              "budget_micros",
+                              "spent_micros",
+                              "created"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "failed_count": {
+                          "type": "integer"
+                        },
+                        "newest": {
+                          "items": {
+                            "properties": {
+                              "budget_micros": {
+                                "type": "integer"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "created": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "round_started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "rounds": {
+                                "type": "integer"
+                              },
+                              "scheduled": {
+                                "type": "boolean"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "turn_id": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              },
+                              "work_chat_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "scheduled",
+                              "status",
+                              "waiting",
+                              "chat_id",
+                              "work_chat_id",
+                              "rounds",
+                              "steps",
+                              "budget_micros",
+                              "spent_micros",
+                              "created"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "open": {
+                          "type": "integer"
+                        },
+                        "paused": {
+                          "type": "boolean"
+                        },
+                        "stuck": {
+                          "items": {
+                            "properties": {
+                              "budget_micros": {
+                                "type": "integer"
+                              },
+                              "chat_id": {
+                                "type": "string"
+                              },
+                              "created": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "ended": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "error": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "progress": {
+                                "type": "string"
+                              },
+                              "round_started": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "rounds": {
+                                "type": "integer"
+                              },
+                              "scheduled": {
+                                "type": "boolean"
+                              },
+                              "spent_micros": {
+                                "type": "integer"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "title": {
+                                "type": "string"
+                              },
+                              "turn_id": {
+                                "type": "string"
+                              },
+                              "waiting": {
+                                "type": "boolean"
+                              },
+                              "work_chat_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "title",
+                              "scheduled",
+                              "status",
+                              "waiting",
+                              "chat_id",
+                              "work_chat_id",
+                              "rounds",
+                              "steps",
+                              "budget_micros",
+                              "spent_micros",
+                              "created"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "stuck_after": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "paused",
+                        "counts",
+                        "open",
+                        "newest",
+                        "stuck",
+                        "stuck_after",
+                        "failed",
+                        "failed_count"
+                      ],
+                      "type": "object"
+                    },
+                    "limits": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "crossed": {
+                            "type": "boolean"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string"
+                          },
+                          "of": {
+                            "type": "integer"
+                          },
+                          "percent": {
+                            "type": "integer"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "run_id": {
+                            "type": "string"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "trend": {
+                            "properties": {
+                              "at_reset": {
+                                "type": "integer"
+                              },
+                              "full_at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "known": {
+                                "type": "boolean"
+                              },
+                              "per_day": {
+                                "type": "integer"
+                              },
+                              "points": {
+                                "items": {
+                                  "properties": {
+                                    "at": {
+                                      "format": "date-time",
+                                      "type": "string"
+                                    },
+                                    "of": {
+                                      "type": "integer"
+                                    },
+                                    "used": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "at",
+                                    "used",
+                                    "of"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "resets": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "points",
+                              "known",
+                              "per_day"
+                            ],
+                            "type": "object"
+                          },
+                          "unit": {
+                            "type": "string"
+                          },
+                          "used": {
+                            "type": "integer"
+                          },
+                          "watch": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "scope",
+                          "unit",
+                          "used",
+                          "of",
+                          "percent",
+                          "watch",
+                          "state",
+                          "crossed",
+                          "trend"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "models": {
+                      "properties": {
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "calls": {
+                                "type": "integer"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "cost_micros": {
+                                "type": "integer"
+                              },
+                              "error_percent": {
+                                "type": "integer"
+                              },
+                              "errors": {
+                                "type": "integer"
+                              },
+                              "in_registry": {
+                                "type": "boolean"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "last_error": {
+                                "properties": {
+                                  "at": {
+                                    "format": "date-time",
+                                    "type": "string"
+                                  },
+                                  "kind": {
+                                    "type": "string"
+                                  },
+                                  "message": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "at",
+                                  "kind",
+                                  "message"
+                                ],
+                                "type": "object"
+                              },
+                              "median_ms": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ok": {
+                                "type": "integer"
+                              },
+                              "problem": {
+                                "type": "string"
+                              },
+                              "refusals": {
+                                "type": "integer"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "stopped": {
+                                "type": "integer"
+                              },
+                              "where": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "in_registry",
+                              "calls",
+                              "ok",
+                              "errors",
+                              "refusals",
+                              "stopped",
+                              "error_percent",
+                              "median_ms",
+                              "cost_micros",
+                              "state"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "since": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "window": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "since",
+                        "window",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "schedules": {
+                      "properties": {
+                        "enabled": {
+                          "type": "integer"
+                        },
+                        "failing": {
+                          "type": "integer"
+                        },
+                        "paused": {
+                          "type": "boolean"
+                        },
+                        "schedules": {
+                          "items": {
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "held": {
+                                "type": "boolean"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "last_run": {
+                                "properties": {
+                                  "chat_id": {
+                                    "type": "string"
+                                  },
+                                  "error": {
+                                    "type": "string"
+                                  },
+                                  "late": {
+                                    "type": "boolean"
+                                  },
+                                  "late_reason": {
+                                    "type": "string"
+                                  },
+                                  "missed": {
+                                    "type": "integer"
+                                  },
+                                  "spent_micros": {
+                                    "type": "integer"
+                                  },
+                                  "started": {
+                                    "format": "date-time",
+                                    "type": "string"
+                                  },
+                                  "status": {
+                                    "type": "string"
+                                  },
+                                  "waiting": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "started",
+                                  "status",
+                                  "missed",
+                                  "spent_micros"
+                                ],
+                                "type": "object"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "next": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "says": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "says",
+                              "enabled",
+                              "held"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "zone": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "paused",
+                        "zone",
+                        "schedules",
+                        "enabled",
+                        "failing"
+                      ],
+                      "type": "object"
+                    },
+                    "traces": {
+                      "items": {
+                        "properties": {
+                          "calls": {
+                            "type": "integer"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "type": "string"
+                          },
+                          "errors": {
+                            "type": "integer"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "models": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "refusals": {
+                            "type": "integer"
+                          },
+                          "request_id": {
+                            "type": "string"
+                          },
+                          "run_id": {
+                            "type": "string"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "tools": {
+                            "items": {
+                              "properties": {
+                                "duration_ms": {
+                                  "type": "integer"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "outcome": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "outcome",
+                                "duration_ms"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "turns": {
+                            "type": "integer"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "calls": {
+                                "type": "integer"
+                              },
+                              "cost_micros": {
+                                "type": "integer"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "calls",
+                              "input_tokens",
+                              "output_tokens",
+                              "cache_read_tokens",
+                              "cache_write_tokens",
+                              "cost_micros"
+                            ],
+                            "type": "object"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "request_id",
+                          "kind",
+                          "title",
+                          "turns",
+                          "status",
+                          "models",
+                          "calls",
+                          "errors",
+                          "refusals",
+                          "tools",
+                          "usage",
+                          "started"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "at",
+                    "jobs",
+                    "schedules",
+                    "models",
+                    "traces",
+                    "limits",
+                    "crossed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Operations and Monitor: your background tasks and scheduled runs by state, with the newest, the stuck and the failed; your schedules with their next and last runs; each model's calls, errors, refusals and median time over operations.health_window, with its last error; your newest traces, each turn or run with its calls, tool steps, tokens, cost and outcome; and every limit (the monthly cap, the memory reserve, the disk, your database, files and artifacts, and the budget of each run under way) with its share used, its watch level and its trend."
+      }
+    },
+    "/api/v1/operations/watch": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "crossed": {
+                      "items": {
+                        "properties": {
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "crossed": {
+                            "type": "boolean"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "note": {
+                            "type": "string"
+                          },
+                          "of": {
+                            "type": "integer"
+                          },
+                          "percent": {
+                            "type": "integer"
+                          },
+                          "problem": {
+                            "type": "string"
+                          },
+                          "run_id": {
+                            "type": "string"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "trend": {
+                            "properties": {
+                              "at_reset": {
+                                "type": "integer"
+                              },
+                              "full_at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "known": {
+                                "type": "boolean"
+                              },
+                              "per_day": {
+                                "type": "integer"
+                              },
+                              "points": {
+                                "items": {
+                                  "properties": {
+                                    "at": {
+                                      "format": "date-time",
+                                      "type": "string"
+                                    },
+                                    "of": {
+                                      "type": "integer"
+                                    },
+                                    "used": {
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "required": [
+                                    "at",
+                                    "used",
+                                    "of"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "resets": {
+                                "format": "date-time",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "points",
+                              "known",
+                              "per_day"
+                            ],
+                            "type": "object"
+                          },
+                          "unit": {
+                            "type": "string"
+                          },
+                          "used": {
+                            "type": "integer"
+                          },
+                          "watch": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "scope",
+                          "unit",
+                          "used",
+                          "of",
+                          "percent",
+                          "watch",
+                          "state",
+                          "crossed",
+                          "trend"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "at",
+                    "crossed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The limits at or past their watch level, which the home screen shows a notice for. They are read as the Operations report reads them."
+      }
+    },
     "/api/v1/profile": {
       "get": {
         "responses": {

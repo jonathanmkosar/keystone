@@ -96,5 +96,6 @@ A tenant's database has one connection. `Append` uses it, so it is called outsid
 ## Not here yet
 
 - A route to read the log, and a screen for it. They come with the API shell (P2-05) and Operations (P11-03).
+  - Since P11-03 ([operations.md](operations.md)), Operations reads a few columns of the log, never changing it: each trace's tool calls and a model's last failed call, whose words are passed through `Scrub` again on the way out. The whole log still has no screen.
 - A limit on the size of `sent` and `received`. They are stored whole. An image sent inline would be stored inline, so callers should send files by `ref`.
 - Proof that the file was not edited from outside, such as a chain of hashes. It can be added without changing an entry's shape.
