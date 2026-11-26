@@ -401,6 +401,35 @@
       "description": "How long the first call of a turn waits for an attached chat's summary to be made, when it has none or its chat has moved on since, from 1s to 10m. A summary not made in time is left for the next turn, and the chat is carried as it is."
     },
     {
+      "key": "chats.import_chat_gap",
+      "type": "duration",
+      "default": "1h",
+      "scope": "tenant-admin",
+      "description": "New Keystone kept one continuing chat and no separate chats. The import from it (tools/tenant import) starts a new chat wherever more than this long passed between one turn and the next, from 1m to 720h. Shorter makes more and smaller chats, each about one thing; the dry run says how many there would be."
+    },
+    {
+      "key": "chats.import_title_max_chars",
+      "type": "int",
+      "default": "60",
+      "scope": "tenant-admin",
+      "description": "An imported chat is titled by the first words of its first message. This is the most characters of them the title takes, cut at a word's end, from 10 to 150."
+    },
+    {
+      "key": "chats.import_time_zone",
+      "type": "string",
+      "default": "America/Chicago",
+      "scope": "tenant-admin",
+      "description": "The time zone New Keystone kept its routines' times in, an IANA name. The import dates a routine run's chat in it, and gives it to a person who has no agents.time_zone of their own, so a routine at 07:00 there is a schedule at 07:00 here."
+    },
+    {
+      "key": "chats.import_hold",
+      "type": "string",
+      "default": "none",
+      "options": ["none", "wiki", "all"],
+      "scope": "tenant-admin",
+      "description": "Which imported chats are held to local or trusted models, as a chat that was sent content from a sensitive space is. New Keystone marked nothing as sensitive, so none are by default. wiki holds the chats in which New Keystone read the person's Waymarks wiki; all holds every imported chat. A held chat stays held, and is left out of the past-chat search for a hosted model."
+    },
+    {
       "key": "chats.context_pinned_heading",
       "type": "string",
       "default": "A message from earlier in this chat that the person pinned, so it is always shown to you.",

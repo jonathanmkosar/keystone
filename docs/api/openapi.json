@@ -1080,6 +1080,59 @@
                           "id": {
                             "type": "string"
                           },
+                          "imported": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "first": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "from": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "last": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "models": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "turns": {
+                                "type": "integer"
+                              },
+                              "unanswered": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "kind",
+                              "at",
+                              "turns",
+                              "first",
+                              "last",
+                              "models"
+                            ],
+                            "type": "object"
+                          },
                           "starred": {
                             "type": "boolean"
                           },
@@ -1151,6 +1204,59 @@
                         },
                         "id": {
                           "type": "string"
+                        },
+                        "imported": {
+                          "properties": {
+                            "at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "first": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "from": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "last": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "models": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            },
+                            "unanswered": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "kind",
+                            "at",
+                            "turns",
+                            "first",
+                            "last",
+                            "models"
+                          ],
+                          "type": "object"
                         },
                         "starred": {
                           "type": "boolean"
@@ -1597,6 +1703,59 @@
                         },
                         "id": {
                           "type": "string"
+                        },
+                        "imported": {
+                          "properties": {
+                            "at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "first": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "from": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "last": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "models": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            },
+                            "unanswered": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "kind",
+                            "at",
+                            "turns",
+                            "first",
+                            "last",
+                            "models"
+                          ],
+                          "type": "object"
                         },
                         "starred": {
                           "type": "boolean"
@@ -2176,6 +2335,59 @@
                         "id": {
                           "type": "string"
                         },
+                        "imported": {
+                          "properties": {
+                            "at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "first": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "from": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "last": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "models": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            },
+                            "unanswered": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "kind",
+                            "at",
+                            "turns",
+                            "first",
+                            "last",
+                            "models"
+                          ],
+                          "type": "object"
+                        },
                         "starred": {
                           "type": "boolean"
                         },
@@ -2645,6 +2857,59 @@
                     },
                     "id": {
                       "type": "string"
+                    },
+                    "imported": {
+                      "properties": {
+                        "at": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "first": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "from": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "last": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "models": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "note": {
+                          "type": "string"
+                        },
+                        "steps": {
+                          "additionalProperties": {
+                            "type": "integer"
+                          },
+                          "type": "object"
+                        },
+                        "turns": {
+                          "type": "integer"
+                        },
+                        "unanswered": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "kind",
+                        "at",
+                        "turns",
+                        "first",
+                        "last",
+                        "models"
+                      ],
+                      "type": "object"
                     },
                     "starred": {
                       "type": "boolean"
@@ -3471,6 +3736,59 @@
                             },
                             "id": {
                               "type": "string"
+                            },
+                            "imported": {
+                              "properties": {
+                                "at": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "first": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "from": {
+                                  "type": "string"
+                                },
+                                "kind": {
+                                  "type": "string"
+                                },
+                                "last": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "models": {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "note": {
+                                  "type": "string"
+                                },
+                                "steps": {
+                                  "additionalProperties": {
+                                    "type": "integer"
+                                  },
+                                  "type": "object"
+                                },
+                                "turns": {
+                                  "type": "integer"
+                                },
+                                "unanswered": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "from",
+                                "kind",
+                                "at",
+                                "turns",
+                                "first",
+                                "last",
+                                "models"
+                              ],
+                              "type": "object"
                             },
                             "starred": {
                               "type": "boolean"
@@ -4853,6 +5171,59 @@
                         },
                         "id": {
                           "type": "string"
+                        },
+                        "imported": {
+                          "properties": {
+                            "at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "first": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "from": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "last": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "models": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            },
+                            "unanswered": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "kind",
+                            "at",
+                            "turns",
+                            "first",
+                            "last",
+                            "models"
+                          ],
+                          "type": "object"
                         },
                         "starred": {
                           "type": "boolean"
@@ -14249,6 +14620,59 @@
                           "id": {
                             "type": "string"
                           },
+                          "imported": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "first": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "from": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "last": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "models": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "turns": {
+                                "type": "integer"
+                              },
+                              "unanswered": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "kind",
+                              "at",
+                              "turns",
+                              "first",
+                              "last",
+                              "models"
+                            ],
+                            "type": "object"
+                          },
                           "starred": {
                             "type": "boolean"
                           },
@@ -14490,6 +14914,59 @@
                           "id": {
                             "type": "string"
                           },
+                          "imported": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "first": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "from": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "last": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "models": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "turns": {
+                                "type": "integer"
+                              },
+                              "unanswered": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "kind",
+                              "at",
+                              "turns",
+                              "first",
+                              "last",
+                              "models"
+                            ],
+                            "type": "object"
+                          },
                           "starred": {
                             "type": "boolean"
                           },
@@ -14710,6 +15187,59 @@
                           "id": {
                             "type": "string"
                           },
+                          "imported": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "first": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "from": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "last": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "models": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "turns": {
+                                "type": "integer"
+                              },
+                              "unanswered": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "kind",
+                              "at",
+                              "turns",
+                              "first",
+                              "last",
+                              "models"
+                            ],
+                            "type": "object"
+                          },
                           "starred": {
                             "type": "boolean"
                           },
@@ -14906,6 +15436,59 @@
                         },
                         "id": {
                           "type": "string"
+                        },
+                        "imported": {
+                          "properties": {
+                            "at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "first": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "from": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "type": "string"
+                            },
+                            "last": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "models": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "note": {
+                              "type": "string"
+                            },
+                            "steps": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            },
+                            "unanswered": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "from",
+                            "kind",
+                            "at",
+                            "turns",
+                            "first",
+                            "last",
+                            "models"
+                          ],
+                          "type": "object"
                         },
                         "starred": {
                           "type": "boolean"

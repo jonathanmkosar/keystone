@@ -66,6 +66,7 @@ func (r *Runner) whole(ctx context.Context, s *tenant.Store, c chat.Chat) (ChatR
 	for _, t := range open {
 		out.Turns = append(out.Turns, t.Turn)
 	}
+	r.withImport(ctx, s, &out) // an imported chat's mark, and its replies' models (P12-03, imported.go)
 	return out, nil
 }
 
@@ -111,6 +112,7 @@ func (r *Runner) list(w http.ResponseWriter, req *http.Request, c api.Call) {
 		reply.Chats = append(reply.Chats, shown(ch, busy[ch.ID]))
 	}
 	r.withSummaries(req.Context(), c.Store, reply.Chats) // each chat's summary (P5-05, recap.go)
+	r.withImports(req.Context(), c.Store, reply.Chats)   // each imported chat's mark (P12-03, imported.go)
 	api.WriteJSON(w, http.StatusOK, reply)
 }
 
@@ -188,7 +190,9 @@ func (r *Runner) patch(w http.ResponseWriter, req *http.Request, c api.Call) {
 		r.answer(w, req, c, err)
 		return
 	}
-	api.WriteJSON(w, http.StatusOK, shown(got, busy[id]))
+	changed := []Chat{shown(got, busy[id])}
+	r.withImports(req.Context(), c.Store, changed) // a renamed or starred chat keeps its mark (P12-03)
+	api.WriteJSON(w, http.StatusOK, changed[0])
 }
 
 func (r *Runner) remove(w http.ResponseWriter, req *http.Request, c api.Call) {

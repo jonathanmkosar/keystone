@@ -135,6 +135,7 @@ var checks = []check{
 	{"wiki jobs", checkWikiJobs},
 	{"operations", checkOperations},
 	{"share", checkShare},
+	{"import", checkImport},
 }
 
 func main() {

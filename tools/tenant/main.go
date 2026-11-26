@@ -42,6 +42,14 @@
 // connector manages one tenant's connectors. A connector that runs a
 // command on this machine is added here and never through the API. See
 // connector.go and docs/architecture/connectors.md.
+//
+//	go run ./tools/tenant import-copy <workspace.sqlite> <new file>
+//	go run ./tools/tenant import --check <tenant-id> <copy of workspace.sqlite>
+//	go run ./tools/tenant import <tenant-id> <copy of workspace.sqlite>
+//
+// import brings one person's chats and routines from New Keystone into one
+// tenant, and import-copy makes the whole copy it reads. See importcmd.go
+// and docs/runbooks/import-new-keystone.md.
 package main
 
 import (
@@ -77,6 +85,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+settingUsage)
 		fmt.Fprintln(os.Stderr, "       "+backupUsage)
 		fmt.Fprintln(os.Stderr, "       "+connectorUsage)
+		fmt.Fprintln(os.Stderr, "       "+importUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -138,6 +147,10 @@ func main() {
 		restoreMain(dir, *keeper, args[1:])
 	case "connector":
 		connectorMain(dir, *keeper, args[1:]) // P7-04: connector.go
+	case "import":
+		importMain(in, args[1:]) // P12-03: importcmd.go
+	case "import-copy":
+		importCopyMain(args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)

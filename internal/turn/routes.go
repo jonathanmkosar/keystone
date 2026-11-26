@@ -16,6 +16,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/chat"
+	"github.com/jonathanmkosar/keystone/internal/imported"
 	"github.com/jonathanmkosar/keystone/internal/seam"
 )
 
@@ -93,6 +94,10 @@ type Chat struct {
 	// Summary is the summary of the chat's recap, in the list of chats.
 	// Absent until the chat has one (P5-05, recap.go).
 	Summary string `json:"summary,omitempty"`
+	// Imported is the mark of a chat that was brought in from another app:
+	// where from, when, and what that app recorded in it. Absent on a chat
+	// made here (P12-03, imported.go).
+	Imported *imported.Mark `json:"imported,omitempty"`
 }
 
 // Message is one message of a chat. The first seven fields are the chat
