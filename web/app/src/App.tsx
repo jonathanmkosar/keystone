@@ -116,7 +116,7 @@ export function App() {
 
   return (
     <ChatsProvider onSignedOut={check}>
-      <Shell person={session.person} theme={theme} onTheme={chooseTheme} onSignOut={leave}>
+      <Shell person={session.person} onSignOut={leave}>
         <Routes>
           <Route path="/" element={<Start person={session.person} />} />
           <Route path="/signin" element={<Navigate to="/" replace />} />

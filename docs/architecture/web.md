@@ -52,7 +52,7 @@ Addresses are real paths (decision [0071](decisions/0071-client-side-routes-are-
 
 ### The frame
 
-Laid out as in `MainDark.html` and `MainLight.html`. The sidebar is 272 pixels wide and holds the mark and wordmark, a button to close it, New chat, the six places, the starred chats, the thirty most recent of the others with a link to the rest, the signed-in person with a sign-out button, and the theme switch. The main area has a header with the screen's title, and the content below it. On a chat the title is a button that opens the chat's menu.
+Laid out as in `MainDark.html` and `MainLight.html`. The sidebar is 272 pixels wide and holds the mark and wordmark, a button to close it, New chat, the six places, the starred chats, the thirty most recent of the others with a link to the rest, and the signed-in person with a sign-out button. The theme switch left the sidebar at the owner's word (November 27, 2026): it is under Settings, General, and on the sign-in screen. The main area has a header with the screen's title, and the content below it. On a chat the title is a button that opens the chat's menu.
 
 Below 760 pixels wide the sidebar becomes a drawer over the page, opened from the header and closed by its own button, by the dimmed area beside it, or by moving to another screen.
 

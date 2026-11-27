@@ -11,8 +11,6 @@ import { IncognitoButton } from "./Incognito";
 import { isActive, useLive } from "./turns";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
-import { ThemeSwitch } from "./ThemeSwitch";
-import type { ThemeChoice } from "./theme";
 
 const places: { to: string; label: string; icon: IconName }[] = [
   { to: "/search", label: "Search", icon: "search" },
@@ -66,14 +64,10 @@ function ChatLink({ chat }: { chat: Chat }) {
 /** The frame every signed-in screen sits in: sidebar, header, main area. */
 export function Shell({
   person,
-  theme,
-  onTheme,
   onSignOut,
   children,
 }: {
   person: Person;
-  theme: ThemeChoice;
-  onTheme: (c: ThemeChoice) => void;
   onSignOut: () => void;
   children: ReactNode;
 }) {
@@ -163,7 +157,7 @@ export function Shell({
               <Icon name="signout" />
             </button>
           </div>
-          <ThemeSwitch choice={theme} onChoose={onTheme} />
+          {/* The theme is chosen in Settings, General, not here (the owner, November 27, 2026). */}
         </div>
       </nav>
       <button type="button" className="scrim" aria-label="Close sidebar" tabIndex={-1} onClick={() => setDrawer(false)} />
