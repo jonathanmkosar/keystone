@@ -671,6 +671,11 @@ func TestTheExampleScriptsPlay(t *testing.T) {
 	p := provider(t, Options{DeltaSize: 12}, scripts...)
 	kinds := map[string]bool{}
 	for _, s := range scripts {
+		if s.When.Decision {
+			// A decision script answers decision calls, not turns:
+			// TestDecideFromScripts plays them.
+			continue
+		}
 		req := requestFor(s)
 		for i, step := range s.Steps {
 			var col seam.Collector

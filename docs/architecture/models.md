@@ -33,13 +33,13 @@ Two packages share the work:
 | --- | --- |
 | `name` | The registry name, the one a seam `Request` carries in `model`. 1 to 63 lower-case letters, digits, dots, dashes and underscores. |
 | `label` | What the model picker shows. One line, 80 characters at most. |
-| `adapter` | `fake`, `anthropic`, `responses` or `chat_completions`. |
+| `adapter` | `fake`, `anthropic`, `responses`, `chat_completions` or, since P14-02, `systemone` (Ollama's decision API, [adapter-systemone.md](adapter-systemone.md)). |
 | `endpoint` | The base address the adapter calls. `http` or `https`, a host and an optional path. |
 | `provider_model` | The provider's own name for the model, which the adapter sends. |
 | `key` | The name of the secret in the tenant's vault that holds the provider key. Never the key. Left out when the endpoint asks for none. |
 | `context_window` | The most tokens one call may hold, input and output together. |
 | `output_limit` | The most tokens the model writes in one reply. Never more than the context window. |
-| `capabilities` | Any of `tools`, `vision`, `files`, `thinking`, `embedding`. |
+| `capabilities` | Any of `tools`, `vision`, `files`, `thinking`, `embedding`, and since P14-02 `decision`, which an entry lists alone. |
 | `price` | US dollars for a million tokens: `input`, `output`, and `cache_read` and `cache_write` where the provider has them. A local model costs nothing. |
 | `class` | `local`, `hosted` or `trusted`. See below. |
 | `ca_cert` | Optional. One certificate authority to trust for this entry's `https` endpoint, as PEM text or the path of a PEM file. Added with the Chat Completions adapter, which reads it: [adapter-chat-completions.md](adapter-chat-completions.md). |
@@ -86,6 +86,7 @@ A model on a machine you trust that has some other name is marked `trusted`. The
 - A `key` that is not shaped like a secret's name.
 - A context window or an output limit of zero or less, or an output limit above the context window.
 - A price below zero.
+- Since P14-02: the capability `decision` listed with any other, and a `systemone` entry without `decision` (decision [0630](decisions/0630-a-decision-is-a-call-of-its-own-and-a-decision-model-takes-nothing-else.md)).
 - A `ca_cert` on the `fake` adapter or on an `http` endpoint, one that holds a private key, one longer than 32,000 characters, or a path that is not one line. The value is never repeated in the reason.
 
 A reason never repeats the endpoint or the `key` field, in case a key was pasted into one of them.
@@ -125,6 +126,8 @@ A `Set` maps an adapter's name to its `Builder`, a function from an entry and a 
 A builder must never put the key in an error. If one does, `Open` takes it out before the error goes on.
 
 Since P6-08, `adapters.OpenEmbedder(ctx, store, set, name)` opens an embedding model the same way and returns a `seam.Embedder`: it refuses an entry without the `embedding` capability, and a provider that has no `Embed` method, with `ErrNotEmbedder`. `adapters.Embeds(adapter)` says which adapters make vectors in this build: `fake` and `chat_completions`. An embedding model's entry is an ordinary entry with `"capabilities": ["embedding"]` and an output limit of 1; it takes embedding calls and nothing else, and chat never offers it ([embeddings.md](embeddings.md)).
+
+Since P14-02, `adapters.OpenDecider(ctx, store, set, name)` opens a decision model the same way and returns a `seam.Decider`, refusing an entry without the `decision` capability, and a provider with no `Decide` method, with `ErrNotDecider`. `adapters.Decides(adapter)` says which adapters decide: `fake` and `systemone`. `adapters.Real` holds the systemone adapter, with its options read by `adapters.SystemoneOptions`. A decision model's entry lists `"capabilities": ["decision"]` and nothing else, takes decision calls only, and chat never offers it ([decision-calls.md](decision-calls.md)).
 
 ## Settings
 

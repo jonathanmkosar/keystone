@@ -10,6 +10,7 @@ These are the example scripts for the fake provider, the scripted model that sta
 | `thinking.json` | A reply that thinks before it answers. |
 | `tool-call.json` | A tool call and the answer that follows its result, and two tool calls in one reply. |
 | `failures.json` | A provider that is busy, a key that is refused, a stream that ends early, and a rate limit part of the way through. Each answers one invented model name, so a fallback to another model can be tested. |
+| `decisions.json` | Decision calls (P14-02): a sure answer and an unsure one to a step and an effort question, a yes or no, and a decision model that cannot be reached. A script whose `when` has `"decision": true` answers decision calls only; its state is matched as the user text and its questions' instructions as the system text. |
 
 ## Writing a script
 

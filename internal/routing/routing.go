@@ -45,11 +45,16 @@ const (
 	// KindEmbedding turns text into a vector. Only a model with the
 	// embedding capability takes it, and such a model takes nothing else.
 	KindEmbedding Kind = "embedding"
+	// KindDecision is a decision call (P14-02), such as the router's
+	// verdict. Only a model with the decision capability takes it, and such
+	// a model takes nothing else. A sensitive decision call is held to the
+	// models that may read sensitive content, as every kind is.
+	KindDecision Kind = "decision"
 )
 
 // Kinds returns every kind of task, in the order the plan lists them.
 func Kinds() []Kind {
-	return []Kind{KindChat, KindTitle, KindSummary, KindMemory, KindEmbedding}
+	return []Kind{KindChat, KindTitle, KindSummary, KindMemory, KindEmbedding, KindDecision}
 }
 
 // Rules are the routing rules in force for one tenant. A caller reads
@@ -177,9 +182,13 @@ func Plan(rules Rules, ask Ask, usable []models.Model) (Route, error) {
 }
 
 // fits reports whether a model can do what the call needs. An embedding
-// model takes embedding calls and nothing else.
+// model takes embedding calls and nothing else, and so does a decision
+// model take decision calls.
 func fits(m models.Model, ask Ask) bool {
 	if m.Has(models.CapEmbedding) != (ask.Kind == KindEmbedding) {
+		return false
+	}
+	if m.Has(models.CapDecision) != (ask.Kind == KindDecision) {
 		return false
 	}
 	for _, c := range ask.Needs {

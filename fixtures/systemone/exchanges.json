@@ -1,0 +1,168 @@
+{
+  "test_data": true,
+  "about": "Hand-written decision exchanges for the systemone adapter (P14-02), in the shape Ollama's decision API, POST /v1/systemone, reads and answers. Everything is invented: the models, the addresses, the states, the numbers and the token counts. The tests in internal/adapters/systemone replay them from a server on this machine.",
+  "exchanges": [
+    {
+      "name": "router-verdict",
+      "about": "The router's two questions: a step among three, each described, and an effort. A local Ollama that asks for no key.",
+      "entry": {
+        "name": "house-decide",
+        "label": "House decisions",
+        "adapter": "systemone",
+        "endpoint": "http://127.0.0.1:11434",
+        "provider_model": "example-decide:9b",
+        "context_window": 8192,
+        "output_limit": 1,
+        "capabilities": ["decision"],
+        "price": {"input": 0, "output": 0},
+        "class": "local"
+      },
+      "uses_key": false,
+      "request": {
+        "model": "house-decide",
+        "state": "Newest message: what day is it today?\nFacts: about 900 tokens, no images, no files, 3 tools offered, floor House chat, 4 turns.",
+        "questions": [
+          {
+            "id": "step",
+            "instructions": "Which is the smallest model that answers this request well?",
+            "type": "choice",
+            "options": [
+              {"id": "house-chat", "description": "House chat: step 1 of 3, smallest first"},
+              {"id": "small-hosted", "description": "Small hosted: step 2 of 3, smallest first"},
+              {"id": "mid-hosted", "description": "Mid hosted: step 3 of 3, smallest first"}
+            ]
+          },
+          {
+            "id": "effort",
+            "instructions": "How much thinking does this request need?",
+            "type": "choice",
+            "options": [{"id": "low"}, {"id": "medium"}, {"id": "high"}]
+          }
+        ]
+      },
+      "sent": {
+        "model": "example-decide:9b",
+        "state": "Newest message: what day is it today?\nFacts: about 900 tokens, no images, no files, 3 tools offered, floor House chat, 4 turns.",
+        "questions": {
+          "step": {
+            "type": "choice",
+            "instructions": "Which is the smallest model that answers this request well?",
+            "criteria": {
+              "house-chat": "House chat: step 1 of 3, smallest first",
+              "small-hosted": "Small hosted: step 2 of 3, smallest first",
+              "mid-hosted": "Mid hosted: step 3 of 3, smallest first"
+            }
+          },
+          "effort": {
+            "type": "choice",
+            "instructions": "How much thinking does this request need?",
+            "criteria": {"low": null, "medium": null, "high": null}
+          }
+        }
+      },
+      "sent_order": ["step", "effort"],
+      "answer": {
+        "model": "example-decide:9b",
+        "answers": {
+          "step": {"type": "choice", "choice": "house-chat", "probabilities": {"house-chat": 0.9125, "small-hosted": 0.0712, "mid-hosted": 0.0163}, "confidence": 0.6031},
+          "effort": {"type": "choice", "choice": "low", "probabilities": {"low": 0.8301, "medium": 0.1502, "high": 0.0197}, "confidence": 0.4874}
+        },
+        "usage": {"input_tokens": 212, "output_tokens": 2}
+      },
+      "response": {
+        "model": "house-decide",
+        "answers": [
+          {"question": "step", "choice": "house-chat", "probabilities": {"house-chat": 0.9125, "small-hosted": 0.0712, "mid-hosted": 0.0163}},
+          {"question": "effort", "choice": "low", "probabilities": {"low": 0.8301, "medium": 0.1502, "high": 0.0197}}
+        ],
+        "usage": {"input_tokens": 212, "output_tokens": 2}
+      }
+    },
+    {
+      "name": "yes-no-with-key",
+      "about": "A yes or no, described, answered as Ollama's noul: the probability of true. A gateway on the home network that asks for a key. The endpoint is written with /v1 on it, which is not doubled.",
+      "entry": {
+        "name": "gateway-decide",
+        "label": "Gateway decisions",
+        "adapter": "systemone",
+        "endpoint": "http://127.0.0.1:11434/v1",
+        "provider_model": "example-decide:27b",
+        "key": "provider.gateway",
+        "context_window": 16384,
+        "output_limit": 1,
+        "capabilities": ["decision"],
+        "price": {"input": 0, "output": 0},
+        "class": "local"
+      },
+      "uses_key": true,
+      "request": {
+        "model": "gateway-decide",
+        "state": "Please read the attached plan for the shed and tell me what is missing.",
+        "questions": [
+          {
+            "id": "needs_file",
+            "instructions": "Does the message ask about a file?",
+            "type": "yes_no",
+            "options": [{"id": "yes", "description": "It names or attaches a file"}, {"id": "no", "description": "It does not"}]
+          },
+          {
+            "id": "urgent",
+            "instructions": "Is the message urgent?",
+            "type": "yes_no"
+          }
+        ]
+      },
+      "sent": {
+        "model": "example-decide:27b",
+        "state": "Please read the attached plan for the shed and tell me what is missing.",
+        "questions": {
+          "needs_file": {
+            "type": "noul",
+            "instructions": "Does the message ask about a file?",
+            "criteria": {"true": "It names or attaches a file", "false": "It does not"}
+          },
+          "urgent": {"type": "noul", "instructions": "Is the message urgent?"}
+        }
+      },
+      "sent_order": ["needs_file", "urgent"],
+      "answer": {
+        "model": "example-decide:27b",
+        "answers": {
+          "needs_file": {"type": "noul", "noul": 0.875},
+          "urgent": {"type": "noul", "noul": 0.25}
+        },
+        "usage": {"input_tokens": 98, "output_tokens": 2}
+      },
+      "response": {
+        "model": "gateway-decide",
+        "answers": [
+          {"question": "needs_file", "choice": "yes", "probabilities": {"yes": 0.875, "no": 0.125}},
+          {"question": "urgent", "choice": "no", "probabilities": {"yes": 0.25, "no": 0.75}}
+        ],
+        "usage": {"input_tokens": 98, "output_tokens": 2}
+      }
+    }
+  ],
+  "refusals": [
+    {"name": "model not pulled", "status": 404, "body": {"error": "model \"example-decide:9b\" not found, try pulling it first"}, "kind": "invalid"},
+    {"name": "bad request", "status": 400, "body": {"error": "questions: choice question \"step\" needs at least 2 criteria"}, "kind": "invalid"},
+    {"name": "over the context", "status": 400, "body": {"error": "rendered prompt exceeds the loaded context length"}, "kind": "too_long"},
+    {"name": "too large", "status": 413, "body": {"error": "request exceeds 65536 bytes of text and schema"}, "kind": "too_long"},
+    {"name": "key refused", "status": 401, "body": {"error": "unauthorized"}, "kind": "auth"},
+    {"name": "busy", "status": 503, "body": {"error": "server busy"}, "kind": "overloaded"},
+    {"name": "slow down", "status": 429, "body": {"error": "too many requests"}, "kind": "rate_limited"},
+    {"name": "scoring failed", "status": 500, "body": {"error": "failed to load model"}, "kind": "unavailable"},
+    {"name": "not json", "status": 502, "body": "<html>bad gateway</html>", "kind": "unavailable"}
+  ],
+  "malformed": [
+    {"name": "not json", "body": "{not json"},
+    {"name": "no answers", "body": {"model": "example-decide:9b"}},
+    {"name": "an answer missing", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 0.5, "b": 0.5}}}}},
+    {"name": "an option missing", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 1}}, "check": {"type": "noul", "noul": 0.5}}}},
+    {"name": "an option not asked", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 0.5, "b": 0.25, "c": 0.25}}, "check": {"type": "noul", "noul": 0.5}}}},
+    {"name": "does not sum to one", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 0.7, "b": 0.7}}, "check": {"type": "noul", "noul": 0.5}}}},
+    {"name": "a probability over one", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 1.5, "b": -0.5}}, "check": {"type": "noul", "noul": 0.5}}}},
+    {"name": "a choice answered as a yes or no", "body": {"answers": {"step": {"type": "noul", "noul": 0.5}, "check": {"type": "noul", "noul": 0.5}}}},
+    {"name": "a yes or no over one", "body": {"answers": {"step": {"type": "choice", "choice": "a", "probabilities": {"a": 0.5, "b": 0.5}}, "check": {"type": "noul", "noul": 1.2}}}}
+  ]
+}

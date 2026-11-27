@@ -42,6 +42,11 @@ type When struct {
 	SystemContains string `json:"system_contains,omitempty"`
 	// Model is the request's model name, exactly.
 	Model string `json:"model,omitempty"`
+	// Decision says the script answers decision calls (P14-02), and only
+	// those: a script without it answers only requests for a reply. For a
+	// decision call the user text is the request's state, and the system
+	// text is the questions' instructions, one to a line.
+	Decision bool `json:"decision,omitempty"`
 }
 
 // Step is what the model does on one call. It is one of three things:
@@ -59,6 +64,11 @@ type Step struct {
 	// CutAfter is how many characters of the reply's text, thinking and
 	// tool input are sent before the stream fails.
 	CutAfter *int `json:"cut_after,omitempty"`
+	// Decision is a decision script's answer (P14-02): one answer for each
+	// question, each with a probability for every option. A result with no
+	// model takes the request's. A decision script has one step, which is
+	// a decision or an error.
+	Decision *seam.DecisionResult `json:"decision,omitempty"`
 }
 
 // Decode reads one script file. It refuses a file that is not marked as
@@ -133,6 +143,15 @@ func prepare(scripts []Script) ([]Script, error) {
 		if len(s.Steps) == 0 {
 			return nil, fmt.Errorf("script %q has no steps", s.Name)
 		}
+		if s.When.Decision {
+			step, err := prepareDecision(s.Steps)
+			if err != nil {
+				return nil, fmt.Errorf("script %q: %w", s.Name, err)
+			}
+			s.Steps = []Step{step}
+			out[i] = s
+			continue
+		}
 		steps := make([]Step, len(s.Steps))
 		for j, st := range s.Steps {
 			step, err := prepareStep(st)
@@ -152,7 +171,43 @@ func prepare(scripts []Script) ([]Script, error) {
 	return out, nil
 }
 
+// prepareDecision checks a decision script's steps: one step, which is a
+// decision with an answer for at least one question, or an error.
+func prepareDecision(steps []Step) (Step, error) {
+	if len(steps) != 1 {
+		return Step{}, fmt.Errorf("a decision script has one step, and this one has %d", len(steps))
+	}
+	st := steps[0]
+	if st.Reply != nil || st.CutAfter != nil {
+		return Step{}, errors.New("a decision script's step is a decision or an error, never a reply")
+	}
+	if (st.Decision == nil) == (st.Error == nil) {
+		return Step{}, errors.New("a decision script's step needs a decision or an error, and not both")
+	}
+	if st.Error != nil {
+		if err := seam.ValidateEvent(seam.Event{Type: seam.EventError, Error: st.Error}); err != nil {
+			return Step{}, fmt.Errorf("error: %w", err)
+		}
+		failure := *st.Error
+		st.Error = &failure
+		return st, nil
+	}
+	if len(st.Decision.Answers) == 0 {
+		return Step{}, errors.New("the decision answers no question")
+	}
+	if err := seam.ValidateUsage(st.Decision.Usage); err != nil {
+		return Step{}, fmt.Errorf("decision: %w", err)
+	}
+	d := *st.Decision
+	d.Answers = append([]seam.DecisionAnswer(nil), d.Answers...)
+	st.Decision = &d
+	return st, nil
+}
+
 func prepareStep(st Step) (Step, error) {
+	if st.Decision != nil {
+		return Step{}, errors.New(`a decision is the answer of a script whose "when" has "decision": true`)
+	}
 	if st.Error != nil {
 		// The seam checks an error as part of its error event.
 		if err := seam.ValidateEvent(seam.Event{Type: seam.EventError, Error: st.Error}); err != nil {
@@ -217,6 +272,7 @@ func checkSet(scripts []Script) error {
 			UserTextContains: fold(s.When.UserTextContains),
 			SystemContains:   fold(s.When.SystemContains),
 			Model:            s.When.Model,
+			Decision:         s.When.Decision,
 		}
 		if other, dup := whens[w]; dup {
 			return fmt.Errorf("scripts %q and %q answer the same requests, so the second can never be chosen", other, s.Name)

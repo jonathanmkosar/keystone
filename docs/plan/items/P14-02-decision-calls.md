@@ -1,6 +1,6 @@
 # P14-02. Decision calls and the decision adapter
 
-Status: doing (models)
+Status: provisional (models), on the live check: Ollama 0.35.1 or later with the decision model pulled on the owner's machine. Everything else in the proof passes on recorded exchanges and the fake provider (journal models 010).
 Lane: models
 Depends on: P3-02, P3-03, P3-08
 Owner gate: Ollama 0.35.1 or later on the owner's local machine, with the decision model pulled (live check only).

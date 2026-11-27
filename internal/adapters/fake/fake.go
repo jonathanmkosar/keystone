@@ -194,7 +194,7 @@ func (p *Provider) step(req seam.Request) (Step, error) {
 	for _, b := range req.System {
 		system = append(system, b.Text)
 	}
-	s, ok := p.match(user, own, fold(strings.Join(system, "\n")), req.Model)
+	s, ok := p.match(user, own, fold(strings.Join(system, "\n")), req.Model, false)
 	if !ok {
 		return Step{}, fmt.Errorf("no script answers a request whose last user text is %q", short(user))
 	}
@@ -205,10 +205,15 @@ func (p *Provider) step(req seam.Request) (Step, error) {
 }
 
 // match picks the script whose conditions all hold. The one with the most
-// conditions wins, and a tie goes to the earlier script.
-func (p *Provider) match(user, own, system, model string) (Script, bool) {
+// conditions wins, and a tie goes to the earlier script. decision says the
+// request is a decision call: only decision scripts answer one, and they
+// answer nothing else.
+func (p *Provider) match(user, own, system, model string, decision bool) (Script, bool) {
 	best, most := -1, -1
 	for i, s := range p.scripts {
+		if s.When.Decision != decision {
+			continue
+		}
 		if n, ok := s.When.holds(user, own, system, model); ok && n > most {
 			best, most = i, n
 		}

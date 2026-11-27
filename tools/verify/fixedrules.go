@@ -72,6 +72,14 @@ func init() {
 	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/embedding")
 }
 
+// Decision calls (P14-02): decision.Choose asks routing.Plan for the
+// decision model, and decision.Run refuses a sensitive call to a model that
+// may not read it a second time, so the package enforces rule 3 for
+// decision models.
+func init() {
+	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/decision")
+}
+
 // Browser use (P10-03): the guard decides which of the browser's actions
 // are side effects, which requests a page may make, and which fields are
 // never typed into, so it enforces rule 2 beside the approval rule.

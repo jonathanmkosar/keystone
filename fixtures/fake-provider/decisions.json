@@ -1,0 +1,55 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "decision: an easy question stays local",
+      "when": {"decision": true, "user_text_contains": "what day is it"},
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              {"question": "step", "choice": "house-chat", "probabilities": {"house-chat": 0.91, "small-hosted": 0.07, "mid-hosted": 0.02}},
+              {"question": "effort", "choice": "low", "probabilities": {"low": 0.83, "medium": 0.15, "high": 0.02}}
+            ],
+            "usage": {"input_tokens": 212, "output_tokens": 2}
+          }
+        }
+      ]
+    },
+    {
+      "name": "decision: a hard question moves up, unsure",
+      "when": {"decision": true, "user_text_contains": "compare the three garden plans"},
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              {"question": "step", "choice": "small-hosted", "probabilities": {"house-chat": 0.3, "small-hosted": 0.48, "mid-hosted": 0.22}},
+              {"question": "effort", "choice": "high", "probabilities": {"low": 0.05, "medium": 0.35, "high": 0.6}}
+            ],
+            "usage": {"input_tokens": 240, "output_tokens": 2}
+          }
+        }
+      ]
+    },
+    {
+      "name": "decision: a yes or no",
+      "when": {"decision": true, "system_contains": "does the message ask for a file"},
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              {"question": "needs_file", "choice": "no", "probabilities": {"yes": 0.12, "no": 0.88}}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "decision: the decision machine is off",
+      "when": {"decision": true, "model": "down-decide"},
+      "steps": [
+        {"error": {"kind": "unavailable", "message": "the decision endpoint could not be reached: the connection failed at dial", "retryable": true}}
+      ]
+    }
+  ]
+}

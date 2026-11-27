@@ -317,6 +317,33 @@
       "description": "The most other models one call is sent to after the first one failed. Zero means none."
     },
     {
+      "key": "systemone.timeout",
+      "title": "Decision call timeout",
+      "summary": "The longest one decision call may take before it is given up.",
+      "type": "duration",
+      "default": "5s",
+      "scope": "install",
+      "description": "The longest the systemone adapter waits for one decision call, from connecting to the whole answer. A call is sent once: a late decision is given up, and its caller decides without it."
+    },
+    {
+      "key": "systemone.max_request_bytes",
+      "title": "Largest decision request",
+      "summary": "The largest decision request sent, in bytes; larger ones are refused.",
+      "type": "int",
+      "default": "65536",
+      "scope": "install",
+      "description": "The largest request body the systemone adapter sends for one decision call, in bytes. A larger request is refused before anything is sent. Ollama itself takes at most 64 KiB of text and questions."
+    },
+    {
+      "key": "systemone.max_questions",
+      "title": "Most questions in one decision",
+      "summary": "The most questions one decision call may ask.",
+      "type": "int",
+      "default": "64",
+      "scope": "install",
+      "description": "The most questions the systemone adapter sends in one decision call. A request with more is refused before anything is sent. Ollama itself takes at most 64."
+    },
+    {
       "key": "usage.monthly_cap_usd",
       "title": "Monthly cap",
       "summary": "The most one person may spend in a month on paid models.",
