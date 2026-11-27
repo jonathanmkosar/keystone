@@ -116,7 +116,11 @@ func measure(ctx context.Context, s *tenant.Store, reg []settings.Setting, cfg S
 
 	// The month against the cap, and the memory reserve, as the usage
 	// report reads them: the same function, so the two never disagree.
-	rep, err := usagereport.Read(ctx, s, reg, usagereport.Ask{Month: month}, now)
+	// Standing is the report's cap and reserve without its breakdowns,
+	// which place every record of the month and are not shown here
+	// (P13-03: the home screen reads this each time it is drawn).
+	var rep usagereport.Report
+	rep.Cap, rep.Reserve, err = usagereport.Standing(ctx, s, reg, month)
 	if err != nil {
 		return nil, err
 	}

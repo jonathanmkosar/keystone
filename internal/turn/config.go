@@ -81,6 +81,7 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	read("chats.title_max_length", &c.Limits.TitleLength)
 	read("chats.search_max_results", &c.Limits.SearchResults)
 	read("chats.search_snippet_words", &c.Limits.SnippetWords)
+	read("chats.search_rank_max", &c.Limits.RankMax) // the most matches one search ranks (P13-03)
 	read("chats.turn_queue_max", &c.QueueMax)
 	read("chats.turn_max_steps", &c.MaxSteps)
 	read("chats.stream_poll", &c.StreamPoll)

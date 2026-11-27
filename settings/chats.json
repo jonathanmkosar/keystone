@@ -23,6 +23,13 @@
       "description": "About how many words of a matching message a search result shows, from 1 to 64."
     },
     {
+      "key": "chats.search_rank_max",
+      "type": "int",
+      "default": "20000",
+      "scope": "install",
+      "description": "The most matching messages one search over chats ranks. When more match, the newest that many are ranked, and a search for any of several words leaves out a word that more messages than this hold while another of its words is in fewer. Zero ranks every match."
+    },
+    {
       "key": "chats.recap",
       "type": "bool",
       "default": "true",

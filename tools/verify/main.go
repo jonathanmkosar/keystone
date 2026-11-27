@@ -141,6 +141,7 @@ var checks = []check{
 	{"import", checkImport},
 	{"inline visuals", checkInlineVisuals},
 	{"research mode", checkResearch},
+	{"load test", checkLoadTest},
 }
 
 func main() {

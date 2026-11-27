@@ -166,7 +166,7 @@
     {
       "key": "operations.database_room_mb",
       "type": "int",
-      "default": "2048",
+      "default": "10240",
       "scope": "install",
       "description": "The size, in megabytes, a person's database (keystone.db with its write-ahead log) is planned to grow to. Operations shows the database against it."
     },
