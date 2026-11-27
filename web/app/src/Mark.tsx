@@ -1,8 +1,8 @@
-// The mark: three nested copper arches and an ivory keystone, from
-// design/mark/. The colours are the design tokens, so the free-standing mark
-// follows the theme. On light pages the mark sits on a dark tile, which is
-// the answer STATE.md assumes for the open question, so the tile variant
-// pins the dark theme's colours.
+// The mark: three nested copper arches and a keystone, from design/mark/.
+// The colours are the design tokens, so the free-standing mark follows the
+// theme: ivory keystone on dark, deeper coppers and a dark stone keystone on
+// light (the owner's pick on November 27, 2026). The tile variant is kept
+// for an app icon that needs a ground of its own.
 
 const dark = { c1: "#6b3a1c", c2: "#b0683a", c3: "#e8a878", key: "#f1ece0", ground: "#15191a", gap: "#0f1213" };
 

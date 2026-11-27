@@ -48,7 +48,8 @@ a {
   margin: 0;
 }
 
-/* The mark: free-standing on dark, on a dark tile on light. */
+/* The mark: free-standing in both themes, in each theme's own coppers and
+   keystone (the owner's pick on November 27, 2026: no dark tile on light). */
 
 .mark-tiled {
   display: none;
@@ -73,22 +74,6 @@ a {
   stroke-linejoin: round;
 }
 
-:root[data-theme="light"] .mark-free {
-  display: none;
-}
-
-:root[data-theme="light"] .mark-tiled {
-  display: inline;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .mark-free {
-    display: none;
-  }
-  :root:not([data-theme]) .mark-tiled {
-    display: inline;
-  }
-}
 
 .brand {
   display: flex;

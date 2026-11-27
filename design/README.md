@@ -15,8 +15,8 @@ Files, in `mark/`:
 | File | Use |
 | --- | --- |
 | `keystone-mark.svg` | The mark on dark grounds. Transparent background. |
-| `keystone-mark-tile.svg` | The mark on a dark rounded tile. App icon, browser tab, and light pages. |
-| `keystone-mark-light.svg` | Free-standing on light grounds: deeper coppers and a dark stone keystone. An alternate, not yet chosen. |
+| `keystone-mark-tile.svg` | The mark on a dark rounded tile. Kept for an app icon that needs a ground of its own; not used on light pages. |
+| `keystone-mark-light.svg` | Free-standing on light grounds: deeper coppers and a dark stone keystone. The light-page mark, chosen November 27, 2026. |
 
 ## Colours
 
@@ -46,8 +46,9 @@ Text and button pairs were checked at 4.5 to 1 or better. Neutral grounds, type 
 
 - The wordmark is Fraunces, as in Waymarks.
 - The four draft screens (`Home`, `Scheduled`, `Operations`, `Admin`) are approved, and were recoloured in copper the same day.
+- On light pages the mark is free-standing, with no tile: deeper coppers and a dark stone keystone, `keystone-mark-light.svg`. The owner turned down the dark tile. The app draws it from the light theme's tokens, and the browser-tab icon (`web/app/public/mark.svg`) carries both versions, chosen by the browser's own light or dark setting.
 
 ## Still open
 
-- On light pages: the owner turned down the dark tile ("I don't like the black background") and likes the dark theme as it is. A second round of light-page marks with no dark tile is on the review page; until one is chosen, the app keeps drawing what it draws today.
+
 - Motion: the idea of copper lighting up as an agent works has not been redrawn for this mark.

@@ -1,6 +1,6 @@
 # P1-03. The Keystone mark
 
-Status: doing (design)
+Status: done
 Lane: design
 Depends on: nothing
 Owner gate: Jonathan picks a mark.
@@ -13,3 +13,7 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 ## Plan and result
 
 Progress, November 24, 2026: The mark is chosen: three copper arches and an ivory keystone. SVG files are in `design/mark/`. Still to do: favicon and app icon exports, and the owner's choice for light pages (on a dark tile is assumed).
+
+### Result (November 27, 2026)
+
+Approved by the owner: the colours and the chat screens on November 24, and on November 27 the wordmark (Fraunces), the light-page mark (free-standing, no tile) and the drafts of new chat, Scheduled, Operations and Admin, which were then recoloured in copper. `design/README.md` and `design/screens/README.md` record it.

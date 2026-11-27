@@ -15,7 +15,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
 | agents | P7-05 skills | P10-03 browser use, then P13-01 the tricked-agent drill |
 | interface | P11-04 settings at a glance | P10-02 voice mode, P10-05 phone (needs the owner), the model route reporting a held chat and missing keys (decisions 0240, 0241) |
-| design | P1-02 design system, P1-03 mark, P1-04 chat mockups | The other screens in copper and ivory, then P1-05 |
+| design | nothing | P1-05 agent, P1-06 workspace and P1-07 settings mockups for the screens built without one; P1-01 the Claude reference library, with the owner's go-ahead |
 
 ## In flight
 
@@ -25,14 +25,13 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | --- | --- | --- |
 | P7-05 skills | agents | `agents/p7-05-skills` |
 | P11-04 settings at a glance | interface | `interface/p11-04-settings-at-a-glance` |
-| P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
 ## Waiting on the owner
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
 | Corrections on the first round of screens | Decided by the owner on November 27, 2026: the four drafts are approved as they are, and were recoloured in copper | | Nothing |
-| The mark on light pages. On November 27, 2026 the owner turned down the dark tile ("I don't like the black background") and kept the dark theme as it is; a second round with no dark tile is on his review page | His pick from round two | What the app draws today | P1-03 |
+| The mark on light pages | Decided by the owner on November 27, 2026: free-standing, with deeper coppers and a dark stone keystone, no tile (round two's A); the app and the browser-tab icon draw it | | Nothing |
 | The wordmark | Decided by the owner on November 27, 2026: Fraunces | | Nothing |
 | Claude.ai captures, or go-ahead to capture | Go-ahead to capture | Layout from knowledge of Claude.ai | P1-01 |
 | How the sign-in screen asks who is signing in. There are no user names (core 005) | The screen lists the people on the install and the person picks their own. Look again when phone access from outside is decided (P10-05) | The sign-in functions take the tenant's store, so either answer fits | Nothing built. It shapes the sign-in route in P2-05 and the screen in P4-01 |
@@ -201,6 +200,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 - P12-04, Google from New Keystone, done for Calendar: `tools/tenant connector google` takes over a Google sign-in made elsewhere on this machine with the same client (`connectors.AdoptGoogle`), from the command line only. The owner's Calendar sign-in was brought across on November 26, 2026, and `connector check` listed its five tools from Google. Gmail was never in New Keystone and waits on the client. `verify` is 41 of 41.
 - P13-03, the load test, done: `go run ./tools/loadtest` writes three years of invented chats for one person (5,001 chats, 204,832 messages, 110,946 model calls) and five smaller people, and times thirteen things against budgets set before the first run: context packing, past-chat search, the chat list, a long chat's page, first streamed words and streaming for one person and six at once, and the usage, Operations and home-notice reads. All are inside their budgets at the 95th percentile, and 21 Operations figures match the test's own counts. It found and fixed a search over a common word that took seconds (decision 0530), `usage.List` reading every record, and the home notice reading a whole report for two sums. A small profile runs as the standing check `load test`, and a test compares the generator's rows with a real turn's, which caught the chart instructions at the merge. `verify` is 42 of 42. Decisions 0530 to 0533.
 - P4-06, manage chats, asked for by the owner, provisional until he has used it on his phone: the Chats screen is a table of every chat with its message count, summary and marks (imported, starred, project, task, sub-agent, held, shared), keyword search over titles and message text with the words shown in a snippet, five filters, four sort orders, and more rows as it scrolls. Rows are selected one by one, all shown, or all that match, and Delete selected removes them in one request after a confirmation that says what goes with them and that there is no undo; each chat is deleted as a single delete does, with its own audit entries, and one with a reply or a task under way is skipped and named. On a phone the rows fit the screen, a bar with the count and Delete stays in view, and nothing takes the focus by itself. A standing check, `manage chats`, makes `verify` 43 of 43. Decisions 0550 to 0554.
+- P1-02, P1-03 and P1-04, the design system, the mark and the chat mockups, approved by the owner on November 24 and 27, 2026: copper and ivory in both themes, the wordmark in Fraunces, the mark free-standing in both themes (ivory keystone on dark; deeper coppers and a dark stone keystone on light, with no tile), and the chat screens, new chat, Scheduled, Operations and Admin approved and in copper. The browser-tab icon carries both marks and follows the browser's light or dark setting.
 - P12-02, Gmail and Calendar, provisional on the owner's Google OAuth client and the agent mockups: Gmail (search, read, draft, send) and Calendar (list, read, create, change, delete) as built-in connectors with a third transport, `google`, so they share the connectors' switches, policies and audit path. A call that reaches other people (a send, an event with guests) asks under every policy but `never`, enforced in the approval decision and again when the tool runs; a change to an event must name its current title and guests, checked against the live event first. The sign-in is OAuth with PKCE and the narrowest scopes; the refresh token lives in the person's vault and access tokens only in memory. Tested against a stand-in Google on this machine. Decisions 0350 to 0353; runbook `docs/runbooks/google.md`.
 - The mark's form, chosen by the owner on November 24, 2026: three nested arches and one tall, sharp keystone ("Portal", round seven on the Keystone UI canvas). Colours, chosen the same day: three coppers for the arches and an ivory keystone, on a dark ground. Copper is Keystone's accent. See `design/README.md`. Approved by the owner the same day, with the dark and light chat screens.
 

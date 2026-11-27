@@ -14,7 +14,7 @@ Every name, figure and date in them is invented.
 | `Operations.html` | Tiles, needs attention, model health, turns by hour, room to grow | Approved November 27, 2026; recoloured in copper | P1-07, P11-03 |
 | `Admin.html` | People, feature switches, this install, the audit log | Approved November 27, 2026; recoloured in copper | P1-07, P11-01 |
 
-In the four screens approved on November 27, copper replaced moss as the accent (buttons, switches, the selected tab, the spend bar, the running badge); green stays only for Done and the LOCAL mark, as in `MainLight.html`. Their sidebar still draws the first round's plain keystone shape, until the light-page mark is chosen.
+In the four screens approved on November 27, copper replaced moss as the accent (buttons, switches, the selected tab, the spend bar, the running badge); green stays only for Done and the LOCAL mark, as in `MainLight.html`. Their sidebar draws the light-page mark the owner chose the same day.
 
 ## Not designed yet
 
