@@ -393,21 +393,48 @@
   overflow-wrap: anywhere;
 }
 
-.reply-waiting {
+/* The turning mark at the foot of a reply still being written (Spinner.tsx). */
+.reply-spinner {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 30px;
+  min-height: 36px;
+  margin-top: 4px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 15px;
 }
 
-.waiting-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  background: var(--accent);
-  animation: working 1.1s ease-in-out infinite;
+.spinner circle {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.spinner-c1 {
+  stroke: var(--c1);
+}
+
+.spinner-c2 {
+  stroke: var(--c2);
+}
+
+.spinner-c3 {
+  stroke: var(--c3);
+}
+
+.spinner-key {
+  fill: var(--key);
+}
+
+.spinner-arcs {
+  transform-origin: 12px 12px;
+  animation: reply-spin 1.2s linear infinite;
+}
+
+@keyframes reply-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .reply-error {
@@ -861,7 +888,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .step.is-running,
-  .waiting-dot,
+  .spinner-arcs,
   .is-streaming .md ::after {
     animation: none;
   }

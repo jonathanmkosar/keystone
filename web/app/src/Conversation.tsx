@@ -21,6 +21,7 @@ import { CitationSources, sourcesOf } from "./citations";
 import { TaskNote } from "./Tasks";
 import { isSubagentsStep, SubagentLanes } from "./Subagents";
 import { BrowserShot } from "./BrowserShot";
+import { ReplySpinner } from "./Spinner";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -206,12 +207,10 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
           </div>
         );
       })}
-      {item.streaming && empty && (
-        <div className="reply-waiting" role="status">
-          <span className="waiting-dot" />
-          Keystone is answering
-        </div>
-      )}
+      {/* While the turn runs, the turning mark sits at the reply's foot. With
+          nothing written yet it says so; after that the steps and the text
+          say what is happening, and the mark only shows it is not done. */}
+      {item.streaming && <ReplySpinner words={empty ? "Thinking" : undefined} />}
       {!item.streaming && (text !== "" || item.turnId) && (
         <div className="reply-actions">
           {text !== "" && <CopyButton text={text} />}

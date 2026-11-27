@@ -594,30 +594,6 @@
   color: var(--ink);
 }
 
-.float-working {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 42px;
-  padding-left: 6px;
-}
-
-.float-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2.5px solid var(--line);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: float-spin 0.9s linear infinite;
-}
-
-@keyframes float-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* The composer on a phone (decision 0610). One element for both states, a
    wrapping flex box: the row's buttons join it through display: contents,
    and order places them. Expanded, anything over the box (chips) and the
@@ -793,11 +769,5 @@ form.composer.is-phone.is-idle .send-button {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .float-spinner {
-    animation: none;
   }
 }

@@ -8,7 +8,6 @@ import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { ImportedTag } from "./Imported";
 import { IncognitoButton } from "./Incognito";
-import { isActive, useLive } from "./turns";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
 
@@ -36,17 +35,6 @@ function titleFor(path: string): string {
   if (path.startsWith("/projects/")) return "Projects";
   const place = places.find((p) => p.to === path);
   return place ? place.label : "Keystone";
-}
-
-/** The phone header's working mark: shown while a turn of the chat runs (P10-07). */
-function Working({ id }: { id: string }) {
-  const live = useLive(id);
-  if (!isActive(live)) return null;
-  return (
-    <span className="float-working" role="status" aria-label="Keystone is working" title="Keystone is working">
-      <span className="float-spinner" aria-hidden="true" />
-    </span>
-  );
 }
 
 // The sidebar shows this many recent chats. The rest are on the chats screen.
@@ -175,7 +163,7 @@ export function Shell({
             <div className="float-end">
               {openChat && (
                 <div className="float-pill float-actions">
-                  <Working key={openChat} id={openChat} />
+                  {/* A turn's working mark is at the foot of its reply, not here (the owner, November 27, 2026). */}
                   <ChatMenu key={openChat} id={openChat} />
                 </div>
               )}
