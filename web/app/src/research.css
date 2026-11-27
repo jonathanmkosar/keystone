@@ -1,0 +1,243 @@
+/* Research mode in the chat (P8-04): the Research control beside the
+   composer's pickers, the line that says what a task will run with, the
+   card of a task under way and the note it writes when it ends.
+   Provisional: there is no mockup for any of it yet (P1-05). The control
+   follows the model picker's button, the card the task card, the lanes are
+   the sub-agents' own, and the report's card is the artifact card. Every
+   colour is a token of design/README.md. */
+
+/* The control. */
+
+.research-button {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.research-button > .ico {
+  color: var(--muted);
+}
+
+.research-button:hover {
+  background: var(--sunk);
+}
+
+.research-button.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.research-button.is-on > .ico {
+  color: var(--accent);
+}
+
+/* What a task will run with, above the composer while the control is on. */
+
+.research-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--softink);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.research-hint > .ico {
+  flex: none;
+  margin-top: 2px;
+  color: var(--accent);
+}
+
+.research-hint strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* The card of a task under way. */
+
+.research {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.research.is-waiting {
+  border-color: var(--strong);
+}
+
+.research.is-paused {
+  border-color: var(--accent);
+}
+
+.research-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.research-head > .ico {
+  flex: none;
+  color: var(--accent);
+}
+
+.research-kind {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.research-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.research-state {
+  flex: none;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.research-question {
+  margin: 0;
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.research-where {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.research-where.is-running {
+  animation: working 1.4s ease-in-out infinite;
+}
+
+.research-heading {
+  margin-top: 6px;
+  color: var(--muted);
+  font: 500 12px var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.research-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding-left: 22px;
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.research-plan strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* The lanes are the sub-agents' own (subagents.css), set flush here. */
+
+.lanes.research-lanes {
+  margin: 0;
+}
+
+/* The sources: found so far on the card, cited on the note. */
+
+.research-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.research-source {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.research-source-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 10px;
+  background: var(--soft);
+  color: var(--softink);
+  font: 500 12px var(--font-mono);
+}
+
+.research-source-link {
+  min-width: 0;
+  color: var(--link);
+  overflow-wrap: anywhere;
+}
+
+.research-source-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* The note. */
+
+.research-note .artifact-card {
+  margin: 0;
+  cursor: pointer;
+}
+
+.research-pill {
+  padding: 1px 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--softink);
+  font-size: 12px;
+}
+
+.research-toggle {
+  align-self: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .research-where.is-running {
+    animation: none;
+  }
+}

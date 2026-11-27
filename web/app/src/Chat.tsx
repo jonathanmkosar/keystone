@@ -15,6 +15,8 @@ import { createIncognitoChat } from "./memoryCalls";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
 import { OperationsNotice } from "./OperationsNotice";
+import { ResearchCards, ResearchControl, ResearchHint } from "./Research";
+import { newChatKey as researchKey, sendAsResearch } from "./researchCalls";
 import { Tasks } from "./Tasks";
 import { ModelPicker } from "./ModelPicker";
 import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
@@ -50,6 +52,11 @@ export function Start({ person }: { person: Person }) {
       put(made.chat, true);
       await applyNewChatConnectors(person.id, made.chat.id); // the tools menu's switches (P7-04)
       await applyNewChatStyle(person.id, made.chat.id); // the style picker's pick (P9-05)
+      // The Research control was on (P8-04): the message is a research question.
+      if (sendAsResearch(researchKey(person.id), made.chat.id, text)) {
+        navigate(`/chats/${made.chat.id}`);
+        return;
+      }
       send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
@@ -70,7 +77,8 @@ export function Start({ person }: { person: Person }) {
         </h1>
       </div>
       <div className="composer-column">
-        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
+        <ResearchHint newChatFor={person.id} />
+        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ResearchControl newChatFor={person.id} /><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
         <IncognitoSwitch on={incognito} onChange={setIncognito} />
         {problem && (
           <p className="composer-problem" role="alert">
@@ -160,6 +168,7 @@ function OneChat({ id }: { id: string }) {
 
   function sendHere(text: string, files: File[]) {
     stick.current = true;
+    if (sendAsResearch(id, id, text)) return; // the Research control was on (P8-04): the message is a research question
     send(id, text, takePick(id), files.length > 0 ? () => messageWith(id, text, files) : undefined);
   }
 
@@ -211,6 +220,7 @@ function OneChat({ id }: { id: string }) {
         )}
         <Approvals chatId={id} />
         <Tasks chatId={id} onEnded={() => void load(true)} />
+        <ResearchCards chatId={id} onEnded={() => void load(true)} />
       </div>
       <div className="composer-dock">
         <div className="composer-column">
@@ -220,6 +230,7 @@ function OneChat({ id }: { id: string }) {
             </p>
           )}
           <AttachedChats chatId={id} />
+          <ResearchHint chatId={id} />
           <Composer
             placeholder="Reply to Keystone…"
             busy={busy || loaded.state === "loading"}
@@ -227,7 +238,7 @@ function OneChat({ id }: { id: string }) {
             focusKey={id}
             onSend={sendHere}
             onStop={busy ? () => stop(id) : undefined}
-            beside={<><ConnectorMenu chatId={id} /><StylePicker chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
+            beside={<><ResearchControl chatId={id} /><ConnectorMenu chatId={id} /><StylePicker chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
           />
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>
