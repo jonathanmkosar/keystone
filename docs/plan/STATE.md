@@ -29,6 +29,12 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
+| A1. Is an admin a person with a mark, or a separate account? | A mark on a person, set only from the command line, with a step-up before the admin area | The recommendation | P15-01, P15-03 |
+| A2. What may an admin see of another person? | Numbers and settings only; never chats, titles, files, memory, traces or error words | The recommendation | P15-01, P15-02 |
+| A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
+| A4. Views person by person, or by named sets? | Named view sets, with per-person additions and removals | The recommendation | P15-04 |
+| A5. Who uses the install besides the owner? | A few people; the simple set is chat, projects, artifacts and general settings | The recommendation | P15-02, P15-04 |
+| The router's live check: Ollama 0.35.1 or later with the decision model pulled, the largest hosted model registered, and the ladder | Do all three before P14-08 | | P14-08 only |
 | Corrections on the first round of screens | Decided by the owner on November 27, 2026: the four drafts are approved as they are, and were recoloured in copper | | Nothing |
 | The mark on light pages | Decided by the owner on November 27, 2026: free-standing, with deeper coppers and a dark stone keystone, no tile (round two's A); the app and the browser-tab icon draw it | | Nothing |
 | The wordmark | Decided by the owner on November 27, 2026: Fraunces | | Nothing |

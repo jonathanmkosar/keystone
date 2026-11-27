@@ -85,7 +85,7 @@ Every model call goes through one interface. A call states what it needs: tools,
 - **Internal format.** Keystone's own request and stream shape, built from content blocks: text, image, file, tool call, tool result, thinking. Nothing outside the adapters sees a provider's format.
 - **Model registry.** One entry per configured model: endpoint, adapter, context window, output limit, capabilities, price, and local, hosted or trusted. Adding a model is a settings change.
 - **Three adapters.** Anthropic Messages (Anthropic, and Ollama or LiteLLM where it helps), OpenAI Responses (OpenAI), and Chat Completions (OpenRouter, LiteLLM, Ollama, the Mac mini gateway with its own certificate, and anything else).
-- **Routing.** Rules from settings: chat uses the model picked; titles and summaries use a cheap model; the memory pass uses a local model; sensitive content is limited to local or trusted models; on error the call falls back along a chain. The future router app plugs in here, as the rule source or as one more endpoint.
+- **Routing.** Rules from settings: chat uses the model picked; titles and summaries use a cheap model; the memory pass uses a local model; sensitive content is limited to local or trusted models; on error the call falls back along a chain. On Auto, the model router chooses each request's model and effort from the admin's ladder, with a local decision model's verdict, and passes it to these rules (`docs/plan/SPEC-router-and-admin.md`, Part 1). It is a package in Keystone, not a separate app (decided by the owner, November 26, 2026).
 - **Budget.** Every call fits the model's window: token counts from the provider where it offers them, an estimate with a safety margin where it does not.
 - **Usage.** Every call records tokens, cost, latency and outcome. Hosted spend defaults to a $100 monthly cap per tenant, with a warning near it and a stop at it.
 - **Fake provider.** A scripted model for tests and the test tenant, so `verify` needs no keys and no network.
@@ -158,7 +158,6 @@ Backend phases run while design is in review.
 
 - **Agent-written scripts and script workflows**, until the sandbox is researched. They come back with their own brief.
 - **Computer use**, until Jonathan decides.
-- **The intelligent model router**, which is its own app. Keystone provides the seam.
 - **A hosted service** for other people.
 
 ## Stack
@@ -195,6 +194,8 @@ Phases group the work; they are not a queue. Several lanes build at once, an ite
 | 11. Settings and operations | Settings screens, usage and cost, Operations and Monitor. | Every setting in the registry has a screen, and spend matches the usage records. |
 | 12. Cutover | Own Waymarks tokens, New Keystone's wiki writes switched off, Gmail and Calendar as connectors, import of old chats and routines. | Only Keystone writes to Waymarks for Jonathan, and the morning brief runs here. |
 | 13. Hardening | Tricked-agent drill, tenant isolation drill, load test, backup and restore, rebuild drill, final screen comparison. | Every drill passes and the results are in the journal. |
+| 14. Model router | Effort on the seam, decision calls, the router, Auto in the turn, the admin's router policy, Auto for unattended work, Auto in usage, the live check. `docs/plan/SPEC-router-and-admin.md`, Part 1. | A held chat on Auto never reaches a hosted model, each step answers in the live check, and Usage shows Auto against the top step. |
+| 15. Admin and views | The admin mark and step-up, people and the install, admin settings from the browser, views and view sets, the admin isolation drill. `docs/plan/SPEC-router-and-admin.md`, Part 2. | An admin manages people, settings and views from the browser, sees no one's content, and a view that is off is refused by the server. |
 
 Jonathan has a chat he can use at the end of phase 4, with memory at the end of phase 6, and agents at the end of phase 8.
 
