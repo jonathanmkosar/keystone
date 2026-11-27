@@ -1,6 +1,6 @@
 # P14-01. Effort on the seam
 
-Status: doing (models)
+Status: done
 Lane: models
 Depends on: P3-01, P3-08
 Owner gate: None.
