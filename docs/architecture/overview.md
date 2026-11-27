@@ -312,5 +312,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0583 | [A click or a typing names the element by its words, and a page whose element says something else is not touched](decisions/0583-a-click-names-its-element-and-only-its-label-is-touched.md) |
 | 0584 | [Screenshots are kept in the person's database, named by the result, and shown under their step; the model reads text](decisions/0584-screenshots-are-kept-in-the-database-and-shown-under-their-step.md) |
 | 0585 | [Browser use is off until each person switches it on, and opening and reading a page do not ask](decisions/0585-browser-use-is-off-until-each-person-switches-it-on.md) |
+| 0590 | [On a phone the composer's and the header's controls are rows of a sheet, drawn by each control itself](decisions/0590-on-a-phone-the-composer-and-header-controls-are-rows-of-a-sheet.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

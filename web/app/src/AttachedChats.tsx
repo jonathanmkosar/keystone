@@ -7,12 +7,14 @@
 // the picker is drawn like the model picker's menu (model-picker.css).
 // docs/architecture/attach-and-handoff.md describes the routes.
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { Link } from "react-router";
 import { ApiError, setAttached, type Chat } from "./api";
 import { keepAttached, useAttached } from "./attached";
 import { titleOf, useChats } from "./chats";
+import { attachedState } from "./composerSheet";
 import { Icon } from "./Icon";
+import { SheetRow, useNarrow, useSheet } from "./PhoneSheet";
 import "./model-picker.css";
 import "./attach.css";
 
@@ -27,28 +29,15 @@ function matches(c: Listed, words: string[]): boolean {
   return words.every((w) => text.includes(w));
 }
 
-export function AttachedChats({ chatId }: { chatId: string }) {
-  const { chats, lost } = useChats();
-  const a = useAttached(chatId, lost);
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [busy, setBusy] = useState("");
-  const [problem, setProblem] = useState("");
-  const wrap = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLButtonElement>(null);
-  const list = useRef<HTMLDivElement>(null);
-
-  // A click outside, or Escape, closes the picker.
+/** A click outside wrap, or Escape, calls close while open is true. */
+function useCloses(open: boolean, wrap: RefObject<HTMLElement | null>, close: (escape: boolean) => void) {
   useEffect(() => {
     if (!open) return;
     function down(e: MouseEvent) {
-      if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
+      if (wrap.current && !wrap.current.contains(e.target as Node)) close(false);
     }
     function escape(e: globalThis.KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        trigger.current?.focus();
-      }
+      if (e.key === "Escape") close(true);
     }
     document.addEventListener("mousedown", down);
     document.addEventListener("keydown", escape);
@@ -56,16 +45,174 @@ export function AttachedChats({ chatId }: { chatId: string }) {
       document.removeEventListener("mousedown", down);
       document.removeEventListener("keydown", escape);
     };
-  }, [open]);
+  }, [open, wrap, close]);
+}
 
-  // On a phone the picker is a sheet at the top of what can be seen
-  // (attach.css). The on-screen keyboard shrinks and moves that, and CSS
-  // cannot tell, so the sheet is told where the visible part starts and how
-  // tall it is, and its list scrolls inside it.
+function failure(e: unknown, attach: boolean, max: number | undefined, lost: () => void): string {
+  if (e instanceof ApiError && e.kind === "signed-out") {
+    lost();
+    return "";
+  }
+  if (e instanceof ApiError && e.code === "incognito") return "An incognito chat is not attached to anything.";
+  if (e instanceof ApiError && e.code === "too_many") return `This chat has as many attached chats as it may (${max}). Take one off first.`;
+  return attach ? "The chat could not be attached. Check that the server is running." : "The chat could not be taken off. Check that the server is running.";
+}
+
+export function AttachedChats({ chatId }: { chatId: string }) {
+  const { lost } = useChats();
+  const a = useAttached(chatId, lost);
+  const narrow = useNarrow(); // a phone: attaching is a row of the composer's + sheet (decision 0590)
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState("");
+  const [problem, setProblem] = useState("");
+  const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const close = useCallback((escape: boolean) => {
+    setOpen(false);
+    if (escape) trigger.current?.focus();
+  }, []);
+  useCloses(open, wrap, close);
+
+  // An incognito chat attaches nothing, so nothing is drawn.
+  if (!a || a.incognito) return null;
+  // On a phone, with no chip to show, nothing is drawn over the composer.
+  if (narrow && a.attached.length === 0 && !problem) return null;
+
+  const full = a.attached.length >= a.max;
+
+  async function takeOff(otherId: string) {
+    setBusy(otherId);
+    setProblem("");
+    try {
+      keepAttached(await setAttached(chatId, otherId, false));
+    } catch (e) {
+      setProblem(failure(e, false, a?.max, lost));
+    } finally {
+      setBusy("");
+    }
+  }
+
+  const addLabel = full ? `This chat has as many attached chats as it may (${a.max})` : "Attach another of your chats: each reply in this chat is given its summary, and can open the rest of it";
+  return (
+    <div className="attached" ref={wrap}>
+      <ul className="attached-chips" aria-label="Chats attached to this one">
+        {a.attached.map((x) => {
+          const title = x.title || "Untitled chat";
+          const why = [x.parent ? "This chat continues from it." : "", x.summary ?? "", x.sensitive ? "It holds content from a sensitive space, so only a local or trusted model is given it." : "", x.incognito ? "It is incognito now, so no reply is given it." : ""]
+            .filter(Boolean)
+            .join(" ");
+          return (
+            <li key={x.id} className={["attached-chip", x.parent ? "is-parent" : "", x.incognito ? "is-off" : ""].filter(Boolean).join(" ")}>
+              <Icon name={x.parent ? "handoff" : "chatlink"} size={14} />
+              <Link to={`/chats/${x.id}`} className="attached-chip-title" title={why || title}>
+                {x.parent && <span className="attached-chip-words">Continued from </span>}
+                {title}
+              </Link>
+              {x.sensitive && <span className="attached-mark is-private">sensitive</span>}
+              {x.incognito && <span className="attached-mark">incognito</span>}
+              {!x.parent && (
+                <button type="button" className="attached-remove" aria-label={`Take ${title} off this chat`} title="Take it off" disabled={busy === x.id} onClick={() => void takeOff(x.id)}>
+                  <Icon name="close" size={14} />
+                </button>
+              )}
+            </li>
+          );
+        })}
+        {!narrow && (
+          <li>
+            <button
+              type="button"
+              ref={trigger}
+              className="attached-add"
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              title={addLabel}
+              disabled={full && !open}
+              onClick={() => {
+                setProblem("");
+                setOpen((o) => !o);
+              }}
+            >
+              <Icon name="chatlink" size={16} />
+              {a.attached.length === 0 ? "Attach a chat" : "Attach"}
+            </button>
+          </li>
+        )}
+      </ul>
+      {open && !narrow && <ChatPicker chatId={chatId} onPicked={() => setOpen(false)} onClose={() => close(true)} />}
+      {problem && (
+        <p className="composer-problem" role="alert">
+          {problem}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Attach a chat, as a row of the composer's + sheet on a phone (decision
+ * 0590): its state is how many chats are attached, and it opens the same
+ * picker in the sheet. Outside a sheet it draws nothing: the strip over the
+ * composer has the control there.
+ */
+export function AttachChatRow({ chatId }: { chatId: string }) {
+  const sheet = useSheet();
+  const { lost } = useChats();
+  const a = useAttached(chatId, lost);
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const close = useCallback((escape: boolean) => {
+    setOpen(false);
+    if (escape) trigger.current?.focus();
+  }, []);
+  useCloses(open, wrap, close);
+
+  if (!sheet || !a || a.incognito) return null;
+  const full = a.attached.length >= a.max;
+  return (
+    <div className="sheet-item" ref={wrap}>
+      <SheetRow
+        ref={trigger}
+        icon="chatlink"
+        name="Attach a chat"
+        state={attachedState(a.attached.length, a.max)}
+        expanded={open}
+        disabled={full && !open}
+        title={full ? `This chat has as many attached chats as it may (${a.max})` : undefined}
+        onClick={() => setOpen((o) => !o)}
+      />
+      {open && (
+        <ChatPicker
+          chatId={chatId}
+          onPicked={() => {
+            setOpen(false);
+            sheet.done();
+          }}
+          onClose={() => close(true)}
+        />
+      )}
+    </div>
+  );
+}
+
+/** The picker that attaches one of the person's chats, filtered by the words of its title and summary. */
+function ChatPicker({ chatId, onPicked, onClose }: { chatId: string; onPicked: () => void; onClose: () => void }) {
+  const { chats, lost } = useChats();
+  const a = useAttached(chatId, lost);
+  const [query, setQuery] = useState("");
+  const [busy, setBusy] = useState("");
+  const [problem, setProblem] = useState("");
+  const list = useRef<HTMLDivElement>(null);
+
+  // On a phone, outside the + sheet, the picker is a sheet at the top of
+  // what can be seen (attach.css). The on-screen keyboard shrinks and moves
+  // that, and CSS cannot tell, so the sheet is told where the visible part
+  // starts and how tall it is, and its list scrolls inside it.
   useEffect(() => {
     const vv = window.visualViewport;
     const el = list.current;
-    if (!open || !vv || !el) return;
+    if (!vv || !el) return;
     const place = () => {
       el.style.setProperty("--seen-top", `${vv.offsetTop}px`);
       el.style.setProperty("--seen-height", `${vv.height}px`);
@@ -77,30 +224,22 @@ export function AttachedChats({ chatId }: { chatId: string }) {
       vv.removeEventListener("resize", place);
       vv.removeEventListener("scroll", place);
     };
-  }, [open]);
+  }, []);
 
-  // An incognito chat attaches nothing, so nothing is drawn.
-  if (!a || a.incognito) return null;
-
+  if (!a) return null;
   const taken = new Set(a.attached.map((x) => x.id));
-  const full = a.attached.length >= a.max;
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const choices = (chats as Listed[]).filter((c) => c.id !== chatId && !taken.has(c.id) && matches(c, words)).slice(0, shownMost);
 
-  async function change(otherId: string, attach: boolean) {
+  async function attach(otherId: string) {
     setBusy(otherId);
     setProblem("");
     try {
-      keepAttached(await setAttached(chatId, otherId, attach));
-      if (attach) {
-        setOpen(false);
-        setQuery("");
-      }
+      keepAttached(await setAttached(chatId, otherId, true));
+      setQuery("");
+      onPicked();
     } catch (e) {
-      if (e instanceof ApiError && e.kind === "signed-out") lost();
-      else if (e instanceof ApiError && e.code === "incognito") setProblem("An incognito chat is not attached to anything.");
-      else if (e instanceof ApiError && e.code === "too_many") setProblem(`This chat has as many attached chats as it may (${a?.max}). Take one off first.`);
-      else setProblem(attach ? "The chat could not be attached. Check that the server is running." : "The chat could not be taken off. Check that the server is running.");
+      setProblem(failure(e, true, a?.max, lost));
     } finally {
       setBusy("");
     }
@@ -123,81 +262,34 @@ export function AttachedChats({ chatId }: { chatId: string }) {
   // covers half the list: there the person sees their chats first and taps
   // the box if they want to narrow them.
   const touch = window.matchMedia?.("(pointer: coarse)").matches ?? false;
-  const addLabel = full ? `This chat has as many attached chats as it may (${a.max})` : "Attach another of your chats: each reply in this chat is given its summary, and can open the rest of it";
   return (
-    <div className="attached" ref={wrap}>
-      <ul className="attached-chips" aria-label="Chats attached to this one">
-        {a.attached.map((x) => {
-          const title = x.title || "Untitled chat";
-          const why = [x.parent ? "This chat continues from it." : "", x.summary ?? "", x.sensitive ? "It holds content from a sensitive space, so only a local or trusted model is given it." : "", x.incognito ? "It is incognito now, so no reply is given it." : ""]
-            .filter(Boolean)
-            .join(" ");
-          return (
-            <li key={x.id} className={["attached-chip", x.parent ? "is-parent" : "", x.incognito ? "is-off" : ""].filter(Boolean).join(" ")}>
-              <Icon name={x.parent ? "handoff" : "chatlink"} size={14} />
-              <Link to={`/chats/${x.id}`} className="attached-chip-title" title={why || title}>
-                {x.parent && <span className="attached-chip-words">Continued from </span>}
-                {title}
-              </Link>
-              {x.sensitive && <span className="attached-mark is-private">sensitive</span>}
-              {x.incognito && <span className="attached-mark">incognito</span>}
-              {!x.parent && (
-                <button type="button" className="attached-remove" aria-label={`Take ${title} off this chat`} title="Take it off" disabled={busy === x.id} onClick={() => void change(x.id, false)}>
-                  <Icon name="close" size={14} />
-                </button>
-              )}
-            </li>
-          );
-        })}
-        <li>
-          <button
-            type="button"
-            ref={trigger}
-            className="attached-add"
-            aria-haspopup="dialog"
-            aria-expanded={open}
-            title={addLabel}
-            disabled={full && !open}
-            onClick={() => {
-              setProblem("");
-              setOpen((o) => !o);
-            }}
-          >
-            <Icon name="chatlink" size={16} />
-            {a.attached.length === 0 ? "Attach a chat" : "Attach"}
-          </button>
-        </li>
-      </ul>
-      {open && (
-        <div className="model-menu attached-menu" role="dialog" aria-label="Attach a chat" ref={list} onKeyDown={listKey}>
-          <div className="attached-menu-top">
-            <p className="model-menu-head">Attach a chat</p>
-            <button type="button" className="attached-remove" aria-label="Close" title="Close" onClick={() => setOpen(false)}>
-              <Icon name="close" size={14} />
-            </button>
-          </div>
-          <label className="offscreen" htmlFor="attached-search">
-            Find a chat by its title or summary
-          </label>
-          <input id="attached-search" className="input attached-search" placeholder="Find a chat by its title or summary" value={query} autoFocus={!touch} autoComplete="off" onChange={(e) => setQuery(e.target.value)} />
-          {choices.map((c) => (
-            <button key={c.id} type="button" className="model-item attached-item" disabled={busy === c.id} onClick={() => void change(c.id, true)}>
-              <Icon name="chatlink" size={16} />
-              <span className="model-item-text">
-                <span className="model-item-label">{titleOf(c)}</span>
-                {c.summary && <span className="model-item-why attached-item-why">{c.summary}</span>}
-              </span>
-            </button>
-          ))}
-          {choices.length === 0 && <p className="model-menu-note">{words.length > 0 ? "None of your other chats has those words in its title or summary." : "You have no other chat to attach."}</p>}
-          <p className="model-menu-note">Each reply in this chat is given an attached chat's summary, and can open the rest of it. A chat that holds sensitive content is given only to a local or trusted model.</p>
-        </div>
-      )}
+    <div className="model-menu attached-menu" role="dialog" aria-label="Attach a chat" ref={list} onKeyDown={listKey}>
+      <div className="attached-menu-top">
+        <p className="model-menu-head">Attach a chat</p>
+        <button type="button" className="attached-remove" aria-label="Close" title="Close" onClick={onClose}>
+          <Icon name="close" size={14} />
+        </button>
+      </div>
+      <label className="offscreen" htmlFor="attached-search">
+        Find a chat by its title or summary
+      </label>
+      <input id="attached-search" className="input attached-search" placeholder="Find a chat by its title or summary" value={query} autoFocus={!touch} autoComplete="off" onChange={(e) => setQuery(e.target.value)} />
+      {choices.map((c) => (
+        <button key={c.id} type="button" className="model-item attached-item" disabled={busy === c.id} onClick={() => void attach(c.id)}>
+          <Icon name="chatlink" size={16} />
+          <span className="model-item-text">
+            <span className="model-item-label">{titleOf(c)}</span>
+            {c.summary && <span className="model-item-why attached-item-why">{c.summary}</span>}
+          </span>
+        </button>
+      ))}
+      {choices.length === 0 && <p className="model-menu-note">{words.length > 0 ? "None of your other chats has those words in its title or summary." : "You have no other chat to attach."}</p>}
       {problem && (
-        <p className="composer-problem" role="alert">
+        <p className="model-menu-note attached-problem" role="alert">
           {problem}
         </p>
       )}
+      <p className="model-menu-note">Each reply in this chat is given an attached chat's summary, and can open the rest of it. A chat that holds sensitive content is given only to a local or trusted model.</p>
     </div>
   );
 }

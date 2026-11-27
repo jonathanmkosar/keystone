@@ -1,0 +1,420 @@
+/* The phone's sheets (decision 0590): the sheet behind the composer's +
+   and the one behind the chat header's ... button, and the composer and
+   header they make room in. No mockup draws them: they follow the owner's
+   example of another app's composer (November 27, 2026), with the tokens of
+   design/README.md, and are provisional. Every colour is a token; the scrim
+   and the shadow are black at part strength, as the drawer's scrim is,
+   because the tokens hold no shadow. */
+
+.sheet-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+}
+
+.sheet-layer[hidden] {
+  display: none;
+}
+
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: rgb(0 0 0 / 0.4);
+  cursor: default;
+}
+
+/* It rises from the foot of what can be seen: --seen-top and --seen-height
+   are the visible part's, kept by PhoneSheet.tsx as the keyboard comes and
+   goes. */
+.sheet {
+  position: fixed;
+  top: calc(var(--seen-top, 0px) + var(--seen-height, 100dvh));
+  right: 8px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 560px;
+  max-height: calc(var(--seen-height, 100dvh) - 24px);
+  margin: 0 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--raised);
+  box-shadow: 0 -6px 24px rgb(0 0 0 / 0.25);
+  transform: translateY(calc(-100% - 8px));
+}
+
+.sheet-grip {
+  flex: none;
+  width: 36px;
+  height: 4px;
+  margin: 2px auto 6px;
+  border-radius: 2px;
+  background: var(--strong);
+}
+
+.sheet-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* A control's own place in the composer's row pushes it right; in the
+   sheet it is as wide as the sheet. */
+.sheet > .sheet-item {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  margin: 0;
+}
+
+/* While a row's picker is open, the other rows step aside, so the picker
+   has the sheet; the row stays as its head and closes it again. */
+.sheet:has(.sheet-row.is-open) > .sheet-item:not(:has(.sheet-row.is-open)) {
+  display: none;
+}
+
+.sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--ink);
+  font: 500 16px var(--font-sans);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sheet-row.is-open {
+  background: var(--sunk);
+}
+
+/* Only where there is a pointer that hovers: on a touch screen a tapped
+   row would stay lit. */
+@media (hover: hover) {
+  .sheet-row:hover:not(:disabled) {
+    background: var(--sunk);
+  }
+}
+
+.sheet-row:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sheet-row > .ico {
+  flex: none;
+  color: var(--muted);
+}
+
+.sheet-row.is-on > .ico {
+  color: var(--accent);
+}
+
+.sheet-row-name {
+  flex: none;
+}
+
+.sheet-row-state {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 400;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet-row.is-on .sheet-row-state {
+  color: var(--softink);
+}
+
+.sheet-row-state.is-link {
+  color: var(--link);
+}
+
+.sheet-row-caret {
+  display: inline-flex;
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+}
+
+.sheet-row-state + .sheet-row-caret {
+  margin-left: 0;
+}
+
+.sheet-note {
+  margin: 0;
+  padding: 6px 12px;
+  color: var(--err);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* A control's own picker, opened in the sheet: in its flow, as wide as the
+   sheet, with rows a thumb can hit. Three classes, so these win over each
+   menu's own placing. */
+.sheet .model-menu.model-menu,
+.sheet .menu.menu,
+.sheet .model-menu.attached-menu {
+  position: static;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  margin: 4px 0 0;
+  overflow: visible;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.sheet .share-menu.menu {
+  gap: 10px;
+  padding: 6px 10px 8px;
+}
+
+.sheet .model-item,
+.sheet .menu-item,
+.sheet .share-choice,
+.sheet .share-off,
+.sheet .copy-button,
+.sheet .button {
+  min-height: 44px;
+}
+
+.sheet .model-menu-link,
+.sheet .share-all {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.sheet .model-menu-head,
+.sheet .attached-menu-top {
+  display: none;
+}
+
+.sheet .attached-search {
+  margin: 4px 0 6px;
+}
+
+.sheet .input {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+/* The composer on a phone: the box has the room, and one row under it holds
+   a round +, the model's chip, the microphone and a round send button. */
+
+.plus-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--sunk);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.plus-button:hover,
+.plus-button[aria-expanded="true"] {
+  border-color: var(--strong);
+}
+
+@media (max-width: 760px) {
+  form.composer {
+    gap: 8px;
+    padding: 12px 10px 10px;
+    border-radius: 22px;
+  }
+
+  /* 16px, or a phone's browser zooms the whole page in when the box takes
+     the focus. */
+  .composer-text,
+  .composer-large .composer-text {
+    min-height: 48px;
+    padding: 0 6px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .composer-row.is-phone {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .composer-row.is-phone .model-picker {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: 0;
+  }
+
+  .composer-row.is-phone .model-button {
+    max-width: 100%;
+    height: 44px;
+    padding: 0 12px 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--sunk);
+  }
+
+  .composer-row.is-phone .model-button-label {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .composer-row.is-phone .icon-button.dictation-button {
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border-radius: 50%;
+  }
+
+  /* Listening and finishing keep their own colours (dictation.css). */
+  .composer-row.is-phone .icon-button.dictation-button:not(.is-listening, .is-finishing) {
+    background: var(--sunk);
+    color: var(--ink);
+  }
+
+  .composer-row.is-phone .send-button {
+    margin-left: 0;
+    border-radius: 50%;
+  }
+
+  /* Without the microphone, the send button is pushed to the right. */
+  .composer-row.is-phone .model-picker + .send-button,
+  .composer-row.is-phone .plus-button + .send-button {
+    margin-left: auto;
+  }
+
+  /* The model's menu hangs from the composer, with rows a thumb can hit. */
+  .composer .model-item {
+    min-height: 44px;
+  }
+
+  .composer .model-menu-link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  /* The chips of the chats attached, over the composer: compact, one line
+     of title each, with the link and the button a thumb's height though the
+     chip is not. */
+  .attached .attached-chips {
+    gap: 12px 6px;
+  }
+
+  .attached .attached-chip {
+    height: 32px;
+  }
+
+  /* A block, not a flex box, so its title still ends in an ellipsis. */
+  .attached .attached-chip-title {
+    display: block;
+    height: 44px;
+    margin: -6px 0;
+    line-height: 44px;
+  }
+
+  .attached .attached-remove {
+    width: 44px;
+    height: 44px;
+    margin: -6px -4px -6px -8px;
+  }
+
+  /* A file's chip in the composer keeps its height; its remove button is
+     a thumb's size all the same, and the chips' rows leave it room. */
+  .composer .attach-chips {
+    gap: 12px 6px;
+  }
+
+  .composer .attach-chip-remove.icon-button {
+    width: 44px;
+    height: 44px;
+    margin: -6px -4px -6px -10px;
+  }
+
+  /* The header: the sidebar button, the chat's title with the room, and
+     the ... button. */
+  header.header {
+    gap: 4px;
+    padding: 6px 8px;
+  }
+
+  .header .header-left {
+    flex: 1;
+    gap: 2px;
+  }
+
+  .header .icon-button {
+    flex: none;
+    width: 44px;
+    height: 44px;
+  }
+
+  .header .title-wrap {
+    flex: 1 1 auto;
+  }
+
+  .header .title-button {
+    min-height: 44px;
+    padding: 0 6px;
+  }
+
+  .title-wrap .menu-item {
+    min-height: 44px;
+  }
+
+  .chat-menu {
+    display: flex;
+    flex: none;
+  }
+
+  /* Renaming, the box has the ... button's room too. */
+  .header:has(.rename-form) .chat-menu {
+    display: none;
+  }
+
+  .header .rename-form {
+    flex: 1;
+  }
+
+  .header .rename-form .input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .header .rename-form .button {
+    min-height: 44px;
+    padding: 0 10px;
+  }
+}

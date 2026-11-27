@@ -25,7 +25,9 @@ import {
 } from "./api";
 import { titleOf, useChats } from "./chats";
 import { Composer } from "./Composer";
+import { projectState } from "./composerSheet";
 import { Icon } from "./Icon";
+import { SheetRow, useSheet } from "./PhoneSheet";
 import { changedOn, keepChatProject, refreshProjects, sizeOf, useChatProject, useProjects } from "./projectStore";
 import { send } from "./turns";
 import "./projects.css";
@@ -738,6 +740,7 @@ function Memory({ space, onSave }: { space: string; onSave: (space: string) => P
  */
 export function ChatProjectChip({ chatId }: { chatId: string }) {
   const { lost } = useChats();
+  const sheet = useSheet();
   const project = useChatProject(chatId, lost);
   const { projects } = useProjects(lost);
   const [open, setOpen] = useState(false);
@@ -771,6 +774,7 @@ export function ChatProjectChip({ chatId }: { chatId: string }) {
       keepChatProject(chatId, got.project);
       void refreshProjects(lost);
       setOpen(false);
+      sheet?.done();
     } catch (e) {
       if (e instanceof ApiError && e.kind === "signed-out") lost();
       else setProblem("The chat was not moved. Check that the server is running.");
@@ -781,19 +785,24 @@ export function ChatProjectChip({ chatId }: { chatId: string }) {
 
   const choices = projects.filter((p) => !p.archived || p.id === project?.id);
   return (
-    <div className="project-chip-wrap" ref={wrap}>
-      <button
-        type="button"
-        className={project ? "project-chip" : "project-chip project-chip-empty"}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={project ? `In the project ${project.name}. Move this chat` : "Move this chat into a project"}
-        title={project ? `This chat is in ${project.name}: every call carries its instructions and files` : "Move this chat into a project"}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <Icon name="projects" size={14} />
-        <span className="project-chip-name">{project ? project.name : "Add to project"}</span>
-      </button>
+    <div className={sheet ? "project-chip-wrap sheet-item" : "project-chip-wrap"} ref={wrap}>
+      {sheet ? (
+        // In the phone's ... sheet it is a row, and its menu opens under it (decision 0590).
+        <SheetRow icon="projects" name="Project" state={projectState(project?.name)} expanded={open} onClick={() => setOpen((o) => !o)} />
+      ) : (
+        <button
+          type="button"
+          className={project ? "project-chip" : "project-chip project-chip-empty"}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={project ? `In the project ${project.name}. Move this chat` : "Move this chat into a project"}
+          title={project ? `This chat is in ${project.name}: every call carries its instructions and files` : "Move this chat into a project"}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <Icon name="projects" size={14} />
+          <span className="project-chip-name">{project ? project.name : "Add to project"}</span>
+        </button>
+      )}
       {problem && (
         <span className="header-note" role="alert">
           {problem}
