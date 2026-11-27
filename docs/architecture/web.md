@@ -43,7 +43,7 @@ Addresses are real paths (decision [0071](decisions/0071-client-side-routes-are-
 | Path | Screen |
 | --- | --- |
 | `/` | New chat: the mark, a greeting by time of day and the person's name, and a composer. The first message makes the chat. |
-| `/chats` | Every chat, starred first, then the one with the newest message first. |
+| `/chats` | Every chat as a table, with search, filters, sorting, and select and delete (P4-06): see "The Chats screen" below. |
 | `/chats/<id>` | One chat. |
 | `/signin` | Goes to `/` when signed in. Signed out, every path shows sign-in and keeps its address. |
 | `/search`, `/projects`, `/artifacts`, `/agents`, `/scheduled` | A placeholder saying the screen is not built yet. |
@@ -555,6 +555,17 @@ A part's lane makes the sub-agents' own calls, with the task's own chat as the c
 ## Settings at a glance (P11-04)
 
 The General settings screen: each setting of the registry as a name, one short line and its value, opening in place for the long explanation, the box to change it in, its default and its key. [settings-screens.md](settings-screens.md) describes it under "How General is drawn". `src/GeneralSettings.tsx` draws it, `src/settingsView.ts` works out what a row shows and has the tests (`test/settingsView.test.ts`, run by `npm test` and by `verify`), `src/settings-general.css` has the rows, and `src/SettingsParts.tsx` holds what every settings screen shares. At phone width every box under `.settings` is 16px, so a phone's browser does not zoom the page when one takes the focus, and the screen has no overlay and takes no focus by itself.
+
+## The Chats screen (P4-06)
+
+Provisional on the mockups, which draw no such screen. `/chats` is a table of every chat, in `src/ManageChats.tsx` with its calls in `src/manageCalls.ts` and its styles in `src/manage-chats.css`; `pages.tsx` gives `Chats` from it and keeps `Soon` and `Missing`. A search box over titles and messages, five filter chips, the table (a checkbox, the title with its marks, a line of what the search found or the chat's summary, messages and last activity), loading as the end of the list comes into view, select all shown and select all that match, a bar with the count and Delete while anything is selected, a confirmation that says what goes, what stays and that there is no undo, and a note afterwards naming each chat that was left. [manage-chats.md](manage-chats.md) has each part, and what the screen does on a phone: rows of a few short lines with no sideways scrolling, no box that takes the focus by itself, 16px text boxes, and a confirmation placed in the visible part of the screen.
+
+| Route | Call | When |
+| --- | --- | --- |
+| `GET /api/v1/chats/table` | `chatTable`, `matchingIds` | The first page when the search, a filter or the order changes and after a delete; the next page as the list's end comes into view; the ids for "select all that match". |
+| `POST /api/v1/chats/delete` | `deleteChats` | Delete in the confirmation, once for every `delete_max` chats selected. |
+
+Seen in a browser on November 27, 2026, in the browser pane, against the server built from this branch on port 7960 with a data folder inside the worktree (removed afterwards), as the test tenant with 137 invented chats added: at 1280 pixels in light and dark and at 375 pixels in light and dark, the table with its marks, a search with its words highlighted in titles and snippets, the Imported filter, the orders by messages and by best match, the list growing to all 132 rows as it was scrolled, select all shown and "Select all 140 chats", the bar, the confirmation, and a delete of nine chats of which one, with a sub-agent at work, was left and named. At 375 pixels nothing was wider than the screen, nothing had the focus when the page opened, both text boxes were 16px, a long title took two lines with the word found in it showing, and the confirmation sat at the foot of the screen with the focus on Keep. Not seen: a real phone, so the on-screen keyboard itself; the other four filters and the order by title, which the tests cover; a selection larger than one request deletes.
 
 ## The API it calls
 

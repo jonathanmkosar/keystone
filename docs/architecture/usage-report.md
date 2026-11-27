@@ -17,6 +17,7 @@ rep, err := usagereport.Read(ctx, store, registry, usagereport.Ask{Month: "2026-
 | Exported | What it is |
 | --- | --- |
 | `Read(ctx, store, reg, ask, now)` | The report for one tenant. An ask that cannot be read wraps `ErrPeriod`. |
+| `Standing(ctx, store, reg, month)` | A month's `Cap` and `Reserve`, the ones `Read` reports and read the same way, without the records and the breakdowns. Operations' limits and the home screen's notice read it (P13-03). `TestStandingIsTheReportsCapAndReserve` holds the two equal. |
 | `Ask` | `Period` (a preset's name), `Month` (2026-11), `From` and `To` (days), `Rows`. The zero `Ask` is the person's default period and rows. |
 | `Resolve(ask, preset, maxDays, now)` | The days an ask covers, as a `Period`. |
 | `Records(ctx, store, period)` | The period's usage records, oldest first. |

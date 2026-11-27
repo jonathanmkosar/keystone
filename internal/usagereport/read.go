@@ -150,13 +150,28 @@ func Read(ctx context.Context, s *tenant.Store, reg []settings.Setting, a Ask, n
 		month = usage.MonthOf(now)
 	}
 	out := Report{Period: p, Breakdowns: b}
-	if out.Cap, err = readCap(ctx, s, reg, month); err != nil {
-		return Report{}, err
-	}
-	if out.Reserve, err = readReserve(ctx, s, reg, month); err != nil {
+	if out.Cap, out.Reserve, err = Standing(ctx, s, reg, month); err != nil {
 		return Report{}, err
 	}
 	return out, nil
+}
+
+// Standing is where a calendar month stands against the monthly cap and
+// the memory reserve: the Cap and the Reserve of a report for that month,
+// read the same way, without the period's records and breakdowns. A caller
+// that wants only these, as Operations does for its limits and the home
+// screen's notice, reads two sums through the month's index, where a whole
+// report places every record of the month by its chat (P13-03).
+func Standing(ctx context.Context, s *tenant.Store, reg []settings.Setting, month string) (Cap, Reserve, error) {
+	c, err := readCap(ctx, s, reg, month)
+	if err != nil {
+		return Cap{}, Reserve{}, err
+	}
+	r, err := readReserve(ctx, s, reg, month)
+	if err != nil {
+		return Cap{}, Reserve{}, err
+	}
+	return c, r, nil
 }
 
 // readCap is the month against the cap. A cap whose settings do not read

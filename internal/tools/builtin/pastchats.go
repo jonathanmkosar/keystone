@@ -167,7 +167,7 @@ func searchChats(o Options, mayRead bool, hold Hold) tools.Tool {
 			if err := ctx.Err(); err != nil {
 				return "", err
 			}
-			titles, messages, err := chat.MatchAny(in.Store, args.Query, o.Limits.SearchResults, o.Limits.SnippetWords)
+			titles, messages, err := chat.MatchAnyWithin(in.Store, args.Query, o.Limits.SearchResults, o.Limits.SnippetWords, o.Limits.RankMax)
 			if err != nil {
 				if errors.Is(err, chat.ErrInvalid) {
 					return "", err

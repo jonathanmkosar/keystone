@@ -58,6 +58,8 @@ Both only read, and both are Keystone's own content, not outside content ([appro
 
 A result of `search_chats` used to be one line per matching title or message, with every word required in the same one (P7-01). The tool keeps its name, its `query`, its "N matches for" opening and "No other chat matches", so recorded turns, the chat screen's step words, a person's stored policy and every chat whose history calls it still fit (decision [0322](decisions/0322-search-chats-is-extended-not-joined-by-a-second-tool.md)).
 
+Since the load test (P13-03) the tool searches messages with `chat.MatchAnyWithin` and the bound `chats.search_rank_max`: over a record with more matching messages than the bound, a word that common is left out of the search of messages while another of the words is in fewer, and a search whose every word is that common is given the newest matching messages instead of the best. Titles and recaps are searched with every word, as before ([chat.md](chat.md), decision [0530](decisions/0530-a-search-cuts-snippets-only-for-what-it-gives-and-ranks-so-many-matches.md)).
+
 ## Fixed rule 3
 
 Content from a sensitive space reaches only models the registry marks local or trusted. A chat that was sent some (`recall.Held`) may repeat it anywhere: in its title, its messages, its recap. So:

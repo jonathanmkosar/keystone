@@ -759,7 +759,7 @@ func TestSettingsAreHeldToTheirBounds(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.TracesShown != 100 || cfg.Watch[LimitDisk] != 1 || cfg.HealthWindow != 5*time.Minute || cfg.Room[LimitDatabase] != 2048<<20 {
+	if cfg.TracesShown != 100 || cfg.Watch[LimitDisk] != 1 || cfg.HealthWindow != 5*time.Minute || cfg.Room[LimitDatabase] != 10240<<20 {
 		t.Errorf("%+v", cfg)
 	}
 	c, err := DefaultConfig()

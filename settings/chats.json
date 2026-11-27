@@ -29,6 +29,15 @@
       "description": "About how many words of a matching message a search result shows, from 1 to 64."
     },
     {
+      "key": "chats.search_rank_max",
+      "title": "Messages ranked in a search",
+      "summary": "The most matching messages one search over chats ranks.",
+      "type": "int",
+      "default": "20000",
+      "scope": "install",
+      "description": "The most matching messages one search over chats ranks. When more match, the newest that many are ranked, and a search for any of several words leaves out a word that more messages than this hold while another of its words is in fewer. Zero ranks every match."
+    },
+    {
       "key": "chats.recap",
       "title": "Chat recaps",
       "summary": "Gives each chat a short summary, so past chats are easier to find.",
@@ -550,6 +559,33 @@
       "options": ["none", "wiki", "all"],
       "scope": "tenant-admin",
       "description": "Which imported chats are held to local or trusted models, as a chat that was sent content from a sensitive space is. New Keystone marked nothing as sensitive, so none are by default. wiki holds the chats in which New Keystone read the person's Waymarks wiki; all holds every imported chat. A held chat stays held, and is left out of the past-chat search for a hosted model."
+    },
+    {
+      "key": "chats.table_page_rows",
+      "title": "Chats in one page of the table",
+      "summary": "How many chats one page of the Chats table holds.",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "How many chats one page of the Chats screen's table holds, from 1 to 500. The screen reads the next page as the end of the list comes into view."
+    },
+    {
+      "key": "chats.table_select_max",
+      "title": "Most chats selected at once",
+      "summary": "The most chats that selecting every match picks at once.",
+      "type": "int",
+      "default": "2000",
+      "scope": "tenant",
+      "description": "The most chats \"select all that match\" selects at once on the Chats screen, from 1 to 100000. With more than this the screen says how many it took, and the rest are selected after those are dealt with."
+    },
+    {
+      "key": "chats.delete_batch_max",
+      "title": "Chats deleted in one request",
+      "summary": "The most chats one delete request removes.",
+      "type": "int",
+      "default": "100",
+      "scope": "tenant",
+      "description": "The most chats one delete request removes, from 1 to 1000. The Chats screen sends a larger selection as several requests, one after another."
     },
     {
       "key": "chats.context_pinned_heading",

@@ -271,6 +271,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// that keep no record (P6-07).
 	all = append(all, turn.MemoryScreenRoutes(runner)...)
 	all = append(all, turn.IncognitoRoutes(runner)...)
+	// The table of every chat and the batch delete (P4-06).
+	all = append(all, turn.ManageRoutes(runner)...)
 	// Embeddings: where a person's page vectors stand, and a refresh now (P6-08).
 	all = append(all, turn.EmbeddingRoutes(runner)...)
 	// The turn inspector's (P5-04).

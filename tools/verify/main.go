@@ -142,6 +142,8 @@ var checks = []check{
 	{"inline visuals", checkInlineVisuals},
 	{"research mode", checkResearch},
 	{"settings at a glance", checkSettingsGlance},
+	{"load test", checkLoadTest},
+	{"manage chats", checkManageChats},
 }
 
 func main() {
