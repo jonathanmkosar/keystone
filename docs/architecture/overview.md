@@ -302,5 +302,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0552 | [A batch delete skips a chat that is at work](decisions/0552-a-batch-delete-skips-a-chat-that-is-at-work.md) |
 | 0553 | [Each chat of a batch delete is its own audit entry](decisions/0553-each-chat-of-a-batch-is-its-own-audit-entry.md) |
 | 0554 | [A deleted chat is gone, and the screen says so](decisions/0554-a-deleted-chat-is-gone-and-the-screen-says-so.md) |
+| 0560 | [A setting is a name, one short line and its value, and its row opens in place](decisions/0560-a-setting-is-a-name-a-short-line-and-a-value-and-opens-in-place.md) |
+| 0561 | [A setting's title and summary are in the registry, and a check asks for them, not the reader](decisions/0561-a-settings-title-and-summary-are-in-the-registry-and-a-check-asks-for-them.md) |
+| 0562 | [The settings screen's headings are worked out from key prefixes by the screen, not kept in the registry](decisions/0562-headings-are-worked-out-from-key-prefixes-by-the-screen.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

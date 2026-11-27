@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "visuals.draw",
+      "title": "Draw charts and diagrams",
+      "summary": "Draws the charts and diagrams a reply holds, instead of their code.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -10,6 +12,8 @@
     },
     {
       "key": "visuals.instructions",
+      "title": "Chart and diagram instructions",
+      "summary": "What a model is told about drawing charts and diagrams.",
       "type": "string",
       "default": "When a chart or a diagram would make an answer clearer than words alone, you may draw one in your reply; otherwise answer in words. A diagram is a fenced code block with the language mermaid, holding Mermaid source. A chart is a fenced code block with the language chart, holding one JSON object and nothing else: {\"type\": \"bar\", \"title\": \"...\", \"x\": {\"title\": \"...\", \"labels\": [\"...\"]}, \"y\": {\"title\": \"...\"}, \"series\": [{\"name\": \"...\", \"values\": [1, 2]}]}. The type is bar, line, area, pie or scatter. Each series has one value for each label. A pie has one series, and its labels name the slices. A scatter chart has no labels, and each series has \"points\": [[x, y]] in place of values. Use plain numbers and only a few series, and say in a sentence what the visual shows.",
       "scope": "tenant",
@@ -17,6 +21,8 @@
     },
     {
       "key": "visuals.max_block_bytes",
+      "title": "Chart or diagram size",
+      "summary": "The largest chart or diagram that is drawn.",
       "type": "int",
       "default": "20000",
       "scope": "install",
@@ -24,6 +30,8 @@
     },
     {
       "key": "visuals.chart_max_series",
+      "title": "Series in a chart",
+      "summary": "The most series a chart may have, or slices of a pie.",
       "type": "int",
       "default": "6",
       "scope": "install",
@@ -31,6 +39,8 @@
     },
     {
       "key": "visuals.chart_max_points",
+      "title": "Points in a series",
+      "summary": "The most points one series of a chart may have.",
       "type": "int",
       "default": "200",
       "scope": "install",
@@ -38,6 +48,8 @@
     },
     {
       "key": "visuals.chart_label_max_chars",
+      "title": "Chart label length",
+      "summary": "The longest a chart's title, label or series name may be.",
       "type": "int",
       "default": "80",
       "scope": "install",
@@ -45,6 +57,8 @@
     },
     {
       "key": "visuals.chart_height",
+      "title": "Chart height",
+      "summary": "How tall a chart is drawn in a reply.",
       "type": "int",
       "default": "320",
       "scope": "tenant",
@@ -52,6 +66,8 @@
     },
     {
       "key": "visuals.diagram_height",
+      "title": "Diagram height",
+      "summary": "How tall a diagram's frame is in a reply.",
       "type": "int",
       "default": "360",
       "scope": "tenant",
@@ -59,6 +75,8 @@
     },
     {
       "key": "visuals.diagram_wait",
+      "title": "Diagram wait",
+      "summary": "How long the page waits for a diagram to draw.",
       "type": "duration",
       "default": "20s",
       "scope": "install",

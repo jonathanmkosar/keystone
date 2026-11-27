@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "uploads.max_bytes",
+      "title": "Upload size",
+      "summary": "The largest file one upload may be.",
       "type": "int",
       "default": "5242880",
       "scope": "install",
@@ -10,6 +12,8 @@
     },
     {
       "key": "uploads.image_types",
+      "title": "Image types",
+      "summary": "The kinds of image a person may upload.",
       "type": "string",
       "default": "image/png,image/jpeg,image/gif,image/webp",
       "scope": "install",
@@ -17,6 +21,8 @@
     },
     {
       "key": "uploads.text_extensions",
+      "title": "Text file types",
+      "summary": "The kinds of text file a person may upload.",
       "type": "string",
       "default": ".txt,.md,.markdown,.csv,.tsv,.json,.html,.htm,.xml,.yaml,.yml,.toml,.ini,.log,.go,.py,.js,.ts,.tsx,.jsx,.css,.java,.c,.h,.cpp,.cs,.rs,.rb,.sh,.ps1,.sql",
       "scope": "install",
@@ -24,6 +30,8 @@
     },
     {
       "key": "uploads.document_types",
+      "title": "Document types",
+      "summary": "The kinds of document a person may upload.",
       "type": "string",
       "default": "application/pdf",
       "scope": "install",
@@ -31,6 +39,8 @@
     },
     {
       "key": "uploads.text_max_chars",
+      "title": "File text sent",
+      "summary": "How much of one attached file's text goes into a call.",
       "type": "int",
       "default": "60000",
       "scope": "tenant",
@@ -38,6 +48,8 @@
     },
     {
       "key": "uploads.file_heading",
+      "title": "Attached file heading",
+      "summary": "The line a model reads before an attached file's text.",
       "type": "string",
       "default": "The person attached the file {name} to this chat. Its text:",
       "scope": "tenant",
@@ -45,6 +57,8 @@
     },
     {
       "key": "uploads.file_marker",
+      "title": "Attached file marker",
+      "summary": "What stands in your message where a file was attached.",
       "type": "string",
       "default": "[The person attached the file {name} here. Its text is with the attachments, if it fitted.]",
       "scope": "tenant",
@@ -52,6 +66,8 @@
     },
     {
       "key": "uploads.text_cut_note",
+      "title": "File cut note",
+      "summary": "What a model is told when an attached file was cut short.",
       "type": "string",
       "default": "[The rest of {name}, {chars} more characters, is left out.]",
       "scope": "tenant",
@@ -59,6 +75,8 @@
     },
     {
       "key": "uploads.image_withheld_note",
+      "title": "Image left out note",
+      "summary": "What a model that cannot see images is told instead.",
       "type": "string",
       "default": "[The person attached an image here, {name}. It is not shown to you, because you cannot see images. If they ask about it, say so.]",
       "scope": "tenant",
@@ -66,6 +84,8 @@
     },
     {
       "key": "uploads.document_withheld_note",
+      "title": "Document left out note",
+      "summary": "What a model that takes no files is told instead.",
       "type": "string",
       "default": "[The person attached the file {name} here. It is not shown to you: Keystone cannot read its text, and you do not take files. If they ask about it, say so.]",
       "scope": "tenant",

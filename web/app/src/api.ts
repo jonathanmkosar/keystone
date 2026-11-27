@@ -411,6 +411,9 @@ export type SettingType = "bool" | "int" | "float" | "string" | "duration";
 /** One setting as it stands for the signed-in person. Values are text, read as the type says. */
 export type Setting = {
   key: string;
+  /** The setting's readable name, and one short plain line on what it does (P11-04). Empty when the registry gives none. */
+  title?: string;
+  summary?: string;
   lane: string;
   type: SettingType;
   default: string;

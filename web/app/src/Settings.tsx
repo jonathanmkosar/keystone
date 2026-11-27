@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent } from "react";
 import { Navigate, NavLink, Route, Routes } from "react-router";
 import {
   addModel,
@@ -6,26 +6,23 @@ import {
   deleteSecret,
   listModels,
   listSecrets,
-  listSettings,
   readProfile,
   removeModel,
   replaceModel,
-  resetSetting,
   setSecret,
-  setSetting,
   writeProfile,
-  type FixedRule,
   type ModelEntry,
   type ModelRegistry,
   type Person,
   type Profile,
   type RegisteredModel,
   type SecretName,
-  type Setting,
 } from "./api";
 import { ApprovalSettings } from "./ApprovalSettings";
 import { ConnectorSettings } from "./ConnectorSettings";
+import { GeneralSettings } from "./GeneralSettings";
 import { Icon } from "./Icon";
+import { said, Section, sentence, useLoaded, Waiting } from "./SettingsParts";
 import { StyleSettings } from "./StyleSettings";
 import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
@@ -59,83 +56,6 @@ type Props = {
   onSignedOut: () => void;
 };
 
-/** What a refused or failed call is told to the person as. */
-function said(e: unknown, fallback: string): string {
-  if (e instanceof ApiError) {
-    if (e.said && e.status >= 400 && e.status < 500 && e.status !== 404) return sentence(e.said);
-    if (e.kind === "not-ready") return "The server did not answer. Check that it is running.";
-  }
-  return fallback;
-}
-
-/** The server's refusals start in lower case. On the screen they are sentences. */
-function sentence(text: string): string {
-  const t = text.trim();
-  if (t === "") return t;
-  const first = t[0].toUpperCase() + t.slice(1);
-  return /[.!?]$/.test(first) ? first : first + ".";
-}
-
-type Loaded<T> = { state: "loading" } | { state: "failed" } | { state: "ready"; data: T };
-
-/** Reads something from the server when the screen opens, and again on reload. */
-function useLoaded<T>(read: () => Promise<T>, onSignedOut: () => void): [Loaded<T>, () => void, (data: T) => void] {
-  const [loaded, setLoaded] = useState<Loaded<T>>({ state: "loading" });
-  const [turn, setTurn] = useState(0);
-  useEffect(() => {
-    let live = true;
-    read().then(
-      (data) => live && setLoaded({ state: "ready", data }),
-      (e) => {
-        if (!live) return;
-        if (e instanceof ApiError && e.kind === "signed-out") onSignedOut();
-        else setLoaded({ state: "failed" });
-      },
-    );
-    return () => {
-      live = false;
-    };
-    // read and onSignedOut are the same functions for the life of a screen,
-    // so only a reload reads again.
-  }, [turn]);
-  const reload = useCallback(() => setTurn((n) => n + 1), []);
-  const put = useCallback((data: T) => setLoaded({ state: "ready", data }), []);
-  return [loaded, reload, put];
-}
-
-function Waiting({ state, what, onRetry }: { state: "loading" | "failed"; what: string; onRetry: () => void }) {
-  if (state === "loading") {
-    return (
-      <p className="quiet" aria-busy="true">
-        Loading.
-      </p>
-    );
-  }
-  return (
-    <div className="set-stack">
-      <p className="quiet">{what} could not be read. Check that the server is running.</p>
-      <div>
-        <button type="button" className="button" onClick={onRetry}>
-          <Icon name="retry" size={16} />
-          Try again
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Section({ title, note, children }: { title: string; note?: ReactNode; children: ReactNode }) {
-  return (
-    <section className="set-section">
-      <div className="set-section-head">
-        <h2 className="set-heading">{title}</h2>
-        {note && <p className="set-note">{note}</p>}
-      </div>
-      {children}
-    </section>
-  );
-}
-
 /** The settings screens, under /settings. */
 export function Settings(props: Props) {
   return (
@@ -153,7 +73,7 @@ export function Settings(props: Props) {
         <Route path="profile" element={<ProfileScreen {...props} />} />
         <Route path="appearance" element={<Appearance {...props} />} />
         <Route path="models" element={<ModelsAndKeys {...props} />} />
-        <Route path="general" element={<General {...props} />} />
+        <Route path="general" element={<GeneralSettings theme={props.theme} onSignedOut={props.onSignedOut} onThemeKept={props.onThemeKept} />} />
         <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="styles" element={<StyleSettings onSignedOut={props.onSignedOut} />} />
@@ -694,208 +614,5 @@ function ModelForm({
         </button>
       </div>
     </form>
-  );
-}
-
-// General: one control for every setting the person may change, drawn from
-// what GET /api/v1/settings returns. Nothing below names a setting.
-
-type All = { settings: Setting[]; rules: FixedRule[] };
-
-/** "chats.search_max_results" reads as "Search max results". */
-function titleOfKey(key: string): string {
-  const words = key.slice(key.indexOf(".") + 1).replace(/[._]/g, " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
-}
-
-function titleOfLane(lane: string): string {
-  return lane.charAt(0).toUpperCase() + lane.slice(1);
-}
-
-function General({ onSignedOut, onThemeKept }: Props) {
-  const [loaded, reload, put] = useLoaded<All>(listSettings, onSignedOut);
-
-  if (loaded.state !== "ready") {
-    return (
-      <Section title="General">
-        <Waiting state={loaded.state} what="The settings" onRetry={reload} />
-      </Section>
-    );
-  }
-  const { settings, rules } = loaded.data;
-  const mine = settings.filter((s) => s.changeable);
-  const fixed = settings.filter((s) => !s.changeable);
-  const lanes = [...new Set(mine.map((s) => s.lane))].sort();
-
-  function changed(next: Setting) {
-    put({ rules, settings: settings.map((s) => (s.key === next.key ? next : s)) });
-    // The theme is a setting like any other, and the page wears it at once.
-    if (next.key === "appearance.theme" && (next.value === "dark" || next.value === "light" || next.value === "system")) onThemeKept(next.value);
-  }
-
-  return (
-    <>
-      <Section title="General" note="Every setting that is yours to change. A change is kept as soon as you make it, and each one can go back to its default.">
-        {mine.length === 0 && <p className="quiet">No setting is yours to change.</p>}
-      </Section>
-      {lanes.map((lane) => (
-        <Section key={lane} title={titleOfLane(lane)}>
-          <div className="set-card">
-            {mine
-              .filter((s) => s.lane === lane)
-              .map((s) => (
-                <SettingRow key={s.key} setting={s} onChanged={changed} onSignedOut={onSignedOut} />
-              ))}
-          </div>
-        </Section>
-      ))}
-      <Section title="Set for the whole install" note="These are the admin's to change, so they are shown and cannot be changed here.">
-        <details className="set-card set-details">
-          <summary className="set-summary">{fixed.length} settings</summary>
-          {fixed.map((s) => (
-            <div key={s.key} className="set-item">
-              <div className="set-item-main">
-                <span className="set-item-title">
-                  {titleOfKey(s.key)} <span className="set-mono set-quiet">{s.key}</span>
-                </span>
-                <span className="set-hint">{s.description}</span>
-              </div>
-              <span className="set-mono set-value">{s.value === "" ? "(empty)" : s.value}</span>
-            </div>
-          ))}
-        </details>
-      </Section>
-      <Section title="Fixed rules" note="Four rules that are not settings. Nothing on this screen, and nothing an admin can do, switches one off.">
-        <div className="set-card">
-          {rules.map((r) => (
-            <div key={r.key} className="set-item">
-              <div className="set-item-main">
-                <span className="set-plain">{r.rule}</span>
-              </div>
-              <span className="set-pill is-ok">Always on</span>
-            </div>
-          ))}
-        </div>
-      </Section>
-    </>
-  );
-}
-
-const typeHints: Record<string, string> = {
-  int: "A whole number.",
-  float: "A number.",
-  duration: "A length of time, such as 30s, 5m or 1h.",
-};
-
-/** One setting: its name, what it does, and the control its type calls for. */
-function SettingRow({ setting, onChanged, onSignedOut }: { setting: Setting; onChanged: (s: Setting) => void; onSignedOut: () => void }) {
-  const [draft, setDraft] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const shown = draft ?? setting.value;
-  const id = `set-${setting.key}`;
-
-  async function run(change: () => Promise<Setting>) {
-    setBusy(true);
-    setError("");
-    try {
-      onChanged(await change());
-      setDraft(null);
-    } catch (e) {
-      if (e instanceof ApiError && e.kind === "signed-out") onSignedOut();
-      else setError(said(e, "The setting could not be changed."));
-    } finally {
-      setBusy(false);
-    }
-  }
-  const save = (value: string) => void run(() => setSetting(setting.key, value));
-  // A field is kept when the person leaves it or presses Enter.
-  const keep = () => {
-    if (draft !== null && draft !== setting.value) save(draft);
-    else setDraft(null);
-  };
-
-  let control: ReactNode;
-  if (setting.type === "bool") {
-    const on = setting.value === "true";
-    control = (
-      <button
-        type="button"
-        id={id}
-        role="switch"
-        aria-checked={on}
-        className={on ? "set-switch is-on" : "set-switch"}
-        disabled={busy}
-        onClick={() => save(on ? "false" : "true")}
-      >
-        <span className="set-switch-knob" />
-        <span className="set-switch-text">{on ? "On" : "Off"}</span>
-      </button>
-    );
-  } else if (setting.options.length > 0) {
-    control = (
-      <select id={id} className="input" value={setting.value} disabled={busy} onChange={(e) => save(e.target.value)}>
-        {setting.options.map((o) => (
-          <option key={o} value={o}>
-            {o}
-          </option>
-        ))}
-      </select>
-    );
-  } else if (setting.type === "string" && (setting.default.length > 60 || setting.value.length > 60 || setting.value.includes("\n"))) {
-    control = (
-      <textarea id={id} className="input set-text" rows={4} value={shown} disabled={busy} onChange={(e) => setDraft(e.target.value)} onBlur={keep} />
-    );
-  } else {
-    const number = setting.type === "int" || setting.type === "float";
-    control = (
-      <input
-        id={id}
-        className={setting.type === "string" ? "input" : "input set-short"}
-        type={number ? "number" : "text"}
-        step={setting.type === "int" ? 1 : setting.type === "float" ? "any" : undefined}
-        value={shown}
-        disabled={busy}
-        spellCheck={false}
-        autoComplete="off"
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={keep}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            keep();
-          }
-        }}
-      />
-    );
-  }
-
-  const long = setting.type === "string" && setting.options.length === 0;
-  return (
-    <div className={long ? "set-item set-item-long" : "set-item"} data-setting={setting.key} data-type={setting.type}>
-      <div className="set-item-main">
-        <label className="set-item-title" htmlFor={id}>
-          {titleOfKey(setting.key)} <span className="set-mono set-quiet">{setting.key}</span>
-        </label>
-        <span className="set-hint">
-          {setting.description} {typeHints[setting.type] ?? ""}
-        </span>
-        {error && (
-          <span className="form-error" role="alert">
-            {error}
-          </span>
-        )}
-      </div>
-      <div className="set-control">
-        {control}
-        {setting.overridden ? (
-          <button type="button" className="set-reset" disabled={busy} onClick={() => void run(() => resetSetting(setting.key))}>
-            Reset to default{long ? "" : `: ${setting.default === "" ? "empty" : setting.default}`}
-          </button>
-        ) : (
-          <span className="set-hint">Default</span>
-        )}
-      </div>
-    </div>
   );
 }

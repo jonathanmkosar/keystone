@@ -1,0 +1,402 @@
+/* General, at a glance (P11-04). Every colour is a token. A setting is a
+   row of a card: its name, one short line and its value, and the row opens
+   in place for the long text, the box to change it in, the default and the
+   key. Decision 0560 says why. */
+
+/* The search box, the section and the Changed filter. */
+
+.sg-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.sg-search {
+  position: relative;
+  display: flex;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.sg-search .ico {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.sg-search .input {
+  flex: 1;
+  min-width: 0;
+  padding-left: 38px;
+  background: var(--raised);
+}
+
+.sg-section {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  background: var(--raised);
+}
+
+.sg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--strong);
+  border-radius: 20px;
+  background: none;
+  color: var(--muted);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.sg-chip:hover {
+  color: var(--ink);
+}
+
+.sg-chip.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.sg-chip-n {
+  font-variant-numeric: tabular-nums;
+}
+
+.sg-clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--link);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sg-all.is-open > .ico {
+  transform: rotate(180deg);
+}
+
+/* A group: a plain heading over a card of rows. */
+
+.sg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sg-group-name {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--muted);
+  font: 600 13px/20px var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.set-section > .sg-group + .sg-group {
+  margin-top: 12px;
+}
+
+/* A row, closed: the name and the value on one line, the short line under
+   them. */
+
+.sg-row {
+  border-bottom: 1px solid var(--line);
+}
+
+.sg-row:last-child {
+  border-bottom: 0;
+}
+
+.sg-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 16px;
+  padding: 12px 14px 12px 20px;
+}
+
+.sg-row:first-child > .sg-head {
+  border-radius: 11px 11px 0 0;
+}
+
+.sg-row:last-child:not(.is-open) > .sg-head {
+  border-radius: 0 0 11px 11px;
+}
+
+.sg-row:first-child:last-child:not(.is-open) > .sg-head {
+  border-radius: 11px;
+}
+
+.sg-head:hover {
+  background: var(--page);
+}
+
+.sg-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  min-width: 0;
+}
+
+/* The name is the button that opens the row, and the whole head is its
+   target: a thumb does not have to find the words. */
+
+.sg-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: 500 15px/22px var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sg-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.sg-open:focus-visible {
+  outline: 0;
+}
+
+.sg-open:focus-visible::after {
+  outline: 2px solid var(--c3);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.sg-changed {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--soft);
+  color: var(--softink);
+  font: 600 11px/18px var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.sg-side {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  max-width: 44vw;
+  color: var(--muted);
+}
+
+.sg-side > .ico {
+  transition: transform 120ms ease;
+}
+
+.sg-row.is-open .sg-side > .ico {
+  transform: rotate(180deg);
+}
+
+.sg-now {
+  min-width: 0;
+  max-width: 260px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 22px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The switch is its own button, over the row's. */
+
+.sg-switch {
+  position: relative;
+  z-index: 1;
+}
+
+.sg-line {
+  grid-column: 1 / -1;
+  max-width: 68ch;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sg-error {
+  padding: 0 20px 10px;
+}
+
+/* A row, open: the long text, the box, the default and the key. */
+
+.sg-more {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 20px 16px;
+}
+
+.sg-about {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.sg-edit {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.sg-edit-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+}
+
+.sg-number {
+  width: 140px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sg-text {
+  flex: 1 1 260px;
+  max-width: 420px;
+}
+
+.sg-select {
+  max-width: 100%;
+}
+
+.sg-long {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
+/* A long text that is not the person's to change, read whole. */
+
+.sg-text-shown {
+  max-height: 220px;
+  margin: 0;
+  padding: 10px 12px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--page);
+  color: var(--muted);
+  font: 400 13px/20px var(--font-mono);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.sg-facts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.sg-fact {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 10px;
+  min-height: 32px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.sg-fact dt {
+  color: var(--muted);
+}
+
+.sg-fact dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sg-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 8px;
+  margin-right: -8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sg-act:hover {
+  color: var(--ink);
+}
+
+.sg-reset {
+  color: var(--link);
+}
+
+.sg-act:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  /* 16px, or a phone's browser zooms the whole page in when a box takes the
+     focus. It holds for every box of the settings screens. */
+  .settings .input {
+    font-size: 16px;
+  }
+
+  .sg-search {
+    flex-basis: 100%;
+  }
+
+  .sg-section {
+    flex: 1 1 0;
+  }
+
+  .sg-head {
+    padding: 12px 10px 12px 16px;
+    gap: 2px 12px;
+  }
+
+  .sg-now {
+    max-width: 34vw;
+  }
+
+  .sg-more {
+    padding: 4px 16px 16px;
+  }
+
+  .sg-error {
+    padding: 0 16px 10px;
+  }
+
+  .sg-number {
+    width: 160px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-side > .ico {
+    transition: none;
+  }
+}

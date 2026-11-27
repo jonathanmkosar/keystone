@@ -21308,6 +21308,12 @@
                           "scope": {
                             "type": "string"
                           },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
                           "type": {
                             "type": "string"
                           },
@@ -21321,6 +21327,8 @@
                         },
                         "required": [
                           "key",
+                          "title",
+                          "summary",
                           "lane",
                           "type",
                           "default",
@@ -21357,7 +21365,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Every setting as it stands for the person: its value, default, type, options, scope and description, and whether the person may change it. The fixed rules are listed apart."
+        "summary": "Every setting as it stands for the person: its title, its short summary, its value, default, type, options, scope and description, and whether the person may change it. The fixed rules are listed apart."
       }
     },
     "/api/v1/settings/{key}": {
@@ -21405,6 +21413,12 @@
                     "scope": {
                       "type": "string"
                     },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
                     "type": {
                       "type": "string"
                     },
@@ -21418,6 +21432,8 @@
                   },
                   "required": [
                     "key",
+                    "title",
+                    "summary",
                     "lane",
                     "type",
                     "default",
@@ -21509,6 +21525,12 @@
                     "scope": {
                       "type": "string"
                     },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
                     "type": {
                       "type": "string"
                     },
@@ -21522,6 +21544,8 @@
                   },
                   "required": [
                     "key",
+                    "title",
+                    "summary",
                     "lane",
                     "type",
                     "default",

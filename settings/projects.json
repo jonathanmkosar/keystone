@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "projects.max_projects",
+      "title": "Number of projects",
+      "summary": "The most projects you may have.",
       "type": "int",
       "default": "200",
       "scope": "tenant",
@@ -10,6 +12,8 @@
     },
     {
       "key": "projects.name_max_chars",
+      "title": "Project name length",
+      "summary": "The longest name a project may have.",
       "type": "int",
       "default": "100",
       "scope": "install",
@@ -17,6 +21,8 @@
     },
     {
       "key": "projects.instructions_max_chars",
+      "title": "Project instructions length",
+      "summary": "The longest instructions a project may have.",
       "type": "int",
       "default": "20000",
       "scope": "tenant",
@@ -24,6 +30,8 @@
     },
     {
       "key": "projects.max_files",
+      "title": "Files in a project",
+      "summary": "The most knowledge files one project may have.",
       "type": "int",
       "default": "20",
       "scope": "tenant",
@@ -31,6 +39,8 @@
     },
     {
       "key": "projects.file_max_bytes",
+      "title": "Project file size",
+      "summary": "The largest knowledge file a project takes.",
       "type": "int",
       "default": "1048576",
       "scope": "install",
@@ -38,6 +48,8 @@
     },
     {
       "key": "projects.text_extensions",
+      "title": "Project file types",
+      "summary": "The kinds of text file a project takes.",
       "type": "string",
       "default": ".txt,.md,.markdown,.csv,.tsv,.json,.yaml,.yml,.toml,.ini,.log,.xml,.go,.py,.js,.ts,.tsx,.jsx,.css,.java,.c,.h,.cpp,.cs,.rs,.rb,.sh,.ps1,.sql",
       "scope": "install",
@@ -45,6 +57,8 @@
     },
     {
       "key": "projects.file_context_max_chars",
+      "title": "Project file text sent",
+      "summary": "How much of one project file's text goes into a call.",
       "type": "int",
       "default": "20000",
       "scope": "tenant",
@@ -52,6 +66,8 @@
     },
     {
       "key": "projects.instructions_heading",
+      "title": "Project instructions heading",
+      "summary": "The line a model reads before a project's instructions.",
       "type": "string",
       "default": "This chat is in the person's project \"{name}\". The person wrote these instructions for every chat in it:",
       "scope": "tenant",
@@ -59,6 +75,8 @@
     },
     {
       "key": "projects.file_heading",
+      "title": "Project file heading",
+      "summary": "The line a model reads before a project file's text.",
       "type": "string",
       "default": "A knowledge file of the person's project \"{project}\": {name}. Its text:",
       "scope": "tenant",
@@ -66,6 +84,8 @@
     },
     {
       "key": "projects.file_cut_note",
+      "title": "Project file cut note",
+      "summary": "What a model is told when a project file was cut short.",
       "type": "string",
       "default": "[The rest of {name}, {chars} more characters, is left out.]",
       "scope": "tenant",
@@ -73,6 +93,8 @@
     },
     {
       "key": "projects.memory_space",
+      "title": "Project memory space",
+      "summary": "Where a new project's chats keep the facts they remember.",
       "type": "string",
       "default": "project-{slug}",
       "scope": "tenant",
@@ -80,6 +102,8 @@
     },
     {
       "key": "projects.recall_prefer",
+      "title": "Recall the project first",
+      "summary": "Recall in a project chat looks in the project's own space first.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",

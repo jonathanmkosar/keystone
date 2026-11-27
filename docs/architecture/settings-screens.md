@@ -2,7 +2,7 @@
 
 Folders: `internal/settingsapi`, and the screens in `web/app/src/`
 
-A person makes Keystone theirs from the browser: they store a provider key, register a model, write their profile and change a setting. This part is the routes that do those four things and the screens under `/settings` that call them. It was built in P11-01 and is provisional: see "Provisional" at the end.
+A person makes Keystone theirs from the browser: they store a provider key, register a model, write their profile and change a setting. This part is the routes that do those four things and the screens under `/settings` that call them. It was built in P11-01 and is provisional: see "Provisional" at the end. Since P11-04 the General screen shows each setting as a name, one short line and its value, with the long explanation one step away: see "How General is drawn".
 
 Before it, a key and a model were set from the command line only (`tools/tenant secret`, `tools/tenant model`), and the profile and a person's own settings had no way in at all. The commands still work, and the [model runbook](../runbooks/adding-a-model.md) still describes them.
 
@@ -33,7 +33,7 @@ The packages underneath guard fixed rules and read no setting: the tenant store,
 
 `GET /api/v1/settings` answers with `settings` and `rules`.
 
-A setting has the registry's own fields, `key`, `lane`, `type`, `default`, `options`, `scope` and `description`, and three for this person:
+A setting has the registry's own fields, `key`, `title`, `summary`, `lane`, `type`, `default`, `options`, `scope` and `description`, and three for this person. `title` and `summary`, since P11-04, are the setting's readable name and one short plain line on what it does ([settings.md](settings.md)); either is empty for a setting the registry gives none.
 
 | Field | Meaning |
 | --- | --- |
@@ -109,7 +109,7 @@ The profile is one text ([knowledge-profile-and-map.md](knowledge-profile-and-ma
 | `/settings/profile` | The person's name, which cannot be changed yet, and the profile's text with a count against its limit. A sentence says the profile goes to every model, hosted ones too. |
 | `/settings/appearance` | The theme switch: dark, light or system. |
 | `/settings/models` | Keys and models. See below. |
-| `/settings/general` | One control for every setting that is the person's to change. See "How General is drawn". |
+| `/settings/general` | Every setting of the registry as a name, one short line and its value, with a control for each that is the person's to change. See "How General is drawn". |
 | `/settings/connectors` | Since P7-04, each connector with its switch, its token, its tools and why it could not be reached, and a form to add a remote one. See [connectors.md](connectors.md). |
 | `/settings/connectors/google` | Since P12-02, the Connectors screen with a Google section at its top: not set up and what the admin adds, Connect Google, connected as an account, Disconnect. Google sends the browser back to this address. See [google.md](google.md). |
 | `/settings/approvals` | Since P7-02, each tool with the person's policy for it: always, ask or never. See [approvals.md](approvals.md). |
@@ -133,29 +133,63 @@ Since P13-02 the routes take `ca_cert` as PEM text only: `POST /api/v1/models`, 
 
 ### How General is drawn
 
-General is generated from `GET /api/v1/settings` and has no code for any one setting. `Settings.tsx` names no setting key in that screen.
+General is generated from `GET /api/v1/settings` and has no code for any one setting. Since P11-04 it is drawn for reading at a glance, on a phone first: each setting is a name, one short line and its value, and the long explanation is one tap away, in place. Decision [0560](decisions/0560-a-setting-is-a-name-a-short-line-and-a-value-and-opens-in-place.md) says why, and what the two other sketches lost on.
 
-1. It keeps the settings whose `changeable` is true and groups them by `lane`, in order of lane and then key.
-2. Each becomes a row: a title made from the key, the key itself, the registry's `description`, a control, and either the word "Default" or a "Reset to default" link that names the default.
-3. The control is chosen by `type` and `options` alone:
+The screen is three files in `web/app/src/`:
+
+| File | Holds |
+| --- | --- |
+| `settingsView.ts` | What the screen works out before it draws: a setting's name and short line, its heading, what a search finds, how a value reads, and what a row shows closed and open. It imports nothing, so its tests run in Node against the real `settings/*.json`. |
+| `GeneralSettings.tsx` | The drawing, and the calls that keep a change. It takes every word it shows from `rowOf` and `moreOf` of the file above. It names one setting, the theme, which the page wears at once. |
+| `settings-general.css` | The rows, from the tokens. |
+
+`SettingsParts.tsx` holds what every settings screen shares (how a refusal is said, how a screen reads what it shows, a section with its heading), which was in `Settings.tsx` until General got a file of its own.
+
+**Above the list** are a search box, a select of the sections, and a Changed button with the number of settings that differ from their default. The search looks in names, short lines, keys (typed with dots and underscores, or with spaces) and headings, and every word typed must match. The three narrow the list together, a line says how many are left, and "Show all" clears them. Nothing takes the focus when the screen opens.
+
+**The headings** are worked out from key prefixes by a list in `settingsView.ts`, not from the lane: `chats.context_` is under "What a model is sent", `knowledge.recall` under "Recall", `signin.` under "Signing in". The longest prefix that fits wins, the list's order is the screen's, and a key no prefix covers gets a heading made from its first word. Decision [0562](decisions/0562-headings-are-worked-out-from-key-prefixes-by-the-screen.md).
+
+**A row, closed**, is one card row:
+
+- the setting's `title`, and a small "Changed" mark when its value is the person's own and differs from the default;
+- at the right, its value as plain text ("24h", "This month", "Off", "Empty"), and a chevron. A long text shows no value here;
+- under them, its `summary`: one short plain line.
+
+A setting the registry gives no title or summary still has a row: its name is made from its key, and its line is the first sentence of its description.
+
+**A switch is the one control in a row.** A `bool` setting that is the person's is a switch at the right, and it is flipped where it is. Everything else is opened first.
+
+**The whole row opens it.** The name is a button (`aria-expanded`, described by the short line) whose target is stretched over the row; the switch is a button of its own over it. Open, the row adds in place:
+
+| Part | Shown |
+| --- | --- |
+| The explanation | The registry's `description`, whole. Left out when the description is the short line itself, as it is for thirteen settings whose description was already one short sentence, so the same sentence is not said twice. |
+| The box | For a setting that is the person's and not a switch. See the table below. Under it, what it takes ("A whole number.") and "Saved." for a moment after a value is kept. |
+| A value in full | For a setting that is not the person's, when the row cut its value short or left it out. |
+| Who sets it | For a setting that is not the person's: the admin, for each person or for the whole install. |
+| Default | The default as a value reads, and "Reset to default" when the value differs from it. |
+| Key | The key in monospace, with a Copy button. This is the only place the key is shown. |
+
+The box is chosen by `type` and `options` alone:
 
 | The setting | The control | Kept when |
 | --- | --- | --- |
-| `bool` | A switch | It is clicked |
-| has `options` | A select of the options | One is chosen |
-| `int`, `float` | A number field | The person leaves the field or presses Enter |
-| `duration` | A text field, with a hint on the form `30s`, `5m`, `1h` | The same |
-| `string` | A text field, or a text box of several lines when the default or the value is longer than 60 characters | The same |
+| `bool` | A switch, in the row | It is clicked |
+| has `options` | A select of the options, each read in plain words ("this_month" as "This month") | One is chosen |
+| `int`, `float`, `duration` | A box of one line | The person presses Enter or leaves the box |
+| `string` | A box of one line, or of several lines when the default or the value is longer than 60 characters | The same |
 
-A change is one `PUT`, and a reset is one `DELETE`. The row then shows what the server answered. A refusal is shown under the row in the server's words.
+A change is one `PUT`, and a reset is one `DELETE`. The row then shows what the server answered. A refusal is shown in the row in the server's words.
 
-So a setting added to the registry with the `tenant` scope has a control the next time the screen is opened, with no change to the interface. That is the item's proof, and "The proof" below says how it is checked.
+So a setting added to the registry with the `tenant` scope has a row and a control the next time the screen is opened, with no change to the interface, under the heading its key's prefix has.
 
-Under the controls are two more lists. "Set for the whole install" holds every setting that is not the person's to change, with its value, closed until opened. "Fixed rules" holds the four rules, each marked "Always on", with no control.
+**On a phone** the tools wrap to two lines, a row is its name and value over its short line, and every box of the settings screens is 16px, so the browser does not zoom the page when one takes the focus. There is no overlay: nothing has to follow the keyboard.
+
+Under the person's settings are two more parts. "Set for the whole install" holds every setting that is not the person's to change, as the same rows under the same headings with no control, behind a button until asked for; a search or a section shows the ones that match without it. "Fixed rules" holds the four rules, each marked "Always on", with no control.
 
 ### The theme
 
-`appearance.theme` is a setting like any other, and it has a control on General. It is also what the theme switch sets, on Appearance and in the sidebar. Decision [0192](decisions/0192-the-theme-is-a-setting-once-chosen.md) says how the setting and the browser's own copy fit together:
+`appearance.theme` is a setting like any other, and it has a row on General. That row says the theme the page wears, so a choice made in the sidebar while General is open is shown at once. It is also what the theme switch sets, on Appearance and in the sidebar. Decision [0192](decisions/0192-the-theme-is-a-setting-once-chosen.md) says how the setting and the browser's own copy fit together:
 
 - A choice made while signed in is worn at once, kept in the browser as before, and stored as the person's `appearance.theme`.
 - At sign-in, the page reads the settings. A theme the person has stored replaces the browser's. A person who has stored none keeps what the browser has.
@@ -175,7 +209,16 @@ The item's proof is "every overridable setting in the registry has a control". B
 - no fixed rule is in the list of settings, the four are listed apart word for word, and a write or a reset on a rule's key is refused;
 - when it is done, nothing is stored.
 
-Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) says why the proof is a test of the route and not a list kept by hand. The screen's side of it, that each `changeable` setting gets a row, was checked in a browser by comparing the rows on the page with the route's answer: 24 of 24 on November 25, 2026. Nothing checks that on every `verify`: the app has no tests of its own yet.
+Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) says why the proof is a test of the route and not a list kept by hand. The screen's side of it, that each `changeable` setting gets a row, was checked in a browser by comparing the rows on the page with the route's answer: 24 of 24 on November 25, 2026.
+
+### The proof of P11-04
+
+P11-04's proof is "every setting shows a short line of its own and its full explanation on request, at desktop and phone width, with nothing lost from the registry". It is in four places, three of them run on every `verify`:
+
+- **The registry.** `TestEverySettingHasATitleAndASummary` in `settings`, and the `settings registry` check, run `settings.CheckWords` on the real registry: every setting has a title and a summary of the shape [settings.md](settings.md) gives.
+- **The route.** `TestEveryOverridableSettingHasAControl` also shows that the route gives each setting the registry's title, summary and description.
+- **The screen's reckoning.** `web/app/test/settingsView.test.ts` reads the real `settings/*.json` as the route does and shows, for every setting: its row's name is its title and its line is its summary, and the row does not carry the description; opened, it gives the description whole (or, when the description is its short line, does not say it again), its default and its key; it is in exactly one group of exactly one list, so nothing is unreachable; it is flipped in its row or has a box once opened if it is the person's, and neither if it is not; and the search finds it by its name, by the words of its short line and by its key. It also covers the headings, the Changed mark and filter, a setting with no title or summary, and how a value reads.
+- **The screen itself**, in a browser, by comparing the page with the route's answer: 346 rows for 346 settings at 1280 pixels on November 27, 2026, each with its title and summary, none showing its description while closed and each showing it once opened; at 375 pixels the person's 146 rows were counted and a number of them opened and changed. After `reboot` was merged at 5f6d798, again at 375 pixels: 386 rows for the route's 386 settings, each with its title and summary, none showing its description closed, and each opened in turn by a script showing its description exactly once and its key. Nothing draws the page on every `verify`. The `settings at a glance` check holds the link between the tested file and the page instead: `GeneralSettings.tsx` must take its words from `rowOf` and `moreOf` and read no title, summary or description itself, must open a row in place with a button that says whether it is open, and must name no `autoFocus` and no `.focus(`; `settings-general.css` must set every box of the settings screens to 16px at phone width; and a fixed overlay may not be added without following `visualViewport`.
 
 ## Checked by
 
@@ -188,6 +231,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 - The `no keys in output` check has a walk of its own for these routes, `tools/verify/settingsroutes.go`. It stores an invented value through `PUT /api/v1/secrets/{name}`, then calls the routes that could hand it back, and sends the value where it does not belong: as a secret's name, a model's key name and endpoint, a setting's value. The value must be in no answer, not in the server's log, and in no file of the data folder.
 - The route walks in `tenant isolation`, `calls recorded` and `no keys in output` reach these routes with every other, because they read `app.Routes` ([tools.md](tools.md)).
 - In a browser, as the test tenant, on a server started from this branch with a data folder of its own. The journal, interface 003, lists what was done there and what was not.
+- Since P11-04: `go test ./settings` for the titles and summaries, `npm test` in `web/app` for `settingsView.ts`, and the `settings at a glance` check in `tools/verify/settingsglance.go`, which runs both and reads the screen's source ([tools.md](tools.md)). "The proof of P11-04" above says what each shows. The journal, interface 010, lists what was looked at in a browser and what was not.
 
 ## Not built yet
 
@@ -196,6 +240,7 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 - Changing the person's name, and a short name for the greeting.
 - An admin: a role, a screen for the people on the install, and a way to change a `tenant-admin` or an `install` setting. Those settings are listed and cannot be changed from the browser.
 - A default model picked from a list. `chats.default_model` on General is a text field for a model's registry name. A model added here can also be picked for one chat in the chat's composer, since P4-04's model picker ([web.md](web.md)).
+- An address for one setting on General, so a link could open its row, and a way to open or close every row at once.
 - Testing a key or a model from the screen. A wrong key is found when a chat uses the model.
 - `ca_cert` and the cache prices in the model form.
 
@@ -205,4 +250,5 @@ Decision [0191](decisions/0191-the-general-screen-is-drawn-from-the-route.md) sa
 - **Who may change a model registry.** The owner's open question (`STATE.md`, models 003) is recommended as "the admin only". There is no admin role, so the routes and the screen let the signed-in person add, change and remove their own models, and mark one `trusted`. If the answer is the admin only, the three writing routes get a role check and the form goes to the admin's screen. The list stays.
 - **Standing instructions.** `chats.context_system_text` has the `tenant` scope, so it has a control on General, as the owner's open question (chats 003) recommends. If the answer is the admin only, the setting's scope changes in `settings/chats.json` and the control goes with it, with no change here.
 - **The profile goes to every model.** The screen says so in a sentence, as the open question (knowledge 004) recommends.
+- **The look of General (P11-04).** The rows, the Changed mark, the tools above the list, the 34 headings and every title and summary were chosen without a mockup, and the owner has not yet seen them on his phone. Decision [0560](decisions/0560-a-setting-is-a-name-a-short-line-and-a-value-and-opens-in-place.md) records the three sketches and the choice.
 - **Install settings are shown to every person.** A person sees the value of every setting, the admin's too, and none of them holds a secret. See "For the owner" in the journal.
