@@ -4,7 +4,7 @@ Folders: `internal/loadtest`, `tools/loadtest`, `tools/verify/loadtest.go`, `set
 
 The load test (P13-03) answers three questions with numbers: how long a person waits once they have years of chats, whether what Operations reports is what is really there, and how much room a person's folder takes. It writes years of invented chats for one person and a smaller load for several more, in a throwaway data folder, runs the real server on it in memory with the fake provider on the model seam, and measures. It calls no model and opens no connection.
 
-There are two sizes. `go run ./tools/loadtest` is the full run: minutes, several gigabytes of disk while it runs, and not part of `verify`. It prints the table below and writes it into this doc and the item. The small profile runs in about three seconds as the standing check `load test`, with the same generator, the same measurements and the same comparison with the Monitor.
+There are two sizes. `go run ./tools/loadtest` is the full run: about a quarter of an hour, about 9 GB of disk while it runs, and not part of `verify`. It prints the table below and writes it into this doc and the item. The small profile runs in about two seconds as the standing check `load test`, with the same generator, the same measurements and the same comparison with the Monitor.
 
 ## What a run does
 
@@ -171,6 +171,41 @@ The load: 3 years, 5,001 chats, 102,416 turns, 204,832 messages, 110,946 model c
 
 <!-- load test: end of the last full run -->
 
+The machine is the one Keystone runs on: Windows 11, an AMD processor with 16 logical processors, Go 1.26, the data folder in the system's temporary folder. Nothing of this item's own ran beside it; other lanes' agents may have been at work on the machine. The full run was made twice on November 27, 2026 (UTC); the table is the second. Two runs differ by more than their medians suggest: streaming a reply for one person was 26 ms at the median in the first and 69 ms in the second, and `search_chats` 197 ms and then 269 ms at the 95th percentile. Every time was inside its budget both times.
+
+## Findings
+
+What the load test found, in the order it found it. The first two were found with loads of 12,000 and 50,000 turns, before the first full run.
+
+1. **Past-chat search over a common word took seconds. Fixed.** Over 100,000 messages, 2.5 seconds through the route and 1.2 to 2 seconds through `search_chats`, against budgets of 200 and 500 ms: every match was joined to its chat and cut to a snippet before the best fifty were kept, and a common word matched 87,691 messages. Now only what is given is cut and read, at most `chats.search_rank_max` matches are ranked, and a search for any of several words leaves a word that common out while another is rarer (decision [0530](decisions/0530-a-search-cuts-snippets-only-for-what-it-gives-and-ranks-so-many-matches.md), [chat.md](chat.md)).
+2. **A request's usage records were found by reading every record. Fixed.** `usage.List` asked with one query for every filter, which SQLite answers by scanning the table: 125 ms for one request among 55,000 records, and the Operations report asks once for each of twenty traces. It now asks with only the conditions that are set, and finds them by their index in half a millisecond ([usage.md](usage.md)).
+3. **The home screen's notice read a whole usage report to show two sums. Inside its budget by a tenth; made lighter.** In the first full run `GET /api/v1/operations/watch` took 100 ms at the median and 136 ms at the 95th percentile, of 150. `operations.Limits` now reads the cap and the reserve with `usagereport.Standing`, the report's own two figures without its breakdowns: 31 and 42 ms in the second run, and the Operations report went from 111 and 129 ms to 38 and 50 ([operations.md](operations.md), [usage-report.md](usage-report.md)).
+4. **A database is about 70 KB a turn, and five sixths of it is not the chat.** See the rooms, below.
+5. **Every API call opens the person's store anew. Inside every budget; not changed.** Each request gets a new SQLite connection, the migration check and two folder handles, under the install's one lock (`signin.Resolve`, `tenant.Install.Store`). It is a fixed part of every call, and the likely reason the first words take 80 ms with six people sending at once and 25 ms alone; the lock was not timed apart.
+6. **Context packing in a 600-turn chat takes 110 ms, and grows with the chat. Inside its budget; not changed.** A turn reads the chat's whole current branch more than once before its model call and decodes every message each time. A chat of two thousand turns would be near the budget.
+
+Nothing was found wrong in what Operations reports.
+
+## The rooms
+
+`operations.database_room_mb`, `operations.files_room_mb` and `operations.artifacts_room_mb` are what Operations measures a person's folder against. From the full run, for three years at 93 turns a day:
+
+| | Measured | Room | |
+| --- | --- | --- | --- |
+| The database | 7.16 GB, about 70 KB a turn | 10 GB, raised from 2 GB | Decision [0533](decisions/0533-a-database-is-given-ten-gigabytes-of-room.md). 2 GB is 30,000 turns: eleven months of this person, three years at 28 turns a day. |
+| The files folder | 43 MB for 200 uploads of 200 KB on average | 20 GB, kept | The size is the profile's own guess. 20 GB is 4,000 uploads at the 5 MB limit. |
+| The artifacts folder | 3.3 MB for 125 artifacts in two versions | 5 GB, kept | The same: a guess, and far inside. |
+
+Where the database's bytes are:
+
+- **`audit_log`, 58%.** Each model call's first entry holds its whole request: the standing start and the tools' definitions, about 3,300 tokens, and the chat so far, again for every turn of the chat. A chat of forty turns writes its first message into the log forty times.
+- **`turn_events`, 25%.** Every streamed piece of every reply is a row, about 150 a turn, and none is removed when the turn ends. They are read to rejoin a reply that is still streaming or was cut off.
+- **`turn_contexts`, 6%.** The record of what each call was built from, which lists every turn of the chat.
+- **`messages` and `message_search`, 4% each.** The chats, and the index of their words.
+- `uploads` holds the text read from each text file, beside the file itself in the files folder: 43 MB here.
+
+Whether a turn's events should be removed once it has ended, and whether the audit log should hold every request whole for good, are the owner's to answer; both are in the journal, core 014. If either is taken, the database's room can come down.
+
 ## Settings
 
 In `settings/loadtest.json`, all for the whole install. The budgets are in the table above.
@@ -190,7 +225,7 @@ In `settings/loadtest.json`, all for the whole install. The budgets are in the t
 | `loadtest.artifact_every`, `loadtest.artifact_kb` | 40, 12 | One chat in so many has an artifact in two versions, each of this mean size. |
 | `loadtest.runs` | 30 | How many times each measurement is made. |
 | `loadtest.reply_chars` | 2400 | The length of a measured reply. |
-| `loadtest.small_days`, `loadtest.small_chats`, `loadtest.small_turns_per_chat`, `loadtest.small_long_chat_turns`, `loadtest.small_tenants`, `loadtest.small_tenant_chats`, `loadtest.small_runs` | 10, 40, 5, 120, 2, 6, 5 | The small profile. Its chats reach back days, so some calls fall in Operations' last day. |
+| `loadtest.small_days`, `loadtest.small_chats`, `loadtest.small_turns_per_chat`, `loadtest.small_long_chat_turns`, `loadtest.small_tenants`, `loadtest.small_tenant_chats`, `loadtest.small_runs` | 10, 40, 5, 120, 2, 6, 3 | The small profile. Its chats reach back days, so some calls fall in Operations' last day. |
 | `loadtest.small_budget_percent` | 100 | The share of each budget the small profile's median is held to. |
 
 `go run ./tools/loadtest` takes `-small`, sizes of its own to try (`-chats`, `-turns`, `-long`, `-tenants`, `-tenant-chats`, `-runs`), `-dir` for where the data folder is made, and `-no-write`. Only the full run, as the settings give it, is written into the docs.
@@ -204,7 +239,7 @@ In `settings/loadtest.json`, all for the whole install. The budgets are in the t
 
 In `verify`: the standing check `load test` (`tools/verify/loadtest.go`) runs the small profile and fails on any problem.
 
-Fixes the load test led to have tests of their own: `TestASearchRanksAtMostSoManyMatches` in `internal/chat`, and `TestListFindsAMonthAndARequestByTheirIndex` in `internal/usage`.
+The changes the load test led to have tests of their own: `TestASearchRanksAtMostSoManyMatches` in `internal/chat`, `TestListFindsAMonthAndARequestByTheirIndex` in `internal/usage`, and `TestStandingIsTheReportsCapAndReserve` in `internal/usagereport`.
 
 ## Adding to it
 

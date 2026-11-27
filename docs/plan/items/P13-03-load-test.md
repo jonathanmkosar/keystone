@@ -1,6 +1,6 @@
 # P13-03. Load test
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P11-03
 Owner gate: none
@@ -43,6 +43,14 @@ Left to do, in this order: the generator and the agreement proof; the measuremen
 Built so far (commit 61eef73): the generator and its proof, the measurements, the budgets, the Monitor comparison, the command and the standing check, and two fixes the first large loads led to (past-chat search, decision 0530; a request's usage records read by their index). Left: the full run, the rooms, and the write-up.
 
 ## Result
+
+Done on November 26, 2026 (the full runs were made after midnight UTC, so their table is dated the 27th). `internal/loadtest` writes three years of invented chats for one person, 102,416 turns and 204,832 messages with a 600-turn chat, and about 4,000 turns for each of five more, by a fast path that `TestTheFastPathLeavesWhatARealTurnLeaves` proves leaves, row for row, what the real handler leaves. On the real server in memory, with the fake provider, all thirteen times are inside their budgets at the 95th percentile, and all 21 figures Operations reports match the test's own counts. `go run ./tools/loadtest` is the full run, a quarter of an hour; the small profile runs as the standing check `load test`, and `verify` is 39 of 39.
+
+Found and fixed, each with a test: past-chat search took 1.2 to 2.5 seconds for a common word over 100,000 messages, and now takes 30 to 80 ms (decision 0530, `chats.search_rank_max`); a request's usage records were found by reading every record; and the home screen's notice read a whole usage report for two sums, inside its budget by a tenth, and is now a third of the time. Reported and not changed, inside their budgets: every API call opens the person's store anew, and context packing reads a long chat more than once.
+
+The sizes: a database is about 70 KB a turn, 7.16 GB for the three years, 58% of it the audit log's copies of each request and 25% the streamed pieces of every reply. `operations.database_room_mb` goes from 2048 to 10240 (decision 0533); the files' and the artifacts' rooms are kept. Two questions for the owner come out of it: whether a turn's events are removed once it has ended, and whether the audit log holds every request whole for good.
+
+The doc, with what is measured and how, every finding and the rooms: `docs/architecture/load-test.md`. Decisions 0530 to 0533. Journal: `docs/journal/2026-11-26-core-014.md`. The last full run's table follows.
 
 <!-- load test: the last full run, written by go run ./tools/loadtest -->
 
