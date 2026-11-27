@@ -54,6 +54,9 @@ type first struct {
 	// research is a research task started from chat A (P8-04), put in the
 	// first person's record as a finished one.
 	research string
+	// browserShot is a screenshot the agent's browser took in chat A
+	// (P10-03), put in the first person's record.
+	browserShot string
 	// googleAuth are the credentials the stand-in Google saw with the
 	// first person's calls.
 	googleAuth []string
@@ -313,6 +316,18 @@ func (g *rig) fillFirst() error {
 	if err != nil {
 		return err
 	}
+	// A screenshot the agent's browser took in chat A (P10-03): the second
+	// person asks for it by its id.
+	f.browserShot = "3f9c0a7e5d1b4c2a8e6f0b9d7c5a3e1f"
+	err = g.with(one.id, func(s *tenant.Store) error {
+		_, err := s.DB().Exec(`INSERT INTO browser_shots(id, chat_id, call_id, url, title, media_type, data, created_at)
+			VALUES(?, ?, 'call-drill-shot', 'https://harbour.example/lantern', 'Lantern ledger', 'image/jpeg', ?, '2026-11-27T00:00:00.000Z')`,
+			f.browserShot, f.chatA, []byte{0xff, 0xd8, 0xff, 0xd9})
+		return err
+	})
+	if err != nil {
+		return err
+	}
 	// The memory pass of chat A's turn, into the built-in store.
 	err = waitFor("the first person's memory pass", 20*time.Second, func() (bool, error) {
 		var p memory.Pass
@@ -527,6 +542,9 @@ func (g *rig) idText(s string) string {
 	if f.research != "" { // P8-04
 		s = strings.ReplaceAll(s, f.research, "<one's research task>")
 	}
+	if f.browserShot != "" { // P10-03
+		s = strings.ReplaceAll(s, f.browserShot, "<one's screenshot>")
+	}
 	return s
 }
 
@@ -543,6 +561,9 @@ func (g *rig) longIDs() []string {
 	}
 	if len(f.research) >= 12 { // P8-04
 		out = append(out, f.research)
+	}
+	if len(f.browserShot) >= 12 { // P10-03
+		out = append(out, f.browserShot)
 	}
 	return out
 }

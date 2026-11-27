@@ -318,6 +318,105 @@
       "description": "The most redirects web_fetch follows for one page. Each one is checked like the first address: only public addresses are read."
     },
     {
+      "key": "agents.browser_use",
+      "title": "Browser use",
+      "summary": "Let the agent use a browser of its own, with none of your sign-ins.",
+      "type": "bool",
+      "default": "false",
+      "scope": "tenant",
+      "description": "Offers the agent a headless browser of its own, with an empty profile in your folder and none of your sign-ins: it can open pages, read them, take screenshots, click and type. Every page it reads is outside content, so every click and every typing asks you first, and it never types into a password or payment field."
+    },
+    {
+      "key": "agents.browser_path",
+      "title": "Browser program",
+      "summary": "Which browser program the agent's browser runs; empty finds one.",
+      "type": "string",
+      "default": "",
+      "scope": "install",
+      "description": "The path of a Chromium-family browser on this machine (Microsoft Edge, Google Chrome or Chromium) that the agent's browser runs. Empty looks in their usual places, Edge first. It is always started headless, with its own empty profile."
+    },
+    {
+      "key": "agents.browser_idle_timeout",
+      "title": "Browser idle time",
+      "summary": "How long the agent's browser stays open after its last use.",
+      "type": "duration",
+      "default": "5m",
+      "scope": "install",
+      "description": "How long a person's browser is kept open after its last call. It is then closed and its profile removed, and the next call starts a fresh one."
+    },
+    {
+      "key": "agents.browser_page_timeout",
+      "title": "Browser page wait",
+      "summary": "How long one page, click or typing may take in the browser.",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long the browser waits for a page to load, or for what a click or typing sets off, before it answers with what it has."
+    },
+    {
+      "key": "agents.browser_max_pages",
+      "title": "Pages in one turn",
+      "summary": "The most pages the browser opens in one turn.",
+      "type": "int",
+      "default": "10",
+      "scope": "install",
+      "description": "The most pages browser_open opens in one turn of a chat. A further call is refused, and the model is told."
+    },
+    {
+      "key": "agents.browser_max_steps",
+      "title": "Browser steps in one turn",
+      "summary": "The most browser calls in one turn.",
+      "type": "int",
+      "default": "30",
+      "scope": "install",
+      "description": "The most calls of the browser tools, of every kind, in one turn of a chat. A further call is refused, and the model is told. chats.turn_max_steps still bounds the whole turn."
+    },
+    {
+      "key": "agents.browser_text_max_chars",
+      "title": "Browser page text",
+      "summary": "The most characters of a page's text the agent reads at once.",
+      "type": "int",
+      "default": "12000",
+      "scope": "install",
+      "description": "The most characters of a page's text browser_read returns. Longer text is cut, and the result says so."
+    },
+    {
+      "key": "agents.browser_max_elements",
+      "title": "Elements listed",
+      "summary": "The most links, buttons and fields listed for one page.",
+      "type": "int",
+      "default": "120",
+      "scope": "install",
+      "description": "The most elements browser_read numbers for the agent to click or type into: links, buttons and fields, in the order they are on the page."
+    },
+    {
+      "key": "agents.browser_blocked_hosts",
+      "title": "Sites the browser never opens",
+      "summary": "Sites the agent's browser refuses, with every name under them.",
+      "type": "string",
+      "default": "accounts.google.com, login.microsoftonline.com, login.live.com, login.microsoft.com, appleid.apple.com, idmsa.apple.com, paypal.com, checkout.stripe.com",
+      "scope": "install",
+      "description": "Hosts the agent's browser never asks for, separated by commas: a page, a frame, a script or a form. Each one blocks the host and every name under it. Shipped with the big sign-in and payment sites, since the browser never signs in and never pays."
+    },
+    {
+      "key": "agents.browser_width",
+      "title": "Browser width",
+      "summary": "The width of the agent's browser window and its screenshots.",
+      "type": "int",
+      "default": "1280",
+      "scope": "install",
+      "description": "The width, in pixels, of the agent's browser window, and so of each screenshot. From 320 to 3840."
+    },
+    {
+      "key": "agents.browser_height",
+      "title": "Browser height",
+      "summary": "The height of the agent's browser window and its screenshots.",
+      "type": "int",
+      "default": "800",
+      "scope": "install",
+      "description": "The height, in pixels, of the agent's browser window, and so of each screenshot. From 240 to 2160."
+    },
+    {
       "key": "agents.task_budget_usd",
       "title": "Budget for each background task",
       "summary": "The most one background task may spend on paid models.",

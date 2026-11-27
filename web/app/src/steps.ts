@@ -177,7 +177,55 @@ const known: Record<string, (args: Args, result: string | undefined) => ToolLine
       meta: named ? site : "",
     };
   },
+  // Browser use (P10-03): the agent's own browser. A step that took a
+  // screenshot shows it under the row (BrowserShot.tsx).
+  browser_open: (args, result) => {
+    const site = siteOf(args.url);
+    const title = browserTitle(result);
+    return {
+      icon: "web",
+      running: site ? `Opening ${site} in the agent's browser` : "Opening a page in the agent's browser",
+      asked: site ? `Open ${site} in the agent's browser` : "Open a page in the agent's browser",
+      done: title ? `Opened ${quoted(title, 56)}` : site ? `Opened ${site}` : "Opened a page",
+      meta: title ? site : "",
+    };
+  },
+  browser_read: (_args, result) => {
+    const title = browserTitle(result);
+    const n = result === undefined ? 0 : (result.match(/^\[\d+\] /gm) ?? []).length;
+    return {
+      icon: "web",
+      running: "Reading the page in the agent's browser",
+      asked: "Read the page in the agent's browser",
+      done: title ? `Read ${quoted(title, 56)}` : "Read the page",
+      meta: n === 1 ? "1 element" : n > 1 ? `${n} elements` : "",
+    };
+  },
+  browser_click: (args) => {
+    const what = quoted(args.label, 40) || (typeof args.element === "number" ? `element ${args.element}` : "an element");
+    return { icon: "web", running: `Clicking ${what}`, asked: `Click ${what} in the agent's browser`, done: `Clicked ${what}`, meta: "" };
+  },
+  browser_type: (args) => {
+    const what = quoted(args.label, 32) || (typeof args.element === "number" ? `element ${args.element}` : "a field");
+    const text = quoted(args.text, 32);
+    return {
+      icon: "web",
+      running: text ? `Typing ${text} into ${what}` : `Typing into ${what}`,
+      asked: text ? `Type ${text} into ${what} in the agent's browser` : `Type into ${what} in the agent's browser`,
+      done: text ? `Typed ${text} into ${what}` : `Typed into ${what}`,
+      meta: "",
+    };
+  },
+  browser_screenshot: () => ({ icon: "web", running: "Taking a screenshot of the agent's browser", asked: "Take a screenshot of the agent's browser", done: "Took a screenshot", meta: "" }),
+  browser_back: () => ({ icon: "web", running: "Going back a page", asked: "Go back a page in the agent's browser", done: "Went back a page", meta: "" }),
 };
+
+/** The title of the page a browser step's result names, from the server's own first line, or "". */
+function browserTitle(result: string | undefined): string {
+  if (result === undefined) return "";
+  const m = /The browser shows the page “([^”]*)” at /.exec(result.split("\n", 1)[0]);
+  return m ? m[1] : "";
+}
 
 /** " to a, b" for an email's recipients (P12-02), cut short; empty for none. */
 function recipients(v: unknown): string {
@@ -234,5 +282,8 @@ export function errorLabel(result: string | undefined): { text: string; broke: b
   // The web tools' own words, in internal/tools/web: no key yet, or a chat held for sensitive content.
   if (/^Web search is not set up/.test(text)) return { text: "not set up", broke: false };
   if (/is off in this chat/.test(text)) return { text: "off in this chat", broke: false };
+  // Browser use's own words, in internal/tools/browser and its guard (P10-03).
+  if (/^Browser use is off/.test(text)) return { text: "browser use off", broke: false };
+  if (/never (signs in|pays|types into|downloads|sends a file)|on the list of sites the browser does not open/.test(text)) return { text: "refused", broke: false };
   return { text: "failed", broke: true };
 }

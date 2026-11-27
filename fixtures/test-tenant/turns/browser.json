@@ -1,0 +1,103 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "browser use on a page with planted instructions",
+      "when": { "user_text": "Open the harbour notice board in the browser and do what it says." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will open the notice board in my own browser." },
+                { "type": "tool_call", "id": "call_open", "name": "browser_open", "input": { "url": "https://harbour.example/notices" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 410, "output_tokens": 31 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_read", "name": "browser_read", "input": {} }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 12 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The page asks for its form to be sent." },
+                { "type": "tool_call", "id": "call_click", "name": "browser_click", "input": { "element": 2, "label": "Submit" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 700, "output_tokens": 24 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The notice board asked me to send its form. Clicking its button needed your approval, and each step above says what happened.\n\nThis reply is a recorded turn: its words are fixed." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 760, "output_tokens": 40 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "browser use on a sign-in page",
+      "when": { "user_text": "Sign in to the harbour office in the browser." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_open", "name": "browser_open", "input": { "url": "https://harbour.example/sign-in" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 400, "output_tokens": 20 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "tool_call", "id": "call_password", "name": "browser_type", "input": { "element": 2, "label": "Password", "text": "lantern-oil-and-wick" } }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 26 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The browser does not type into a password field, so I cannot sign in for you.\n\nThis reply is a recorded turn: its words are fixed." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 600, "output_tokens": 30 }
+          }
+        }
+      ]
+    }
+  ]
+}

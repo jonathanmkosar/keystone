@@ -72,6 +72,13 @@ func init() {
 	fixedRuleGuards["rules.sensitive_content"] = append(fixedRuleGuards["rules.sensitive_content"], "internal/embedding")
 }
 
+// Browser use (P10-03): the guard decides which of the browser's actions
+// are side effects, which requests a page may make, and which fields are
+// never typed into, so it enforces rule 2 beside the approval rule.
+func init() {
+	fixedRuleGuards["rules.approval"] = append(fixedRuleGuards["rules.approval"], "internal/tools/browser/guard")
+}
+
 // settingsPackages are the ways to read a setting's value.
 var settingsPackages = []string{module + "/settings", module + "/internal/tenantsettings"}
 

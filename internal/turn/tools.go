@@ -91,7 +91,8 @@ func (r *Runner) offered(ctx context.Context, s *tenant.Store, m models.Model) [
 	if r.o.Tools == nil || !m.Has(models.CapTools) || !r.toolsOn(ctx, s) {
 		return nil
 	}
-	return r.withoutNever(ctx, s, r.o.Tools.Definitions()) // a tool set never is not offered (P7-02)
+	defs := r.withoutBrowser(ctx, s, r.o.Tools.Definitions()) // the browser's only when the person switched it on (P10-03)
+	return r.withoutNever(ctx, s, defs)                       // a tool set never is not offered (P7-02)
 }
 
 // toolStep is what a turn does when a model call stops for tools. Every
