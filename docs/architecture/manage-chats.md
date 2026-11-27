@@ -120,8 +120,8 @@ Each chat is deleted by `chat.Delete`, in its own transaction, exactly as `DELET
 
 **On a phone** (under 760 pixels):
 
-- A row is the checkbox and, beside it, the title, the marks, the line, and "N messages · date". Nothing scrolls sideways; a long title is cut with an ellipsis and a long project name inside its mark.
-- The checkbox sits in a square 44 pixels wide, and the rest of the row opens the chat.
+- A row is the checkbox and, beside it, the title, the marks, the line, and "N messages · date". Nothing scrolls sideways; a long title takes two lines before it is cut, so a word the search found further along it still shows, and a long project name is cut inside its mark.
+- The checkbox sits in a square 44 pixels wide, and the rest of the row opens the chat. Each checkbox carries its own name (`aria-label`): hidden words beside it, placed as `.offscreen` places them, lie against the page and not the list, and one in every row made the page itself scroll.
 - The heading row is "Select all shown", and sorting is a native select with a button that turns the order round.
 - No box takes the focus by itself, so the keyboard comes up only when the person taps the search box. The focus of the confirmation goes to its Keep button.
 - The search box and the select are 16px, so the browser does not zoom the page in.
@@ -143,7 +143,8 @@ A stored value that does not read as a whole number within its bounds is not use
 
 Every existing line of shared code this item changed:
 
-- `web/app/src/pages.tsx`: the old `Chats`, `Row` and `when` are gone, with three imports, and `export { Chats } from "./ManageChats";` stands in their place. `Soon` and `Missing` are as they were. `App.tsx` is untouched.
+- `web/app/src/pages.tsx`: the old `Chats`, `Row` and `when` are gone, with their imports, and `export { Chats } from "./ManageChats";` stands in their place. `Soon` and `Missing` are as they were. `App.tsx` is untouched.
+- `docs/architecture/web.md`: the row for `/chats` in its table of routes.
 
 Added lines only:
 
@@ -166,6 +167,12 @@ New files: `internal/turn/manage.go` and its test, `internal/chat/bychat.go` and
 - `verify`, the standing check **`manage chats`** ([tools.md](tools.md)), on the real server with two invented people and a model that writes half a reply and waits: the search by a message's word; more than `chats.delete_batch_max` refused whole; one call that deletes two chats with their uploads, leaves a file a kept chat holds, refuses the other person's chat and skips the chat whose turn is running; nothing of the other person's changed; each chat in the audit log. It also reads the screen's source: no box takes the focus by itself, the text boxes are 16px, the confirmation is placed by the visible viewport and says there is no undo; and the three settings are in the registry.
 
 Two faults were put in by hand and each was caught by the tests and by the check, then taken out: a chat at work deleted like any other, and a search that narrows nothing.
+
+The screen was seen in a browser on November 27, 2026, at a desktop's width and a phone's, light and dark; [web.md](web.md), "The Chats screen", says what was seen and what was not.
+
+## Provisional
+
+On the owner's eye. The mockups draw no table of chats, so the screen is built from the tokens, and it has been seen at a phone's width in a desktop browser, not on a phone: the on-screen keyboard and a thumb on the checkboxes are untried.
 
 ## Not here yet
 

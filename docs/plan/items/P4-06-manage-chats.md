@@ -1,6 +1,6 @@
 # P4-06. Manage chats
 
-Status: doing (chats)
+Status: provisional
 Lane: chats + interface
 Depends on: P4-03
 Owner gate: none
@@ -31,3 +31,12 @@ Branch `chats/p4-06-manage-chats`, cut from `reboot` at f433894. No owner gate. 
 **Order.** 1. This plan. 2. The search by chat and the table route, with tests. 3. The batch delete, with tests, the drill's line and the standing check. 4. The screen, seen in a browser at phone and desktop widths, light and dark. 5. The write-up: `docs/architecture/manage-chats.md`, decisions from 0550, the journal, status.
 
 **Not in this item.** An undo or a trash: a deleted chat is gone, and the confirmation says so. Search by meaning. Bulk star, move to a project or export.
+
+### Result (November 27, 2026)
+
+Provisional on the owner's eye: built and proven, and seen in a browser at a phone's width and a desktop's, light and dark, but the mockups draw no such screen and no real phone has held it.
+
+- **Built as planned**: `GET /chats/table` and `POST /chats/delete` in `internal/turn/manage.go`; the search by chat in `internal/chat/bychat.go`, beside `chat.Search`, which is unchanged; the Chats screen in `web/app/src/ManageChats.tsx`, `manageCalls.ts` and `manage-chats.css`; three settings; no migration. The component doc is `docs/architecture/manage-chats.md`, with decisions 0550 to 0554.
+- **The proof passes**, as tests (`go test ./internal/chat ./internal/turn ./internal/isolationdrill`) and as the standing check `manage chats`, on the real server: a search finds a chat by a word in a message, with the word marked; the selected chats and nothing else are deleted, with their files, artifacts and share links, while a file a kept chat or a project holds stays; another person's chat id in the batch is refused and nothing of theirs changes; a chat with a turn, a task or a sub-agent still at work is skipped, named, and still there; and the deletion asks first, saying there is no undo.
+- **Changed from the plan**: the confirmation's text and the note afterwards were settled in the browser; a title takes two lines on a phone, so a word found in it shows; a row's checkbox carries its name itself, after the hidden words beside it were found to lengthen the page.
+- **Left**: the owner's look on his phone. An undo or a trash, opening a result at its message, other things to do with a selection, and the search of summaries are in the doc's "Not here yet".
