@@ -1,6 +1,6 @@
 # P15-01. The admin mark and step-up
 
-Status: doing (core)
+Status: provisional (core) on A1 and A2
 Lane: core
 Depends on: P2-02, P2-04, P2-05
 Owner gate: The owner's answers A1 and A2.
@@ -21,3 +21,7 @@ Branch `core/p15-01-admin-mark`, built on the assumed answers A1 and A2.
 - **`internal/adminview`.** The only code the admin routes use to read another tenant. Each read of another person is written to that person's audit log first, with the actor `admin:<the admin's id>`, and nothing is read if it cannot be.
 - **The check.** A new standing check, `admin isolation`: `internal/adminview` and `internal/adminapi` import none of the packages that hold a person's content, directly or through another; `adminapi` does not import `internal/tenant`; `SetAdmin` is called from `tools/tenant` alone; and a walk of every admin route with a person without the mark, an admin without a step-up, and an expired step-up, each refused and recorded, then the people route with a fresh step-up written in both logs.
 - **Proof.** Tests in `tenant`, `signin`, `api`, `adminview`, `adminapi` and `tools/tenant`; `verify` green with 46 checks.
+
+## Result
+
+Built as planned, November 27, 2026; see `docs/architecture/admin.md`, decisions 0640 to 0646 and the journal `docs/journal/2026-11-27-core-015.md`. One change from the plan: a second migration lets a passkey prompt have the purpose `step-up` (the challenges table's CHECK named only `add` and `sign-in`). Provisional on the owner's answers A1 and A2: if either changes, the mark, the step-up and what `adminview` returns are what is revisited; the door, the audit entries and the check keep their shape.

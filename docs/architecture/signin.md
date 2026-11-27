@@ -91,6 +91,18 @@ Passkeys are behind `signin.passkeys`, which is off. The code is proven against 
 
 A browser allows passkeys only on `localhost` or over HTTPS. `keystone serve` prints `http://127.0.0.1:7900`, which is not `localhost` to a browser: passkeys need `http://localhost:7900`. A phone on the home network reaches Keystone by a number, over plain HTTP, and cannot use a passkey until phone access is decided (P10-05).
 
+## The admin step-up
+
+Since P15-01 (provisional on the owner's answer A1), an admin's session can be stepped up: the password or a passkey proved again opens the admin area on that one session for `admin.step_up_for` ([admin.md](admin.md), decision [0643](decisions/0643-step-up-proves-the-password-again-on-the-same-session.md)).
+
+- The migration `20261127T150000_admin_step_up.sql` adds `admin_until` to `signin_sessions`; `20261127T150100_step_up_challenges.sql` lets a prompt have the purpose `step-up`.
+- `Session.AdminUntil` is read by `Check` with the rest of the session. `Session.SteppedUp(t)` says whether it is still fresh.
+- `StepUp(store, sessionID, password, options, lasts)` checks the password through the same function as `SignIn` (`checkPassword`), so a wrong one counts towards the same wait and a try during the wait is `ErrWait` with the password unread. It sets `admin_until` to now plus `lasts`, never past the session's end. A session that is not one of the store's is `ErrNoSession`.
+- `BeginPasskeyStepUp` and `PasskeyStepUp` do the same with a passkey, checked as a passkey sign-in is (`checkAssertion`). A sign-in prompt's answer cannot step up, and a step-up prompt's answer cannot sign in.
+- `EndStepUp(store, sessionID)` closes it.
+
+**Last sign-in.** Each time a session is opened, by a password or a passkey, `tenant_meta` keeps `last_sign_in`. `LastSignIn(store)` reads it, or the newest open session for a tenant who has not signed in since, for the admin's list of people (decision [0646](decisions/0646-the-first-admin-read-is-the-people-list-with-last-sign-in.md)).
+
 ## Settings
 
 All in `settings/core.json`, all for the whole install.
