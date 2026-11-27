@@ -125,6 +125,12 @@ Since P10-01 there is the check `dictation`, which makes 36 on the branch it was
 
 Since P13-02 there is the check `isolation drill`, in `tools/verify/isolationdrill.go`, whose `init` adds the doc line and the network line for `internal/isolationdrill`. It runs `isolationdrill.Run`: on a throwaway folder with the real server, a second person who is signed in tries every way in to the first person's data with their real ids (the API, the tools, the jobs and agents, the share doors and the files on disk), and the check fails on any try that reached the first person's data, changed their folder, database or audit log, or is not in the second person's own log. See [isolation-drill.md](isolation-drill.md).
 
+Since P13-03 there is the check `load test`, in `tools/verify/loadtest.go`, whose `init` adds the doc lines for `internal/loadtest` and `tools/loadtest` and the network line for `internal/loadtest`. It runs the load test's small profile (`loadtest.Run`): on the real server in memory, with the fake provider and a throwaway data folder, a few dozen invented chats and one long chat are written for one person and a few for two more; every measurement is made (context packing, past-chat search, the chat list and a long chat's page, the first streamed words and a streamed reply for one person and for every person at once, the usage report and the Operations report); each median is held to its budget in `settings/loadtest.json`; and what `GET /api/v1/operations` reports for the loaded person is compared with the test's own counts. The check fails on a time over its budget, a figure that differs, or a call answered with 500. The full run, years of chats, is a command of its own and not part of `verify`:
+
+    go run ./tools/loadtest
+
+It takes minutes and several gigabytes of disk for a data folder it removes, prints its table and writes it into [load-test.md](load-test.md) and the item. `-small` runs the profile `verify` runs; `-chats`, `-turns`, `-long`, `-tenants`, `-tenant-chats` and `-runs` try another size and write nothing to the docs; `-dir` says where the data folder is made.
+
 ### What offline checks today
 
 The plan's rule is that `verify` passes with no network and no keys, using the fake provider. Two things can be proven now, and both are in `tools/verify/offline.go`.

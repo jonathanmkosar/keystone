@@ -151,7 +151,7 @@
     {
       "key": "loadtest.small_runs",
       "type": "int",
-      "default": "5",
+      "default": "3",
       "scope": "install",
       "description": "How many times the small load test makes each measurement."
     },

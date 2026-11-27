@@ -274,5 +274,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0530 | [A search of messages cuts snippets only for what it gives, and ranks at most so many matches](decisions/0530-a-search-cuts-snippets-only-for-what-it-gives-and-ranks-so-many-matches.md) |
 | 0531 | [The load test's chats are written by a fast path, proven row for row against the real handler](decisions/0531-the-load-is-written-by-a-fast-path-proven-against-the-real-handler.md) |
 | 0532 | [The load test's budgets are what a person feels, set before the first full run](decisions/0532-the-load-tests-budgets-are-what-a-person-feels.md) |
+| 0533 | [A person's database is given ten gigabytes of room, from the load test's measured size](decisions/0533-a-database-is-given-ten-gigabytes-of-room.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

@@ -52,6 +52,8 @@ From the command line:
 
 It prints the month by model and where the month stands against the cap.
 
+`List` puts only the conditions that are set into its query, so a month's records and a request's records are found by their index (`usage_records_month`, `usage_records_request`). Until the load test (P13-03) it sent one query for every filter, `(? = '' OR month = ?) AND (? = '' OR request_id = ?)`, which SQLite can only answer by reading every record a person has: 125 milliseconds for one request's records among 55,000, and the Operations report asks once for each of its twenty traces. `TestListFindsAMonthAndARequestByTheirIndex` reads the query's plan and fails if it scans the table.
+
 A month is a calendar month in UTC. Decision [0162](decisions/0162-the-cap-counts-a-utc-calendar-month.md).
 
 ## The monthly cap

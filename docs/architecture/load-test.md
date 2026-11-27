@@ -104,7 +104,70 @@ One figure is "at least": after the measurements, the local model's calls. A tur
 
 <!-- load test: the last full run, written by go run ./tools/loadtest -->
 
-No full run has been written here yet.
+The full run of November 27, 2026 at 03:28 UTC, on windows/amd64, 16 logical processors, go1.26.0, AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD. Every time is inside its budget, and every figure of the Monitor matches the test's own.
+
+The load: 3 years, 5,001 chats, 102,416 turns, 204,832 messages, 110,946 model calls and 438,169 audit entries for the first person (one chat of 600 turns), with 200 uploads and 125 artifacts; 5 more people with 200 chats each. Seed 20261126. Writing it took 10m24s, measuring 35s, the whole run 13m52s.
+
+| Measurement | Runs | Median | 95th percentile | Budget | Held to it (95th percentile) |
+| --- | --- | --- | --- | --- | --- |
+| Context packing, the long chat: a message sent to its model call opening | 30 | 110ms | 165ms | 250ms | inside |
+| Context packing, a chat with attached chats, an upload and a project | 30 | 40ms | 55ms | 250ms | inside |
+| Past-chat search, the model's `search_chats`: the tool call to its result | 30 | 48ms | 269ms | 500ms | inside |
+| Past-chat search, `GET /api/v1/chats/search` | 30 | 47ms | 117ms | 200ms | inside |
+| The chat list's first page, `GET /api/v1/chats` | 30 | 9.3ms | 14ms | 100ms | inside |
+| The long chat's page, `GET /api/v1/chats/{id}` | 30 | 35ms | 42ms | 400ms | inside |
+| First streamed words, one person: a message sent to the first words | 30 | 25ms | 47ms | 300ms | inside |
+| First streamed words, every person sending at once | 180 | 80ms | 107ms | 500ms | inside |
+| Streaming a reply, one person: the first words to the last | 30 | 69ms | 126ms | 1s | inside |
+| Streaming a reply, every person sending at once | 180 | 26ms | 296ms | 1.5s | inside |
+| The usage report, `GET /api/v1/usage` | 30 | 55ms | 66ms | 300ms | inside |
+| The Operations report, `GET /api/v1/operations` | 30 | 38ms | 50ms | 500ms | inside |
+| The home screen's notice, `GET /api/v1/operations/watch` | 30 | 31ms | 42ms | 150ms | inside |
+
+| On disk, the first person | Size |
+| --- | --- |
+| The database, `keystone.db` | 7.16 GB |
+| The files folder, 200 uploads and a project file | 42.9 MB |
+| The artifacts folder, 125 artifacts in two versions each | 3.3 MB |
+| Each other person's database, the mean of 5 | 287.7 MB |
+
+| The database by table, with its indexes | Rows | Size | Share |
+| --- | --- | --- | --- |
+| `audit_log` | 438,169 | 4.12 GB | 58% |
+| `turn_events` | 15,237,117 | 1.79 GB | 25% |
+| `turn_contexts` | 102,597 | 471.4 MB | 6% |
+| `message_search` | 205,134 | 319.7 MB | 4% |
+| `messages` | 205,194 | 318.5 MB | 4% |
+| `turns` | 102,567 | 81.2 MB | 1% |
+| `uploads` | 201 | 43.0 MB | 1% |
+| `turn_messages` | 205,194 | 17.6 MB | 0% |
+| `usage_records` | 111,206 | 17.0 MB | 0% |
+| `chat_recap_search` | 5,001 | 3.8 MB | 0% |
+| every other table | | 6.0 MB | 0% |
+
+| The Monitor, `GET /api/v1/operations` | Operations reports | The test's own count | |
+| --- | --- | --- | --- |
+| After the load is written, database, bytes | 7848205280 | 7848205280 to 7848205280 | matches |
+| After the load is written, files, bytes | 44912640 | 44912640 | matches |
+| After the load is written, artifacts, bytes | 3448415 | 3448415 | matches |
+| After the load is written, the cap, spent this month, millionths of a dollar | 20005991 | 20005991 | matches |
+| After the load is written, the cap, millionths of a dollar | 100000000 | 100000000 | matches |
+| After the load is written, calls to load-hosted in the last 24h0m0s | 91 | 91 | matches |
+| After the load is written, cost of load-hosted in the last 24h0m0s, millionths of a dollar | 951827 | 951827 | matches |
+| After the load is written, median latency of load-hosted, milliseconds | 3274 | 3274 | matches |
+| After the load is written, calls to load-local in the last 24h0m0s | 1 | 1 | matches |
+| After the load is written, cost of load-local in the last 24h0m0s, millionths of a dollar | 0 | 0 | matches |
+| After the load is written, traces whose calls, tokens and cost are the test's own | 20 of 20 | 20 of 20 | matches |
+| After the measurements, database, bytes | 7862594528 | 7862594528 to 7862594528 | matches |
+| After the measurements, files, bytes | 44938540 | 44938540 | matches |
+| After the measurements, artifacts, bytes | 3448415 | 3448415 | matches |
+| After the measurements, the cap, spent this month, millionths of a dollar | 20431991 | 20431991 | matches |
+| After the measurements, the cap, millionths of a dollar | 100000000 | 100000000 | matches |
+| After the measurements, calls to load-hosted in the last 24h0m0s | 211 | 211 | matches |
+| After the measurements, cost of load-hosted in the last 24h0m0s, millionths of a dollar | 1377827 | 1377827 | matches |
+| After the measurements, calls to load-local in the last 24h0m0s | 140 | 121 or more | matches |
+| After the measurements, traces whose calls, tokens and cost are the test's own | 20 of 20 | 20 of 20 | matches |
+| After the measurements, the newest trace | d11ccfbed02a9c6e | d11ccfbed02a9c6e | matches |
 
 <!-- load test: end of the last full run -->
 

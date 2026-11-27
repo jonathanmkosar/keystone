@@ -89,7 +89,7 @@ Each `Limit` is a place the install may run out of room:
 
 | Key | Used of | Scope | Watch level |
 | --- | --- | --- | --- |
-| `cap` | This month's spend on hosted and trusted models, of the monthly cap, both from `usagereport.Read` with the month, not computed again. | tenant | The cap's own warning threshold, `usage.cap_warn_percent`, so the notice and the cap's warning never disagree. |
+| `cap` | This month's spend on hosted and trusted models, of the monthly cap, both the usage report's own for the month, not computed again: `usagereport.Standing`, the report's cap and reserve without its breakdowns (since P13-03; a whole report placed every record of the month to show two sums, and was most of the home screen's wait). | tenant | The cap's own warning threshold, `usage.cap_warn_percent`, so the notice and the cap's warning never disagree. |
 | `memory_reserve` | The memory pass's spend this month, of its reserve, from the same report. | tenant | `operations.watch_reserve_percent` |
 | `disk` | The used space of the volume that holds the data folder, of its size. | install | `operations.watch_disk_percent` |
 | `database` | `keystone.db` and its write-ahead log, of `operations.database_room_mb`. | tenant | `operations.watch_database_percent` |
@@ -134,7 +134,7 @@ In `settings/core.json`. A value outside its bounds is taken as the nearest boun
 | --- | --- | --- | --- |
 | `operations.snapshot_every` | `1h` | install | How often every person's limits are recorded. 1m to 24h. |
 | `operations.snapshot_keep` | `840h` | install | How long a snapshot is kept: 35 days. |
-| `operations.database_room_mb` | `2048` | install | The size a person's database is planned to grow to. |
+| `operations.database_room_mb` | `10240` | install | The size a person's database is planned to grow to. 2048 until the load test measured three years of chats at 7.16 GB (decision [0533](decisions/0533-a-database-is-given-ten-gigabytes-of-room.md)). |
 | `operations.files_room_mb` | `20480` | install | The room for one person's files folder. |
 | `operations.artifacts_room_mb` | `5120` | install | The room for one person's artifacts folder. |
 | `operations.trend_window` | `168h` | tenant | How far back a trend looks. 1h to 90 days. |
@@ -190,4 +190,4 @@ In `verify`: the standing check `operations`, in `tools/verify/operations.go`. O
 
 - **The owner gate.** The page and the notice wait on the settings mockups (P1-07); there is no settings mockup. The page follows the draft `Operations.html` (in the first round's colours) for its tiles, needs-attention table, models table and room-to-grow table; the tasks, schedules and traces tables, the words and the order were chosen without a mockup. The notice follows nothing but the "Running now" strip of `Home.html`.
 - **Not seen against the real server.** The screens type-check and build, and were seen in the browser pane against a stand-in that answered the two routes from the real functions on the test tenant's folder; the real server answered both routes. Signing in to the real server to look was left to a person: see the journal, core 012.
-- **The rooms** (2 GB for a database, 20 GB for files, 5 GB for artifacts) are guesses until the load test measures them.
+- **The rooms.** The load test (P13-03, [load-test.md](load-test.md)) measured them: a database is about 70 KB a turn, 7.16 GB for three years of 93 turns a day, so its room went from 2 GB to 10 GB (decision [0533](decisions/0533-a-database-is-given-ten-gigabytes-of-room.md)). The files' 20 GB and the artifacts' 5 GB stand: the load's folders are small, and their sizes are the load's own guesses about how much a person uploads. The owner has the last word on all three.

@@ -60,6 +60,14 @@ The two search tables hold their own copy of the text. `Rename`, `Append` and `D
 
 Since P5-05, `MatchAny(store, query, most, snippetWords)` (`match.go`) searches the same two tables for any of the query's words instead of all of them, and returns the title rows and the message rows apart, each the best first by the full-text rank with the rank as `Score`. The past-chat search, `search_chats`, ranks chats by them with the chats' recaps ([chat-summaries.md](chat-summaries.md)). A chat's recap is kept by `internal/recap` in tables of its own, which go with the chat.
 
+**Over years of chats** (P13-03, `ranked.go`, decision [0530](decisions/0530-a-search-cuts-snippets-only-for-what-it-gives-and-ranks-so-many-matches.md)). A common word is in most of what a person ever wrote, and the load test found a search for one taking seconds over 100,000 messages: every match was joined to its chat and cut to a snippet before the best fifty were kept. Since then:
+
+- The index is asked for its best few in its own order, and only those are cut to a snippet and read with their chats. Equal ranks are put newest first.
+- At most `chats.search_rank_max` matching messages are ranked. When more match, the search is too wide for a rank to mean much: the newest matches are given, newest first.
+- `MatchAnyWithin(store, query, most, snippetWords, rankMax)` is `MatchAny` with that bound, and the past-chat tool calls it. In a search for any of several words it leaves a word out of the search of messages when more messages than the bound hold it and another of the words is in fewer, so a rare word finds its old chat whatever common words came with it. `MatchAny` itself ranks everything, as a bound below 1 does.
+
+A record with fewer matches than the bound gets the answer it got before.
+
 ## Files
 
 A file is tied to a chat by a row in `chat_files`: the chat and the file's name in the tenant's `files/` folder. `Append` ties every file a message's blocks refer to by `ref`, tool results included. `AddFile` ties one by hand, for a file that is uploaded before its message is sent. `Files` lists a chat's files.
@@ -111,6 +119,7 @@ In `settings/chats.json`.
 | `chats.title_max_length` | 150 | The most characters a title may have. |
 | `chats.search_max_results` | 50 | The most results one search returns. |
 | `chats.search_snippet_words` | 24 | About how many words of a matching message a result shows, from 1 to 64. |
+| `chats.search_rank_max` | 20000 | The most matching messages one search ranks; when more match, the newest are given. For the whole install. Zero ranks every match. |
 
 The functions that use them take a `Limits` value. `DefaultLimits` reads the registry's defaults. Stored values come with P2-04, and the caller then builds `Limits` from the tenant's own.
 
