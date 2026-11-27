@@ -179,3 +179,36 @@ func TestHandlerTellsBrowsersWhatToKeep(t *testing.T) {
 		t.Errorf("GET %s: %d, Cache-Control %q", asset, rec.Code, rec.Header().Get("Cache-Control"))
 	}
 }
+
+// The page names the stylesheet with its content's version, so a release
+// gives it a new address that no cache has kept. That address may be kept
+// for good; an old version is asked about again.
+func TestThePageNamesTheStylesheetByItsVersion(t *testing.T) {
+	for _, path := range []string{"/", "/chats"} {
+		rec := httptest.NewRecorder()
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		body := rec.Body.String()
+		if strings.Contains(body, `"/keystone.css"`) || strings.Contains(body, `"/theme.js"`) {
+			t.Fatalf("GET %s names a file with no version:\n%s", path, body)
+		}
+		i := strings.Index(body, `"/keystone.css?v=`)
+		if i < 0 {
+			t.Fatalf("GET %s names no versioned stylesheet", path)
+		}
+		addr := body[i+1:]
+		addr = addr[:strings.IndexByte(addr, '"')]
+		css := httptest.NewRecorder()
+		handler(nil).ServeHTTP(css, httptest.NewRequest(http.MethodGet, addr, nil))
+		if css.Code != http.StatusOK || !strings.Contains(css.Header().Get("Cache-Control"), "immutable") {
+			t.Errorf("GET %s: %d, Cache-Control %q", addr, css.Code, css.Header().Get("Cache-Control"))
+		}
+		if !strings.Contains(css.Header().Get("Content-Type"), "text/css") {
+			t.Errorf("GET %s: Content-Type %q", addr, css.Header().Get("Content-Type"))
+		}
+	}
+	old := httptest.NewRecorder()
+	handler(nil).ServeHTTP(old, httptest.NewRequest(http.MethodGet, "/keystone.css?v=0000", nil))
+	if old.Header().Get("Cache-Control") != "no-cache" {
+		t.Errorf("an old version: Cache-Control %q, want no-cache", old.Header().Get("Cache-Control"))
+	}
+}

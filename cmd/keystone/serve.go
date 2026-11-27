@@ -36,7 +36,7 @@ func handler(api http.Handler) http.Handler {
 		h.Set("X-Frame-Options", "DENY")
 		h.Set("Referrer-Policy", "no-referrer")
 		h.Set("Content-Security-Policy", "default-src 'self'")
-		h.Set("Permissions-Policy", "microphone=(self)") // dictation, from Keystone's own pages only (decision 0500)
+		h.Set("Permissions-Policy", "microphone=(self)")  // dictation, from Keystone's own pages only (decision 0500)
 		h.Add("Permissions-Policy", "geolocation=(self)") // location per message, on a tap, from Keystone's own pages only (decision 0602)
 		if api != nil && (r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/")) {
 			api.ServeHTTP(w, r)
@@ -50,8 +50,8 @@ func handler(api http.Handler) http.Handler {
 		// The interface routes in the browser, so a path that is not a file,
 		// such as /chats, is the page itself (decision 0071). A path under
 		// /api never reaches here when there is an API, and is never the page.
-		if isRoute(r.URL.Path) {
-			page, err := fs.ReadFile(web.Files(), "index.html")
+		if r.URL.Path == "/" || isRoute(r.URL.Path) {
+			page, err := versionedPage()
 			if err != nil {
 				http.Error(w, "the page is missing from this build", http.StatusInternalServerError)
 				return
@@ -69,16 +69,60 @@ func handler(api http.Handler) http.Handler {
 		// each time, and an ETag of its content lets it keep its copy when
 		// nothing changed. Without this a phone kept an old stylesheet after a
 		// release (November 27, 2026).
-		if strings.HasPrefix(r.URL.Path, "/assets/") {
+		// The page names those files with their content's version
+		// (/keystone.css?v=...), so a release reaches every browser and every
+		// cache between, even one that keeps a file it was told to ask about
+		// again: the new page names a new address. A request with the current
+		// version may be kept for good, as a file under /assets is.
+		tag, tagged := etagOf(r.URL.Path)
+		if strings.HasPrefix(r.URL.Path, "/assets/") || (tagged && r.URL.Query().Get("v") == strings.Trim(tag, `"`)) {
 			h.Set("Cache-Control", "public, max-age=31536000, immutable")
 		} else {
 			h.Set("Cache-Control", "no-cache")
-			if tag, ok := etagOf(r.URL.Path); ok {
-				h.Set("ETag", tag)
-			}
+		}
+		if tagged {
+			h.Set("ETag", tag)
 		}
 		files.ServeHTTP(w, r)
 	})
+}
+
+var (
+	pageOnce  sync.Once
+	pageBytes []byte
+	pageErr   error
+)
+
+// versionedPage returns index.html with each file beside it that keeps its
+// name from build to build (keystone.css, theme.js, mark.svg) named with
+// its content's version, as "/keystone.css?v=<version>". The built files
+// are compiled in, so it is worked out once.
+func versionedPage() ([]byte, error) {
+	pageOnce.Do(func() {
+		b, err := fs.ReadFile(web.Files(), "index.html")
+		if err != nil {
+			pageErr = err
+			return
+		}
+		entries, err := fs.ReadDir(web.Files(), ".")
+		if err != nil {
+			pageErr = err
+			return
+		}
+		s := string(b)
+		for _, e := range entries {
+			if e.IsDir() || e.Name() == "index.html" {
+				continue
+			}
+			tag, ok := etagOf(e.Name())
+			if !ok {
+				continue
+			}
+			s = strings.ReplaceAll(s, `"/`+e.Name()+`"`, `"/`+e.Name()+`?v=`+strings.Trim(tag, `"`)+`"`)
+		}
+		pageBytes = []byte(s)
+	})
+	return pageBytes, pageErr
 }
 
 // etags holds the ETag of each built file, worked out once from its bytes.

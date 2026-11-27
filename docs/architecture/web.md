@@ -672,6 +672,8 @@ The app routes in the browser (decision [0071](decisions/0071-client-side-routes
 
 Files under `/assets` carry their content's hash in their name and are sent with `Cache-Control: public, max-age=31536000, immutable`. Every other built file keeps its name from build to build (`index.html`, `keystone.css`, `theme.js`, `mark.svg`) and is sent with `Cache-Control: no-cache` and an `ETag` of its content, so a browser asks again each time and keeps its copy only when nothing changed (`cmd/keystone/serve.go`, `TestHandlerTellsBrowsersWhatToKeep`). Before this, a phone kept an old stylesheet after a release, and light mode went on showing the dark tile (November 27, 2026).
 
+The page itself names each of those files with its content's version, as `/keystone.css?v=<version>` (the first 24 hex digits of its SHA-256, the same as its `ETag`). The server writes the versions into `index.html` once per binary, for `/` and every interface route. So a release gives the stylesheet and `theme.js` new addresses, and no cache between the server and the phone can go on serving the old ones, Cloudflare's included, whatever it does with `no-cache`. A request that names the current version is sent as `immutable`; an old or missing version is sent with `no-cache` (`TestThePageNamesTheStylesheetByItsVersion`). The page is still `no-cache`, so a reload always fetches the new names. Asked for by the owner on November 27, 2026.
+
 On a phone the model picker opens as a sheet from the foot of the screen, like the composer's +, with rows of at least 48px (`ModelPicker.tsx`, `.model-sheet` in `model-picker.css`). Opening upward from the chip, its menu ran off the top of the new chat screen (the owner's report, November 27, 2026).
 
 ## Location per message (P10-06)
