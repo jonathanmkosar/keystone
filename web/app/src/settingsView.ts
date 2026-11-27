@@ -105,6 +105,7 @@ const headings: [prefix: string, heading: string][] = [
   ["chats.import_", "Import from New Keystone"],
   ["chats.test_model_", "The test person"],
   ["fake.", "The test person"],
+  ["loadtest.", "The load test"],
   ["budget.", "Token estimates"],
   ["anthropic.", "Model adapters"],
   ["responses.", "Model adapters"],

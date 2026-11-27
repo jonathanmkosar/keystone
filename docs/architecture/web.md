@@ -552,6 +552,10 @@ Its calls, all in `src/researchCalls.ts`:
 
 A part's lane makes the sub-agents' own calls, with the task's own chat as the chat ([sub-agents.md](sub-agents.md)).
 
+## Settings at a glance (P11-04)
+
+The General settings screen: each setting of the registry as a name, one short line and its value, opening in place for the long explanation, the box to change it in, its default and its key. [settings-screens.md](settings-screens.md) describes it under "How General is drawn". `src/GeneralSettings.tsx` draws it, `src/settingsView.ts` works out what a row shows and has the tests (`test/settingsView.test.ts`, run by `npm test` and by `verify`), `src/settings-general.css` has the rows, and `src/SettingsParts.tsx` holds what every settings screen shares. At phone width every box under `.settings` is 16px, so a phone's browser does not zoom the page when one takes the focus, and the screen has no overlay and takes no focus by itself.
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

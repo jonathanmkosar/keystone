@@ -291,5 +291,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0542 | [The model is told about charts and diagrams in the standing instructions, straight after the standing text](decisions/0542-the-model-is-told-about-visuals-in-the-standing-instructions.md) |
 | 0543 | [A visual holds its place at a set height, and a diagram is fitted inside its frame](decisions/0543-a-visual-holds-its-place-at-a-set-height.md) |
 | 0544 | [A chart's series colours are the design's tokens, each with a second mark, until the design has a chart palette](decisions/0544-series-colours-are-tokens-with-a-second-mark.md) |
+| 0560 | [A setting is a name, one short line and its value, and its row opens in place](decisions/0560-a-setting-is-a-name-a-short-line-and-a-value-and-opens-in-place.md) |
+| 0561 | [A setting's title and summary are in the registry, and a check asks for them, not the reader](decisions/0561-a-settings-title-and-summary-are-in-the-registry-and-a-check-asks-for-them.md) |
+| 0562 | [The settings screen's headings are worked out from key prefixes by the screen, not kept in the registry](decisions/0562-headings-are-worked-out-from-key-prefixes-by-the-screen.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
