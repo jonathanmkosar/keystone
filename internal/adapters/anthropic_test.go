@@ -28,6 +28,13 @@ func TestAnthropicOptionsComeFromTheSettings(t *testing.T) {
 	if len(opts.BudgetThinkingModels) == 0 {
 		t.Error("no model is listed as taking a thinking budget")
 	}
+	if len(opts.EffortModels) == 0 {
+		t.Error("no model is listed as taking an effort")
+	}
+	if opts.EffortBudgetLow != 2048 || opts.EffortBudgetMedium != 8192 || opts.EffortBudgetHigh != 24576 {
+		t.Errorf("the effort budgets are not the registry's defaults: %d, %d, %d",
+			opts.EffortBudgetLow, opts.EffortBudgetMedium, opts.EffortBudgetHigh)
+	}
 	if _, err := AnthropicOptions(nil); err == nil {
 		t.Error("options were read from an empty registry")
 	}

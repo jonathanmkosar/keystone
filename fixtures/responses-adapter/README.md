@@ -10,6 +10,8 @@ These are the exchanges the Responses adapter is proven on. They were **written 
 | `tools.json` | Two function calls in one reply, and the next call of the turn with the calls, their results and the reasoning going back. |
 | `reasoning.json` | A reasoning summary with encrypted reasoning, and reasoning with no summary. |
 | `failures.json` | A refused key, a request that is too long, a refused field, a spent quota, an endpoint that does not stream, a rate limit and a broken connection part of the way through, and a tool call cut by the output limit. |
+| `effort.json` | A request's effort (P14-01): each level, with `xhigh` and `max` sent as `high`, effort winning over a thinking budget, and an entry without `thinking`. |
+| `golden/bodies.json` | Not a case: the exact body the adapter sent for each case before effort existed. A request with no effort must still be sent as those bytes (`golden_test.go`). |
 | `retries.json` | A busy provider that then answers, a reply that fails before it says anything, three failures in a row, and a wait the adapter will not sit through. |
 
 ## The shape of a case

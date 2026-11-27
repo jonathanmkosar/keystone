@@ -186,6 +186,8 @@ func TestInvalidRequestsAreRefused(t *testing.T) {
 		"result before its call": func(r *Request) { r.Messages[1], r.Messages[2] = r.Messages[2], r.Messages[1] },
 		"result given twice":     func(r *Request) { r.Messages = append(r.Messages, r.Messages[2]) },
 		"call id used twice":     func(r *Request) { r.Messages = append(r.Messages, r.Messages[1]) },
+		"unknown effort":         func(r *Request) { r.Effort = "extreme" },
+		"effort in capitals":     func(r *Request) { r.Effort = "HIGH" },
 	}
 	for name, breakIt := range bad {
 		r := fullRequest()
@@ -193,6 +195,34 @@ func TestInvalidRequestsAreRefused(t *testing.T) {
 		if err := ValidateRequest(r); err == nil {
 			t.Errorf("%s: accepted", name)
 		}
+	}
+}
+
+// Every effort goes through JSON and comes back, and a request with none
+// has no effort field at all, so it is stored as it was before effort
+// existed (P14-01).
+func TestEffortRoundTripsAndIsLeftOutWhenEmpty(t *testing.T) {
+	for _, e := range Efforts {
+		r := fullRequest()
+		r.Effort = e
+		raw, err := EncodeRequest(r)
+		if err != nil {
+			t.Fatalf("%s: encode: %v", e, err)
+		}
+		got, err := DecodeRequest(raw)
+		if err != nil || got.Effort != e {
+			t.Errorf("%s: came back as %q (%v)", e, got.Effort, err)
+		}
+	}
+	raw, err := EncodeRequest(fullRequest())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(raw), "effort") {
+		t.Errorf("a request with no effort carries the field: %s", raw)
+	}
+	if Effort("").Known() {
+		t.Error("an empty effort counts as a level")
 	}
 }
 

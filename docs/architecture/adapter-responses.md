@@ -57,12 +57,15 @@ The tests send an invented key and look for it in every event and every error of
 | `Tools` | `{"type":"function","name","description","parameters","strict":false}` |
 | `MaxOutputTokens` | `max_output_tokens`, no more than the entry's `output_limit`. Zero leaves it out |
 | `ThinkingTokens` | `reasoning.effort` and `reasoning.summary: "auto"`, for an entry with the `thinking` capability |
+| `Effort` (P14-01) | `reasoning.effort` as asked, with `xhigh` and `max` sent as `high`, and `reasoning.summary: "auto"`, for an entry with the `thinking` capability. It wins over `ThinkingTokens` |
 
 Three fields are always sent: `stream: true`, `store: false`, and, for an entry with `thinking`, `include: ["reasoning.encrypted_content"]`.
 
 **Nothing is stored at the provider.** Keystone keeps the chat, so `store` is false and no call names an earlier response. The cost is that reasoning has to travel with the chat: the provider returns it encrypted, the adapter keeps it in the thinking block's `Signature` as `responses/1:` followed by the item's id and the encrypted content, and sends it back as a reasoning item on the next call. Decision [0110](decisions/0110-responses-stores-nothing-at-the-provider.md).
 
 **A thinking budget becomes an effort.** The API takes `low`, `medium` or `high`, not a number of tokens. A budget from `responses.effort_high_from` up asks for high, from `responses.effort_medium_from` up for medium, and anything smaller for low. A budget of zero sends no `reasoning` field, which leaves a reasoning model at its own default: the adapter cannot switch reasoning off. On these models `max_output_tokens` counts reasoning too, so a small limit can be spent before any text is written. Decision [0111](decisions/0111-a-thinking-budget-becomes-an-effort.md).
+
+**An effort is sent as it is.** Since P14-01 a request may name its effort, and then the budget is not read: `low`, `medium` and `high` go as they are, and `xhigh` and `max`, which the API does not take, go as `high`. An entry without `thinking` is sent no `reasoning` field, as before. A request with no effort is sent as the same bytes as before effort existed, which `golden_test.go` checks against `fixtures/responses-adapter/golden/bodies.json` (decision [0621](decisions/0621-no-effort-is-proven-by-the-bytes-each-adapter-sent-before.md)).
 
 ## The stream
 
@@ -168,7 +171,7 @@ Since P9-02 the adapter refuses, while it builds the body and before anything is
 
 ## What proves it
 
-`go test ./internal/adapters/responses`. The exchanges are in `fixtures/responses-adapter/`, 21 cases in five files, all invented and written by hand. An `httptest` server on this machine replays them. For each case the test checks the path, the header and the body the adapter sends, how many calls it makes, the whole reply through the seam's `Collector` or the error's kind and whether it may be retried, and that the key is in no event and no error.
+`go test ./internal/adapters/responses`. The exchanges are in `fixtures/responses-adapter/`, 28 cases in six files, all invented and written by hand; `effort.json` (P14-01) has each effort, effort winning over a thinking budget, and an entry without `thinking`. The body of every case with no effort is also compared byte for byte with the one the adapter sent before effort existed (`golden_test.go`). An `httptest` server on this machine replays them. For each case the test checks the path, the header and the body the adapter sends, how many calls it makes, the whole reply through the seam's `Collector` or the error's kind and whether it may be retried, and that the key is in no event and no error.
 
 Other tests: cancelling stops the stream, a silent stream is given up on, an error from `emit` ends the call, an endpoint that is not there fails without its address in the message, a request the adapter refuses never reaches the endpoint, `New` refuses a bad entry without showing the key, the options read from the settings, every status is sorted, and the event reader handles comments, several `data` lines and a cut-off event.
 

@@ -327,5 +327,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0632 | [The systemone adapter sends a call once, within its timeout, and keeps Ollama's limits on the body before sending](decisions/0632-the-systemone-adapter-sends-once-and-keeps-ollamas-limits-before-sending.md) |
 | 0633 | [Decision calls are chosen and recorded by a guard package of their own, with no fallback, and a local one costs nothing](decisions/0633-decision-calls-are-recorded-by-their-own-guard-package-with-no-fallback.md) |
 | 0634 | [The fake answers decision calls from scripts marked `"decision": true`, in the same files as the turns](decisions/0634-the-fake-answers-decisions-from-scripts-marked-decision.md) |
+| 0620 | [The Anthropic adapter turns effort into a thinking budget, and adds the API's effort for a model that takes it](decisions/0620-the-anthropic-adapter-turns-effort-into-a-budget-and-the-effort-setting.md) |
+| 0621 | [A request with no effort is proven unchanged by the bytes each adapter sent before effort existed](decisions/0621-no-effort-is-proven-by-the-bytes-each-adapter-sent-before.md) |
+| 0622 | [An effort level goes to the provider as asked, except where the spec maps it](decisions/0622-effort-levels-go-as-asked-except-where-the-spec-maps-them.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

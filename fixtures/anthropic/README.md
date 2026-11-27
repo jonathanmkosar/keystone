@@ -13,6 +13,8 @@ They were written by hand from the published format of the Messages API. None wa
 | `thinking.json` | Adaptive thinking, the token budget form, a model that cannot think, and withheld and redacted thinking going out and coming back. |
 | `failures.json` | Every error kind, the retries and their waits, an error inside a stream, a reply that breaks off, and requests refused before any call. |
 | `gateway.json` | A local gateway with no key, an address that ends in `/v1`, events with no names, and an error that is not in the API's shape. |
+| `effort.json` | A request's effort (P14-01): each level to a model on the effort list, with adaptive thinking; each level to a model that takes a thinking budget, as that budget; effort winning over `thinking_tokens`; and the models that get the effort alone, adaptive thinking alone, or nothing. |
+| `golden/bodies.json` | Not an exchange: the exact body the adapter sent for each recorded request before effort existed. A request with no effort must still be sent as those bytes (`golden_test.go`). |
 | `cache.json` | The marks a request's cache points ask for (P5-03): the end of the standing start, of the system blocks, of the history and of the last message; an empty start that marks the last tool; a history that ends in thinking; a message left out before the history mark; the setting off. |
 
 ## An exchange

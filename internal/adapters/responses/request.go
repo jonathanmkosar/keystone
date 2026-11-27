@@ -147,11 +147,24 @@ func (p *Provider) body(req seam.Request) ([]byte, error) {
 		// Nothing is stored at the provider, so the reasoning has to come
 		// back here to be sent again with the next call of the turn.
 		w.Include = []string{"reasoning.encrypted_content"}
-		if req.ThinkingTokens > 0 {
+		switch {
+		case req.Effort != "":
+			// Effort wins over a thinking budget.
+			w.Reasoning = &wireReasoning{Effort: reasoningEffort(req.Effort), Summary: "auto"}
+		case req.ThinkingTokens > 0:
 			w.Reasoning = &wireReasoning{Effort: p.effort(req.ThinkingTokens), Summary: "auto"}
 		}
 	}
 	return json.Marshal(w)
+}
+
+// reasoningEffort is a request's effort as the Responses API takes it. It
+// knows low, medium and high, so xhigh and max are sent as high.
+func reasoningEffort(e seam.Effort) string {
+	if e == seam.EffortXHigh || e == seam.EffortMax {
+		return string(seam.EffortHigh)
+	}
+	return string(e)
 }
 
 // effort turns a thinking budget into the effort the Responses API takes.

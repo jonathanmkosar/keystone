@@ -1,0 +1,1166 @@
+{
+  "about": "Invented exchanges for effort on the seam (P14-01), written by hand from the public description of the Responses API. Nothing here was captured from a provider.",
+  "cases": [
+    {
+      "name": "effort-low",
+      "note": "Effort low is sent as reasoning.effort low.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "low",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-medium",
+      "note": "Effort medium is sent as reasoning.effort medium.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "medium",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-high",
+      "note": "Effort high is sent as reasoning.effort high.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "high",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-xhigh",
+      "note": "Effort xhigh is sent as reasoning.effort high.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "xhigh",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "high",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-max",
+      "note": "Effort max is sent as reasoning.effort high.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "max",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "high",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-wins-over-thinking-tokens",
+      "note": "A thinking budget of 20000 would be high effort; the request's effort, low, wins.",
+      "capabilities": [
+        "thinking"
+      ],
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "thinking_tokens": 20000
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "reasoning": {
+              "effort": "low",
+              "summary": "auto"
+            },
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort-without-thinking",
+      "note": "An entry without the thinking capability is sent nothing about effort.",
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "exchanges": [
+        {
+          "wire_request": {
+            "input": [
+              {
+                "content": [
+                  {
+                    "text": "Plan three dinners for the week.",
+                    "type": "input_text"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "model": "example-model-1",
+            "store": false,
+            "stream": true
+          },
+          "events": [
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "output": [],
+                "status": "in_progress"
+              },
+              "sequence_number": 0,
+              "type": "response.created"
+            },
+            {
+              "item": {
+                "content": [],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "in_progress",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 1,
+              "type": "response.output_item.added"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "",
+                "type": "output_text"
+              },
+              "sequence_number": 2,
+              "type": "response.content_part.added"
+            },
+            {
+              "content_index": 0,
+              "delta": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 3,
+              "type": "response.output_text.delta"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "sequence_number": 4,
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "response.output_text.done"
+            },
+            {
+              "content_index": 0,
+              "item_id": "msg_invented_effort",
+              "output_index": 0,
+              "part": {
+                "annotations": [],
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "output_text"
+              },
+              "sequence_number": 5,
+              "type": "response.content_part.done"
+            },
+            {
+              "item": {
+                "content": [
+                  {
+                    "annotations": [],
+                    "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                    "type": "output_text"
+                  }
+                ],
+                "id": "msg_invented_effort",
+                "role": "assistant",
+                "status": "completed",
+                "type": "message"
+              },
+              "output_index": 0,
+              "sequence_number": 6,
+              "type": "response.output_item.done"
+            },
+            {
+              "response": {
+                "id": "resp_invented_effort",
+                "object": "response",
+                "status": "completed",
+                "usage": {
+                  "input_tokens": 12,
+                  "input_tokens_details": {
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 27
+                }
+              },
+              "sequence_number": 7,
+              "type": "response.completed"
+            }
+          ]
+        }
+      ],
+      "response": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-responses",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    }
+  ],
+  "test_data": true
+}

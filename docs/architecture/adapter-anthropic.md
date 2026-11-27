@@ -89,6 +89,17 @@ With `thinking_tokens` at zero nothing is sent about thinking. Some models think
 
 Decision [0101](decisions/0101-thinking-form-by-model-name.md) says why the form is chosen by the model's name.
 
+### Effort
+
+Since P14-01 a request may carry `effort`: `low`, `medium`, `high`, `xhigh` or `max`. With none, the body is the same bytes as before effort existed (decision [0621](decisions/0621-no-effort-is-proven-by-the-bytes-each-adapter-sent-before.md)). With one, it wins over `thinking_tokens`, which is then not read:
+
+- **The effort stands for a thinking budget**: `anthropic.effort_budget_low`, `_medium` or `_high`, and the high one for `xhigh` and `max`. That budget goes the way a `thinking_tokens` of the same size goes, above: for an entry with `thinking`, the budget form for a model on `anthropic.budget_thinking_models`, kept under `max_tokens` and left out under 1024; adaptive thinking for every other model. An entry without `thinking` is sent no thinking.
+- **A model whose `provider_model` is on `anthropic.effort_models`** is also sent `"output_config": {"effort": "<effort>"}`, the level as asked. So a current model gets adaptive thinking and its effort together, and a model that cannot think gets the effort alone.
+- **A model on neither list and without `thinking`** is sent nothing about effort.
+- **A token count** carries the same thinking and no `output_config`, as it carries no output limit: effort does not change the input.
+
+Decision [0620](decisions/0620-the-anthropic-adapter-turns-effort-into-a-budget-and-the-effort-setting.md) says why the effort goes through the thinking budget and why a model that takes effort is also asked to think.
+
 ### Cache control
 
 The provider reads tools, then system, then messages, and caches everything up to a block marked `{"type": "ephemeral"}`, at most four marks in a request. With `anthropic.cache_control` on, the adapter marks where the request's cache points say (P5-03, decision [0331](decisions/0331-the-seam-carries-cache-points-and-the-anthropic-adapter-makes-four-marks.md)), up to four places:
@@ -202,6 +213,10 @@ In `settings/models.json`. All are for the install.
 | `anthropic.idle_timeout` | `5m` | How long a stream may send nothing. |
 | `anthropic.cache_control` | `true` | Whether the cache marks are sent, those the cache points ask for and the two of decision 0100 alike. |
 | `anthropic.budget_thinking_models` | a list of older model names | The models asked for thinking as a token budget. |
+| `anthropic.effort_models` | the model names that take an effort, Opus 4.5 onwards | The models sent a request's effort as `output_config.effort`. |
+| `anthropic.effort_budget_low` | `2048` | The thinking budget low effort stands for. |
+| `anthropic.effort_budget_medium` | `8192` | The thinking budget medium effort stands for. |
+| `anthropic.effort_budget_high` | `24576` | The thinking budget high, `xhigh` and `max` effort stand for. |
 
 They are read at their defaults. An install's own stored values are not built yet (see [settings.md](settings.md)).
 
@@ -211,7 +226,8 @@ Since P9-02 the adapter refuses, while it builds the body and before anything is
 
 `go test ./internal/adapters/anthropic ./internal/adapters`, with no key and no network.
 
-- Every exchange under `fixtures/anthropic/` is replayed by a server on this machine: 40 of them, five of them the cache points' marks (`cache.json`, P5-03). For each, the body the adapter sends is compared with the fixture's, the headers are checked, every event is checked against the seam's own rules, and the reply or the error is compared with the fixture's. [The fixtures' README](../../fixtures/anthropic/README.md) lists what each file holds.
+- Every exchange under `fixtures/anthropic/` is replayed by a server on this machine: 55 of them, five of them the cache points' marks (`cache.json`, P5-03) and seventeen of them effort (`effort.json`, P14-01): each level to a model that takes effort and to one that takes a budget, effort winning over `thinking_tokens` in both, and the models that get thinking alone, effort alone or nothing.
+- The body of every recorded request with no effort is compared byte for byte with the body the adapter sent before effort existed, kept in `fixtures/anthropic/golden/bodies.json`, with every model on `anthropic.effort_models` (`golden_test.go`). A token count carries no effort, and a negative effort budget is refused (`effort_test.go`). For each, the body the adapter sends is compared with the fixture's, the headers are checked, every event is checked against the seam's own rules, and the reply or the error is compared with the fixture's. [The fixtures' README](../../fixtures/anthropic/README.md) lists what each file holds.
 - A cancelled call returns the context's error and sends nothing more. A receiver that goes away ends the call. A stream that goes quiet is given up, and the text that had arrived is kept.
 - An endpoint that cannot be reached is tried again the set number of times, and its error repeats neither the key nor the address.
 - The waits double up to the longest, and a call is not sent again after part of its reply was passed on.
@@ -234,7 +250,7 @@ This is the owner gate. It needs one thing: an Anthropic API key, stored in a te
 
 Since P5-03 the cache can also be checked in a real chat: send a second message within five minutes of the first, with standing instructions long enough to cache (the model's least, 1024 tokens or more), and open the inspector on the second reply. Its usage line shows the tokens read from the cache ([caching.md](caching.md)).
 
-What the check should settle: that the format in the fixtures is the format on the wire, that `display` is accepted with adaptive thinking on the models in use, that the phrases read for a prompt that is too long are the API's, and whether the default list in `anthropic.budget_thinking_models` is right for the models in the registry.
+What the check should settle: that the format in the fixtures is the format on the wire, that `display` is accepted with adaptive thinking on the models in use, that the phrases read for a prompt that is too long are the API's, and whether the default lists in `anthropic.budget_thinking_models` and `anthropic.effort_models` are right for the models in the registry. Since P14-01, a fifth call with `effort` set shows `output_config.effort` accepted beside adaptive thinking.
 
 A check against Ollama or LiteLLM needs only a registry entry with the gateway's address, and no key when it asks for none.
 
@@ -248,5 +264,6 @@ A check against Ollama or LiteLLM needs only a registry entry with the gateway's
 - Eager streaming of tool input. A tool call's input arrives once the provider has checked it.
 - An endpoint that ignores `stream` and answers with one JSON message. It is reported as a reply that broke off.
 - A sign-in other than `x-api-key`, such as a bearer token for a gateway that wants one.
-- The effort setting, the refusal fallbacks and the other newer parts of the API. `thinking_tokens` is the seam's one dial.
+- The refusal fallbacks and the other newer parts of the API. The effort setting is built since P14-01, above.
+- A level a model does not take, such as `xhigh` to Opus 4.6 or `max` to Opus 4.5, is sent as asked, and the API refuses the call as `invalid`. The router never asks for more than `router.max_effort`, `high` as shipped.
 - A count of thinking tokens. The API does not report one.

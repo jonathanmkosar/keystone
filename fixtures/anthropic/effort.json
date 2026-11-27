@@ -1,0 +1,1866 @@
+{
+  "exchanges": [
+    {
+      "name": "effort low to a model that takes effort: output_config.effort, with adaptive thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "low"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort medium to a model that takes effort: output_config.effort, with adaptive thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "medium"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort high to a model that takes effort: output_config.effort, with adaptive thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "high"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort xhigh to a model that takes effort: output_config.effort, with adaptive thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "xhigh",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "xhigh"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort max to a model that takes effort: output_config.effort, with adaptive thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "max",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "max"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort wins over a thinking budget for a model that takes effort: the number is not sent",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "thinking_tokens": 12000
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "low"
+        },
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "a model that takes effort and cannot think gets the effort and no thinking",
+      "model": {
+        "provider_model": "example-effort-2",
+        "capabilities": [
+          "tools"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-effort-2",
+        "output_config": {
+          "effort": "high"
+        },
+        "stream": true
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-effort-2",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort low to a model that takes a thinking budget: anthropic.effort_budget_low",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 2048,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort medium to a model that takes a thinking budget: anthropic.effort_budget_medium",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 8192,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort high to a model that takes a thinking budget: anthropic.effort_budget_high, kept under the output limit",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 15999,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort xhigh to a model that takes a thinking budget: the high budget, kept under the output limit",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "xhigh",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 15999,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort max to a model that takes a thinking budget: the high budget, kept under the output limit",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "max",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 15999,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort wins over a thinking budget for a model that takes a budget: the effort's budget is sent",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "budget_thinking_models": [
+          "example-large-*"
+        ],
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "thinking_tokens": 3000
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "budget_tokens": 8192,
+          "type": "enabled"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort to a model that thinks adaptively and takes no effort: adaptive thinking alone",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools",
+          "thinking"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true,
+        "thinking": {
+          "display": "summarized",
+          "type": "adaptive"
+        }
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    },
+    {
+      "name": "effort to a model that neither takes effort nor thinks: nothing about effort is sent",
+      "model": {
+        "provider_model": "example-large-1",
+        "capabilities": [
+          "tools"
+        ]
+      },
+      "options": {
+        "cache_control": false,
+        "effort_models": [
+          "example-effort-*"
+        ]
+      },
+      "request": {
+        "effort": "max",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ]
+      },
+      "sent": {
+        "max_tokens": 16000,
+        "messages": [
+          {
+            "content": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "example-large-1",
+        "stream": true
+      },
+      "answers": [
+        {
+          "events": [
+            {
+              "message": {
+                "content": [],
+                "id": "msg_test_effort",
+                "model": "example-large-1",
+                "role": "assistant",
+                "stop_reason": null,
+                "type": "message",
+                "usage": {
+                  "input_tokens": 12,
+                  "output_tokens": 1
+                }
+              },
+              "type": "message_start"
+            },
+            {
+              "content_block": {
+                "text": "",
+                "type": "text"
+              },
+              "index": 0,
+              "type": "content_block_start"
+            },
+            {
+              "delta": {
+                "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+                "type": "text_delta"
+              },
+              "index": 0,
+              "type": "content_block_delta"
+            },
+            {
+              "index": 0,
+              "type": "content_block_stop"
+            },
+            {
+              "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "message_delta",
+              "usage": {
+                "output_tokens": 15
+              }
+            },
+            {
+              "type": "message_stop"
+            }
+          ],
+          "status": 200
+        }
+      ],
+      "reply": {
+        "message": {
+          "blocks": [
+            {
+              "text": "Soup on Monday, a stew on Wednesday and a pie on Friday.",
+              "type": "text"
+            }
+          ],
+          "role": "assistant"
+        },
+        "model": "example-large",
+        "stop_reason": "end",
+        "usage": {
+          "input_tokens": 12,
+          "output_tokens": 15
+        }
+      }
+    }
+  ],
+  "test_data": true
+}

@@ -38,6 +38,7 @@ type exchange struct {
 	Options struct {
 		CacheControl         *bool    `json:"cache_control"`
 		BudgetThinkingModels []string `json:"budget_thinking_models"`
+		EffortModels         []string `json:"effort_models"`
 	} `json:"options"`
 	BareEvents bool            `json:"bare_events"`
 	Request    json.RawMessage `json:"request"`
@@ -99,6 +100,10 @@ func testOptions() Options {
 		HeaderTimeout:  10 * time.Second,
 		IdleTimeout:    10 * time.Second,
 		CacheControl:   true,
+		// The defaults of anthropic.effort_budget_low, _medium and _high.
+		EffortBudgetLow:    2048,
+		EffortBudgetMedium: 8192,
+		EffortBudgetHigh:   24576,
 	}
 }
 
@@ -233,26 +238,7 @@ func replay(t *testing.T, x exchange) {
 	}))
 	defer srv.Close()
 
-	entry := testEntry(srv.URL + x.Model.Path)
-	if x.Model.ProviderModel != "" {
-		entry.ProviderModel = x.Model.ProviderModel
-	}
-	if x.Model.Capabilities != nil {
-		entry.Capabilities = x.Model.Capabilities
-	}
-	if x.Model.OutputLimit != 0 {
-		entry.OutputLimit = x.Model.OutputLimit
-	}
-	if x.Model.NoKey {
-		entry.Key = ""
-	}
-	opts := testOptions()
-	if x.Options.CacheControl != nil {
-		opts.CacheControl = *x.Options.CacheControl
-	}
-	opts.BudgetThinkingModels = x.Options.BudgetThinkingModels
-
-	p, err := New(entry, key, opts)
+	p, err := New(fixtureEntry(x, srv.URL+x.Model.Path), key, fixtureOptions(x))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,6 +315,35 @@ func replay(t *testing.T, x exchange) {
 	default:
 		t.Fatal("the fixture gives neither a reply nor an error")
 	}
+}
+
+// fixtureEntry is the test entry with what an exchange changes in it.
+func fixtureEntry(x exchange, endpoint string) models.Model {
+	entry := testEntry(endpoint)
+	if x.Model.ProviderModel != "" {
+		entry.ProviderModel = x.Model.ProviderModel
+	}
+	if x.Model.Capabilities != nil {
+		entry.Capabilities = x.Model.Capabilities
+	}
+	if x.Model.OutputLimit != 0 {
+		entry.OutputLimit = x.Model.OutputLimit
+	}
+	if x.Model.NoKey {
+		entry.Key = ""
+	}
+	return entry
+}
+
+// fixtureOptions are the test options with what an exchange changes in them.
+func fixtureOptions(x exchange) Options {
+	opts := testOptions()
+	if x.Options.CacheControl != nil {
+		opts.CacheControl = *x.Options.CacheControl
+	}
+	opts.BudgetThinkingModels = x.Options.BudgetThinkingModels
+	opts.EffortModels = x.Options.EffortModels
+	return opts
 }
 
 func textRequest(text string) seam.Request {
