@@ -24,7 +24,9 @@ const maxRefresh = 16 << 10
 // is left as it is. It calls nothing: the first use, or a connector check,
 // is what proves the token to Google. It returns the services it covers.
 func AdoptGoogle(ctx context.Context, s *tenant.Store, email string, scopes []string, refresh string, maxTools int) ([]google.Service, error) {
-	email, refresh = strings.TrimSpace(email), strings.TrimSpace(refresh)
+	// Windows PowerShell puts a byte-order mark before what it pipes, which
+	// Google reads as part of the token and refuses.
+	email, refresh = strings.TrimSpace(email), strings.TrimSpace(strings.TrimPrefix(refresh, "\xef\xbb\xbf"))
 	switch {
 	case refresh == "" || len(refresh) > maxRefresh || strings.ContainsAny(refresh, " \t\r\n"):
 		return nil, fmt.Errorf("%w: the refresh token is empty, too long, or holds a space", ErrAdopt)

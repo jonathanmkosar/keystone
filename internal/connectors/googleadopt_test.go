@@ -39,8 +39,10 @@ func TestAGoogleSignInIsTakenOver(t *testing.T) {
 	if _, err := Get(bg(), one, string(google.Gmail)); !errors.Is(err, ErrNotFound) {
 		t.Errorf("a Gmail connector was made from Calendar scopes: %v", err)
 	}
-	// Again, as a second run of the command would: nothing doubles.
-	if _, err := AdoptGoogle(bg(), one, "person.one@example.com", scopes, "invented-refresh-token-2", 40); err != nil {
+	// Again, as a second run of the command would: nothing doubles. This
+	// time as Windows PowerShell pipes it, with a byte-order mark before it
+	// and a line end after, neither of which is part of the token.
+	if _, err := AdoptGoogle(bg(), one, "person.one@example.com", scopes, "\xef\xbb\xbfinvented-refresh-token-2\r\n", 40); err != nil {
 		t.Fatal(err)
 	}
 	if got, _, _ := one.Secrets().Get(GoogleSecret); got != "invented-refresh-token-2" {
