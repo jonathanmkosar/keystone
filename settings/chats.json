@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "chats.title_max_length",
+      "title": "Chat title length",
+      "summary": "The longest title a chat may have.",
       "type": "int",
       "default": "150",
       "scope": "install",
@@ -10,6 +12,8 @@
     },
     {
       "key": "chats.search_max_results",
+      "title": "Chat search results",
+      "summary": "The most results a search of your chats returns.",
       "type": "int",
       "default": "50",
       "scope": "tenant",
@@ -17,6 +21,8 @@
     },
     {
       "key": "chats.search_snippet_words",
+      "title": "Chat search excerpt",
+      "summary": "About how many words of a match each result shows.",
       "type": "int",
       "default": "24",
       "scope": "tenant",
@@ -24,6 +30,8 @@
     },
     {
       "key": "chats.recap",
+      "title": "Chat recaps",
+      "summary": "Gives each chat a short summary, so past chats are easier to find.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -31,6 +39,8 @@
     },
     {
       "key": "chats.recap_after_turns",
+      "title": "Turns between recaps",
+      "summary": "How many turns pass before a chat's recap is written again.",
       "type": "int",
       "default": "3",
       "scope": "tenant",
@@ -38,6 +48,8 @@
     },
     {
       "key": "chats.recap_after_idle",
+      "title": "Rest before a recap",
+      "summary": "How long a chat must be quiet before its recap is written.",
       "type": "duration",
       "default": "2m",
       "scope": "tenant",
@@ -45,6 +57,8 @@
     },
     {
       "key": "chats.recap_prompt",
+      "title": "Recap instructions",
+      "summary": "What the model that writes a recap is told.",
       "type": "string",
       "default": "You write the short summary, topics and decisions of one chat in Keystone, a private workspace for one person, so the chat can be found and understood later. You are given the chat's title, its recap so far if it has one, and its messages, oldest first. Answer with one JSON object and nothing else, in this shape: {\"summary\": \"...\", \"topics\": [\"...\"], \"decisions\": [\"...\"]}. The summary says in at most {words} words what the chat is about, what was found or settled, and where it ended. The topics are at most {topics} short phrases naming what the chat covers. The decisions are at most {decisions} things the person decided, chose or agreed to in the chat, each a short sentence; give an empty list when nothing was decided. Keep what the recap so far says unless a later message changes it. Write about the person and the assistant in plain words.",
       "scope": "install",
@@ -52,6 +66,8 @@
     },
     {
       "key": "chats.recap_summary_max_words",
+      "title": "Recap length",
+      "summary": "The most words a recap's summary may have.",
       "type": "int",
       "default": "80",
       "scope": "install",
@@ -59,6 +75,8 @@
     },
     {
       "key": "chats.recap_max_topics",
+      "title": "Recap topics",
+      "summary": "The most topics a recap keeps.",
       "type": "int",
       "default": "6",
       "scope": "install",
@@ -66,6 +84,8 @@
     },
     {
       "key": "chats.recap_max_decisions",
+      "title": "Recap decisions",
+      "summary": "The most decisions a recap keeps.",
       "type": "int",
       "default": "8",
       "scope": "install",
@@ -73,6 +93,8 @@
     },
     {
       "key": "chats.recap_item_max_chars",
+      "title": "Recap item length",
+      "summary": "The longest topic or decision a recap keeps.",
       "type": "int",
       "default": "200",
       "scope": "install",
@@ -80,6 +102,8 @@
     },
     {
       "key": "chats.recap_message_max_chars",
+      "title": "Message length for recaps",
+      "summary": "How much of one message the recap model is shown.",
       "type": "int",
       "default": "2000",
       "scope": "install",
@@ -87,6 +111,8 @@
     },
     {
       "key": "chats.recap_input_max_chars",
+      "title": "Chat length for recaps",
+      "summary": "How much of a chat the recap model is shown at once.",
       "type": "int",
       "default": "24000",
       "scope": "install",
@@ -94,6 +120,8 @@
     },
     {
       "key": "chats.recap_max_output_tokens",
+      "title": "Recap output limit",
+      "summary": "The most the model may write for one recap.",
       "type": "int",
       "default": "800",
       "scope": "install",
@@ -101,6 +129,8 @@
     },
     {
       "key": "chats.recap_timeout",
+      "title": "Recap time limit",
+      "summary": "How long writing one recap may take.",
       "type": "duration",
       "default": "60s",
       "scope": "install",
@@ -108,6 +138,8 @@
     },
     {
       "key": "chats.recap_retry_after",
+      "title": "Recap retry wait",
+      "summary": "How long before a failed recap is tried again.",
       "type": "duration",
       "default": "10m",
       "scope": "install",
@@ -115,6 +147,8 @@
     },
     {
       "key": "chats.past_chats_max_results",
+      "title": "Past chats found",
+      "summary": "The most past chats a model's search returns.",
       "type": "int",
       "default": "5",
       "scope": "tenant",
@@ -122,6 +156,8 @@
     },
     {
       "key": "chats.past_chats_passages",
+      "title": "Passages from each past chat",
+      "summary": "How many matching passages of each past chat a model gets.",
       "type": "int",
       "default": "2",
       "scope": "tenant",
@@ -129,6 +165,8 @@
     },
     {
       "key": "chats.default_model",
+      "title": "Default model",
+      "summary": "The model a new chat starts with.",
       "type": "string",
       "default": "",
       "scope": "tenant",
@@ -136,6 +174,8 @@
     },
     {
       "key": "chats.turn_queue_max",
+      "title": "Messages waiting",
+      "summary": "The most messages that may wait behind the one being answered.",
       "type": "int",
       "default": "5",
       "scope": "install",
@@ -143,6 +183,8 @@
     },
     {
       "key": "chats.turn_max_steps",
+      "title": "Steps in one turn",
+      "summary": "The most model calls one reply may take.",
       "type": "int",
       "default": "8",
       "scope": "install",
@@ -150,6 +192,8 @@
     },
     {
       "key": "chats.turn_max_output_tokens",
+      "title": "Reply length limit",
+      "summary": "The longest a reply may be; zero is the model's own limit.",
       "type": "int",
       "default": "0",
       "scope": "tenant",
@@ -157,6 +201,8 @@
     },
     {
       "key": "chats.turn_thinking_tokens",
+      "title": "Thinking allowance",
+      "summary": "How much a model may think before it replies; zero is none.",
       "type": "int",
       "default": "0",
       "scope": "tenant",
@@ -164,6 +210,8 @@
     },
     {
       "key": "chats.stream_poll",
+      "title": "Stream check",
+      "summary": "How often an open reply stream looks for new events.",
       "type": "duration",
       "default": "1s",
       "scope": "install",
@@ -171,6 +219,8 @@
     },
     {
       "key": "chats.stream_batch",
+      "title": "Stream batch size",
+      "summary": "The most stored events a reply stream reads at a time.",
       "type": "int",
       "default": "200",
       "scope": "install",
@@ -178,6 +228,8 @@
     },
     {
       "key": "chats.stop_wait",
+      "title": "Stop wait",
+      "summary": "How long Stop waits for a reply to end.",
       "type": "duration",
       "default": "2s",
       "scope": "install",
@@ -185,6 +237,8 @@
     },
     {
       "key": "chats.title_auto",
+      "title": "Title chats automatically",
+      "summary": "Gives each chat a title after its first reply.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -192,6 +246,8 @@
     },
     {
       "key": "chats.title_model",
+      "title": "Title model",
+      "summary": "The model that writes chat titles.",
       "type": "string",
       "default": "",
       "scope": "tenant",
@@ -199,6 +255,8 @@
     },
     {
       "key": "chats.title_prompt",
+      "title": "Title instructions",
+      "summary": "What the model that writes a chat's title is told.",
       "type": "string",
       "default": "Write a title of at most six words for the chat that begins below. Answer with the title alone, with no quotation marks and no full stop.",
       "scope": "install",
@@ -206,6 +264,8 @@
     },
     {
       "key": "chats.title_max_tokens",
+      "title": "Title output limit",
+      "summary": "The most the model may write for a title.",
       "type": "int",
       "default": "40",
       "scope": "install",
@@ -213,6 +273,8 @@
     },
     {
       "key": "chats.title_input_chars",
+      "title": "Text shown for a title",
+      "summary": "How much of the first message and reply the title model sees.",
       "type": "int",
       "default": "2000",
       "scope": "install",
@@ -220,6 +282,8 @@
     },
     {
       "key": "chats.title_timeout",
+      "title": "Title time limit",
+      "summary": "How long the title model may take.",
       "type": "duration",
       "default": "20s",
       "scope": "install",
@@ -227,6 +291,8 @@
     },
     {
       "key": "chats.title_derived_words",
+      "title": "Words in a fallback title",
+      "summary": "How many words of the first message make a title with no model.",
       "type": "int",
       "default": "6",
       "scope": "install",
@@ -234,6 +300,8 @@
     },
     {
       "key": "chats.test_model_context_window",
+      "title": "Test model context window",
+      "summary": "The context window the test person's recorded replies assume.",
       "type": "int",
       "default": "200000",
       "scope": "install",
@@ -241,6 +309,8 @@
     },
     {
       "key": "chats.test_model_output_limit",
+      "title": "Test model output limit",
+      "summary": "The output limit the test person's recorded replies assume.",
       "type": "int",
       "default": "8192",
       "scope": "install",
@@ -248,6 +318,8 @@
     },
     {
       "key": "chats.context_system_text",
+      "title": "Standing instructions",
+      "summary": "The instructions every chat starts with.",
       "type": "string",
       "default": "You are the assistant in Keystone, a private workspace for one person. Answer plainly, and say so when you do not know something.",
       "scope": "tenant",
@@ -255,6 +327,8 @@
     },
     {
       "key": "chats.context_fill_percent",
+      "title": "Context fill",
+      "summary": "How much of a model's context window one call may fill.",
       "type": "int",
       "default": "100",
       "scope": "tenant",
@@ -262,6 +336,8 @@
     },
     {
       "key": "chats.context_recent_turns_max",
+      "title": "Earlier turns sent",
+      "summary": "The most earlier turns sent with a message; zero is all that fit.",
       "type": "int",
       "default": "0",
       "scope": "tenant",
@@ -269,6 +345,8 @@
     },
     {
       "key": "chats.context_attached_percent",
+      "title": "Room for attachments",
+      "summary": "The share of a call that attachments and attached chats may take.",
       "type": "int",
       "default": "40",
       "scope": "tenant",
@@ -276,6 +354,8 @@
     },
     {
       "key": "chats.context_recall_percent",
+      "title": "Room for recalled knowledge",
+      "summary": "The share of a call that recalled knowledge may take.",
       "type": "int",
       "default": "15",
       "scope": "tenant",
@@ -283,6 +363,8 @@
     },
     {
       "key": "chats.context_summary_percent",
+      "title": "Room for the summary",
+      "summary": "The share of a call the summary of older turns may take.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -290,6 +372,8 @@
     },
     {
       "key": "chats.context_dropped_note",
+      "title": "Left-out turns note",
+      "summary": "What the model is told when earlier turns were left out.",
       "type": "string",
       "default": "The earliest part of this chat is not shown to you, because the whole chat no longer fits. If the person refers to something you cannot see, say so and ask.",
       "scope": "tenant",
@@ -297,6 +381,8 @@
     },
     {
       "key": "chats.context_recount_max",
+      "title": "Repacking tries",
+      "summary": "How many times a call that is too large is packed again.",
       "type": "int",
       "default": "3",
       "scope": "tenant",
@@ -304,6 +390,8 @@
     },
     {
       "key": "chats.compact",
+      "title": "Summarise long chats",
+      "summary": "Replaces the oldest turns of a long chat with a summary.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -311,6 +399,8 @@
     },
     {
       "key": "chats.compact_trigger_percent",
+      "title": "Summarise when this full",
+      "summary": "How full the room for earlier turns gets before summarising.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -318,6 +408,8 @@
     },
     {
       "key": "chats.compact_keep_percent",
+      "title": "Keep after summarising",
+      "summary": "How much of the earlier turns is left whole after summarising.",
       "type": "int",
       "default": "50",
       "scope": "tenant",
@@ -325,6 +417,8 @@
     },
     {
       "key": "chats.compact_summary_max_tokens",
+      "title": "Summary size",
+      "summary": "The most room a long chat's summary may take.",
       "type": "int",
       "default": "1500",
       "scope": "tenant",
@@ -332,6 +426,8 @@
     },
     {
       "key": "chats.compact_summary_heading",
+      "title": "Summary heading",
+      "summary": "The line a model reads before a long chat's summary.",
       "type": "string",
       "default": "A summary of the earlier part of this chat. The turns it stands for are not shown to you.",
       "scope": "tenant",
@@ -339,6 +435,8 @@
     },
     {
       "key": "chats.compact_prompt",
+      "title": "Summary instructions",
+      "summary": "What the model that summarises a long chat is told.",
       "type": "string",
       "default": "You keep the running summary of a long chat in Keystone, a private workspace for one person. You are given the summary so far, if there is one, and the turns of the chat that follow it. Write one summary that takes them all in: what the person asked for and why, what was decided, the facts, names and numbers that matter, what they prefer, and what is still open. Keep what the summary so far says unless a later turn changes it. Write plain prose about the person and the assistant, in at most {words} words, and answer with the summary alone.",
       "scope": "install",
@@ -346,6 +444,8 @@
     },
     {
       "key": "chats.compact_message_max_chars",
+      "title": "Message length for summaries",
+      "summary": "How much of one message the summary model is shown.",
       "type": "int",
       "default": "4000",
       "scope": "install",
@@ -353,6 +453,8 @@
     },
     {
       "key": "chats.compact_calls_max",
+      "title": "Summary calls",
+      "summary": "The most model calls one summary may take.",
       "type": "int",
       "default": "4",
       "scope": "install",
@@ -360,6 +462,8 @@
     },
     {
       "key": "chats.compact_timeout",
+      "title": "Summary time limit",
+      "summary": "How long one summary call may take.",
       "type": "duration",
       "default": "60s",
       "scope": "install",
@@ -367,6 +471,8 @@
     },
     {
       "key": "chats.compact_retry_after",
+      "title": "Summary retry wait",
+      "summary": "How long before a failed summary is tried again.",
       "type": "duration",
       "default": "10m",
       "scope": "install",
@@ -374,6 +480,8 @@
     },
     {
       "key": "chats.attach_max",
+      "title": "Attached chats",
+      "summary": "The most chats you may attach to one chat.",
       "type": "int",
       "default": "5",
       "scope": "tenant",
@@ -381,6 +489,8 @@
     },
     {
       "key": "chats.attached_page_messages",
+      "title": "Messages in an attached page",
+      "summary": "How many messages a model reads from an attached chat at a time.",
       "type": "int",
       "default": "40",
       "scope": "tenant",
@@ -388,6 +498,8 @@
     },
     {
       "key": "chats.attached_page_max_chars",
+      "title": "Attached page length",
+      "summary": "How much text a model reads from an attached chat at a time.",
       "type": "int",
       "default": "12000",
       "scope": "tenant",
@@ -395,6 +507,8 @@
     },
     {
       "key": "chats.attached_summary_wait",
+      "title": "Wait for an attached summary",
+      "summary": "How long a reply waits for an attached chat's summary.",
       "type": "duration",
       "default": "30s",
       "scope": "tenant",
@@ -402,6 +516,8 @@
     },
     {
       "key": "chats.import_chat_gap",
+      "title": "Import gap between chats",
+      "summary": "How long a pause in New Keystone starts a new imported chat.",
       "type": "duration",
       "default": "1h",
       "scope": "tenant-admin",
@@ -409,6 +525,8 @@
     },
     {
       "key": "chats.import_title_max_chars",
+      "title": "Imported title length",
+      "summary": "The longest title an imported chat is given.",
       "type": "int",
       "default": "60",
       "scope": "tenant-admin",
@@ -416,6 +534,8 @@
     },
     {
       "key": "chats.import_time_zone",
+      "title": "Import time zone",
+      "summary": "The time zone New Keystone kept its routines' times in.",
       "type": "string",
       "default": "America/Chicago",
       "scope": "tenant-admin",
@@ -423,6 +543,8 @@
     },
     {
       "key": "chats.import_hold",
+      "title": "Hold imported chats",
+      "summary": "Which imported chats are kept to local or trusted models.",
       "type": "string",
       "default": "none",
       "options": ["none", "wiki", "all"],
@@ -431,6 +553,8 @@
     },
     {
       "key": "chats.context_pinned_heading",
+      "title": "Pinned message heading",
+      "summary": "The line a model reads before a pinned message.",
       "type": "string",
       "default": "A message from earlier in this chat that the person pinned, so it is always shown to you.",
       "scope": "tenant",

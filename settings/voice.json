@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "voice.dictation",
+      "title": "Dictation",
+      "summary": "Shows the microphone button, so you can speak a message.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -10,6 +12,8 @@
     },
     {
       "key": "voice.language",
+      "title": "Dictation language",
+      "summary": "The language dictation listens for; empty is your browser's.",
       "type": "string",
       "default": "",
       "scope": "tenant",
@@ -17,6 +21,8 @@
     },
     {
       "key": "voice.interim",
+      "title": "Show words as you speak",
+      "summary": "Shows the words dictation is still hearing, under the box.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -24,6 +30,8 @@
     },
     {
       "key": "voice.max_listen",
+      "title": "Listening time",
+      "summary": "The longest dictation listens at one go.",
       "type": "duration",
       "default": "2m",
       "scope": "tenant",
@@ -31,6 +39,8 @@
     },
     {
       "key": "voice.finish_wait",
+      "title": "Dictation finish wait",
+      "summary": "How long dictation waits for the last words after it is stopped.",
       "type": "duration",
       "default": "5s",
       "scope": "install",

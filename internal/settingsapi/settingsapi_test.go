@@ -156,6 +156,11 @@ func TestEveryOverridableSettingHasAControl(t *testing.T) {
 		if got.Description == "" || got.Type != st.Type || got.Default != st.Default || got.Lane != st.Lane || got.Scope != string(st.Scope) {
 			t.Errorf("%s is listed as %+v, and the registry says %+v", st.Key, got, st)
 		}
+		// P11-04: the screen shows a setting by its title and its short line,
+		// and gives the description on request, so the route carries all three.
+		if got.Title == "" || got.Summary == "" || got.Title != st.Title || got.Summary != st.Summary || got.Description != st.Description {
+			t.Errorf("%s is listed with the title %q and the summary %q, and the registry says %q and %q", st.Key, got.Title, got.Summary, st.Title, st.Summary)
+		}
 		may := tenantsettings.MayChange(st, tenantsettings.Person) == nil
 		if may != settings.TenantMayOverride(st) {
 			t.Fatalf("%s: the registry and the tenant settings disagree on whether a person may change it", st.Key)

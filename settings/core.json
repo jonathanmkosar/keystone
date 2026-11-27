@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "server.address",
+      "title": "Server address",
+      "summary": "The address and port Keystone listens on.",
       "type": "string",
       "default": "127.0.0.1:7900",
       "scope": "install",
@@ -10,6 +12,8 @@
     },
     {
       "key": "server.secure_cookie",
+      "title": "HTTPS-only cookie",
+      "summary": "Marks the sign-in cookie for HTTPS only.",
       "type": "bool",
       "default": "false",
       "scope": "install",
@@ -17,6 +21,8 @@
     },
     {
       "key": "server.max_body_bytes",
+      "title": "Request size",
+      "summary": "The largest request the server reads.",
       "type": "int",
       "default": "1048576",
       "scope": "install",
@@ -24,6 +30,8 @@
     },
     {
       "key": "server.stream_heartbeat",
+      "title": "Stream heartbeat",
+      "summary": "How often a quiet stream says it is still there.",
       "type": "duration",
       "default": "15s",
       "scope": "install",
@@ -31,6 +39,8 @@
     },
     {
       "key": "server.page_limit",
+      "title": "List page size",
+      "summary": "The most rows a list returns in one call.",
       "type": "int",
       "default": "200",
       "scope": "install",
@@ -38,6 +48,8 @@
     },
     {
       "key": "signin.list_people",
+      "title": "Names on the sign-in screen",
+      "summary": "Shows the names of the people here before anyone signs in.",
       "type": "bool",
       "default": "true",
       "scope": "install",
@@ -45,6 +57,8 @@
     },
     {
       "key": "signin.password_iterations",
+      "title": "Password hashing rounds",
+      "summary": "How hard a stored password is made to guess.",
       "type": "int",
       "default": "600000",
       "scope": "install",
@@ -52,6 +66,8 @@
     },
     {
       "key": "signin.password_min_length",
+      "title": "Password length",
+      "summary": "The fewest characters a new password may have.",
       "type": "int",
       "default": "12",
       "scope": "install",
@@ -59,6 +75,8 @@
     },
     {
       "key": "signin.session_lifetime",
+      "title": "Sign-in lifetime",
+      "summary": "How long a sign-in lasts before a person signs in again.",
       "type": "duration",
       "default": "720h",
       "scope": "install",
@@ -66,6 +84,8 @@
     },
     {
       "key": "signin.failures_before_wait",
+      "title": "Wrong passwords allowed",
+      "summary": "How many wrong passwords in a row before a wait.",
       "type": "int",
       "default": "5",
       "scope": "install",
@@ -73,6 +93,8 @@
     },
     {
       "key": "signin.failure_wait",
+      "title": "Wait after wrong passwords",
+      "summary": "How long sign-in is refused after too many wrong passwords.",
       "type": "duration",
       "default": "1m",
       "scope": "install",
@@ -80,6 +102,8 @@
     },
     {
       "key": "signin.passkeys",
+      "title": "Passkeys",
+      "summary": "Lets people add passkeys and sign in with them.",
       "type": "bool",
       "default": "false",
       "scope": "install",
@@ -87,6 +111,8 @@
     },
     {
       "key": "signin.passkey_rp_id",
+      "title": "Passkey host name",
+      "summary": "The host name passkeys are bound to.",
       "type": "string",
       "default": "localhost",
       "scope": "install",
@@ -94,6 +120,8 @@
     },
     {
       "key": "signin.passkey_origin",
+      "title": "Passkey page address",
+      "summary": "The address a passkey must be used from.",
       "type": "string",
       "default": "http://localhost:7900",
       "scope": "install",
@@ -101,6 +129,8 @@
     },
     {
       "key": "signin.passkey_challenge_lifetime",
+      "title": "Passkey prompt time",
+      "summary": "How long a person has to answer a passkey prompt.",
       "type": "duration",
       "default": "5m",
       "scope": "install",
@@ -108,6 +138,8 @@
     },
     {
       "key": "test_tenant.load",
+      "title": "Load the test person",
+      "summary": "Adds the invented test person when Keystone is rebuilt.",
       "type": "bool",
       "default": "true",
       "scope": "install",
@@ -115,6 +147,8 @@
     },
     {
       "key": "backup.passphrase_rounds",
+      "title": "Backup passphrase rounds",
+      "summary": "How hard a backup's passphrase is made to guess.",
       "type": "int",
       "default": "2000000",
       "scope": "install",
@@ -122,6 +156,8 @@
     },
     {
       "key": "backup.passphrase_min_length",
+      "title": "Backup passphrase length",
+      "summary": "The fewest characters a backup's passphrase may have.",
       "type": "int",
       "default": "12",
       "scope": "install",
@@ -129,6 +165,8 @@
     },
     {
       "key": "usage.report_period",
+      "title": "Usage report period",
+      "summary": "The period the usage report opens on.",
       "type": "string",
       "default": "this_month",
       "options": ["this_month", "last_month", "last_7_days", "last_30_days"],
@@ -137,6 +175,8 @@
     },
     {
       "key": "usage.report_rows",
+      "title": "Usage report rows",
+      "summary": "How many lines each part of the usage report lists.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -144,6 +184,8 @@
     },
     {
       "key": "usage.report_max_days",
+      "title": "Longest usage report",
+      "summary": "The most days one usage report may cover.",
       "type": "int",
       "default": "366",
       "scope": "install",
@@ -151,6 +193,8 @@
     },
     {
       "key": "operations.snapshot_every",
+      "title": "Snapshot interval",
+      "summary": "How often each limit's level is recorded for its trend.",
       "type": "duration",
       "default": "1h",
       "scope": "install",
@@ -158,6 +202,8 @@
     },
     {
       "key": "operations.snapshot_keep",
+      "title": "Snapshots kept",
+      "summary": "How long a recorded level is kept.",
       "type": "duration",
       "default": "840h",
       "scope": "install",
@@ -165,6 +211,8 @@
     },
     {
       "key": "operations.database_room_mb",
+      "title": "Database room",
+      "summary": "The size a person's database is planned to grow to.",
       "type": "int",
       "default": "2048",
       "scope": "install",
@@ -172,6 +220,8 @@
     },
     {
       "key": "operations.files_room_mb",
+      "title": "Files room",
+      "summary": "The room set for one person's files.",
       "type": "int",
       "default": "20480",
       "scope": "install",
@@ -179,6 +229,8 @@
     },
     {
       "key": "operations.artifacts_room_mb",
+      "title": "Artifacts room",
+      "summary": "The room set for one person's artifacts.",
       "type": "int",
       "default": "5120",
       "scope": "install",
@@ -186,6 +238,8 @@
     },
     {
       "key": "operations.trend_window",
+      "title": "Trend window",
+      "summary": "How far back Operations looks to tell a trend.",
       "type": "duration",
       "default": "168h",
       "scope": "tenant",
@@ -193,6 +247,8 @@
     },
     {
       "key": "operations.trend_min_span",
+      "title": "Shortest trend",
+      "summary": "How much history a limit needs before its trend is shown.",
       "type": "duration",
       "default": "24h",
       "scope": "tenant",
@@ -200,6 +256,8 @@
     },
     {
       "key": "operations.health_window",
+      "title": "Health window",
+      "summary": "The recent period model health is measured over.",
       "type": "duration",
       "default": "24h",
       "scope": "tenant",
@@ -207,6 +265,8 @@
     },
     {
       "key": "operations.jobs_shown",
+      "title": "Tasks listed",
+      "summary": "How many recent tasks and runs Operations lists.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -214,6 +274,8 @@
     },
     {
       "key": "operations.traces_shown",
+      "title": "Traces listed",
+      "summary": "How many recent traces Operations lists.",
       "type": "int",
       "default": "20",
       "scope": "tenant",
@@ -221,6 +283,8 @@
     },
     {
       "key": "operations.stuck_after",
+      "title": "Stuck after",
+      "summary": "How long a task runs before it is listed as stuck.",
       "type": "duration",
       "default": "30m",
       "scope": "tenant",
@@ -228,6 +292,8 @@
     },
     {
       "key": "operations.model_error_watch_percent",
+      "title": "Model error warning",
+      "summary": "The share of failed calls at which a model is flagged.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -235,6 +301,8 @@
     },
     {
       "key": "operations.watch_disk_percent",
+      "title": "Disk warning",
+      "summary": "How full the disk gets before you are told.",
       "type": "int",
       "default": "90",
       "scope": "tenant",
@@ -242,6 +310,8 @@
     },
     {
       "key": "operations.watch_database_percent",
+      "title": "Database warning",
+      "summary": "How full your database gets before you are told.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -249,6 +319,8 @@
     },
     {
       "key": "operations.watch_files_percent",
+      "title": "Files warning",
+      "summary": "How full your files folder gets before you are told.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -256,6 +328,8 @@
     },
     {
       "key": "operations.watch_artifacts_percent",
+      "title": "Artifacts warning",
+      "summary": "How full your artifacts folder gets before you are told.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -263,6 +337,8 @@
     },
     {
       "key": "operations.watch_reserve_percent",
+      "title": "Memory budget warning",
+      "summary": "How much of the memory budget is spent before you are told.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -270,6 +346,8 @@
     },
     {
       "key": "operations.watch_run_budget_percent",
+      "title": "Run budget warning",
+      "summary": "How much of a run's budget is spent before you are told.",
       "type": "int",
       "default": "80",
       "scope": "tenant",
@@ -277,6 +355,8 @@
     },
     {
       "key": "data.dir",
+      "title": "Data folder",
+      "summary": "The folder that holds everything Keystone stores.",
       "type": "string",
       "default": "data",
       "scope": "install",
@@ -284,6 +364,8 @@
     },
     {
       "key": "secrets.keeper",
+      "title": "Master key keeper",
+      "summary": "Where a new install keeps the key that protects secrets.",
       "type": "string",
       "default": "system",
       "options": ["system", "file"],

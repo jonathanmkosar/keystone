@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "artifacts.max_bytes",
+      "title": "Artifact size",
+      "summary": "The largest one version of an artifact may be.",
       "type": "int",
       "default": "1048576",
       "scope": "install",
@@ -10,6 +12,8 @@
     },
     {
       "key": "artifacts.versions_kept",
+      "title": "Artifact versions kept",
+      "summary": "How many versions of an artifact are kept; zero keeps all.",
       "type": "int",
       "default": "0",
       "scope": "install",
@@ -17,6 +21,8 @@
     },
     {
       "key": "artifacts.title_max_chars",
+      "title": "Artifact title length",
+      "summary": "The longest title an artifact may have.",
       "type": "int",
       "default": "120",
       "scope": "install",
@@ -24,6 +30,8 @@
     },
     {
       "key": "artifacts.sandbox",
+      "title": "Artifact permissions",
+      "summary": "What an artifact is allowed to do inside its frame.",
       "type": "string",
       "default": "allow-scripts allow-forms allow-modals",
       "scope": "install",

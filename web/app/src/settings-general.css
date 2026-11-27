@@ -1,0 +1,524 @@
+/* General, at a glance (P11-04). Every colour is a token. The rows follow
+   the cards of settings.css: a name, one short line, and the control, with
+   the long text one step away. */
+
+/* The search box and the Changed filter. */
+
+.sg-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sg-search {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  max-width: 420px;
+}
+
+.sg-search .ico {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.sg-search .input {
+  flex: 1;
+  min-width: 0;
+  padding-left: 38px;
+  background: var(--raised);
+}
+
+.sg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: none;
+  color: var(--muted);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.sg-chip:hover {
+  color: var(--ink);
+}
+
+.sg-chip.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.sg-chip-n {
+  font-variant-numeric: tabular-nums;
+}
+
+/* A group: a plain heading over a card of rows. */
+
+.sg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sg-group-name {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--muted);
+  font: 600 13px/20px var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.sg-fixed-group > .sg-group-name {
+  padding: 14px 20px 4px;
+}
+
+/* A row. */
+
+.sg-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sg-row:last-child {
+  border-bottom: 0;
+}
+
+.sg-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 20px;
+}
+
+.sg-words {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sg-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font: 500 15px/22px var(--font-sans);
+}
+
+.sg-line {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sg-changed {
+  flex: none;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--soft);
+  color: var(--softink);
+  font: 600 11px/18px var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.sg-value {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: none;
+  max-width: 46%;
+  min-height: 40px;
+}
+
+.sg-number {
+  width: 104px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.sg-text-input {
+  width: 240px;
+  max-width: 100%;
+}
+
+.sg-select {
+  max-width: 100%;
+}
+
+.sg-switch {
+  min-height: 40px;
+}
+
+.sg-fixed {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.sg-preview {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* A text setting keeps its box under its words, as wide as the row. */
+
+.sg-head.is-wide {
+  flex-direction: column;
+}
+
+.sg-head.is-wide .sg-value {
+  align-self: stretch;
+  justify-content: flex-start;
+  max-width: none;
+  min-height: 0;
+}
+
+.sg-head.is-wide .sg-text-input {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Sketch a: More, and the long text in place. */
+
+.sg-more {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  min-height: 32px;
+  margin: 0 0 -6px -8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.sg-more:hover {
+  color: var(--ink);
+}
+
+.sg-more[aria-expanded="true"] .ico {
+  transform: rotate(180deg);
+}
+
+.sg-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--page);
+}
+
+.sg-about {
+  margin: 0;
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.sg-long {
+  width: 100%;
+  background: var(--raised);
+}
+
+.sg-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+}
+
+.sg-fact {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  min-height: 28px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.sg-fact dt {
+  flex: none;
+  width: 56px;
+  color: var(--muted);
+}
+
+.sg-fact dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sg-reset,
+.sg-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--link);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.sg-copy {
+  color: var(--muted);
+}
+
+.sg-copy:hover {
+  color: var(--ink);
+}
+
+.sg-reset:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Sketch b: the info button, and its popover. */
+
+.sg-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--strong);
+  border-radius: 11px;
+  background: none;
+  color: var(--muted);
+  font: italic 600 13px/1 var(--font-read);
+  cursor: pointer;
+}
+
+.sg-info:hover,
+.sg-info[aria-expanded="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sg-sheet-wrap {
+  position: absolute;
+  top: 44px;
+  left: 20px;
+  z-index: 30;
+  width: min(460px, calc(100% - 40px));
+}
+
+.sg-sheet {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--strong);
+  border-radius: 10px;
+  background: var(--raised);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+}
+
+.sg-sheet .sg-detail {
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.sg-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Sketch c: the compact list, and a setting's own view. */
+
+.sg-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 14px 8px 20px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--ink);
+  font: 400 15px/22px var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sg-nav:last-child {
+  border-bottom: 0;
+}
+
+.sg-nav:hover {
+  background: var(--page);
+}
+
+.sg-nav-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.sg-nav-value {
+  flex: none;
+  max-width: 45%;
+  color: var(--muted);
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-nav-value.is-changed {
+  color: var(--softink);
+  font-weight: 600;
+}
+
+.sg-nav > .ico {
+  color: var(--muted);
+}
+
+.sg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  margin-left: -8px;
+  padding: 0 10px 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--link);
+  font: 500 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.sg-back .ico {
+  transform: rotate(180deg);
+}
+
+.sg-view .set-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.sg-view-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.sg-view-card .sg-long,
+.sg-view-card .sg-text-input {
+  width: 100%;
+}
+
+.sg-view > .sg-detail {
+  margin-top: 0;
+  border: 0;
+  padding: 0;
+  background: none;
+}
+
+.sg-sketches {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.sg-sketches .is-on {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+@media (max-width: 760px) {
+  /* 16px, or a phone's browser zooms the whole page in when a box takes
+     the focus. */
+  .settings .input {
+    font-size: 16px;
+  }
+
+  .sg-row {
+    padding: 12px 16px;
+  }
+
+  .sg-head {
+    gap: 8px 12px;
+  }
+
+  .sg-search {
+    max-width: none;
+  }
+
+  .sg-number {
+    width: 92px;
+  }
+
+  .sg-fixed-group > .sg-group-name {
+    padding: 14px 16px 4px;
+  }
+
+  .sg-nav {
+    padding-left: 16px;
+  }
+
+  /* The sheet: fixed to what can be seen, at its foot. --seen-top and
+     --seen-height are the visible part's, kept as the keyboard comes and
+     goes. */
+  .sg-sheet-wrap {
+    position: fixed;
+    top: var(--seen-top, 0px);
+    right: 0;
+    left: 0;
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: auto;
+    height: var(--seen-height, 100dvh);
+    background: rgb(0 0 0 / 0.45);
+  }
+
+  .sg-sheet {
+    max-height: 85%;
+    overflow-y: auto;
+    padding: 14px 16px 20px;
+    border-width: 1px 0 0;
+    border-radius: 14px 14px 0 0;
+  }
+}

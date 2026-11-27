@@ -37,7 +37,12 @@ const (
 // Setting is one entry in the registry. Default is kept as text and read
 // according to Type.
 type Setting struct {
-	Key         string   `json:"key"`
+	Key string `json:"key"`
+	// Title is the setting's readable name, and Summary one short plain line
+	// on what it does. The settings screen shows those two, and keeps
+	// Description one step away. CheckWords says what each must be.
+	Title       string   `json:"title,omitempty"`
+	Summary     string   `json:"summary,omitempty"`
 	Lane        string   `json:"lane"`
 	Type        string   `json:"type"`
 	Default     string   `json:"default"`

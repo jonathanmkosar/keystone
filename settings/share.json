@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "share.link_lifetime",
+      "title": "Share link lifetime",
+      "summary": "How long a new share link stays open.",
       "type": "duration",
       "default": "720h",
       "scope": "tenant",
@@ -10,6 +12,8 @@
     },
     {
       "key": "share.max_links",
+      "title": "Open share links",
+      "summary": "The most share links one person may have open at once.",
       "type": "int",
       "default": "50",
       "scope": "tenant-admin",
@@ -17,6 +21,8 @@
     },
     {
       "key": "share.images",
+      "title": "Images in shared chats",
+      "summary": "A shared chat shows the images in your messages.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -24,6 +30,8 @@
     },
     {
       "key": "share.artifacts",
+      "title": "Artifacts in shared chats",
+      "summary": "A shared chat shows the artifacts its replies made.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -31,6 +39,8 @@
     },
     {
       "key": "share.default_view",
+      "title": "New link view",
+      "summary": "Whether a new link shows the chat live or as it was.",
       "type": "string",
       "default": "live",
       "options": ["live", "snapshot"],

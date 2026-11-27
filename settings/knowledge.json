@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "knowledge.adapter",
+      "title": "Knowledge store",
+      "summary": "Where Keystone keeps what it remembers between chats.",
       "type": "string",
       "default": "none",
       "options": ["none", "built-in", "waymarks"],
@@ -11,6 +13,8 @@
     },
     {
       "key": "knowledge.waymarks_address",
+      "title": "Waymarks address",
+      "summary": "Where your Waymarks instance is.",
       "type": "string",
       "default": "",
       "scope": "tenant",
@@ -18,6 +22,8 @@
     },
     {
       "key": "knowledge.waymarks_timeout",
+      "title": "Waymarks time limit",
+      "summary": "How long Keystone waits for an answer from Waymarks.",
       "type": "duration",
       "default": "5s",
       "scope": "tenant",
@@ -25,6 +31,8 @@
     },
     {
       "key": "knowledge.waymarks_search_max_results",
+      "title": "Waymarks search results",
+      "summary": "The most results one search of Waymarks returns.",
       "type": "int",
       "default": "20",
       "scope": "tenant",
@@ -32,6 +40,8 @@
     },
     {
       "key": "knowledge.waymarks_vectors_needed_max",
+      "title": "Waymarks vector batch",
+      "summary": "The most pages asked of Waymarks at once when making vectors.",
       "type": "int",
       "default": "100",
       "scope": "install",
@@ -39,6 +49,8 @@
     },
     {
       "key": "knowledge.waymarks_reply_max_mb",
+      "title": "Waymarks answer size",
+      "summary": "The largest answer Keystone reads from Waymarks.",
       "type": "int",
       "default": "32",
       "scope": "install",
@@ -46,6 +58,8 @@
     },
     {
       "key": "knowledge.builtin_search_max_results",
+      "title": "Built-in search results",
+      "summary": "The most results one search of the built-in store returns.",
       "type": "int",
       "default": "20",
       "scope": "tenant",
@@ -53,6 +67,8 @@
     },
     {
       "key": "knowledge.builtin_snippet_words",
+      "title": "Built-in search excerpt",
+      "summary": "About how many words of a match each built-in result shows.",
       "type": "int",
       "default": "24",
       "scope": "tenant",
@@ -60,6 +76,8 @@
     },
     {
       "key": "knowledge.builtin_vectors_needed_max",
+      "title": "Built-in vector batch",
+      "summary": "The most pages the built-in store lists at once for vectors.",
       "type": "int",
       "default": "100",
       "scope": "install",
@@ -67,6 +85,8 @@
     },
     {
       "key": "knowledge.profile_max_chars",
+      "title": "Profile length",
+      "summary": "The longest a person's profile may be.",
       "type": "int",
       "default": "2000",
       "scope": "install",
@@ -74,6 +94,8 @@
     },
     {
       "key": "knowledge.map_max_tokens",
+      "title": "Knowledge map size",
+      "summary": "The most room the map of your knowledge may take in a call.",
       "type": "int",
       "default": "600",
       "scope": "tenant",
@@ -81,6 +103,8 @@
     },
     {
       "key": "knowledge.map_titles_per_kind",
+      "title": "Titles in the map",
+      "summary": "How many page titles the map shows under each kind of page.",
       "type": "int",
       "default": "3",
       "scope": "tenant",
@@ -88,6 +112,8 @@
     },
     {
       "key": "knowledge.map_title_max_chars",
+      "title": "Map title length",
+      "summary": "The longest a name or title is shown in the map.",
       "type": "int",
       "default": "60",
       "scope": "install",
@@ -95,6 +121,8 @@
     },
     {
       "key": "knowledge.recall",
+      "title": "Recall",
+      "summary": "Searches your knowledge with each message and tells the model what it finds.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -102,6 +130,8 @@
     },
     {
       "key": "knowledge.recall_timeout",
+      "title": "Recall time limit",
+      "summary": "How long recall may take before a reply starts without it.",
       "type": "duration",
       "default": "3s",
       "scope": "tenant",
@@ -109,6 +139,8 @@
     },
     {
       "key": "knowledge.recall_min_score_built_in",
+      "title": "Relevance bar, built-in store",
+      "summary": "How relevant a built-in page must be to be recalled.",
       "type": "float",
       "default": "0",
       "scope": "tenant",
@@ -116,6 +148,8 @@
     },
     {
       "key": "knowledge.recall_min_score_waymarks",
+      "title": "Relevance bar, Waymarks",
+      "summary": "How relevant a Waymarks page must be to be recalled.",
       "type": "float",
       "default": "0",
       "scope": "tenant",
@@ -123,6 +157,8 @@
     },
     {
       "key": "knowledge.recall_meaning",
+      "title": "Recall by meaning",
+      "summary": "Recall also searches by meaning, not only by words.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -130,6 +166,8 @@
     },
     {
       "key": "knowledge.recall_meaning_max_results",
+      "title": "Pages found by meaning",
+      "summary": "The most pages a search by meaning adds to recall.",
       "type": "int",
       "default": "5",
       "scope": "tenant",
@@ -137,6 +175,8 @@
     },
     {
       "key": "knowledge.recall_meaning_min_score_built_in",
+      "title": "Meaning bar, built-in store",
+      "summary": "How close in meaning a built-in page must be to be recalled.",
       "type": "float",
       "default": "0.3",
       "scope": "tenant",
@@ -144,6 +184,8 @@
     },
     {
       "key": "knowledge.recall_meaning_min_score_waymarks",
+      "title": "Meaning bar, Waymarks",
+      "summary": "How close in meaning a Waymarks page must be to be recalled.",
       "type": "float",
       "default": "0",
       "scope": "tenant",
@@ -151,6 +193,8 @@
     },
     {
       "key": "knowledge.recall_merge_words_weight",
+      "title": "Weight of word matches",
+      "summary": "How much word matches count when the two searches are merged.",
       "type": "float",
       "default": "1",
       "scope": "tenant",
@@ -158,6 +202,8 @@
     },
     {
       "key": "knowledge.recall_merge_meaning_weight",
+      "title": "Weight of meaning matches",
+      "summary": "How much meaning matches count when the two searches are merged.",
       "type": "float",
       "default": "1",
       "scope": "tenant",
@@ -165,6 +211,8 @@
     },
     {
       "key": "knowledge.recall_merge_rank_constant",
+      "title": "Merge constant",
+      "summary": "How much the top places count when the two searches are merged.",
       "type": "float",
       "default": "60",
       "scope": "install",
@@ -172,6 +220,8 @@
     },
     {
       "key": "knowledge.embeddings",
+      "title": "Prepare pages for meaning search",
+      "summary": "Makes vectors of your pages so recall can search by meaning.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -179,6 +229,8 @@
     },
     {
       "key": "knowledge.embedding_batch_size",
+      "title": "Vector batch size",
+      "summary": "How many pages go to the embedding model in one call.",
       "type": "int",
       "default": "16",
       "scope": "install",
@@ -186,6 +238,8 @@
     },
     {
       "key": "knowledge.embedding_pages_per_refresh",
+      "title": "Pages in one refresh",
+      "summary": "The most pages one vector refresh handles.",
       "type": "int",
       "default": "200",
       "scope": "install",
@@ -193,6 +247,8 @@
     },
     {
       "key": "knowledge.embedding_list_max",
+      "title": "Pages listed for a refresh",
+      "summary": "The most pages a vector refresh asks the store to list.",
       "type": "int",
       "default": "1000",
       "scope": "install",
@@ -200,6 +256,8 @@
     },
     {
       "key": "knowledge.embedding_text_max_chars",
+      "title": "Page text for vectors",
+      "summary": "How much of one page the embedding model is sent.",
       "type": "int",
       "default": "8000",
       "scope": "install",
@@ -207,6 +265,8 @@
     },
     {
       "key": "knowledge.embedding_reserve_usd",
+      "title": "Monthly budget for vectors",
+      "summary": "The most making vectors may spend in a month on paid models.",
       "type": "float",
       "default": "0.5",
       "scope": "tenant",
@@ -214,6 +274,8 @@
     },
     {
       "key": "knowledge.embedding_refresh_every",
+      "title": "Vector refresh interval",
+      "summary": "How often Keystone looks for pages that need a new vector.",
       "type": "duration",
       "default": "10m",
       "scope": "install",
@@ -221,6 +283,8 @@
     },
     {
       "key": "knowledge.embedding_timeout",
+      "title": "Vector time limit",
+      "summary": "How long one background call to the embedding model may take.",
       "type": "duration",
       "default": "2m",
       "scope": "install",
@@ -228,6 +292,8 @@
     },
     {
       "key": "knowledge.recall_ignore_words",
+      "title": "Words recall ignores",
+      "summary": "Common words recall leaves out of its search.",
       "type": "string",
       "default": "a about after again all also am an and any are as at be because been before being but by can could did do does doing done for from get got had has have having he her here hers him his how i if in into is it its just like me more most my no not now of off on one only or other our out over own please said say she should so some such tell than that the their them then there these they this those to too under up us very was we were what when where which while who why will with would yes you your",
       "scope": "tenant",
@@ -235,6 +301,8 @@
     },
     {
       "key": "knowledge.recall_search_max_results",
+      "title": "Recall search results",
+      "summary": "How many results recall asks your knowledge store for.",
       "type": "int",
       "default": "20",
       "scope": "tenant",
@@ -242,6 +310,8 @@
     },
     {
       "key": "knowledge.recall_max_items",
+      "title": "Items recalled",
+      "summary": "The most pages and sources recall gives a model with one message.",
       "type": "int",
       "default": "5",
       "scope": "tenant",
@@ -249,6 +319,8 @@
     },
     {
       "key": "knowledge.recall_item_max_chars",
+      "title": "Recalled item length",
+      "summary": "How much of one recalled page the model is given.",
       "type": "int",
       "default": "1500",
       "scope": "tenant",
@@ -256,6 +328,8 @@
     },
     {
       "key": "knowledge.recall_query_max_chars",
+      "title": "Message length for recall",
+      "summary": "How much of your message recall searches with.",
       "type": "int",
       "default": "500",
       "scope": "install",
@@ -263,6 +337,8 @@
     },
     {
       "key": "knowledge.search_first_text",
+      "title": "Search-first rule",
+      "summary": "Tells the model to search your knowledge before it answers.",
       "type": "string",
       "default": "This person keeps a knowledge store of their own. Before you answer anything about their world, or say you do not know, look in it. What Keystone found there for this message is given further down, when it found anything. When knowledge lookup tools are offered, search with them and read a page or a source in full. Say which page or source an answer came from.",
       "scope": "tenant",
@@ -270,6 +346,8 @@
     },
     {
       "key": "knowledge.memory",
+      "title": "Remember from chats",
+      "summary": "After each reply, saves the lasting facts to your knowledge store.",
       "type": "bool",
       "default": "true",
       "scope": "tenant",
@@ -277,6 +355,8 @@
     },
     {
       "key": "knowledge.memory_space",
+      "title": "Memory space",
+      "summary": "The space new facts from your chats are kept in.",
       "type": "string",
       "default": "memory",
       "scope": "tenant",
@@ -284,6 +364,8 @@
     },
     {
       "key": "knowledge.memory_sensitive_space",
+      "title": "Sensitive memory space",
+      "summary": "The space for facts from chats that saw sensitive content.",
       "type": "string",
       "default": "",
       "scope": "tenant",
@@ -291,6 +373,8 @@
     },
     {
       "key": "knowledge.memory_reserve_usd",
+      "title": "Monthly budget for memory",
+      "summary": "The most remembering may spend in a month on paid models.",
       "type": "float",
       "default": "2",
       "scope": "tenant",
@@ -298,6 +382,8 @@
     },
     {
       "key": "knowledge.memory_prompt",
+      "title": "Memory instructions",
+      "summary": "What the model that picks out facts is told.",
       "type": "string",
       "default": "You keep the long-term memory of a personal assistant. You are shown one exchange from a chat: what the person wrote and what the assistant answered. Write down the durable facts it shows about the person and their world: who they are, the people, places and things in their life, their projects, plans, habits, preferences and decisions, when they will still be true and useful in a later chat. Leave out what matters only to this conversation, what the assistant suggested that the person did not take up, general knowledge, and anything you are not sure of. Write each fact as one short sentence that stands on its own, and call the person \"the person\". Answer with one JSON object and nothing else, in this form: {\"facts\": [\"...\", \"...\"]}. Write at most {max} facts. When the exchange holds no durable fact, answer {\"facts\": []}.",
       "scope": "install",
@@ -305,6 +391,8 @@
     },
     {
       "key": "knowledge.memory_source_name",
+      "title": "Memory source name",
+      "summary": "How the source added for each reply is named.",
       "type": "string",
       "default": "Facts from the chat \"{title}\", {date}",
       "scope": "install",
@@ -312,6 +400,8 @@
     },
     {
       "key": "knowledge.memory_max_facts",
+      "title": "Facts from one reply",
+      "summary": "The most facts kept from one reply.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -319,6 +409,8 @@
     },
     {
       "key": "knowledge.memory_fact_max_chars",
+      "title": "Fact length",
+      "summary": "The longest fact that is kept.",
       "type": "int",
       "default": "300",
       "scope": "install",
@@ -326,6 +418,8 @@
     },
     {
       "key": "knowledge.memory_message_max_chars",
+      "title": "Message length for memory",
+      "summary": "How much of a message and its reply the memory model is shown.",
       "type": "int",
       "default": "6000",
       "scope": "install",
@@ -333,6 +427,8 @@
     },
     {
       "key": "knowledge.memory_max_output_tokens",
+      "title": "Memory output limit",
+      "summary": "The longest answer the memory model may write.",
       "type": "int",
       "default": "1000",
       "scope": "install",
@@ -340,6 +436,8 @@
     },
     {
       "key": "knowledge.memory_timeout",
+      "title": "Memory time limit",
+      "summary": "How long remembering from one reply may take.",
       "type": "duration",
       "default": "2m",
       "scope": "install",
@@ -347,6 +445,8 @@
     },
     {
       "key": "knowledge.incognito_keep",
+      "title": "Keep idle incognito chats",
+      "summary": "How long an idle incognito chat is kept before it is deleted.",
       "type": "duration",
       "default": "24h",
       "scope": "tenant",
@@ -354,6 +454,8 @@
     },
     {
       "key": "knowledge.incognito_sweep_every",
+      "title": "Incognito clean-up interval",
+      "summary": "How often Keystone looks for incognito chats to delete.",
       "type": "duration",
       "default": "1m",
       "scope": "install",
@@ -361,6 +463,8 @@
     },
     {
       "key": "knowledge.memory_screen_memories",
+      "title": "Memories shown",
+      "summary": "The most remembered sources the Memory screen shows.",
       "type": "int",
       "default": "200",
       "scope": "tenant",
@@ -368,6 +472,8 @@
     },
     {
       "key": "knowledge.memory_screen_pages",
+      "title": "Pages shown in each space",
+      "summary": "The most pages of each space the Memory screen lists.",
       "type": "int",
       "default": "50",
       "scope": "tenant",
@@ -375,6 +481,8 @@
     },
     {
       "key": "knowledge.lookup_max_results",
+      "title": "Lookup results",
+      "summary": "The most results a model's knowledge search returns.",
       "type": "int",
       "default": "10",
       "scope": "tenant",
@@ -382,6 +490,8 @@
     },
     {
       "key": "knowledge.lookup_max_chars",
+      "title": "Lookup length",
+      "summary": "How much text one knowledge lookup by a model returns.",
       "type": "int",
       "default": "6000",
       "scope": "tenant",

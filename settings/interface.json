@@ -3,6 +3,8 @@
   "settings": [
     {
       "key": "appearance.theme",
+      "title": "Theme",
+      "summary": "Dark, light, or the same as your device.",
       "type": "string",
       "default": "dark",
       "options": ["dark", "light", "system"],

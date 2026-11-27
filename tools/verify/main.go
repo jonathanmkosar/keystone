@@ -181,6 +181,10 @@ func checkSettings(string) error {
 	if len(reg) == 0 {
 		return fmt.Errorf("the registry is empty")
 	}
+	// P11-04: every setting has a title and a short summary for the screen.
+	if p := settings.CheckWords(reg); len(p) > 0 {
+		return fmt.Errorf("%s", strings.Join(p, "\n"))
+	}
 	return nil
 }
 

@@ -57,8 +57,13 @@ const (
 
 // Setting is one setting as it stands for the signed-in person.
 type Setting struct {
-	Key  string `json:"key"`
-	Lane string `json:"lane"`
+	Key string `json:"key"`
+	// Title is the setting's readable name, and Summary one short plain line
+	// on what it does: what the settings screen shows first. Either is
+	// empty for a setting the registry gives none.
+	Title   string `json:"title"`
+	Summary string `json:"summary"`
+	Lane    string `json:"lane"`
 	// Type is bool, int, float, string or duration.
 	Type    string `json:"type"`
 	Default string `json:"default"`
@@ -186,7 +191,7 @@ func Routes() []api.Route {
 	return []api.Route{
 		{
 			Method: "GET", Path: all, Handle: listSettings,
-			Summary: "Every setting as it stands for the person: its value, default, type, options, scope and description, and whether the person may change it. The fixed rules are listed apart.",
+			Summary: "Every setting as it stands for the person: its title, its short summary, its value, default, type, options, scope and description, and whether the person may change it. The fixed rules are listed apart.",
 			Reply:   SettingsReply{},
 		},
 		{
@@ -263,6 +268,7 @@ func view(v tenantsettings.Value) Setting {
 	}
 	return Setting{
 		Key: v.Setting.Key, Lane: v.Setting.Lane, Type: v.Setting.Type,
+		Title: v.Setting.Title, Summary: v.Setting.Summary,
 		Default: v.Setting.Default, Options: options,
 		Scope: string(v.Setting.Scope), Description: v.Setting.Description,
 		Value: v.Value, Overridden: v.Overridden,
