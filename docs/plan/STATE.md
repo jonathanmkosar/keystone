@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P8-04 research mode (agents), P9-04 inline visuals (interface), P13-03 load test (core). The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built, the owner's asks of November 26, 2026 first: P4-06 a chats table with search, select and delete (chats), P11-04 settings with a short line each and the long text a step away (interface), P12-04 Google from New Keystone (agents, by the integrator). Also P8-04 research mode (agents), P9-04 inline visuals (interface), P13-03 load test (core). The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -11,7 +11,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | --- | --- | --- |
 | core | P13-03 load test | P13-05 rebuild drill, after the other drills and the week of daily use; scheduled backups once the owner answers |
 | models | nothing | the live checks of the adapters and embeddings, with the owner's keys and models |
-| chats | nothing | P10-02 voice mode with interface |
+| chats | P4-06 manage chats | P10-02 voice mode with interface |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
 | agents | P8-04 research mode | P7-05 skills, P10-03 browser use, then P13-01 the tricked-agent drill |
 | interface | P9-04 inline visuals | P10-02 voice mode, P10-05 phone (needs the owner), the model route reporting a held chat and missing keys (decisions 0240, 0241) |
@@ -25,6 +25,9 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | --- | --- | --- |
 | P8-04 research mode | agents | `agents/p8-04-research-mode` |
 | P9-04 inline visuals | interface | `interface/p9-04-inline-visuals` |
+| P4-06 manage chats | chats | `chats/p4-06-manage-chats` |
+| P11-04 settings at a glance | interface | `interface/p11-04-settings-at-a-glance` |
+| P12-04 Google from New Keystone | agents | none yet: the integrator |
 | P13-03 load test | core | `core/p13-03-load-test` |
 | P1-02, P1-03, P1-04, design | design | none: they wait on the owner's approval |
 
