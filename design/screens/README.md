@@ -9,12 +9,12 @@ Every name, figure and date in them is invented.
 | `Theme.html` | The mark, the wordmark, sample controls and every colour, dark and light | Approved | P1-02, P1-03 |
 | `MainDark.html` | Chat with an agent at work, dark: tool steps, sub-agents, citations, an approval card, the composer | Approved | P1-04, P4-04, P7-01, P7-02 |
 | `MainLight.html` | The same screen, light | Approved | P1-04, P4-04 |
-| `Home.html` | New chat: greeting, composer with an attached chat, shortcuts, running now | Draft, in the first round's moss colours | P1-04 |
-| `Scheduled.html` | Scheduled tasks with run history, one run step by step, and a failed run | Draft, in the first round's moss colours | P1-05, P8-03 |
-| `Operations.html` | Tiles, needs attention, model health, turns by hour, room to grow | Draft, in the first round's moss colours | P1-07, P11-03 |
-| `Admin.html` | People, feature switches, this install, the audit log | Draft, in the first round's moss colours | P1-07, P11-01 |
+| `Home.html` | New chat: greeting, composer with an attached chat, shortcuts, running now | Approved November 27, 2026; recoloured in copper | P1-04 |
+| `Scheduled.html` | Scheduled tasks with run history, one run step by step, and a failed run | Approved November 27, 2026; recoloured in copper | P1-05, P8-03 |
+| `Operations.html` | Tiles, needs attention, model health, turns by hour, room to grow | Approved November 27, 2026; recoloured in copper | P1-07, P11-03 |
+| `Admin.html` | People, feature switches, this install, the audit log | Approved November 27, 2026; recoloured in copper | P1-07, P11-01 |
 
-For a draft, take the layout and the wording, and take the colours from `Theme.html`: copper replaces moss as the accent.
+In the four screens approved on November 27, copper replaced moss as the accent (buttons, switches, the selected tab, the spend bar, the running badge); green stays only for Done and the LOCAL mark, as in `MainLight.html`. Their sidebar still draws the first round's plain keystone shape, until the light-page mark is chosen.
 
 ## Not designed yet
 
