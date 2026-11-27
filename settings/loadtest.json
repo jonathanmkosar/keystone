@@ -1,0 +1,257 @@
+{
+  "lane": "loadtest",
+  "settings": [
+    {
+      "key": "loadtest.seed",
+      "type": "int",
+      "default": "20261126",
+      "scope": "install",
+      "description": "The seed of the load test's invented words and chats. The same seed makes the same load."
+    },
+    {
+      "key": "loadtest.years",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "How many years back the first person's chats reach in the full load test."
+    },
+    {
+      "key": "loadtest.chats",
+      "type": "int",
+      "default": "5000",
+      "scope": "install",
+      "description": "How many chats the first person has in the full load test."
+    },
+    {
+      "key": "loadtest.turns_per_chat",
+      "type": "int",
+      "default": "20",
+      "scope": "install",
+      "description": "The mean number of turns in a generated chat. A chat has from one turn to twice the mean less one."
+    },
+    {
+      "key": "loadtest.words_per_turn",
+      "type": "int",
+      "default": "220",
+      "scope": "install",
+      "description": "About how many invented words one generated turn holds, the person's message and the reply together. A fifth are the person's."
+    },
+    {
+      "key": "loadtest.long_chat_turns",
+      "type": "int",
+      "default": "600",
+      "scope": "install",
+      "description": "How many turns the first person's one long chat has in the full load test."
+    },
+    {
+      "key": "loadtest.tenants",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "How many more people the full load test makes, each with a smaller load, who all send at once."
+    },
+    {
+      "key": "loadtest.tenant_chats",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "How many chats each of the other people has in the full load test."
+    },
+    {
+      "key": "loadtest.vocabulary",
+      "type": "int",
+      "default": "8000",
+      "scope": "install",
+      "description": "How many different invented words the load test writes with."
+    },
+    {
+      "key": "loadtest.upload_every",
+      "type": "int",
+      "default": "25",
+      "scope": "install",
+      "description": "One generated chat in this many has an uploaded file. Zero makes none."
+    },
+    {
+      "key": "loadtest.upload_kb",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The mean size of a generated upload, in kilobytes. A file is from a tenth of the mean to about twice it."
+    },
+    {
+      "key": "loadtest.artifact_every",
+      "type": "int",
+      "default": "40",
+      "scope": "install",
+      "description": "One generated chat in this many has an artifact, in two versions. Zero makes none."
+    },
+    {
+      "key": "loadtest.artifact_kb",
+      "type": "int",
+      "default": "12",
+      "scope": "install",
+      "description": "The mean size of one version of a generated artifact, in kilobytes."
+    },
+    {
+      "key": "loadtest.runs",
+      "type": "int",
+      "default": "30",
+      "scope": "install",
+      "description": "How many times the full load test makes each measurement. The median and the 95th percentile are taken over them."
+    },
+    {
+      "key": "loadtest.reply_chars",
+      "type": "int",
+      "default": "2400",
+      "scope": "install",
+      "description": "How many characters the fake provider streams as the reply of a measured turn, in pieces of fake.delta_size."
+    },
+    {
+      "key": "loadtest.small_days",
+      "type": "int",
+      "default": "10",
+      "scope": "install",
+      "description": "How many days back the chats of the small load test reach: few enough that some of its calls fall in Operations' last day."
+    },
+    {
+      "key": "loadtest.small_chats",
+      "type": "int",
+      "default": "40",
+      "scope": "install",
+      "description": "How many chats the first person has in the small load test, the one verify runs."
+    },
+    {
+      "key": "loadtest.small_turns_per_chat",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "The mean number of turns in a chat of the small load test."
+    },
+    {
+      "key": "loadtest.small_long_chat_turns",
+      "type": "int",
+      "default": "120",
+      "scope": "install",
+      "description": "How many turns the long chat has in the small load test: enough to outgrow the local model's window."
+    },
+    {
+      "key": "loadtest.small_tenants",
+      "type": "int",
+      "default": "2",
+      "scope": "install",
+      "description": "How many more people the small load test makes."
+    },
+    {
+      "key": "loadtest.small_tenant_chats",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "How many chats each of the other people has in the small load test."
+    },
+    {
+      "key": "loadtest.small_runs",
+      "type": "int",
+      "default": "5",
+      "scope": "install",
+      "description": "How many times the small load test makes each measurement."
+    },
+    {
+      "key": "loadtest.small_budget_percent",
+      "type": "int",
+      "default": "100",
+      "scope": "install",
+      "description": "The share of each budget the small load test holds its median to, in percent."
+    },
+    {
+      "key": "loadtest.budget_context_long",
+      "type": "duration",
+      "default": "250ms",
+      "scope": "install",
+      "description": "The most time from a message sent in a long chat to its model call opening: reading the chat, packing the context and recording the call."
+    },
+    {
+      "key": "loadtest.budget_context_project",
+      "type": "duration",
+      "default": "250ms",
+      "scope": "install",
+      "description": "The most time from a message sent to its model call opening, in a chat with attached chats, an upload and a project."
+    },
+    {
+      "key": "loadtest.budget_search_tool",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "The most time the model's search_chats tool may take across every chat a person has."
+    },
+    {
+      "key": "loadtest.budget_search_route",
+      "type": "duration",
+      "default": "200ms",
+      "scope": "install",
+      "description": "The most time the chat search route may take across every chat a person has."
+    },
+    {
+      "key": "loadtest.budget_chat_list",
+      "type": "duration",
+      "default": "100ms",
+      "scope": "install",
+      "description": "The most time the first page of the chat list may take."
+    },
+    {
+      "key": "loadtest.budget_chat_page_long",
+      "type": "duration",
+      "default": "400ms",
+      "scope": "install",
+      "description": "The most time opening the long chat may take."
+    },
+    {
+      "key": "loadtest.budget_first_words_one",
+      "type": "duration",
+      "default": "300ms",
+      "scope": "install",
+      "description": "The most time Keystone may add before the first streamed words, with one person sending and a model that answers at once."
+    },
+    {
+      "key": "loadtest.budget_first_words_several",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "The most time Keystone may add before the first streamed words, with every person sending at once."
+    },
+    {
+      "key": "loadtest.budget_stream_one",
+      "type": "duration",
+      "default": "1s",
+      "scope": "install",
+      "description": "The most time Keystone may take to pass on a reply of loadtest.reply_chars from a model that writes it at once, for one person."
+    },
+    {
+      "key": "loadtest.budget_stream_several",
+      "type": "duration",
+      "default": "1500ms",
+      "scope": "install",
+      "description": "The most time Keystone may take to pass on a reply of loadtest.reply_chars, with every person sending at once."
+    },
+    {
+      "key": "loadtest.budget_usage_report",
+      "type": "duration",
+      "default": "300ms",
+      "scope": "install",
+      "description": "The most time this month's usage report may take."
+    },
+    {
+      "key": "loadtest.budget_operations_report",
+      "type": "duration",
+      "default": "500ms",
+      "scope": "install",
+      "description": "The most time the Operations report may take."
+    },
+    {
+      "key": "loadtest.budget_operations_watch",
+      "type": "duration",
+      "default": "150ms",
+      "scope": "install",
+      "description": "The most time the home screen's read of the crossed limits may take."
+    }
+  ]
+}

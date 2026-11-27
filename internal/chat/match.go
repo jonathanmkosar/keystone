@@ -31,6 +31,15 @@ type Match struct {
 // holds more of the words ranks higher. Search, by contrast, wants every
 // word in one title or one message.
 func MatchAny(s *tenant.Store, query string, most, snippetWords int) (titles, messages []Match, err error) {
+	return MatchAnyWithin(s, query, most, snippetWords, 0)
+}
+
+// MatchAnyWithin is MatchAny for a record of any size: at most rankMax
+// matching messages are ranked, the newest when more match, and a word
+// that more than rankMax messages hold is left out of the search of
+// messages while another word is in fewer (ranked.go). A rankMax below 1
+// ranks every match. Titles are searched with every word.
+func MatchAnyWithin(s *tenant.Store, query string, most, snippetWords, rankMax int) (titles, messages []Match, err error) {
 	if most < 1 || snippetWords < 1 || snippetWords > 64 {
 		return nil, nil, invalid("a search needs a result limit of at least 1 and a snippet of 1 to 64 words")
 	}
@@ -49,16 +58,35 @@ func MatchAny(s *tenant.Store, query string, most, snippetWords int) (titles, me
 	if titles, err = scanMatches(rows); err != nil {
 		return nil, nil, err
 	}
-	rows, err = s.DB().Query(`
-		SELECT m.chat_id, m.id, m.role, snippet(message_search, 0, '', '', '…', ?), m.created_at, bm25(message_search)
-		FROM message_search JOIN messages m ON m.id = message_search.rowid
-		WHERE message_search MATCH ? ORDER BY bm25(message_search), m.id DESC LIMIT ?`,
-		snippetWords, match, most)
+	// The messages: the index gives its best few matches with their
+	// snippets, for the words worth ranking by, and only those messages
+	// are read (ranked.go).
+	terms, err := rarer(s.DB(), strings.Split(match, " OR "), rankMax)
 	if err != nil {
 		return nil, nil, err
 	}
-	if messages, err = scanMatches(rows); err != nil {
+	found, err := topMessages(s.DB(), strings.Join(terms, " OR "), snippetWords, most, rankMax)
+	if err != nil || len(found) == 0 {
+		return titles, nil, err
+	}
+	in, ids := among(found)
+	rows, err = s.DB().Query(`SELECT m.chat_id, m.id, m.role, '', m.created_at, 0.0 FROM messages m WHERE `+in, ids...)
+	if err != nil {
 		return nil, nil, err
+	}
+	read, err := scanMatches(rows)
+	if err != nil {
+		return nil, nil, err
+	}
+	byID := map[int64]Match{}
+	for _, m := range read {
+		byID[m.MessageID] = m
+	}
+	for _, r := range found {
+		if m, ok := byID[r.id]; ok {
+			m.Snippet, m.Score = r.snippet, r.score
+			messages = append(messages, m)
+		}
 	}
 	return titles, messages, nil
 }

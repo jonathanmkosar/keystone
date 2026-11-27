@@ -51,15 +51,33 @@ func Search(s *tenant.Store, lim Limits, query string) ([]Hit, error) {
 	if hits, err = scanHits(rows, hits); err != nil || len(hits) >= lim.SearchResults {
 		return hits, err
 	}
-	rows, err = s.DB().Query(`
-		SELECT c.id, c.title, m.id, m.role, snippet(message_search, 0, '', '', '…', ?), m.created_at
-		FROM message_search JOIN messages m ON m.id = message_search.rowid JOIN chats c ON c.id = m.chat_id
-		WHERE message_search MATCH ? ORDER BY rank, m.id DESC LIMIT ?`,
-		lim.SnippetWords, match, lim.SearchResults-len(hits))
+	// The index gives its best few matches with their snippets, and only
+	// those messages and their chats are read (ranked.go).
+	found, err := topMessages(s.DB(), match, lim.SnippetWords, lim.SearchResults-len(hits), lim.RankMax)
+	if err != nil || len(found) == 0 {
+		return hits, err
+	}
+	in, ids := among(found)
+	rows, err = s.DB().Query(`SELECT c.id, c.title, m.id, m.role, '', m.created_at
+		FROM messages m JOIN chats c ON c.id = m.chat_id WHERE `+in, ids...)
 	if err != nil {
 		return nil, err
 	}
-	return scanHits(rows, hits)
+	read, err := scanHits(rows, nil)
+	if err != nil {
+		return nil, err
+	}
+	byID := map[int64]Hit{}
+	for _, h := range read {
+		byID[h.MessageID] = h
+	}
+	for _, r := range found {
+		if h, ok := byID[r.id]; ok {
+			h.Snippet = r.snippet
+			hits = append(hits, h)
+		}
+	}
+	return hits, nil
 }
 
 func scanHits(rows interface {

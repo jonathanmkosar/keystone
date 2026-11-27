@@ -150,15 +150,40 @@ type Filter struct {
 	Limit int
 }
 
+const listColumns = `SELECT id, at, request_id, kind, model, class, outcome, input_tokens, output_tokens,
+		cache_read_tokens, cache_write_tokens, thinking_tokens, tokens_estimated, cost_micros, duration_ms
+		FROM usage_records`
+
+// listWhere is the conditions of a filter, for List's query: a month, a
+// request id, both or neither.
+func listWhere(f Filter) string {
+	switch {
+	case f.Month != "" && f.RequestID != "":
+		return " WHERE month = ? AND request_id = ?"
+	case f.Month != "":
+		return " WHERE month = ?"
+	case f.RequestID != "":
+		return " WHERE request_id = ?"
+	}
+	return ""
+}
+
 // List returns a tenant's records, oldest first.
 func List(ctx context.Context, s *tenant.Store, f Filter) ([]Record, error) {
 	if f.Month != "" && !monthShape.MatchString(f.Month) {
 		return nil, fmt.Errorf("usage: %q is not a month such as 2026-11", f.Month)
 	}
-	q := `SELECT id, at, request_id, kind, model, class, outcome, input_tokens, output_tokens,
-		cache_read_tokens, cache_write_tokens, thinking_tokens, tokens_estimated, cost_micros, duration_ms
-		FROM usage_records WHERE (? = '' OR month = ?) AND (? = '' OR request_id = ?) ORDER BY id DESC`
-	args := []any{f.Month, f.Month, f.RequestID, f.RequestID}
+	// Only the conditions that are set are in the query, so the database
+	// finds a month's or a request's records by their index. One query for
+	// both, with "? = '' OR ...", reads every record a person has (P13-03).
+	q := listColumns + listWhere(f) + " ORDER BY id DESC"
+	var args []any
+	if f.Month != "" {
+		args = append(args, f.Month)
+	}
+	if f.RequestID != "" {
+		args = append(args, f.RequestID)
+	}
 	if f.Limit > 0 {
 		q += " LIMIT ?"
 		args = append(args, f.Limit)

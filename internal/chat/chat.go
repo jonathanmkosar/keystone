@@ -63,6 +63,10 @@ type Limits struct {
 	// SnippetWords is about how many words of a matching message a result
 	// shows, from 1 to 64: chats.search_snippet_words.
 	SnippetWords int
+	// RankMax is the most matching messages one search ranks, the newest
+	// when more match: chats.search_rank_max. Below 1 ranks every match
+	// (ranked.go).
+	RankMax int
 }
 
 // DefaultLimits reads the limits from the settings registry's defaults.
@@ -76,6 +80,7 @@ func DefaultLimits() (Limits, error) {
 		"chats.title_max_length":     &lim.TitleLength,
 		"chats.search_max_results":   &lim.SearchResults,
 		"chats.search_snippet_words": &lim.SnippetWords,
+		"chats.search_rank_max":      &lim.RankMax,
 	} {
 		s, ok := settings.Lookup(reg, key)
 		if !ok {
