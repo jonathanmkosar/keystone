@@ -331,6 +331,7 @@ type meta struct {
 	stopReason string
 	usage      *seam.Usage
 	costMicros int64
+	location   *SentLocation // the person's message was sent with it (P10-06, location.go)
 }
 
 // noteMessage records that a turn wrote a message.
@@ -372,7 +373,10 @@ func metaOf(ctx context.Context, s *tenant.Store, chatID string) (map[int64]meta
 		}
 		out[id] = m
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, withLocations(ctx, s, chatID, out) // P10-06: the locations the person's messages were sent with
 }
 
 // withMeta is a message of the chat record with what its turn recorded.
@@ -381,5 +385,6 @@ func withMeta(m chat.Message, x meta) Message {
 		ID: m.ID, ChatID: m.ChatID, ParentID: m.ParentID, Role: m.Role, Blocks: m.Blocks,
 		Created: m.Created, Siblings: m.Siblings,
 		TurnID: x.turnID, Model: x.model, StopReason: x.stopReason, Usage: x.usage, CostMicros: x.costMicros,
+		Location: x.location,
 	}
 }

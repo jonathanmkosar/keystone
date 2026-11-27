@@ -325,6 +325,10 @@ func (r *Runner) send(w http.ResponseWriter, req *http.Request, c api.Call) {
 		r.answer(w, req, c, err)
 		return
 	}
+	if err := r.checkLocation(req.Context(), c.Store, &body); err != nil { // P10-06: rounded here, before it is written (location.go)
+		r.answer(w, req, c, err)
+		return
+	}
 	if r.o.Install == nil {
 		r.answer(w, req, c, errors.New("the runner has no data folder"))
 		return

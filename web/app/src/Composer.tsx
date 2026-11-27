@@ -3,6 +3,8 @@ import { AttachButton, AttachChips, useAttachments } from "./Attachments";
 import { composerExpanded, phonePlaceholder } from "./composerSheet";
 import { DictationButton, DictationStatus, useDictation } from "./DictationControls";
 import { Icon } from "./Icon";
+import { LocationButton, LocationChip, useLocation } from "./LocationControl";
+import type { SentPosition } from "./location";
 import { mayTakeFocus, Sheet, useNarrow } from "./PhoneSheet";
 
 // How long after the focus leaves the phone's composer it folds back into
@@ -36,8 +38,8 @@ export function Composer({
   focusKey?: string;
   /** What the box holds at first: a message that could not be sent. */
   initial?: string;
-  /** The message, and the files to upload with it (P9-02). */
-  onSend: (text: string, files: File[]) => void;
+  /** The message, the files to upload with it (P9-02), and the rounded location that goes with it alone (P10-06). */
+  onSend: (text: string, files: File[], location?: SentPosition) => void;
   onStop?: () => void;
   /** Drawn before the model picker: the research, tools and style controls. On a phone they are rows of the + sheet. */
   beside?: ReactNode;
@@ -52,6 +54,7 @@ export function Composer({
   const closeSheet = useCallback(() => setSheet(false), []);
   const attach = useAttachments(); // the files that go with the message (P9-02, Attachments.tsx)
   const dictation = useDictation(area, text, setText); // speech into the box, never sent by itself (P10-01, DictationControls.tsx)
+  const location = useLocation(); // the position that goes with the next message only, on a tap (P10-06, LocationControl.tsx)
 
   // A phone: one pill row while idle, the card once focused or holding
   // anything (P10-07, decision 0610). The focus counts while it is anywhere
@@ -61,7 +64,9 @@ export function Composer({
   const fold = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(fold.current), []);
   const phase = dictation.view?.phase;
-  const expanded = !narrow || composerExpanded({ focused: focusIn, text, files: attach.files.length, dictating: phase !== undefined && phase !== "idle" });
+  // A location waiting to be sent, being found, or refused counts as something held (P10-06), so its chip or its words show.
+  const held = attach.files.length + (location.place || location.asking || location.problem ? 1 : 0);
+  const expanded = !narrow || composerExpanded({ focused: focusIn, text, files: held, dictating: phase !== undefined && phase !== "idle" });
 
   function focused() {
     window.clearTimeout(fold.current);
@@ -103,7 +108,7 @@ export function Composer({
     // person to review, and nothing is sent (P10-01).
     if (dictation.holdsSend()) return;
     if (!ready) return;
-    onSend(text.trim(), attach.files);
+    onSend(text.trim(), attach.files, location.take());
     setText("");
     attach.clear();
   }
@@ -139,6 +144,7 @@ export function Composer({
   return (
     <form className={formClass} onSubmit={submit} onFocus={narrow ? focused : undefined} onBlur={narrow ? left : undefined} {...attach.dropProps}>
       <AttachChips attach={attach} />
+      <LocationChip location={location} />
       <label className="offscreen" htmlFor="composer-message">
         Message
       </label>
@@ -168,12 +174,14 @@ export function Composer({
           {sendButton}
           <Sheet open={sheet} label="Add to your message" onClose={closeSheet} opener={plus}>
             <AttachButton attach={attach} />
+            <LocationButton location={location} />
             {beside}
           </Sheet>
         </div>
       ) : (
         <div className="composer-row">
           <AttachButton attach={attach} />
+          <LocationButton location={location} />
           <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
           {beside}
           {model}

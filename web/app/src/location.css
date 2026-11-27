@@ -1,0 +1,106 @@
+/* Location per message (P10-06): the composer's "Use my location" button,
+   the chip over the box, the mark under the person's message, the hint in
+   the phone's + sheet and the inspector's line. There is no mockup of any
+   of it, so it is built from the tokens after the attach button and the
+   files' chips (uploads.css), and is provisional. Every colour is a token. */
+
+.location-button.is-on {
+  color: var(--accent);
+}
+
+.location-button.is-asking {
+  color: var(--accent);
+  cursor: progress;
+  animation: working 1.1s ease-in-out infinite;
+}
+
+.location-button.is-unavailable {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.location-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.location-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 32px;
+  padding: 0 4px 0 8px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 13px;
+}
+
+.location-chip-text {
+  white-space: nowrap;
+}
+
+.location-chip-remove.icon-button {
+  width: 24px;
+  height: 24px;
+  color: var(--softink);
+}
+
+.location-status {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+/* Under the person's bubble, at its right, quieter than the words. */
+.said-location {
+  display: inline-flex;
+  align-self: flex-end;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 4px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* In the phone's + sheet, under the row: what is sent and to whom, since a
+   phone shows no title on hover. */
+.location-sheet-hint {
+  margin: -2px 0 4px;
+  padding: 0 12px 0 44px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.location-line {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--accent);
+  background: var(--sunk);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+@media (max-width: 760px) {
+  /* The chip keeps its height; its remove button is a thumb's size. */
+  .composer .location-chip-remove.icon-button {
+    width: 44px;
+    height: 44px;
+    margin: -6px -4px -6px -10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-button.is-asking {
+    animation: none;
+  }
+}

@@ -28,6 +28,7 @@ import {
 } from "./api";
 import { UploadsSection, type UploadCall } from "./Attachments";
 import { Icon } from "./Icon";
+import { LocationSection } from "./LocationControl";
 import { pinMessage, putPins, usePins } from "./pins";
 import { onEnd } from "./turns";
 import "./inspector.css";
@@ -273,6 +274,7 @@ function Inspected({ chatId, data, skips, change }: { chatId: string; data: Insp
       )}
       {data.recall && <RecallSection recall={data.recall} removed={removedRefs(chats[0])} />}
       <UploadsSection calls={data.uploads as UploadCall[] | undefined} />
+      <LocationSection location={data.location} />
     </>
   );
 }

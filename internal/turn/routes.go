@@ -133,6 +133,10 @@ type Message struct {
 	Usage *seam.Usage `json:"usage,omitempty"`
 	// CostMicros is what that call cost, in millionths of a US dollar.
 	CostMicros int64 `json:"cost_micros,omitempty"`
+	// Location is the approximate position a person's message was sent
+	// with, and the line its model calls carry (P10-06). Absent on every
+	// other message.
+	Location *SentLocation `json:"location,omitempty"`
 }
 
 // ModelInfo is a model as a person sees it. It never holds an address or
@@ -266,6 +270,11 @@ type SendBody struct {
 	// Model is the registry name of the model to answer. Absent means the
 	// chat's own, as GET chats/{id}/model gives it.
 	Model string `json:"model,omitempty"`
+	// Location is the person's approximate position, sent with this
+	// message only and only when they tapped "Use my location" (P10-06,
+	// location.go). Absent on every other message, which is then sent and
+	// stored exactly as before.
+	Location *Location `json:"location,omitempty"`
 }
 
 // StartEvent is the data of a start event: a model call opens.

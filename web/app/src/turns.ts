@@ -32,6 +32,8 @@ export type Live = {
   stopping: boolean;
   /** The person's message, shown until the record has it. */
   said: string;
+  /** That message went with the person's location (P10-06). */
+  located: boolean;
   /** Messages the turn has written to the record, in order. */
   written: Message[];
   /** The reply being written now, by block. A stored message replaces it. */
@@ -331,7 +333,7 @@ async function requestStop(entry: Entry) {
 function begin(chatId: string, live: Partial<Live>): Entry {
   entries.get(chatId)?.abort.abort();
   const entry: Entry = {
-    live: { chatId, turnId: "", state: "sending", stopping: false, said: "", written: [], draft: [], results: {}, problem: "", settled: false, ...live },
+    live: { chatId, turnId: "", state: "sending", stopping: false, said: "", located: false, written: [], draft: [], results: {}, problem: "", settled: false, ...live },
     lastEventId: "",
     abort: new AbortController(),
     wantStop: false,
@@ -341,10 +343,10 @@ function begin(chatId: string, live: Partial<Live>): Entry {
   return entry;
 }
 
-/** Sends a message to a chat and follows the reply. `model` names the model to answer; absent means the chat's own. `blocks`, when given, makes the message's blocks first: its files uploaded (P9-02, uploads.ts). */
-export function send(chatId: string, text: string, model?: string, blocks?: () => Promise<Block[]>): void {
-  const entry = begin(chatId, { said: text });
-  void run(entry, async (reader) => sendMessage(chatId, text, reader, model, blocks && (await blocks())), true);
+/** Sends a message to a chat and follows the reply. `model` names the model to answer; absent means the chat's own. `blocks`, when given, makes the message's blocks first: its files uploaded (P9-02, uploads.ts). `location` is the rounded position that goes with this message alone (P10-06). */
+export function send(chatId: string, text: string, model?: string, blocks?: () => Promise<Block[]>, location?: { latitude: number; longitude: number }): void {
+  const entry = begin(chatId, { said: text, located: location !== undefined });
+  void run(entry, async (reader) => sendMessage(chatId, text, reader, model, blocks && (await blocks()), location), true);
 }
 
 /** Joins a turn that is already queued or running, from its first event. */

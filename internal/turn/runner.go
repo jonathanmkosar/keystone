@@ -577,6 +577,9 @@ func (r *Runner) place(s *tenant.Store, t row) (tail int64, written *Message, fa
 	if err != nil {
 		return gone(err)
 	}
+	if msg.Location, err = r.keepLocation(context.Background(), s, t, msg.ID); err != nil { // P10-06 (location.go)
+		return gone(err)
+	}
 	return msg.ID, &msg, nil
 }
 
@@ -632,7 +635,8 @@ func (r *Runner) branch(ctx context.Context, s *tenant.Store, chatID string, tai
 //   - a tool call with no result in the next message is left out, and so is
 //     a result whose call was;
 //   - a message left with nothing is dropped, and two messages in a row
-//     from the same side become one.
+//     from the same side become one;
+//   - a message of the person's sent with a location starts with its line.
 func buildMessages(path []chat.Message, metas map[int64]meta, model string) []seam.Message {
 	var out []seam.Message
 	open := map[string]bool{}
@@ -646,6 +650,11 @@ func buildMessages(path []chat.Message, metas map[int64]meta, model string) []se
 			}
 		}
 		var blocks []seam.Block
+		if loc := metas[m.ID].location; loc != nil && m.Role == seam.RoleUser && loc.Line != "" {
+			// P10-06: the line goes first, before the person's words, in this
+			// message only and in every call that sends it (location.go).
+			blocks = append(blocks, seam.Block{Type: seam.BlockText, Text: loc.Line})
+		}
 		for _, b := range m.Blocks {
 			switch b.Type {
 			case seam.BlockThinking:

@@ -207,7 +207,12 @@ export type Message = {
   model?: string;
   /** end, tool_call, max_tokens, refused, stopped or failed. */
   stop_reason?: string;
+  /** The approximate location a person's message was sent with, and the line its model calls carried (P10-06). */
+  location?: SentLocation;
 };
+
+/** A location kept with a person's message (P10-06): rounded, with its decimals and the line the model was given. */
+export type SentLocation = { latitude: number; longitude: number; decimals: number; line: string };
 
 export type ModelInfo = {
   name: string;
@@ -370,9 +375,9 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
   return ended;
 }
 
-/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. `blocks`, when given, is the message in place of `text` (P9-02). See readTurn for what it returns. */
-export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string, blocks?: Block[]): Promise<boolean> {
-  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...(model ? { model } : {}) }, "", reader);
+/** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. `blocks`, when given, is the message in place of `text` (P9-02). `location`, when given, is the rounded position that goes with this message alone (P10-06); without it the body is as before. See readTurn for what it returns. */
+export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string, blocks?: Block[], location?: { latitude: number; longitude: number }): Promise<boolean> {
+  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...(model ? { model } : {}), ...(location ? { location } : {}) }, "", reader);
 }
 
 /**
@@ -955,6 +960,8 @@ export type Inspection = {
   skips: Skip[];
   /** What each call was given of the chat's images and files (P9-02); Attachments.tsx reads it. */
   uploads?: unknown[];
+  /** The location the turn's message was sent with, and the line its calls carried (P10-06); LocationControl.tsx reads it. */
+  location?: SentLocation;
 };
 
 /** What went into each model call of one turn. */
@@ -970,6 +977,7 @@ export async function inspectTurn(chatId: string, turnId: string): Promise<Inspe
     pinned: Array.isArray(data.pinned) ? (data.pinned as number[]) : [],
     skips: Array.isArray(data.skips) ? (data.skips as Skip[]) : [],
     uploads: Array.isArray(data.uploads) ? data.uploads : undefined,
+    location: typeof data.location === "object" && data.location !== null && typeof (data.location as SentLocation).line === "string" ? (data.location as SentLocation) : undefined,
   };
 }
 

@@ -176,6 +176,13 @@ const shapes = {
   more: <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth="3.5" />,
   // The phone's round menu button, which opens the sidebar (P10-07): two lines, the lower one shorter.
   menu: <path d="M4 9h16M4 15h10" />,
+  // Location per message (P10-06): a map pin.
+  location: (
+    <>
+      <path d="M12 21s-6-5.6-6-11a6 6 0 0 1 12 0c0 5.4-6 11-6 11z" />
+      <circle cx="12" cy="10" r="2.2" />
+    </>
+  ),
 } as const;
 
 export type IconName = keyof typeof shapes;

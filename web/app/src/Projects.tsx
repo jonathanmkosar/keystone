@@ -30,6 +30,7 @@ import { Icon } from "./Icon";
 import { SheetRow, useSheet } from "./PhoneSheet";
 import { changedOn, keepChatProject, refreshProjects, sizeOf, useChatProject, useProjects } from "./projectStore";
 import { send } from "./turns";
+import type { SentPosition } from "./location";
 import "./projects.css";
 
 /** The server's words for a refusal, or the fallback. */
@@ -252,14 +253,14 @@ function OneProject({ id }: { id: string }) {
     }
   }
 
-  async function begin(text: string) {
+  async function begin(text: string, _files: File[], location?: SentPosition) {
     setStarting(true);
     setProblem("");
     try {
       const made = await startProjectChat(id);
       put(made.chat, true);
       if (loaded.state === "ready") keepChatProject(made.chat.id, loaded.view.project);
-      send(made.chat.id, text);
+      send(made.chat.id, text, undefined, undefined, location);
       void refreshProjects(lost);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
