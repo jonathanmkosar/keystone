@@ -40,6 +40,29 @@
   color: var(--accent);
 }
 
+/* The control is one more thing in the composer's row. Where the row is
+   narrow, as beside an open artifact, the hint gives way first, on one
+   line, and then the control keeps its icon alone. */
+
+.composer-row:has(.research-button) .composer-hint {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .research-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 /* What a task will run with, above the composer while the control is on. */
 
 .research-hint {

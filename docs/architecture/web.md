@@ -521,6 +521,29 @@ The Share button in a chat's header, where the mockups draw it, and its popover 
 
 A microphone just before the send button in every composer, and a line under the text with the state, the words still being heard and why dictation stopped. The machine is `dictation.ts`, which has no imports and is tested by Node's own test runner (`npm test`, `web/app/test/`, decision [0501](decisions/0501-the-web-machine-is-tested-by-nodes-own-test-runner.md)); the hook and the two components are `DictationControls.tsx`, the look `dictation.css`, and the icon `mic` in `Icon.tsx`. In `Composer.tsx`: the import, the hook, the line under the text, the button after `beside`, `if (dictation.holdsSend()) return;` at the head of `send`, and Escape in `keyDown`. The settings are read with `listSettings`. The server now sends `Permissions-Policy: microphone=(self)`; the content security policy is unchanged. Provisional: there is no mockup of the button. See [dictation.md](dictation.md).
 
+## Research mode (P8-04)
+
+The Research control beside the composer's pickers, the card of a research task under way, and the note it writes when it ends. The server's side, and what each looks like, is [research-mode.md](research-mode.md). There is no mockup for any of it: it is built from the tokens, the task card, the sub-agents' lanes and the artifact card, a first draft until the agent mockups (P1-05).
+
+| Part | File | What it does |
+| --- | --- | --- |
+| The control and its line | `src/Research.tsx` (`ResearchControl`, `ResearchHint`), `src/researchCalls.ts` | A switch kept for the chat, or for the new chat screen, until the next message is sent. On, the line above the composer says what a task will run with, from `GET /research`. `sendAsResearch` starts the task with the message's words and reports that it took the message, so no turn is sent. |
+| The card | `src/Research.tsx` (`ResearchCards`), `src/research.css` | Lists the chat's tasks when it opens and whenever one of its turns ends, reads each task under way about once a second, and draws its card: state, question, where it is and its spend, the plan, a lane for each part (`Lane`, from `Subagents.tsx`), the sources found, and Stop. When a task it saw under way has ended, the chat is read again. |
+| The note | `src/Research.tsx` (`ResearchNote`), `src/Tasks.tsx` (`TaskNote`) | A message with the stop reason `task` whose id is a research task's `note_message_id` is drawn as the research's: its words with each citation a link (`CitationSources`), the report's card, which opens the artifact beside the chat (`openArtifact`), the sources cited, and the parts. `TaskNote` has three more lines for it. |
+| The way in | `src/Chat.tsx` | The control in each composer's `beside`, the line above each composer, the cards under the conversation, one line in `sendHere` and five in `begin`. |
+
+Its calls, all in `src/researchCalls.ts`:
+
+| Call | Function | Used for |
+| --- | --- | --- |
+| `GET /api/v1/research` | `researchTerms` | The line that says what a task will run with. |
+| `GET /api/v1/chats/{id}/research` | `listResearch` | The cards, and telling a research task's note from a background task's. |
+| `POST /api/v1/chats/{id}/research` | `startResearch` | The message sent while the control is on. |
+| `GET /api/v1/chats/{id}/research/{research}` | `getResearch` | Reading a task under way. |
+| `POST /api/v1/chats/{id}/research/{research}/stop` | `stopResearch` | Stop on a card. |
+
+A part's lane makes the sub-agents' own calls, with the task's own chat as the chat ([sub-agents.md](sub-agents.md)).
+
 ## The API it calls
 
 Every server call is in `src/api.ts`. The shell's routes are described in [api.md](api.md), and the chat and turn routes in [turns.md](turns.md).

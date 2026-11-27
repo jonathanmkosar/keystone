@@ -634,8 +634,8 @@ func noteText(j row, pass bool) string {
 		if j.Summary != "" {
 			b.WriteString("\n\n" + j.Summary)
 		}
-		fmt.Fprintf(&b, "\n\nThe full report is saved in this chat as the artifact “%s”. It cites %s of the %s the research read",
-			j.Title, count(len(j.Sources), "source", "sources"), count(j.SourcesRead, "source", "sources"))
+		fmt.Fprintf(&b, "\n\nThe full report is saved in this chat as the artifact “%s”. It cites %d of the %s the research read",
+			j.Title, len(j.Sources), count(j.SourcesRead, "source", "sources"))
 		if j.Dropped > 0 {
 			fmt.Fprintf(&b, "; %s that named no source that was read %s taken out", count(j.Dropped, "citation", "citations"), wasWere(j.Dropped))
 		}

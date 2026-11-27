@@ -221,7 +221,7 @@ func TestAResearchTaskProducesACitedReportWithinItsBudget(t *testing.T) {
 	}
 	note := text(last)
 	for _, want := range []string{"Research “" + got.Title + "” is done.", "open from ten, Tuesday to Sunday [1]", "stops beside it [2][3].",
-		"saved in this chat as the artifact “" + got.Title + "”", "It cites 3 sources of the 3 sources the research read", "2 citations that named no source"} {
+		"saved in this chat as the artifact “" + got.Title + "”", "It cites 3 of the 3 sources the research read", "2 citations that named no source"} {
 		if !strings.Contains(note, want) {
 			t.Errorf("the note does not say %q:\n%s", want, note)
 		}

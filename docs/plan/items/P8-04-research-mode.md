@@ -1,9 +1,10 @@
 # P8-04. Research mode
 
-Status: doing (agents)
+Status: provisional
 Lane: agents
 Depends on: P8-02, P7-03
-Owner gate: none
+Owner gate: Approval of the agent mockups (P1-05), for the screen only.
+Built without the gate: The server side and its tests; the Research control, the progress card and the note built from the design tokens, marked provisional until the mockups are approved.
 Scope: A long multi-source report built by sub-agents, with citations, saved as an artifact.
 Proof: A test-tenant research task produces a cited report within its budget.
 
@@ -35,3 +36,14 @@ Branch `agents/p8-04-research-mode`, cut from `reboot` at cfa1d15. A session tha
 **Proof.** `go test ./internal/research/...` with a scripted provider and a stand-in search service on this machine: a cited report within its budget (the artifact exists, every citation maps to a source a part's recorded result returned, an invented one is dropped, spend is under the budget); a task at its budget stops and says so; held chats; stop, pause and restart. A recorded test-tenant turn, `fixtures/test-tenant/turns/research.json`, and a standing check `research mode` in `verify`.
 
 **Order.** (1) this plan; (2) the server side with its tests; (3) the recorded turn and the standing check; (4) the screen; (5) the write-up: `docs/architecture/research-mode.md`, decisions from 0520, journal agents 011, status.
+
+### Result (agents, November 26, 2026)
+
+Provisional on the agent mockups (P1-05) for the screen only. The server side is complete and the proof passes with the fake provider and a stand-in search service.
+
+- **Built as planned**: `internal/research` (a row for each task, worked by a goroutine under the turn runner: a plan turn, a sub-agent for each part, a report turn, the note and the artifact; five routes) and `internal/research/cite`, the check on citations; `subagents.Runner.StartParts`, `Parts` and `StopParts` in a new file, for sub-agents that code starts; `unattended.SetBudget`; the Research control, the progress card and the note (`web/app/src/Research.tsx`); a recorded test-tenant research; eleven settings; the migration `20261126T073341_research.sql`; the standing check `research mode`; the doc `docs/architecture/research-mode.md`; decisions 0520 to 0525.
+- **The proof**: a test-tenant research task plans two parts, each searches the stand-in, and the report is a Markdown artifact in the chat that asked, in which every citation maps to a source a part's recorded search returned, the invented ones are taken out and counted, and the spend is within the budget (`TestAResearchTaskProducesACitedReportWithinItsBudget`, and step 1 of the check on the real server with the recorded turn). A task at its budget stops and says so: with nothing found it fails with `spend_cap`, and with its parts done it writes its report from their findings (`TestAResearchTaskAtItsBudgetStopsAndSaysSo`, and step 2 of the check). Seen in a browser as the test tenant.
+- **Changed from the plan**: the note is written before the report is saved, so the chat is marked as having read outside content first (decision 0525); the task's run is registered as a background task named "Research: …", with no new kind in the registry (decision 0522); parts cut short by a pause or a restart are not run again (decision 0523).
+- **Not run**: `web_fetch` end to end, which reads only public addresses and so cannot reach a stand-in on this machine: a fetched page as a source is checked on a chat record written by the test. No real model and no real search.
+- **Provisional**: the look of the control, the card and the note, until the agent mockups are approved.
+- **Owner questions**: the research budget's default, and whether the chats a research task makes stay in the sidebar (journal agents 011).

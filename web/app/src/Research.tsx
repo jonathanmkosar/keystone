@@ -189,6 +189,12 @@ function ResearchCard({ chatId, task, onChange }: { chatId: string; task: Resear
   const own = chatId === task.work_chat_id;
   const open = task.status === "queued" || task.status === "running" || task.status === "paused";
   const working = task.status === "running" && !task.waiting;
+  // A card that has just appeared is brought into view, since it is drawn
+  // under the conversation and no message of the chat came with it.
+  const card = useRef<HTMLElement>(null);
+  useEffect(() => {
+    card.current?.scrollIntoView({ block: "nearest" });
+  }, []);
 
   async function stop() {
     setStopping(true);
@@ -204,7 +210,7 @@ function ResearchCard({ chatId, task, onChange }: { chatId: string; task: Resear
 
   const where = open ? task.progress || stateOf(task) : "Writing its report in this chat";
   return (
-    <section className={task.waiting ? "research is-waiting" : task.status === "paused" ? "research is-paused" : "research"} aria-label="Research task">
+    <section ref={card} className={task.waiting ? "research is-waiting" : task.status === "paused" ? "research is-paused" : "research"} aria-label="Research task">
       <div className="research-head">
         <Icon name="search" size={16} />
         <span className="research-kind">Research</span>
@@ -298,7 +304,6 @@ export function ResearchCards({ chatId, onEnded }: { chatId: string; onEnded: ()
           const got = await getResearch(chatId, id);
           if (!live) return;
           keepOneResearch(chatId, got);
-          if (!researchUnderWay(got)) ended.current();
         } catch (e) {
           if (e instanceof ApiError && (e.kind === "missing" || e.kind === "signed-out")) return;
         }
@@ -311,6 +316,18 @@ export function ResearchCards({ chatId, onEnded }: { chatId: string; onEnded: ()
       window.clearTimeout(timer);
     };
   }, [chatId, open]);
+
+  // When a task this page saw under way has ended, however the page learned
+  // of it (a look, or the answer to Stop), the chat is read again.
+  const wasOpen = useRef(new Set<string>());
+  useEffect(() => {
+    let over = false;
+    for (const t of tasks) {
+      if (researchUnderWay(t)) wasOpen.current.add(t.id);
+      else if (wasOpen.current.delete(t.id)) over = true;
+    }
+    if (over) ended.current();
+  }, [tasks]);
 
   const shown = tasks.filter(researchUnderWay);
   if (shown.length === 0 && problem === "") return null;
