@@ -56,6 +56,10 @@ type Options struct {
 	// attempt after that, up to RetryMax.
 	RetryBase time.Duration
 	RetryMax  time.Duration
+	// SendReasoningEffort says whether a request's effort is sent as
+	// reasoning_effort, for an entry with thinking. Off, nothing about
+	// effort is sent.
+	SendReasoningEffort bool
 }
 
 // Provider calls one registry entry's endpoint. It holds nothing that
@@ -175,7 +179,7 @@ func (p *Provider) Stream(ctx context.Context, req seam.Request, emit func(seam.
 	if err := seam.ValidateRequest(req); err != nil {
 		return p.fail(ctx, emit, &seam.Error{Kind: seam.ErrInvalid, Message: "the request is not valid: " + err.Error()})
 	}
-	body, err := buildBody(p.model, req)
+	body, err := buildBody(p.model, req, p.opts.SendReasoningEffort)
 	if err != nil {
 		return p.fail(ctx, emit, &seam.Error{Kind: seam.ErrInvalid, Message: err.Error()})
 	}

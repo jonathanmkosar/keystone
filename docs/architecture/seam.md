@@ -31,9 +31,10 @@ A `Request` is one model call:
 - `system`: the standing instructions, as text blocks. There is no system role.
 - `messages`, and the `tools` on offer. Each tool has a name, a description and a JSON Schema for its input.
 - `max_output_tokens` and `thinking_tokens`. Zero means the model's own limit, and no thinking.
+- `effort`, since P14-01, optional: `low`, `medium`, `high`, `xhigh` or `max`, how hard the model is asked to work. Empty leaves the call as it was before effort existed, and the field is then left out of the JSON. When both are set, `effort` wins over `thinking_tokens`. Each adapter turns it into what its provider takes ([adapter-anthropic.md](adapter-anthropic.md), [adapter-responses.md](adapter-responses.md), [adapter-chat-completions.md](adapter-chat-completions.md)); the fake provider ignores it. `Efforts` lists the levels, lowest first, and `Effort.Known` says whether a value is one of them.
 - `cache`, since P5-03, optional: the request's cache points. `start` is how many system blocks, from the first, are the standing start, the same on every call of a chat; `history` is how many messages, from the first, an earlier call of the chat sent too. An adapter whose provider caches only where it is told turns them into marks; the others ignore them. The context builder sets them ([caching.md](caching.md)).
 
-`ValidateRequest` also checks the tool calls across messages: every tool result answers a call in an earlier message, no call is answered twice, and no call id is used twice. Cache points must lie inside the request.
+`ValidateRequest` also checks the tool calls across messages: every tool result answers a call in an earlier message, no call is answered twice, and no call id is used twice. Cache points must lie inside the request. An effort must be one of the five levels, spelt as above.
 
 ## The stream
 

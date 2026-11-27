@@ -21,6 +21,14 @@ type wireRequest struct {
 	Tools     []wireTool    `json:"tools,omitempty"`
 	Thinking  *wireThinking `json:"thinking,omitempty"`
 	Stream    bool          `json:"stream,omitempty"`
+
+	// OutputConfig is nil for a request with no effort, so that request
+	// is sent as it was before effort existed.
+	OutputConfig *wireOutputConfig `json:"output_config,omitempty"`
+}
+
+type wireOutputConfig struct {
+	Effort string `json:"effort"`
 }
 
 type wireMessage struct {
@@ -135,7 +143,19 @@ func (p *Provider) body(req seam.Request, stream bool) ([]byte, error) {
 		return nil, fmt.Errorf("nothing in the request can be sent")
 	}
 
-	out.Thinking = p.thinking(req.ThinkingTokens, maxTokens)
+	asked := req.ThinkingTokens
+	if req.Effort != "" {
+		// Effort wins over a thinking budget. It stands for a budget of
+		// its own, which goes the way any budget goes: adaptive or budget
+		// thinking, by the model, and only for an entry with thinking.
+		asked = p.effortBudget(req.Effort)
+		if stream && matchesAny(p.opts.EffortModels, p.model.ProviderModel) {
+			// A token count takes no output setting, as it takes no
+			// output limit: effort does not change the input.
+			out.OutputConfig = &wireOutputConfig{Effort: string(req.Effort)}
+		}
+	}
+	out.Thinking = p.thinking(asked, maxTokens)
 
 	switch {
 	case !p.opts.CacheControl:
@@ -232,6 +252,18 @@ func (p *Provider) thinking(asked, maxTokens int) *wireThinking {
 		return nil
 	}
 	return &wireThinking{Type: "enabled", BudgetTokens: budget}
+}
+
+// effortBudget is the thinking budget an effort stands for. xhigh and max
+// take the high budget, the most the settings name.
+func (p *Provider) effortBudget(e seam.Effort) int {
+	switch e {
+	case seam.EffortLow:
+		return p.opts.EffortBudgetLow
+	case seam.EffortMedium:
+		return p.opts.EffortBudgetMedium
+	}
+	return p.opts.EffortBudgetHigh
 }
 
 // matchesAny reports whether name is in the list. An entry that ends in *

@@ -62,5 +62,14 @@ func ChatCompletionsOptions(reg []settings.Setting) (chatcompletions.Options, er
 	} else {
 		opts.MaxAttempts = n
 	}
+
+	const effort = "chat_completions.send_reasoning_effort"
+	if st, ok := settings.Lookup(reg, effort); !ok {
+		problems = append(problems, errors.New(effort+" is missing from the settings registry"))
+	} else if b, err := strconv.ParseBool(st.Default); err != nil {
+		problems = append(problems, errors.New(effort+" must be true or false"))
+	} else {
+		opts.SendReasoningEffort = b
+	}
 	return opts, errors.Join(problems...)
 }

@@ -1,0 +1,308 @@
+{
+  "about": "Invented exchanges for effort on the seam (P14-01): the request, the setting, and the body the adapter must send. Every one is answered by the same short stream in the test.",
+  "exchanges": [
+    {
+      "name": "effort-low",
+      "about": "With the setting on, effort low is sent as reasoning_effort, as it is asked.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "low",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "low",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-medium",
+      "about": "With the setting on, effort medium is sent as reasoning_effort, as it is asked.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "medium",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-high",
+      "about": "With the setting on, effort high is sent as reasoning_effort, as it is asked.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "high",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-xhigh",
+      "about": "With the setting on, effort xhigh is sent as reasoning_effort, as it is asked.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "xhigh",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "xhigh",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-max",
+      "about": "With the setting on, effort max is sent as reasoning_effort, as it is asked.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "max",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "max",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-wins-over-thinking-tokens",
+      "about": "A thinking budget is never sent by this adapter; the effort is.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "medium",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small",
+        "thinking_tokens": 9000
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "reasoning_effort": "medium",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "setting-off",
+      "about": "With chat_completions.send_reasoning_effort off, as shipped, nothing about effort is sent.",
+      "capabilities": [
+        "tools",
+        "thinking"
+      ],
+      "send_reasoning_effort": false,
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    },
+    {
+      "name": "effort-without-thinking",
+      "about": "An entry without the thinking capability is sent nothing about effort, whatever the setting.",
+      "capabilities": [
+        "tools"
+      ],
+      "send_reasoning_effort": true,
+      "request": {
+        "effort": "high",
+        "messages": [
+          {
+            "blocks": [
+              {
+                "text": "Plan three dinners for the week.",
+                "type": "text"
+              }
+            ],
+            "role": "user"
+          }
+        ],
+        "model": "house-small"
+      },
+      "sent": {
+        "messages": [
+          {
+            "content": "Plan three dinners for the week.",
+            "role": "user"
+          }
+        ],
+        "model": "example-small:8b",
+        "stream": true,
+        "stream_options": {
+          "include_usage": true
+        }
+      }
+    }
+  ],
+  "test_data": true
+}

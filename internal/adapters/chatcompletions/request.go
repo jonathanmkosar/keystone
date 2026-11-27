@@ -20,6 +20,10 @@ type wireRequest struct {
 	MaxTokens     int            `json:"max_tokens,omitempty"`
 	Stream        bool           `json:"stream"`
 	StreamOptions *streamOptions `json:"stream_options,omitempty"`
+
+	// ReasoningEffort is empty for a request with no effort, so that
+	// request is sent as it was before effort existed.
+	ReasoningEffort string `json:"reasoning_effort,omitempty"`
 }
 
 type streamOptions struct {
@@ -79,8 +83,9 @@ type wireFile struct {
 const betweenBlocks = "\n\n"
 
 // buildBody turns a seam request into the JSON body for one entry. The
-// request has passed seam.ValidateRequest.
-func buildBody(m models.Model, req seam.Request) ([]byte, error) {
+// request has passed seam.ValidateRequest. sendEffort is the setting
+// chat_completions.send_reasoning_effort.
+func buildBody(m models.Model, req seam.Request, sendEffort bool) ([]byte, error) {
 	if n := seam.Images(req); n > 0 && !m.Has(models.CapVision) { // P9-02: never an image to a model without vision
 		return nil, fmt.Errorf("the request holds %d images, and the registry entry of %s does not say it can see: an image is never sent to a model without vision", n, m.Name)
 	}
@@ -91,6 +96,11 @@ func buildBody(m models.Model, req seam.Request) ([]byte, error) {
 	}
 	if n := req.MaxOutputTokens; n > 0 {
 		out.MaxTokens = min(n, m.OutputLimit)
+	}
+	if sendEffort && req.Effort != "" && m.Has(models.CapThinking) {
+		// Sent as asked: the endpoints of this kind differ in the levels
+		// they take, and the setting is off until the owner's are known.
+		out.ReasoningEffort = string(req.Effort)
 	}
 	if len(req.System) > 0 {
 		var parts []string

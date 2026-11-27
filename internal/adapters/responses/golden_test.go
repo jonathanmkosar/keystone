@@ -27,6 +27,9 @@ type goldenFile struct {
 func TestARequestWithNoEffortIsSentAsBefore(t *testing.T) {
 	got := map[string]string{}
 	for _, c := range loadCases(t) {
+		if c.Request.Effort != "" {
+			continue
+		}
 		p, err := New(entry("http://127.0.0.1:1/v1", c.Capabilities...), testKey, testOptions)
 		if err != nil {
 			t.Fatal(err)

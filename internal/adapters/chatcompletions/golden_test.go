@@ -27,7 +27,12 @@ type goldenFile struct {
 func TestARequestWithNoEffortIsSentAsBefore(t *testing.T) {
 	got := map[string]string{}
 	for _, x := range exchanges(t) {
-		body, err := buildBody(x.Entry, x.Request)
+		if x.Request.Effort != "" {
+			continue
+		}
+		// With the setting on, so that a request with no effort is shown
+		// to be unchanged whatever the setting says.
+		body, err := buildBody(x.Entry, x.Request, true)
 		if err != nil {
 			t.Fatalf("%s: %v", x.Name, err)
 		}

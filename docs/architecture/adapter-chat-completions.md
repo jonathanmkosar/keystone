@@ -61,7 +61,10 @@ One `POST` to `endpoint` + `/chat/completions`, with `stream` set and `stream_op
 | `tools` | `tools`, each a `function` with its name, description and schema. |
 | `max_output_tokens` | `max_tokens`, and never more than the entry's `output_limit`. Left out when zero. |
 | `thinking_tokens` | Not sent. See "Not here yet". |
+| `effort` (P14-01) | `reasoning_effort`, the level as asked, only for an entry with `thinking` and only when `chat_completions.send_reasoning_effort` is on. It is off as shipped, and then nothing about effort is sent. |
 | `model` | The entry's `provider_model`. |
+
+**Effort.** The endpoints of this kind differ in whether they know `reasoning_effort` and which levels they take: OpenAI's own endpoint reads it for its reasoning models, others are believed to, unchecked, and a local server may refuse a field it does not know. So the field is behind a setting, off as shipped, and the level goes as asked, `xhigh` and `max` included, with no mapping of the adapter's own (decision [0622](decisions/0622-effort-levels-go-as-asked-except-where-the-spec-maps-them.md)). A request with no effort is sent as the same bytes as before effort existed, whatever the setting says; `golden_test.go` checks it against `fixtures/chat-completions/golden/bodies.json`.
 
 An image or a file must arrive with its bytes. A block that only names a stored file by `ref` is refused as `invalid` before any call, because whoever builds the call reads the file ([seam.md](seam.md)).
 
@@ -144,6 +147,7 @@ In `settings/models.json`. All are install-wide, and read by `adapters.ChatCompl
 | `chat_completions.max_attempts` | `3` | How many times one call is sent at most. One means no retry. |
 | `chat_completions.retry_wait` | `500ms` | The wait before the second attempt. |
 | `chat_completions.retry_wait_max` | `8s` | The longest wait between two attempts. |
+| `chat_completions.send_reasoning_effort` | `false` | Whether a request's effort is sent as `reasoning_effort`, for an entry with `thinking`. |
 
 ## In code
 
@@ -169,6 +173,7 @@ Since P9-02 the adapter refuses, while it builds the body and before anything is
 `go test ./internal/adapters/chatcompletions`, with no key and no network. Every server is on this machine.
 
 - A recorded exchange for each endpoint style, in `fixtures/chat-completions/`: the body sent is the one recorded, the `Authorization` header is there only when the entry has a key, and the reply adds up to the one recorded.
+- The effort exchanges in `fixtures/chat-completions/effort/exchanges.json` (P14-01): each level with the setting on, effort beside a thinking budget, the setting off, and an entry without `thinking` (`effort_test.go`). The body of every recorded exchange is the same bytes as before effort existed (`golden_test.go`).
 - The gateway's exchange runs over TLS with a certificate made when the test runs. A call fails with no `ca_cert` and with another authority's, and works with the right one as PEM text and as a file.
 - The adapter's code does not name the switch that turns certificate checks off.
 - Every refusal in `errors.json` becomes its seam error, and between them they cover all seven kinds.
@@ -185,7 +190,7 @@ In `verify`: the folder is on the `offline` check's list of folders that may imp
 ## Not here yet
 
 - **The live checks.** No real endpoint has been called. See below.
-- **Asking for thinking.** `thinking_tokens` is not sent. The endpoints of this kind each ask for reasoning in their own way, and a field one of them does not know can be refused. Reasoning that an endpoint sends is read. A per-entry way to ask for it can be added when a model needs it.
+- **Asking for thinking.** `thinking_tokens` is not sent. The endpoints of this kind each ask for reasoning in their own way, and a field one of them does not know can be refused. Reasoning that an endpoint sends is read. A per-entry way to ask for it can be added when a model needs it. Since P14-01 a request's effort can be sent, behind an install-wide setting, as above.
 - **Cache writes.** Not reported by the format.
 - **Cache marks for an Anthropic model behind OpenRouter**, which takes `cache_control` on content parts. Without them such a model is cached only as far as OpenRouter does by itself.
 - **Embeddings.** `/embeddings` is a separate call with its own request shape, and comes with P6-08. Built since: `Provider.Embed` (`embed.go`) sends `{"model": <provider_model>, "input": [...], "encoding_format": "float"}` to `{endpoint}/embeddings` for an entry with the `embedding` capability, and refuses any other entry before it sends. Each vector goes to the text its `index` names, or in order when none has one; the input tokens are `usage.prompt_tokens`, or `total_tokens`, or left for Keystone to count. A refusal is sorted as a chat call's is, a retryable one is sent again up to `chat_completions.max_attempts`, an answer that is not one usable vector for each text is `other` and not sent again, no redirect is followed, and the key is never in a message. The whole call is bounded by the response and idle timeouts together. Proven against hand-written exchanges in `fixtures/chat-completions/embeddings/exchanges.json` (Ollama, LiteLLM and the gateway's shapes, four refusals, six malformed answers), replayed by a server on this machine ([embeddings.md](embeddings.md)).

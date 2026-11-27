@@ -56,6 +56,14 @@ type Options struct {
 	// thinking as a token budget. A name ending in * matches by its start.
 	// Every other model is asked for adaptive thinking.
 	BudgetThinkingModels []string
+	// EffortModels lists the provider model names that take a request's
+	// effort as output_config.effort. A name ending in * matches by its
+	// start.
+	EffortModels []string
+	// EffortBudgetLow, EffortBudgetMedium and EffortBudgetHigh are the
+	// thinking budgets a request's effort stands for, for a model with
+	// thinking. xhigh and max take the high budget.
+	EffortBudgetLow, EffortBudgetMedium, EffortBudgetHigh int
 	// Transport carries the calls. Nil means Go's standard transport.
 	Transport http.RoundTripper
 }
@@ -70,6 +78,8 @@ func (o Options) check() error {
 		return errors.New("a wait cannot be negative")
 	case o.MaxRetries > 0 && o.RetryMaxDelay < o.RetryBaseDelay:
 		return errors.New("the longest retry wait is shorter than the first")
+	case o.EffortBudgetLow < 0 || o.EffortBudgetMedium < 0 || o.EffortBudgetHigh < 0:
+		return errors.New("an effort's thinking budget cannot be negative")
 	}
 	return nil
 }

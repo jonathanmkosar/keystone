@@ -72,13 +72,31 @@ func AnthropicOptions(reg []settings.Setting) (anthropic.Options, error) {
 	if opts.CacheControl, err = strconv.ParseBool(text("anthropic.cache_control")); err != nil {
 		problems = append(problems, "anthropic.cache_control must be true or false")
 	}
-	for _, name := range strings.Split(text("anthropic.budget_thinking_models"), ",") {
-		if name = strings.TrimSpace(name); name != "" {
-			opts.BudgetThinkingModels = append(opts.BudgetThinkingModels, name)
+	opts.BudgetThinkingModels = names(text("anthropic.budget_thinking_models"))
+	opts.EffortModels = names(text("anthropic.effort_models"))
+	budget := func(key string) int {
+		n, err := strconv.Atoi(text(key))
+		if err != nil || n < 0 {
+			problems = append(problems, key+" must be a whole number, zero or more")
 		}
+		return n
 	}
+	opts.EffortBudgetLow = budget("anthropic.effort_budget_low")
+	opts.EffortBudgetMedium = budget("anthropic.effort_budget_medium")
+	opts.EffortBudgetHigh = budget("anthropic.effort_budget_high")
 	if len(problems) > 0 {
 		return anthropic.Options{}, errors.New(strings.Join(problems, "; "))
 	}
 	return opts, nil
+}
+
+// names splits a list of names separated by commas, leaving out blanks.
+func names(list string) []string {
+	var out []string
+	for _, name := range strings.Split(list, ",") {
+		if name = strings.TrimSpace(name); name != "" {
+			out = append(out, name)
+		}
+	}
+	return out
 }

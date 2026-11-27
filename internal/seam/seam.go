@@ -105,9 +105,38 @@ type Request struct {
 	// ThinkingTokens is the most the model may spend on thinking. Zero
 	// means no thinking is asked for.
 	ThinkingTokens int `json:"thinking_tokens,omitempty"`
+	// Effort is how hard the model is asked to work (P14-01). Empty
+	// leaves the call as it was before effort existed. When both are set,
+	// Effort wins over ThinkingTokens.
+	Effort Effort `json:"effort,omitempty"`
 	// Cache says where the parts of the request that repeat from one call
 	// of a chat to the next end (P5-03). Nil leaves it to the adapter.
 	Cache *Cache `json:"cache,omitempty"`
+}
+
+// Effort is one of the five levels a request may ask for, lowest first.
+// Each adapter turns it into what its provider takes.
+type Effort string
+
+const (
+	EffortLow    Effort = "low"
+	EffortMedium Effort = "medium"
+	EffortHigh   Effort = "high"
+	EffortXHigh  Effort = "xhigh"
+	EffortMax    Effort = "max"
+)
+
+// Efforts are the levels, lowest first.
+var Efforts = []Effort{EffortLow, EffortMedium, EffortHigh, EffortXHigh, EffortMax}
+
+// Known reports whether e is one of the five levels. Empty is not.
+func (e Effort) Known() bool {
+	for _, k := range Efforts {
+		if e == k {
+			return true
+		}
+	}
+	return false
 }
 
 // Cache is a request's cache points. A provider that caches only where it
@@ -260,6 +289,9 @@ func ValidateMessage(m Message) error {
 func ValidateRequest(r Request) error {
 	if r.MaxOutputTokens < 0 || r.ThinkingTokens < 0 {
 		return fmt.Errorf("a token limit cannot be negative")
+	}
+	if r.Effort != "" && !r.Effort.Known() {
+		return fmt.Errorf("effort %q is not low, medium, high, xhigh or max", r.Effort)
 	}
 	for i, b := range r.System {
 		if b.Type != BlockText {

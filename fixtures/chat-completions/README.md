@@ -13,6 +13,8 @@ These are recorded exchanges for the Chat Completions adapter, written in the sh
 | `gateway-cut-short.json` | The home gateway | A key, and https with the gateway's own certificate authority. A reply that stops at the output limit, with no usage reported. |
 | `errors.json` | All | Refusals by status and body, and errors that arrive inside a reply, each with the seam error it must become. |
 | `embeddings/exchanges.json` | Ollama, LiteLLM, the gateway | Embedding calls (P6-08): three hand-written exchanges of `POST /embeddings` (indexes in order and out of order, none at all; usage as prompt tokens, total tokens, or missing), four refusals with the seam error each becomes, and six answers that are not one usable vector for each text. In a folder of its own, since its shape is not a chat exchange's. |
+| `effort/exchanges.json` | Any | A request's effort (P14-01): the request, the entry's capabilities, `chat_completions.send_reasoning_effort`, and the body that must be sent. Each level with the setting on, effort beside a thinking budget, the setting off, and an entry without `thinking`. Every one is answered by the same short stream in the test. |
+| `golden/bodies.json` | All | Not an exchange: the exact body the adapter sent for each recorded exchange before effort existed. A request with no effort must still be sent as those bytes (`golden_test.go`). |
 
 ## An exchange
 

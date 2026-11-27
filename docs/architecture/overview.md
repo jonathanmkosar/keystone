@@ -316,5 +316,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0610 | [The phone's composer is one element, a pill while idle and the card once used](decisions/0610-the-phone-composer-is-one-element-idle-as-a-pill-and-expanded-as-a-card.md) |
 | 0611 | [On a phone the header is round controls floating over the page](decisions/0611-on-a-phone-the-header-is-round-controls-floating-over-the-page.md) |
 | 0612 | [On a phone a message's actions are icons, and a person's own wait for a tap](decisions/0612-on-a-phone-message-actions-are-icons-and-a-persons-wait-for-a-tap.md) |
+| 0620 | [The Anthropic adapter turns effort into a thinking budget, and adds the API's effort for a model that takes it](decisions/0620-the-anthropic-adapter-turns-effort-into-a-budget-and-the-effort-setting.md) |
+| 0621 | [A request with no effort is proven unchanged by the bytes each adapter sent before effort existed](decisions/0621-no-effort-is-proven-by-the-bytes-each-adapter-sent-before.md) |
+| 0622 | [An effort level goes to the provider as asked, except where the spec maps it](decisions/0622-effort-levels-go-as-asked-except-where-the-spec-maps-them.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

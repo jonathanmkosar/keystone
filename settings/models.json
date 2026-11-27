@@ -74,6 +74,42 @@
       "description": "The provider model names, separated by commas, that are asked for thinking as a token budget. A name ending in * matches by its start. Every other model is asked for adaptive thinking, where the model decides how much to think."
     },
     {
+      "key": "anthropic.effort_models",
+      "title": "Models that take an effort",
+      "summary": "The models sent a request's effort as the API's own effort setting.",
+      "type": "string",
+      "default": "claude-opus-4-5*,claude-opus-4-6*,claude-sonnet-4-6*,claude-opus-4-7*,claude-opus-4-8*,claude-opus-5*,claude-sonnet-5*,claude-haiku-5*,claude-fable-5*,claude-mythos-5*",
+      "scope": "install",
+      "description": "The provider model names, separated by commas, that are sent a request's effort as output_config.effort. A name ending in * matches by its start. Another model with the thinking capability is asked to think within the budget the effort stands for instead, and a model with neither is sent nothing about effort."
+    },
+    {
+      "key": "anthropic.effort_budget_low",
+      "title": "Thinking budget for low effort",
+      "summary": "The thinking budget low effort stands for in the Anthropic adapter.",
+      "type": "int",
+      "default": "2048",
+      "scope": "install",
+      "description": "The thinking tokens a request at low effort may use, for a model with the thinking capability. A model that takes a thinking budget is sent it, kept under the output limit; under 1024 no thinking is asked for. Another model is asked for adaptive thinking."
+    },
+    {
+      "key": "anthropic.effort_budget_medium",
+      "title": "Thinking budget for medium effort",
+      "summary": "The thinking budget medium effort stands for in the Anthropic adapter.",
+      "type": "int",
+      "default": "8192",
+      "scope": "install",
+      "description": "The thinking tokens a request at medium effort may use, for a model with the thinking capability. A model that takes a thinking budget is sent it, kept under the output limit."
+    },
+    {
+      "key": "anthropic.effort_budget_high",
+      "title": "Thinking budget for high effort",
+      "summary": "The thinking budget high and higher effort stand for in the Anthropic adapter.",
+      "type": "int",
+      "default": "24576",
+      "scope": "install",
+      "description": "The thinking tokens a request at high effort may use, for a model with the thinking capability. Requests at xhigh and max effort use it too. A model that takes a thinking budget is sent it, kept under the output limit."
+    },
+    {
       "key": "fake.delta_size",
       "title": "Fake reply piece size",
       "summary": "How many characters the fake model sends at a time.",
@@ -270,6 +306,15 @@
       "default": "500ms",
       "scope": "install",
       "description": "How long the Chat Completions adapter waits before it sends a call again. The wait doubles with each attempt."
+    },
+    {
+      "key": "chat_completions.send_reasoning_effort",
+      "title": "Chat Completions sends effort",
+      "summary": "Sends a request's effort to Chat Completions models that can think.",
+      "type": "bool",
+      "default": "false",
+      "scope": "install",
+      "description": "Whether the Chat Completions adapter sends a request's effort as reasoning_effort, for an entry with the thinking capability. Off, nothing about effort is sent, because an endpoint that does not know the field may refuse the call."
     },
     {
       "key": "routing.summary_model",

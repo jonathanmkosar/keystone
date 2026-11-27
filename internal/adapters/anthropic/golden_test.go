@@ -31,10 +31,15 @@ func TestARequestWithNoEffortIsSentAsBefore(t *testing.T) {
 	for file, exchanges := range loadExchanges(t) {
 		for _, x := range exchanges {
 			req, err := seam.DecodeRequest(x.Request)
-			if err != nil {
+			if err != nil || req.Effort != "" {
 				continue
 			}
-			p, err := New(fixtureEntry(x, "http://127.0.0.1:1"+x.Model.Path), testKey, fixtureOptions(x))
+			// Every model takes effort here, so that a request with no
+			// effort is shown to be unchanged whatever the settings say.
+			opts := fixtureOptions(x)
+			opts.EffortModels = []string{"*"}
+			opts.EffortBudgetLow, opts.EffortBudgetMedium, opts.EffortBudgetHigh = 2048, 8192, 24576
+			p, err := New(fixtureEntry(x, "http://127.0.0.1:1"+x.Model.Path), testKey, opts)
 			if err != nil {
 				t.Fatal(err)
 			}

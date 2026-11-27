@@ -38,6 +38,7 @@ type exchange struct {
 	Options struct {
 		CacheControl         *bool    `json:"cache_control"`
 		BudgetThinkingModels []string `json:"budget_thinking_models"`
+		EffortModels         []string `json:"effort_models"`
 	} `json:"options"`
 	BareEvents bool            `json:"bare_events"`
 	Request    json.RawMessage `json:"request"`
@@ -99,6 +100,10 @@ func testOptions() Options {
 		HeaderTimeout:  10 * time.Second,
 		IdleTimeout:    10 * time.Second,
 		CacheControl:   true,
+		// The defaults of anthropic.effort_budget_low, _medium and _high.
+		EffortBudgetLow:    2048,
+		EffortBudgetMedium: 8192,
+		EffortBudgetHigh:   24576,
 	}
 }
 
@@ -337,6 +342,7 @@ func fixtureOptions(x exchange) Options {
 		opts.CacheControl = *x.Options.CacheControl
 	}
 	opts.BudgetThinkingModels = x.Options.BudgetThinkingModels
+	opts.EffortModels = x.Options.EffortModels
 	return opts
 }
 
