@@ -1,0 +1,113 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "research: the plan step splits the question into parts",
+      "when": { "user_text_contains": "Split the research question below into at most" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "1. Opening hours: Find the days and hours the harbour museum is open this week.\n2. What is on show: Find what is on show at the harbour museum this month." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 380, "output_tokens": 44 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "research: the part that finds the opening hours",
+      "when": { "user_text_contains": "Find the days and hours the harbour museum is open this week." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will search for the museum's hours." },
+                {
+                  "type": "tool_call",
+                  "id": "call_research_hours",
+                  "name": "web_search",
+                  "input": { "query": "harbour museum opening hours" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 30 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "The harbour museum is open from ten in the morning, Tuesday to Sunday [1]. It is closed on Mondays [2]. Nothing was found about when it closes in the evening." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 840, "output_tokens": 46 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "research: the part that finds what is on show",
+      "when": { "user_text_contains": "Find what is on show at the harbour museum this month." },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "I will search for what the museum is showing." },
+                {
+                  "type": "tool_call",
+                  "id": "call_research_show",
+                  "name": "web_search",
+                  "input": { "query": "harbour museum exhibitions this month" }
+                }
+              ]
+            },
+            "stop_reason": "tool_call",
+            "usage": { "input_tokens": 520, "output_tokens": 32 }
+          }
+        },
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "Neither page says what is on show this month. The page about visiting the harbour confirms the museum is closed on Mondays [2]. A lighthouse lens is said to be on show [6]." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 840, "output_tokens": 48 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "research: the report step writes the report from the findings",
+      "when": { "user_text_contains": "Write the research report for the question below" },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                { "type": "text", "text": "## Summary\n\nThe harbour museum is open from ten in the morning, Tuesday to Sunday [1], and closed on Mondays [2]. What is on show this month was not found.\n\n## Opening hours\n\nThe museum's own page gives ten in the morning as its opening time, Tuesday to Sunday [1]. The page about visiting the harbour agrees that it is closed on Mondays [2]. Neither says when it closes in the evening.\n\n## What is on show\n\nNo source that was read says what is on show this month. A visitor guide is said to list a lighthouse lens [5].\n\n## What is uncertain\n\nThe closing time and this month's exhibitions were not found. This report is a recorded turn: its words are fixed, and each number is checked against the sources the parts' searches returned." }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": { "input_tokens": 1240, "output_tokens": 190 }
+          }
+        }
+      ]
+    }
+  ]
+}

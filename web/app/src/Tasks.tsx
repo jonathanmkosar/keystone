@@ -16,6 +16,7 @@ import { AgentsSwitch } from "./AgentsSwitch";
 import { ApiError, followTask, listTasks, stopTask, type Task } from "./api";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
+import { ResearchNote, useResearchOfNote } from "./Research";
 import { onEnd } from "./turns";
 import "./tasks.css";
 
@@ -194,6 +195,9 @@ export function Tasks({ chatId, onEnded }: { chatId: string; onEnded: () => void
 /** The note a task wrote in the chat it was started from: its result, with the task's mark. */
 export function TaskNote({ chatId, messageId, text }: { chatId: string; messageId: number; text: string }) {
   const task = useKept(chatId).find((t) => t.note_message_id === messageId);
+  // A research task's note (P8-04) is drawn with its citations, its report and its sources.
+  const research = useResearchOfNote(chatId, messageId);
+  if (research) return <ResearchNote chatId={chatId} task={research} text={text} />;
   return (
     <div className="task-note">
       <div className="task-note-head">

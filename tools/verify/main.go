@@ -140,6 +140,7 @@ var checks = []check{
 	{"dictation", checkDictation},
 	{"import", checkImport},
 	{"inline visuals", checkInlineVisuals},
+	{"research mode", checkResearch},
 }
 
 func main() {

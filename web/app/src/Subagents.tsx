@@ -158,7 +158,7 @@ function preview(text: string): string {
   return one.length > 220 ? one.slice(0, 219).trimEnd() + "…" : one;
 }
 
-function Lane({ chatId, sub, onChange }: { chatId: string; sub: Subagent; onChange: (s: Subagent) => void }) {
+export function Lane({ chatId, sub, onChange }: { chatId: string; sub: Subagent; onChange: (s: Subagent) => void }) {
   const [open, setOpen] = useState(false);
   const [stopping, setStopping] = useState(false);
   const [problem, setProblem] = useState("");

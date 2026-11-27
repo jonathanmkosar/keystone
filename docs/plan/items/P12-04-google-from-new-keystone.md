@@ -1,6 +1,6 @@
 # P12-04. Google from New Keystone
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P12-02
 Owner gate: The owner's go-ahead to reuse New Keystone's Google sign-in, given on November 26, 2026.

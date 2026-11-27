@@ -143,3 +143,4 @@ In `settings/agents.json`.
 - **The memory pass, recaps and compaction are not paused.** They are part of a chat, not agents. Their spend has the memory reserve and the cap.
 - **A paused round's spend.** A call cut short is recorded with no tokens and no cost, as any stopped call is ([usage.md](usage.md)).
 - **Two calls at once** can each pass a budget's check and together spend more than it by one call's cost, as at the cap.
+- **Research tasks** (P8-04, [research-mode.md](research-mode.md)) are unattended runs too: a task's own turns are a run registered as a background task named "Research: …", and each of its parts is a sub-agent's run. Its budget, `agents.research_budget_usd`, is one sum split between them, and `unattended.SetBudget`, in the new `internal/unattended/budget.go`, changes a registered run's budget as the task moves from its plan to its parts to its report. The task reads the switch at every look; the pause routes' counts leave it out.
