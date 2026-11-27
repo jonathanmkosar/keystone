@@ -470,6 +470,8 @@ func TestTheSelectedChatsAndNothingElseAreDeleted(t *testing.T) {
 	if resp.StatusCode != http.StatusBadRequest || refusal.Code != "too_many" {
 		t.Fatalf("three chats with two allowed answered %d %s", resp.StatusCode, refusal.Code)
 	}
+	// The ids are counted as sent: one said three times is three.
+	sv.call(me, "POST", "chats/delete", `{"ids":["`+a+`","`+a+`","`+a+`"]}`, http.StatusBadRequest, nil)
 	if got := sv.tableOf(me, ""); got.Total != 4 || got.DeleteMax != 2 {
 		t.Fatalf("after the refusals the person has %d chats (delete max %d)", got.Total, got.DeleteMax)
 	}

@@ -621,6 +621,16 @@ func (r *Runner) removeMany(w http.ResponseWriter, req *http.Request, c api.Call
 		r.answer(w, req, c, err)
 		return
 	}
+	// The ids are counted as they were sent, before any is read, so a body
+	// of very many costs nothing: an id said twice counts twice here.
+	switch {
+	case len(body.IDs) == 0:
+		refused(w, req, "give ids, the chats to delete")
+		return
+	case len(body.IDs) > lim.deleteMax:
+		api.Error(w, req, http.StatusBadRequest, "too_many", "one call deletes at most "+strconv.Itoa(lim.deleteMax)+" chats; send the rest in another")
+		return
+	}
 	var ids []string
 	for _, id := range body.IDs {
 		if !plainID(id) {
@@ -630,14 +640,6 @@ func (r *Runner) removeMany(w http.ResponseWriter, req *http.Request, c api.Call
 		if !slices.Contains(ids, id) {
 			ids = append(ids, id)
 		}
-	}
-	switch {
-	case len(ids) == 0:
-		refused(w, req, "give ids, the chats to delete")
-		return
-	case len(ids) > lim.deleteMax:
-		api.Error(w, req, http.StatusBadRequest, "too_many", "one call deletes at most "+strconv.Itoa(lim.deleteMax)+" chats; send the rest in another")
-		return
 	}
 	reply := DeleteManyReply{Deleted: []string{}, Skipped: []SkippedChat{}}
 	for _, id := range ids {

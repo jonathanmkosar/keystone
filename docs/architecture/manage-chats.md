@@ -97,7 +97,7 @@ Each chat is deleted by `chat.Delete`, in its own transaction, exactly as `DELET
 
 `why` says the same in words, for the screen. While the queue is held no turn can start in the chat, so a message sent in the same moment either goes with the chat or finds it gone. This is unlike `DELETE /chats/{id}`, which stops a running turn first: one chat a person chose to delete from its own menu is one thing, and a chat swept up in "select all" while it is answering is another.
 
-**What is refused whole**, with nothing deleted: a body with no ids, an id that is not a short run of letters, digits, hyphens and underscores (400 `bad_request`), and more ids than `chats.delete_batch_max` (400 `too_many`). An id said twice is taken once.
+**What is refused whole**, with nothing deleted: a body with no ids, an id that is not a short run of letters, digits, hyphens and underscores (400 `bad_request`), and more ids than `chats.delete_batch_max` (400 `too_many`). The ids are counted as they were sent, before any is read, so a body of very many costs nothing; within the limit, an id said twice is taken once.
 
 **The audit log** (decision 0553). The call has its own two entries, as every API call has, and those hold no body. So each chat of the batch is an entry too, under the call's request id, with the action its own delete would have, `DELETE /api/v1/chats/<id>`: `started` before it is deleted and `ok` after, or one `refused` entry with its reason for a chat that was left. A delete that cannot be recorded first is not made.
 
