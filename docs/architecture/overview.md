@@ -313,5 +313,9 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0584 | [Screenshots are kept in the person's database, named by the result, and shown under their step; the model reads text](decisions/0584-screenshots-are-kept-in-the-database-and-shown-under-their-step.md) |
 | 0585 | [Browser use is off until each person switches it on, and opening and reading a page do not ask](decisions/0585-browser-use-is-off-until-each-person-switches-it-on.md) |
 | 0590 | [On a phone the composer's and the header's controls are rows of a sheet, drawn by each control itself](decisions/0590-on-a-phone-the-composer-and-header-controls-are-rows-of-a-sheet.md) |
+| 0600 | [A location travels as a field of the send body and is kept beside its message, not as a block](decisions/0600-a-location-travels-as-a-field-of-the-send-body-and-is-kept-beside-its-message.md) |
+| 0601 | [The model gets the location as one line before the person's words, written once, in every call that sends that message](decisions/0601-the-model-gets-one-line-before-the-persons-words-written-once.md) |
+| 0602 | [Keystone's own pages may ask for the position, by a second Permissions-Policy line beside the microphone's](decisions/0602-the-position-is-allowed-by-a-second-permissions-policy-line.md) |
+| 0603 | [The position is asked for on a tap, once, at low accuracy, and rounded in the page before anything holds it](decisions/0603-the-position-is-asked-for-on-a-tap-once-and-rounded-in-the-page.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

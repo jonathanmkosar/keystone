@@ -121,6 +121,10 @@ type InspectReply struct {
 	// files, and what was withheld and why (P9-02). Absent when the turn's
 	// branch held none.
 	Uploads []uploads.StepCall `json:"uploads,omitempty"`
+	// Location is the location the turn's message was sent with, and the
+	// line each of its calls carried before the person's words (P10-06).
+	// Absent when the message carried none.
+	Location *SentLocation `json:"location,omitempty"`
 }
 
 // SkipsReply answers the skip routes: what the chat's next turn leaves out.
@@ -207,6 +211,11 @@ func (r *Runner) inspection(ctx context.Context, s *tenant.Store, t row) (Inspec
 	}
 	if reply.Uploads, err = uploads.Calls(ctx, s, t.ID); err != nil { // P9-02
 		return InspectReply{}, err
+	}
+	if t.UserMessageID != 0 {
+		if reply.Location, err = locationOf(ctx, s, t.UserMessageID); err != nil { // P10-06 (location.go)
+			return InspectReply{}, err
+		}
 	}
 	return reply, nil
 }

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import { AttachButton, AttachChips, useAttachments } from "./Attachments";
 import { DictationButton, DictationStatus, useDictation } from "./DictationControls";
 import { Icon } from "./Icon";
+import { LocationButton, LocationChip, useLocation } from "./LocationControl";
+import type { SentPosition } from "./location";
 import { mayTakeFocus, Sheet, useNarrow } from "./PhoneSheet";
 
 /**
@@ -30,8 +32,8 @@ export function Composer({
   focusKey?: string;
   /** What the box holds at first: a message that could not be sent. */
   initial?: string;
-  /** The message, and the files to upload with it (P9-02). */
-  onSend: (text: string, files: File[]) => void;
+  /** The message, the files to upload with it (P9-02), and the rounded location that goes with it alone (P10-06). */
+  onSend: (text: string, files: File[], location?: SentPosition) => void;
   onStop?: () => void;
   /** Drawn before the model picker: the research, tools and style controls. On a phone they are rows of the + sheet. */
   beside?: ReactNode;
@@ -46,6 +48,7 @@ export function Composer({
   const closeSheet = useCallback(() => setSheet(false), []);
   const attach = useAttachments(); // the files that go with the message (P9-02, Attachments.tsx)
   const dictation = useDictation(area, text, setText); // speech into the box, never sent by itself (P10-01, DictationControls.tsx)
+  const location = useLocation(); // the position that goes with the next message only, on a tap (P10-06, LocationControl.tsx)
 
   // The box grows with what is typed, up to the limit the stylesheet sets.
   // The height is set through the element, which the content security policy
@@ -70,7 +73,7 @@ export function Composer({
     // person to review, and nothing is sent (P10-01).
     if (dictation.holdsSend()) return;
     if (!ready) return;
-    onSend(text.trim(), attach.files);
+    onSend(text.trim(), attach.files, location.take());
     setText("");
     attach.clear();
   }
@@ -104,6 +107,7 @@ export function Composer({
   return (
     <form className={(large ? "composer composer-large" : "composer") + (attach.dragging ? " is-dropping" : "")} onSubmit={submit} {...attach.dropProps}>
       <AttachChips attach={attach} />
+      <LocationChip location={location} />
       <label className="offscreen" htmlFor="composer-message">
         Message
       </label>
@@ -130,12 +134,14 @@ export function Composer({
           {sendButton}
           <Sheet open={sheet} label="Add to your message" onClose={closeSheet} opener={plus}>
             <AttachButton attach={attach} />
+            <LocationButton location={location} />
             {beside}
           </Sheet>
         </div>
       ) : (
         <div className="composer-row">
           <AttachButton attach={attach} />
+          <LocationButton location={location} />
           <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
           {beside}
           {model}

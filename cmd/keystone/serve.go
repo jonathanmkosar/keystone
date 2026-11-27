@@ -37,6 +37,7 @@ func handler(api http.Handler) http.Handler {
 		h.Set("Referrer-Policy", "no-referrer")
 		h.Set("Content-Security-Policy", "default-src 'self'")
 		h.Set("Permissions-Policy", "microphone=(self)") // dictation, from Keystone's own pages only (decision 0500)
+		h.Add("Permissions-Policy", "geolocation=(self)") // location per message, on a tap, from Keystone's own pages only (decision 0602)
 		if api != nil && (r.URL.Path == "/api" || strings.HasPrefix(r.URL.Path, "/api/")) {
 			api.ServeHTTP(w, r)
 			return

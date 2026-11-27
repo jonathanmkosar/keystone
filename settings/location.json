@@ -1,0 +1,42 @@
+{
+  "lane": "location",
+  "settings": [
+    {
+      "key": "location.share",
+      "title": "Use my location",
+      "summary": "The composer can send your approximate location with one message.",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether the composer has a Use my location control. A tap asks the browser for the phone's or computer's position, once, and the position, rounded, goes with that one message only, to whichever model answers it, hosted models included. Nothing is read without the tap. Off, the control is not drawn and a message that carries a location is refused."
+    },
+    {
+      "key": "location.decimals",
+      "title": "Location precision",
+      "summary": "How many decimals a shared position is rounded to.",
+      "type": "string",
+      "default": "2",
+      "options": ["1", "2", "3", "4"],
+      "scope": "tenant",
+      "description": "How many decimal places of latitude and longitude a shared position keeps: 1 is about 11 km, 2 about 1 km, 3 about 110 m and 4 about 11 m. The page rounds before the position leaves the browser, and the server rounds again, so nothing more exact is kept or sent."
+    },
+    {
+      "key": "location.timeout",
+      "title": "Location wait",
+      "summary": "How long the composer waits for the browser to find the position.",
+      "type": "duration",
+      "default": "10s",
+      "scope": "tenant",
+      "description": "How long the composer waits for the browser to answer with a position before it says it could not find one, such as 10s; 0s waits as long as the browser does. The browser's own question, the first time it asks for permission, does not count against it."
+    },
+    {
+      "key": "location.line",
+      "title": "Location line for the model",
+      "summary": "The sentence put before your words when a message carries a location.",
+      "type": "string",
+      "default": "The person's approximate location: {latitude}, {longitude} (rounded to about {distance}), shared with this message.",
+      "scope": "tenant",
+      "description": "The sentence a model is given at the start of a message sent with a location, before the person's words. {latitude} and {longitude} are the rounded position in decimal degrees and {distance} how far it was rounded, such as 1 km. It is written once, when the message is placed, and the same words go with that message in every later call. Empty uses the default."
+    }
+  ]
+}

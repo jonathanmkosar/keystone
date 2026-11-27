@@ -24,6 +24,7 @@ import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { applyNewChatStyle, StylePicker } from "./StylePicker";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
 import { messageWith } from "./uploads";
+import type { SentPosition } from "./location";
 
 const footnote = "Keystone can make mistakes. Check what matters against its sources.";
 
@@ -45,7 +46,7 @@ export function Start({ person }: { person: Person }) {
   const [incognito, setIncognito] = useState(false); // P6-07: a chat that keeps no record
   const part = partOfDay();
 
-  async function begin(text: string, files: File[]) {
+  async function begin(text: string, files: File[], location?: SentPosition) {
     setBusy(true);
     setProblem("");
     try {
@@ -58,7 +59,7 @@ export function Start({ person }: { person: Person }) {
         navigate(`/chats/${made.chat.id}`);
         return;
       }
-      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined);
+      send(made.chat.id, text, adoptNewChatPick(person.id, made.chat.id), files.length > 0 ? () => messageWith(made.chat.id, text, files) : undefined, location);
       navigate(`/chats/${made.chat.id}`);
     } catch (e) {
       setBusy(false);
@@ -167,10 +168,10 @@ function OneChat({ id }: { id: string }) {
     if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   }
 
-  function sendHere(text: string, files: File[]) {
+  function sendHere(text: string, files: File[], location?: SentPosition) {
     stick.current = true;
     if (sendAsResearch(id, id, text)) return; // the Research control was on (P8-04): the message is a research question
-    send(id, text, takePick(id), files.length > 0 ? () => messageWith(id, text, files) : undefined);
+    send(id, text, takePick(id), files.length > 0 ? () => messageWith(id, text, files) : undefined, location);
   }
 
   if (loaded.state === "missing" || loaded.state === "failed") {

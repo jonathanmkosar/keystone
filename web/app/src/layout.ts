@@ -77,7 +77,7 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
       const shown = m.blocks.filter((b) => b.type !== "tool_result");
       if (shown.length === 0) continue; // tool results only: part of the reply around it
       const files = shown.filter((b) => b.type === "image" || b.type === "file").map((b) => b.name || (b.type === "image" ? "Image" : "File"));
-      items.push({ kind: "user", key: "m" + m.id, text: textOf(shown), files, id: m.id, blocks: shown });
+      items.push({ kind: "user", key: "m" + m.id, text: textOf(shown), files, id: m.id, blocks: shown, located: m.location !== undefined, place: m.location?.line });
       anchor = String(m.id);
       reply = undefined;
       continue;
@@ -108,7 +108,7 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
   if (!live) return items;
 
   if (live.said !== "") {
-    items.push({ kind: "user", key: "said", text: live.said, files: [] });
+    items.push({ kind: "user", key: "said", text: live.said, files: [], located: live.located });
     anchor = "said";
     reply = undefined;
   }

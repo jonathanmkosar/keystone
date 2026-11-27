@@ -1426,6 +1426,29 @@
                           "id": {
                             "type": "integer"
                           },
+                          "location": {
+                            "properties": {
+                              "decimals": {
+                                "type": "integer"
+                              },
+                              "latitude": {
+                                "type": "number"
+                              },
+                              "line": {
+                                "type": "string"
+                              },
+                              "longitude": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude",
+                              "decimals",
+                              "line"
+                            ],
+                            "type": "object"
+                          },
                           "model": {
                             "type": "string"
                           },
@@ -2009,6 +2032,29 @@
                           },
                           "id": {
                             "type": "integer"
+                          },
+                          "location": {
+                            "properties": {
+                              "decimals": {
+                                "type": "integer"
+                              },
+                              "latitude": {
+                                "type": "number"
+                              },
+                              "line": {
+                                "type": "string"
+                              },
+                              "longitude": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude",
+                              "decimals",
+                              "line"
+                            ],
+                            "type": "object"
                           },
                           "model": {
                             "type": "string"
@@ -2959,6 +3005,29 @@
                           },
                           "id": {
                             "type": "integer"
+                          },
+                          "location": {
+                            "properties": {
+                              "decimals": {
+                                "type": "integer"
+                              },
+                              "latitude": {
+                                "type": "number"
+                              },
+                              "line": {
+                                "type": "string"
+                              },
+                              "longitude": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude",
+                              "decimals",
+                              "line"
+                            ],
+                            "type": "object"
                           },
                           "model": {
                             "type": "string"
@@ -4343,6 +4412,29 @@
                               },
                               "id": {
                                 "type": "integer"
+                              },
+                              "location": {
+                                "properties": {
+                                  "decimals": {
+                                    "type": "integer"
+                                  },
+                                  "latitude": {
+                                    "type": "number"
+                                  },
+                                  "line": {
+                                    "type": "string"
+                                  },
+                                  "longitude": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "latitude",
+                                  "longitude",
+                                  "decimals",
+                                  "line"
+                                ],
+                                "type": "object"
                               },
                               "model": {
                                 "type": "string"
@@ -7094,6 +7186,29 @@
                           "id": {
                             "type": "integer"
                           },
+                          "location": {
+                            "properties": {
+                              "decimals": {
+                                "type": "integer"
+                              },
+                              "latitude": {
+                                "type": "number"
+                              },
+                              "line": {
+                                "type": "string"
+                              },
+                              "longitude": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude",
+                              "decimals",
+                              "line"
+                            ],
+                            "type": "object"
+                          },
                           "model": {
                             "type": "string"
                           },
@@ -9636,6 +9751,21 @@
                   "edit_of": {
                     "type": "integer"
                   },
+                  "location": {
+                    "properties": {
+                      "latitude": {
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ],
+                    "type": "object"
+                  },
                   "model": {
                     "type": "string"
                   },
@@ -9920,6 +10050,29 @@
                         },
                         "id": {
                           "type": "integer"
+                        },
+                        "location": {
+                          "properties": {
+                            "decimals": {
+                              "type": "integer"
+                            },
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "line": {
+                              "type": "string"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude",
+                            "decimals",
+                            "line"
+                          ],
+                          "type": "object"
                         },
                         "model": {
                           "type": "string"
@@ -11269,6 +11422,29 @@
                         "id": {
                           "type": "integer"
                         },
+                        "location": {
+                          "properties": {
+                            "decimals": {
+                              "type": "integer"
+                            },
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "line": {
+                              "type": "string"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude",
+                            "decimals",
+                            "line"
+                          ],
+                          "type": "object"
+                        },
                         "model": {
                           "type": "string"
                         },
@@ -12212,6 +12388,29 @@
                         "type": "object"
                       },
                       "type": "array"
+                    },
+                    "location": {
+                      "properties": {
+                        "decimals": {
+                          "type": "integer"
+                        },
+                        "latitude": {
+                          "type": "number"
+                        },
+                        "line": {
+                          "type": "string"
+                        },
+                        "longitude": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "latitude",
+                        "longitude",
+                        "decimals",
+                        "line"
+                      ],
+                      "type": "object"
                     },
                     "pinned": {
                       "items": {
@@ -18019,6 +18218,29 @@
                           },
                           "id": {
                             "type": "integer"
+                          },
+                          "location": {
+                            "properties": {
+                              "decimals": {
+                                "type": "integer"
+                              },
+                              "latitude": {
+                                "type": "number"
+                              },
+                              "line": {
+                                "type": "string"
+                              },
+                              "longitude": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "latitude",
+                              "longitude",
+                              "decimals",
+                              "line"
+                            ],
+                            "type": "object"
                           },
                           "model": {
                             "type": "string"

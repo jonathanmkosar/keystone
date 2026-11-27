@@ -43,6 +43,31 @@ func TestHandlerAllowsTheMicrophoneToItsOwnOriginOnly(t *testing.T) {
 	}
 }
 
+// Location per message (P10-06) needs the browser's position on Keystone's
+// own pages and on no other origin's, beside the microphone, and the other
+// headers stay as they were. The two lines are one policy to a browser,
+// which joins a header's lines with a comma (decision 0602).
+func TestHandlerAllowsTheLocationToItsOwnOriginOnly(t *testing.T) {
+	for _, p := range []string{"/", "/chats/abc123", "/keystone.css", "/api/v1/nothing"} {
+		rec := httptest.NewRecorder()
+		handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, p, nil))
+		h := rec.Header()
+		if got := strings.Join(h.Values("Permissions-Policy"), ", "); got != "microphone=(self), geolocation=(self)" {
+			t.Errorf("GET %s: Permissions-Policy reads %q, want microphone=(self), geolocation=(self)", p, got)
+		}
+		for name, want := range map[string]string{
+			"Content-Security-Policy": "default-src 'self'",
+			"X-Content-Type-Options":  "nosniff",
+			"X-Frame-Options":         "DENY",
+			"Referrer-Policy":         "no-referrer",
+		} {
+			if got := h.Values(name); len(got) != 1 || got[0] != want {
+				t.Errorf("GET %s: %s is %q, want %q alone", p, name, got, want)
+			}
+		}
+	}
+}
+
 func TestHandlerServesThePageFiles(t *testing.T) {
 	for path, want := range map[string]string{"/keystone.css": "text/css", "/mark.svg": "image/svg+xml"} {
 		rec := httptest.NewRecorder()

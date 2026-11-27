@@ -13,6 +13,7 @@ import { useChatUploads } from "./uploads";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
 import { InlineVisuals } from "./InlineVisuals";
+import { LocationMark } from "./LocationControl";
 import { InspectButton, PinButton, SaidActions } from "./MessageActions";
 import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
@@ -36,8 +37,9 @@ export type Part =
 
 export type Item =
   // id is the message's, for its Pin action (P5-04). blocks are its content,
-  // for its images and files (P9-02).
-  | { kind: "user"; key: string; text: string; files: string[]; id?: number; blocks?: Block[] }
+  // for its images and files (P9-02). located says it went with the person's
+  // location, and place is the line the model was given (P10-06).
+  | { kind: "user"; key: string; text: string; files: string[]; id?: number; blocks?: Block[]; located?: boolean; place?: string }
   // turnId is the turn that wrote the reply, for Inspect, and pinId the
   // message of it a pin goes on: its last with text (P5-04).
   | { kind: "reply"; key: string; parts: Part[]; streaming: boolean; turnId?: string; pinId?: number };
@@ -243,6 +245,7 @@ export function Conversation({ items }: { items: Item[] }) {
               <SaidMedia chatId={chatId} blocks={item.blocks} files={item.files} known={known} />
               {item.text}
             </div>
+            {item.located && <LocationMark title={item.place} />}
             {chatId !== "" && item.id !== undefined && <SaidActions chatId={chatId} messageId={item.id} text={item.text} />}
           </div>
         ) : (
