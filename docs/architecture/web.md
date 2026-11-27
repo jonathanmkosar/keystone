@@ -113,6 +113,10 @@ The web tools' steps and the numbers a reply cites them by ([web-search.md](web-
 
 Built from the tokens in `src/citations.css`. There is no mockup for the chip yet, so it is provisional with the agent mockups (P1-05).
 
+### Browser use (P10-03)
+
+The browser's six steps ([browser-use.md](browser-use.md)): `steps.ts` reads "Opening harbour.example in the agent's browser", then "Opened “Harbour notices”" with the site; "Read “Harbour notices”" with the count of elements; "Click “Submit” in the agent's browser" on an approval card and "Clicked “Submit”" after; "Typed “Ada” into “Your name”"; "Took a screenshot"; "Went back a page". A refusal of the guard's reads "refused", and a call with the switch off "browser use off". Under a step that took a screenshot, `BrowserShot.tsx` shows it, as a link to the full size, at most 480 pixels wide and the full width on a phone (`browser.css`, from the tokens). It reads the screenshot's id only from the result's second line, which the server writes before any of the page's words. Nothing is added to the composer; the switch is a setting, drawn by Settings. Provisional with the agent mockups (P1-05).
+
 ### A turn, from send to end
 
 `src/turns.ts` keeps the replies that are arriving, one for each chat, outside the screens (decision [0151](decisions/0151-arriving-replies-live-outside-the-screens.md)). So a reply goes on arriving while the person looks at another chat.
