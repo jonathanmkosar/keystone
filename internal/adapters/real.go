@@ -9,7 +9,7 @@ import (
 )
 
 // Real returns the set of adapters that call a real endpoint: anthropic,
-// responses and chat_completions, each with its options read from the
+// responses, chat_completions and systemone, each with its options read from the
 // settings registry's defaults. The server starts with this set. The fake
 // is not in it: the test tenant is given the fake by the turn runner, and
 // no other tenant's entry can open one on a running server.
@@ -28,5 +28,11 @@ func Real(reg []settings.Setting) (Set, error) {
 		return nil, err
 	}
 	maps.Copy(set, cc)
+	// The decision adapter (P14-02).
+	so, err := Systemone(reg)
+	if err != nil {
+		return nil, err
+	}
+	maps.Copy(set, so)
 	return set, nil
 }

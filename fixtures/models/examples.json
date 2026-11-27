@@ -36,6 +36,18 @@
       "class": "local"
     },
     {
+      "name": "house-decide",
+      "label": "House decisions",
+      "adapter": "systemone",
+      "endpoint": "http://127.0.0.1:11434",
+      "provider_model": "example-decide:9b",
+      "context_window": 8192,
+      "output_limit": 1,
+      "capabilities": ["decision"],
+      "price": {"input": 0, "output": 0},
+      "class": "local"
+    },
+    {
       "name": "study-gateway",
       "label": "Study gateway",
       "adapter": "chat_completions",

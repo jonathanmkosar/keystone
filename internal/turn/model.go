@@ -46,7 +46,7 @@ func info(m models.Model) ModelInfo {
 
 // candidates returns the tenant's models a chat turn can be sent to: the
 // usable entries whose adapter this build has, without the ones that only
-// embed.
+// embed or only decide (P14-02).
 func (r *Runner) candidates(ctx context.Context, s *tenant.Store) ([]models.Model, error) {
 	usable, err := models.Usable(ctx, s)
 	if err != nil {
@@ -54,7 +54,7 @@ func (r *Runner) candidates(ctx context.Context, s *tenant.Store) ([]models.Mode
 	}
 	var out []models.Model
 	for _, m := range usable {
-		if r.set[m.Adapter] != nil && !m.Has(models.CapEmbedding) {
+		if r.set[m.Adapter] != nil && !m.Has(models.CapEmbedding) && !m.Has(models.CapDecision) {
 			out = append(out, m)
 		}
 	}

@@ -55,11 +55,15 @@ const (
 	CapFiles     Capability = "files"
 	CapThinking  Capability = "thinking"
 	CapEmbedding Capability = "embedding"
+	// CapDecision is a decision model (P14-02): it takes decision calls, a
+	// state and typed questions, and nothing else, as an embedding model
+	// takes embedding calls only. Its entry lists no other capability.
+	CapDecision Capability = "decision"
 )
 
 // Capabilities returns every capability an entry may list.
 func Capabilities() []Capability {
-	return []Capability{CapTools, CapVision, CapFiles, CapThinking, CapEmbedding}
+	return []Capability{CapTools, CapVision, CapFiles, CapThinking, CapEmbedding, CapDecision}
 }
 
 // The adapters an entry may name. The plan fixes the three real ones.
@@ -68,6 +72,9 @@ const (
 	AdapterAnthropic       = "anthropic"
 	AdapterResponses       = "responses"
 	AdapterChatCompletions = "chat_completions"
+	// AdapterSystemone speaks Ollama's decision API, POST /v1/systemone
+	// (P14-02). Its entries are decision models and take nothing else.
+	AdapterSystemone = "systemone"
 )
 
 // Adapter is what the registry knows about one adapter: enough to check an
@@ -88,6 +95,7 @@ func Adapters() []Adapter {
 		{Name: AdapterAnthropic, Speaks: "Anthropic Messages"},
 		{Name: AdapterResponses, Speaks: "OpenAI Responses"},
 		{Name: AdapterChatCompletions, Speaks: "Chat Completions"},
+		{Name: AdapterSystemone, Speaks: "Ollama's decision API (systemone)"},
 	}
 }
 
@@ -272,6 +280,12 @@ func Check(m Model) error {
 		if slices.Contains(m.Capabilities[:i], c) {
 			return no("the capability %s is listed twice", c)
 		}
+	}
+	if m.Has(CapDecision) && len(m.Capabilities) > 1 {
+		return no("the capability decision is listed with others: a decision model takes decision calls and nothing else, so its entry lists decision alone")
+	}
+	if m.Adapter == AdapterSystemone && !m.Has(CapDecision) {
+		return no("the %s adapter speaks to decision models only: list the capability decision", AdapterSystemone)
 	}
 
 	for _, p := range []struct {

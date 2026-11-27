@@ -32,7 +32,8 @@ const heldWhy = "Not for this chat: it holds content from a sensitive space, whi
  */
 function newChatChoice(registry: RegisteredModel[], defaultName: string): ModelChoice {
   const models: ModelInfo[] = registry
-    .filter((r) => !r.problem && !(r.entry.capabilities ?? []).includes("embedding"))
+    // Embedding and decision models answer no chat (decision 0630).
+    .filter((r) => !r.problem && !(r.entry.capabilities ?? []).some((c) => c === "embedding" || c === "decision"))
     .map((r) => ({ name: r.entry.name, label: r.entry.label, class: r.entry.class, test: r.entry.adapter === "fake" }));
   const byDefault = models.find((m) => m.name === defaultName);
   if (byDefault) return { model: byDefault, source: "default", models };

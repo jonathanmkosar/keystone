@@ -96,6 +96,23 @@ A collector's `Add` is an `emit`, so a caller can pass it as it is, or wrap it t
 
 A provider is safe to use from several goroutines at once. Decision [0015](decisions/0015-a-provider-streams-through-a-callback.md) says why `emit` is a function and not a channel.
 
+## Decision calls
+
+Since P14-02 a decision is a call of its own, in `decide.go`, as an embedding is (decision [0630](decisions/0630-a-decision-is-a-call-of-its-own-and-a-decision-model-takes-nothing-else.md)). A decision model takes a state and typed questions and answers each with a probability for every option; it writes no reply.
+
+```go
+type Decider interface {
+    Decide(ctx context.Context, req DecisionRequest) (DecisionResult, error)
+}
+```
+
+- `DecisionRequest`: `model` (the registry name), `state` (the text the questions are about) and `questions`, in order. Each question has an `id`, `instructions`, a `type` (`choice` or `yes_no`) and `options`, each an `id` and an optional `description`. A choice has 2 to 255 options. A `yes_no` question's options are always `yes` and `no`; it may list them to describe them, and nothing else. Ids are 1 to 100 ASCII letters, digits, dots, dashes and underscores. Each question is answered on its own.
+- `DecisionResult`: `model`, `answers` (one for each question, in the request's order: the question's id, the `choice`, and `probabilities`, a number from 0 to 1 for every option and no other, summing to one within a hundredth) and `usage`, zero when the endpoint did not count.
+- `ValidateDecisionRequest` refuses a request with no model, a blank state, no question, an id used twice or of the wrong shape, a question with no instructions, a choice of one option or an option twice, a `yes_no` with another option, and another type. `ValidateDecisionResult(req, res)` refuses a result that does not answer its request, or whose choice is not its most probable option (decision [0631](decisions/0631-a-decision-answer-holds-a-probability-for-every-option-and-the-choice-follows.md)).
+- `OptionIDs(q)` is a question's option ids, `yes` and `no` for a `yes_no`; `ChoiceOf(ids, probabilities)` is the most probable, the earlier on a tie; `res.Answer(id)` finds one answer. `EncodeDecisionRequest` and `DecodeDecisionRequest` are how the audit log holds the request.
+
+A Decider follows a provider's rules: safe from several goroutines, no key in an error, a failure as a `*Error`, and a done context returned as itself. An adapter whose provider decides has the method beside `Stream`: the systemone adapter and the fake ([adapter-systemone.md](adapter-systemone.md), [decision-calls.md](decision-calls.md)).
+
 ## JSON
 
 Every type has JSON tags, and that JSON is how the format is stored and sent: in the chat record, the audit log, the API's event stream and the fake provider's fixtures. The `Encode` functions validate before writing. The `Decode` functions refuse an unknown field and validate after reading.
@@ -104,7 +121,7 @@ Since P9-02, `Images(r)` counts the image blocks a request carries, in its messa
 
 ## Checked by
 
-`go test ./internal/seam`. Every block type and every event type goes through JSON and comes back the same. Every block type a model can write goes through a stream and comes back the same. Malformed blocks, messages, requests, events and out-of-order streams are each refused. `Call` returns a whole reply, the stream's own error, an error for a stream with no stop event, and the context's error when the call is cancelled.
+`go test ./internal/seam`. Since P14-02, each way a decision request or result is refused, a request that goes through JSON and comes back the same, rounding within a hundredth taken, and a tie going to the earlier option. Every block type and every event type goes through JSON and comes back the same. Every block type a model can write goes through a stream and comes back the same. Malformed blocks, messages, requests, events and out-of-order streams are each refused. `Call` returns a whole reply, the stream's own error, an error for a stream with no stop event, and the context's error when the call is cancelled.
 
 ## Not here yet
 

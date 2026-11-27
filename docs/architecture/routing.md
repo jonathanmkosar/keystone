@@ -15,6 +15,7 @@ The package holds no state and reads no store and no setting. Everything it need
 | `summary` | A summary of a chat. | `routing.summary_model` |
 | `memory` | The memory pass after a turn. | `routing.memory_model` |
 | `embedding` | Text into a vector. | `routing.embedding_model` |
+| `decision` | A decision call: a state and typed questions, answered with probabilities (P14-02). | The model the caller names; the router's `router.decision_model` (P14-03) |
 
 Only `chat` and `title` are called today. The other three have a rule waiting for the items that make those calls (P5-05, P6-06, P6-08).
 
@@ -23,6 +24,8 @@ Since P5-02, `summary` is called too: compaction summarises a long chat's oldest
 Since P6-06, `memory` is called too: the memory pass reads each finished turn through the route for the `memory` task, planned as sensitive for a held chat. Its gate is the memory pass's reserve and then the monthly cap, so a hosted model refused at the reserve moves the call on to a local model behind it ([memory-pass.md](memory-pass.md)).
 
 Since P6-08, `embedding` is called too, and not through a route: an embedding model writes no reply and a vector of one model cannot be compared with another's, so there is one model and no fallback. `routing.embedding_model` names it; empty, which for the other kinds means the chat's own model, here means the first local embedding model, then the first trusted one, and a hosted one only when named (`embedding.Choose`, decision [0412](decisions/0412-the-embedding-model-is-chosen-local-first-and-sensitive-pages-wait-for-one.md)). Its gate is the embedding reserve and then the monthly cap ([embeddings.md](embeddings.md)).
+
+Since P14-02 there is the kind `decision`. Only a model with the `decision` capability takes it, and such a model takes nothing else, as an embedding model does. A decision call is planned through `Plan` like every kind, so a sensitive one keeps only decision models that may read sensitive content: the router's verdict for a held chat never reaches a hosted decision model, whatever a rule names. `decision.Choose` asks `Plan` with the one model named and uses the first of the route; there is no fallback to another decision model ([decision-calls.md](decision-calls.md), decision [0633](decisions/0633-decision-calls-are-recorded-by-their-own-guard-package-with-no-fallback.md)).
 
 ## A route
 
@@ -38,7 +41,7 @@ A named model is left out, and listed in `Route.Withheld` with the reason, when:
 
 - `unknown`: the tenant has no usable model of that name. A rule that names nothing usable therefore falls through to the chat's model.
 - `sensitive`: the call is sensitive and the model may not read sensitive content.
-- `capability`: the model lacks something the call needs. An embedding model takes embedding calls and nothing else.
+- `capability`: the model lacks something the call needs. An embedding model takes embedding calls and nothing else, and a decision model decision calls.
 - `limit`: the route is full.
 
 With nothing left, `Plan` returns `ErrNoModel`. When a model was withheld as sensitive, the error also wraps `ErrSensitive`.
@@ -134,8 +137,9 @@ answeredBy := chain.Last()
 - A reply that breaks off part of the way is not followed by another model. Neither is an invalid request or a stopped call.
 - A gate's refusal moves to a model the gate allows, and is the call's error when there is none.
 - In a turn: a failing endpoint falls back, the audit log holds a started and an end entry for each of the two calls, and the reply is recorded under the model that wrote it.
+- Since P14-02 (`decision_test.go`): a decision call goes to decision models only, a sensitive one to local and trusted decision models only, even when a rule names the hosted one, and a decision model is on no route of another kind.
 
-In `verify`: the `fixed rules` check lists `internal/routing` as a guard for rule 3. Since P6-05 the `sensitive content` check sends real turns through routes with a hosted model in the fallback chain, and proves it is never sent content from a sensitive space ([knowledge-recall.md](knowledge-recall.md)).
+In `verify`: since P14-02 the `sensitive content` check sends a sensitive decision named for a hosted decision model through `decision.Choose` and `decision.Run`, and proves the model never hears it ([decision-calls.md](decision-calls.md)). the `fixed rules` check lists `internal/routing` as a guard for rule 3. Since P6-05 the `sensitive content` check sends real turns through routes with a hosted model in the fallback chain, and proves it is never sent content from a sensitive space ([knowledge-recall.md](knowledge-recall.md)).
 
 ## Not here yet
 
@@ -143,4 +147,4 @@ In `verify`: the `fixed rules` check lists `internal/routing` as a guard for rul
 - **A cost ceiling on one call**, which the plan lists among what a call states. The monthly cap is the only ceiling today.
 - **Routing by capability from a turn.** `Ask.Needs` works, and the turn does not fill it yet: a message with an image does not yet ask for vision.
 - **A chain for each kind.** There is one fallback chain for a tenant.
-- **The router app.** It plugs in as the source of `Rules` or as one more endpoint.
+- **The router app.** It plugs in as the source of `Rules` or as one more endpoint. Since the owner's model-router brief it is a package inside Keystone (P14-03), whose verdict is a decision call of the kind `decision`.

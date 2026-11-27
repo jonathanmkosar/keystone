@@ -10,7 +10,7 @@
       "entry": {"name": "no-label", "adapter": "fake", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
     },
     {
-      "why": "the adapter \"telepathy\" is not one of fake, anthropic, responses, chat_completions",
+      "why": "the adapter \"telepathy\" is not one of fake, anthropic, responses, chat_completions, systemone",
       "entry": {"name": "odd-adapter", "label": "Odd adapter", "adapter": "telepathy", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local"}
     },
     {
@@ -116,6 +116,14 @@
     {
       "why": "ca_cert is PEM text or the path of a PEM file on one line",
       "entry": {"name": "cert-on-two-lines", "label": "Certificate on two lines", "adapter": "chat_completions", "endpoint": "https://gateway.home.arpa:8443/v1", "provider_model": "example-medium", "context_window": 1000, "output_limit": 100, "price": {"input": 0, "output": 0}, "class": "local", "ca_cert": "certs/authority.pem\ncerts/other.pem"}
+    },
+    {
+      "why": "the capability decision is listed with others",
+      "entry": {"name": "decide-and-chat", "label": "Decides and chats", "adapter": "fake", "context_window": 1000, "output_limit": 100, "capabilities": ["tools", "decision"], "price": {"input": 0, "output": 0}, "class": "local"}
+    },
+    {
+      "why": "the systemone adapter speaks to decision models only",
+      "entry": {"name": "systemone-chat", "label": "Systemone without decision", "adapter": "systemone", "endpoint": "http://127.0.0.1:11434", "provider_model": "example-decide:9b", "context_window": 8192, "output_limit": 1, "price": {"input": 0, "output": 0}, "class": "local"}
     }
   ]
 }

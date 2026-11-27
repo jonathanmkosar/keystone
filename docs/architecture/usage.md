@@ -37,6 +37,8 @@ Since P6-06, the memory pass's call is one too, made after the turn under its re
 
 Since P6-08, every embedding call is one too, with the kind `embedding`: the query recall makes a vector of, under the turn's request id, and the background refresh's, under a request id of its own (`embeddings-<hex>`) or the route's. Only input tokens are counted, at the entry's input price, estimated when the endpoint does not say. The embedding reserve, `knowledge.embedding_reserve_usd`, is measured with `SpentOn(month, "embedding")` as the memory pass's is ([embeddings.md](embeddings.md)).
 
+Since P14-02, every decision call is one too, with the kind `decision`, written by `decision.Run` for a call that was answered, refused or failed. Input and output tokens are the endpoint's, estimated when it does not count and the caller gives an estimate. A local decision model costs nothing, whatever its entry's price; another is priced at its input and output tokens and counts under the cap. The usage report shows the kind as "Decisions" ([decision-calls.md](decision-calls.md)).
+
 ## Reading them
 
 ```go

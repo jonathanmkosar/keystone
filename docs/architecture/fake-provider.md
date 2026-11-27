@@ -154,6 +154,23 @@ Since P6-08 the fake is an embedding model too: `Provider.Embed` answers a `seam
 
 So a question finds a page that shares a meaning group with it and no word. The groups are test data: the `embeddings` check gives the fake those in `fixtures/test-tenant/knowledge/meaning.json`. A fake with `EmbeddingSize` 0 makes no vectors and refuses, as a model that makes none would; a size out of range, a group of one word, a word in two groups and a word that is not letters and digits are refused by `New`. The usage it reports is a count of the texts' words.
 
+## Decisions
+
+Since P14-02 the fake is a decision model too: `Provider.Decide` answers a `seam.DecisionRequest` from the scripts whose `when` has `"decision": true` (decision [0634](decisions/0634-the-fake-answers-decisions-from-scripts-marked-decision.md), [decision-calls.md](decision-calls.md)).
+
+    {"name": "decision: an easy question stays local",
+     "when": {"decision": true, "user_text_contains": "what day is it"},
+     "steps": [{"decision": {"answers": [
+       {"question": "step", "choice": "house-chat", "probabilities": {"house-chat": 0.91, "small-hosted": 0.07, "mid-hosted": 0.02}}],
+       "usage": {"input_tokens": 212, "output_tokens": 2}}}]}
+
+- A decision script answers decision calls only, and a script without the mark answers turns only: the catch-all answers no decision.
+- The state is matched as the user text (`user_text` and `user_text_contains`), the questions' instructions, one to a line, as the system text (`system_contains`), and `model` as for a turn.
+- It has one step, a `decision` or an `error`. A decision with no model takes the request's. It must answer the request it is played for, one answer for each question with a probability for every option, or the call is refused as `invalid`.
+- Read-time refusals: two steps, a reply or a cut, a decision and an error together, a decision that answers nothing, and a `decision` step in a script without the mark.
+
+`fixtures/fake-provider/decisions.json` holds the examples: a sure and an unsure verdict, a yes or no matched by its instructions, and a decision model that cannot be reached.
+
 ## In code
 
 ```go
@@ -166,7 +183,7 @@ reply, err := seam.Call(ctx, p, request)                      // or p.Stream(ctx
 
 ## Checked by
 
-`go test ./internal/adapters/fake`. Text arrives in several pieces. Thinking arrives before the answer, with its signature whole. A tool call stops the reply, and the next step plays when the result comes back. An error ends a call before anything is sent, and a cut ends it part of the way through with the text so far kept. Every kind of bad script and bad file is refused with its reason. Every stream folds back to its scripted reply through the seam's collector. A call stops when its context is cancelled or its receiver fails. Every example script in `fixtures/fake-provider/` loads and plays to the end it scripts.
+`go test ./internal/adapters/fake`. Text arrives in several pieces. Thinking arrives before the answer, with its signature whole. A tool call stops the reply, and the next step plays when the result comes back. An error ends a call before anything is sent, and a cut ends it part of the way through with the text so far kept. Every kind of bad script and bad file is refused with its reason. Every stream folds back to its scripted reply through the seam's collector. A call stops when its context is cancelled or its receiver fails. Every example script in `fixtures/fake-provider/` loads and plays to the end it scripts. Since P14-02, each decision script of the examples answers with each option's probability, an unscripted decision and an answer that does not fit the questions are refused, and a decision script never answers a turn.
 
 The `offline` check in `verify` ([tools.md](tools.md)) proves this package imports no network package.
 

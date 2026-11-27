@@ -108,6 +108,7 @@ var workLabels = map[string]string{
 	"summary":    "Summaries and recaps",
 	"memory":     "Memory pass",
 	"embedding":  "Embeddings",
+	"decision":   "Decisions",
 	WorkTask:     "Background tasks",
 	WorkSchedule: "Scheduled tasks",
 }

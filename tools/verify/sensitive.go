@@ -171,6 +171,12 @@ func checkSensitive(root string) error {
 	if err != nil {
 		return err
 	}
+	// Decision calls (P14-02), in decisioncalls.go.
+	more, err := decisionCallProblems(root)
+	if err != nil {
+		return err
+	}
+	problems = append(problems, more...)
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "\n"))
 	}
