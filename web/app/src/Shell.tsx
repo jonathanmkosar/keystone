@@ -7,6 +7,8 @@ import { useNarrow } from "./PhoneSheet";
 import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { ImportedTag } from "./Imported";
+import { IncognitoButton } from "./Incognito";
+import { isActive, useLive } from "./turns";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -36,6 +38,17 @@ function titleFor(path: string): string {
   if (path.startsWith("/projects/")) return "Projects";
   const place = places.find((p) => p.to === path);
   return place ? place.label : "Keystone";
+}
+
+/** The phone header's working mark: shown while a turn of the chat runs (P10-07). */
+function Working({ id }: { id: string }) {
+  const live = useLive(id);
+  if (!isActive(live)) return null;
+  return (
+    <span className="float-working" role="status" aria-label="Keystone is working" title="Keystone is working">
+      <span className="float-spinner" aria-hidden="true" />
+    </span>
+  );
 }
 
 // The sidebar shows this many recent chats. The rest are on the chats screen.
@@ -78,6 +91,10 @@ export function Shell({
   useEffect(() => setDrawer(false), [location.pathname]);
 
   const frame = ["frame", open ? "" : "sidebar-closed", drawer ? "drawer-open" : ""].filter(Boolean).join(" ");
+  // On a phone the header floats over the page (P10-07): a chat and the new
+  // chat screen run beneath it, and every other page starts under it.
+  const under = openChat !== undefined || location.pathname === "/";
+  const main = ["main", narrow ? "is-phone" : "", narrow && under ? "is-under" : ""].filter(Boolean).join(" ");
 
   function toggle() {
     if (window.matchMedia("(max-width: 760px)").matches) setDrawer((d) => !d);
@@ -150,7 +167,28 @@ export function Shell({
         </div>
       </nav>
       <button type="button" className="scrim" aria-label="Close sidebar" tabIndex={-1} onClick={() => setDrawer(false)} />
-      <main className="main">
+      <main className={main}>
+        {narrow ? (
+          // A phone (P10-07, decision 0611): no bar, but round controls
+          // floating over the page, which scrolls beneath them.
+          <header className="float-header">
+            <button type="button" className="float-button" aria-label="Open sidebar" title="Open sidebar" onClick={toggle}>
+              <Icon name="menu" size={22} />
+            </button>
+            <div className="float-centre">
+              {openChat ? <ChatTitle id={openChat} phone /> : location.pathname !== "/" && <span className="float-pill float-title">{titleFor(location.pathname)}</span>}
+            </div>
+            <div className="float-end">
+              {openChat && (
+                <div className="float-pill float-actions">
+                  <Working key={openChat} id={openChat} />
+                  <ChatMenu key={openChat} id={openChat} />
+                </div>
+              )}
+              {location.pathname === "/" && <IncognitoButton />}
+            </div>
+          </header>
+        ) : (
         <header className="header">
           <div className="header-left">
             <button
@@ -162,10 +200,11 @@ export function Shell({
               <Icon name="sidebar" />
             </button>
             {openChat ? <ChatTitle id={openChat} /> : <span className="header-title">{titleFor(location.pathname)}</span>}
-            {openChat && !narrow && <ChatProjectChip key={openChat} chatId={openChat} />}
+            {openChat && <ChatProjectChip key={openChat} chatId={openChat} />}
           </div>
-          {openChat && (narrow ? <ChatMenu key={openChat} id={openChat} /> : <ChatLinks key={openChat} id={openChat} />)}
+          {openChat && <ChatLinks key={openChat} id={openChat} />}
         </header>
+        )}
         <div className="content">{children}</div>
       </main>
     </div>

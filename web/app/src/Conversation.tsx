@@ -3,7 +3,8 @@
 // This file only draws. layout.ts turns the record and a reply still
 // arriving into the items drawn here.
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { useNarrow } from "./PhoneSheet";
 import { useParams } from "react-router";
 import type { Block } from "./api";
 import { useWaitingFor } from "./Approval";
@@ -230,6 +231,34 @@ function CitedReply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
   );
 }
 
+// A person's message: a bubble on the right, with Copy and Pin under it. On a
+// phone they wait for a tap on the bubble, and a second tap hides them again
+// (P10-07, decision 0612); a tap on a file or a link in it only opens that.
+function Said({ chatId, item, known }: { chatId: string; item: Extract<Item, { kind: "user" }>; known: ReturnType<typeof useChatUploads> }) {
+  const narrow = useNarrow();
+  const [tapped, setTapped] = useState(false);
+  const acts = chatId !== "" && item.id !== undefined;
+  const tappable = narrow && acts;
+  function tap(e: MouseEvent<HTMLDivElement>) {
+    if ((e.target as HTMLElement).closest("a, button")) return;
+    setTapped((t) => !t);
+  }
+  function key(e: KeyboardEvent<HTMLDivElement>) {
+    if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
+    e.preventDefault();
+    setTapped((t) => !t);
+  }
+  return (
+    <div className={["said-wrap", narrow ? "is-phone" : "", tapped ? "is-shown" : ""].filter(Boolean).join(" ")}>
+      <div className="said" role={tappable ? "button" : undefined} tabIndex={tappable ? 0 : undefined} aria-expanded={tappable ? tapped : undefined} onClick={tappable ? tap : undefined} onKeyDown={tappable ? key : undefined}>
+        <SaidMedia chatId={chatId} blocks={item.blocks} files={item.files} known={known} />
+        {item.text}
+      </div>
+      {acts && <SaidActions chatId={chatId} messageId={item.id!} text={item.text} phone={narrow} tapped={tapped} />}
+    </div>
+  );
+}
+
 /** Every message on the current branch, oldest first, then a reply still arriving. */
 export function Conversation({ items }: { items: Item[] }) {
   const { id: chatId = "" } = useParams();
@@ -238,13 +267,7 @@ export function Conversation({ items }: { items: Item[] }) {
     <div className="conversation">
       {items.map((item) =>
         item.kind === "user" ? (
-          <div key={item.key} className="said-wrap">
-            <div className="said">
-              <SaidMedia chatId={chatId} blocks={item.blocks} files={item.files} known={known} />
-              {item.text}
-            </div>
-            {chatId !== "" && item.id !== undefined && <SaidActions chatId={chatId} messageId={item.id} text={item.text} />}
-          </div>
+          <Said key={item.key} chatId={chatId} item={item} known={known} />
         ) : (
           <Fragment key={item.key}>
             <ReplyNotices notices={known.notices.filter((n) => item.turnId !== undefined && n.turn_id === item.turnId)} />

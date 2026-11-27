@@ -3,12 +3,25 @@ import { useNavigate } from "react-router";
 import { ApiError, deleteChat, renameChat, starChat } from "./api";
 import { titleOf, useChats } from "./chats";
 import { Icon } from "./Icon";
+import { useChatProject } from "./projectStore";
 import { forget } from "./turns";
 
 type Mode = "closed" | "menu" | "rename" | "delete";
 
-/** The chat's title in the header. It opens the chat's menu: rename, star, delete. */
-export function ChatTitle({ id }: { id: string }) {
+/** On a phone, the line under the title: the project the chat is in, if any (P10-07). */
+function TitleProject({ id }: { id: string }) {
+  const { lost } = useChats();
+  const project = useChatProject(id, lost);
+  if (!project) return null;
+  return <span className="title-sub">{project.name}</span>;
+}
+
+/**
+ * The chat's title in the header. It opens the chat's menu: rename, star,
+ * delete. On a phone (phone) it is a pill floating in the middle of the
+ * header, with the chat's project in small quiet text under it (P10-07).
+ */
+export function ChatTitle({ id, phone = false }: { id: string; phone?: boolean }) {
   const { chats, put, drop, lost } = useChats();
   const navigate = useNavigate();
   const chat = chats.find((c) => c.id === id);
@@ -41,7 +54,7 @@ export function ChatTitle({ id }: { id: string }) {
     };
   }, [mode]);
 
-  if (!chat) return <span className="header-title">Chat</span>;
+  if (!chat) return <span className={phone ? "header-title float-pill float-title" : "header-title"}>Chat</span>;
 
   async function act(work: () => Promise<void>, failed: string) {
     setBusy(true);
@@ -107,6 +120,19 @@ export function ChatTitle({ id }: { id: string }) {
 
   return (
     <div className="title-wrap" ref={wrap}>
+      {phone ? (
+        <button type="button" className="title-button float-pill title-pill" aria-haspopup="menu" aria-expanded={mode !== "closed"} onClick={() => setMode((m) => (m === "closed" ? "menu" : "closed"))}>
+          <span className="title-line">
+            {chat.starred && (
+              <span className="star-mark" title="Starred">
+                <Icon name="star" size={12} />
+              </span>
+            )}
+            <span className="title-text">{titleOf(chat)}</span>
+          </span>
+          <TitleProject id={id} />
+        </button>
+      ) : (
       <button type="button" className="title-button" aria-haspopup="menu" aria-expanded={mode !== "closed"} onClick={() => setMode((m) => (m === "closed" ? "menu" : "closed"))}>
         {chat.starred && (
           <span className="star-mark" title="Starred">
@@ -116,6 +142,7 @@ export function ChatTitle({ id }: { id: string }) {
         <span className="title-text">{titleOf(chat)}</span>
         <Icon name="chevron" size={16} />
       </button>
+      )}
       {problem && mode === "closed" && (
         <span className="header-note" role="alert">
           {problem}

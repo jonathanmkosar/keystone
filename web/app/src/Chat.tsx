@@ -11,7 +11,9 @@ import { Conversation } from "./Conversation";
 import { Icon } from "./Icon";
 import { ImportedNote } from "./Imported";
 import { Inspector } from "./Inspector";
-import { IncognitoMark, IncognitoSwitch } from "./Incognito";
+import { IncognitoMark, IncognitoSwitch, setNewChatIncognito, useNewChatIncognito } from "./Incognito";
+import { footnote, phoneGreeting } from "./composerSheet";
+import { useNarrow } from "./PhoneSheet";
 import { createIncognitoChat } from "./memoryCalls";
 import { layout } from "./layout";
 import { Mark } from "./Mark";
@@ -24,8 +26,6 @@ import { adoptNewChatPick, takePick, useShownChoice } from "./modelPicks";
 import { applyNewChatStyle, StylePicker } from "./StylePicker";
 import { isActive, join, send, settle, stop, useLive } from "./turns";
 import { messageWith } from "./uploads";
-
-const footnote = "Keystone can make mistakes. Check what matters against its sources.";
 
 function partOfDay(): "morning" | "afternoon" | "evening" {
   const hour = new Date().getHours();
@@ -42,7 +42,12 @@ export function Start({ person }: { person: Person }) {
   const [problem, setProblem] = useState("");
   // A message that could not be sent goes back into the box.
   const [unsent, setUnsent] = useState({ text: "", tries: 0 });
-  const [incognito, setIncognito] = useState(false); // P6-07: a chat that keeps no record
+  // P6-07: a chat that keeps no record. Its switch is under the composer, or
+  // on a phone a round button in the header (P10-07), so it is held outside
+  // this screen; leaving the screen turns it off, as it always has.
+  const incognito = useNewChatIncognito();
+  useEffect(() => () => setNewChatIncognito(false), []);
+  const narrow = useNarrow(); // a phone: the greeting in the free space, the composer at the foot (P10-07)
   const part = partOfDay();
 
   async function begin(text: string, files: File[]) {
@@ -70,24 +75,28 @@ export function Start({ person }: { person: Person }) {
   }
 
   return (
-    <div className="start">
+    <div className={narrow ? "start is-phone" : "start"}>
       <div className="start-greeting">
-        <Mark size={40} />
-        <h1 className="home-greeting">
-          Good {part}, {person.name}
-        </h1>
+        <Mark size={narrow ? 34 : 40} />
+        <h1 className="home-greeting">{narrow ? phoneGreeting(part, person.name) : `Good ${part}, ${person.name}`}</h1>
+        {narrow && incognito && (
+          <p className="start-incognito" role="status">
+            Incognito: nothing from this chat is remembered, and it is deleted when you leave it.
+          </p>
+        )}
       </div>
+      {narrow && <OperationsNotice />}
       <div className="composer-column">
         <ResearchHint newChatFor={person.id} />
         <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ResearchControl newChatFor={person.id} /><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /></>} model={<ModelPicker newChatFor={person.id} />} />
-        <IncognitoSwitch on={incognito} onChange={setIncognito} />
+        {!narrow && <IncognitoSwitch on={incognito} onChange={setNewChatIncognito} />}
         {problem && (
           <p className="composer-problem" role="alert">
             {problem}
           </p>
         )}
       </div>
-      <OperationsNotice />
+      {!narrow && <OperationsNotice />}
     </div>
   );
 }
@@ -117,6 +126,19 @@ function OneChat({ id }: { id: string }) {
   const shown = useShownChoice(id, loaded.state === "ready" ? loaded.model : undefined);
   const scroller = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
+  const narrow = useNarrow(); // a phone: no note under the composer (P10-07)
+
+  // The phone's composer grows when it takes the focus and shrinks when it
+  // leaves (P10-07): the end of the chat stays in view if it was.
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const watch = new ResizeObserver(() => {
+      if (stick.current) el.scrollTop = el.scrollHeight;
+    });
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, [loaded.state]);
 
   const load = useCallback(
     async (quiet: boolean) => {
@@ -243,7 +265,10 @@ function OneChat({ id }: { id: string }) {
             beside={<><AttachChatRow chatId={id} /><ResearchControl chatId={id} /><ConnectorMenu chatId={id} /><StylePicker chatId={id} /></>}
             model={<ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} />}
           />
-          <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
+          {/* A phone has no room for the note: the footnote is at the foot of
+              the model's sheet and the model is on its chip. The test
+              tenant's notice stays on screen (P10-07). */}
+          {!narrow ? <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p> : shown?.model?.test ? <p className="composer-note is-test">Test tenant: recorded test replies</p> : null}
         </div>
       </div>
       <Inspector chatId={id} />

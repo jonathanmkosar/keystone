@@ -313,5 +313,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0584 | [Screenshots are kept in the person's database, named by the result, and shown under their step; the model reads text](decisions/0584-screenshots-are-kept-in-the-database-and-shown-under-their-step.md) |
 | 0585 | [Browser use is off until each person switches it on, and opening and reading a page do not ask](decisions/0585-browser-use-is-off-until-each-person-switches-it-on.md) |
 | 0590 | [On a phone the composer's and the header's controls are rows of a sheet, drawn by each control itself](decisions/0590-on-a-phone-the-composer-and-header-controls-are-rows-of-a-sheet.md) |
+| 0610 | [The phone's composer is one element, a pill while idle and the card once used](decisions/0610-the-phone-composer-is-one-element-idle-as-a-pill-and-expanded-as-a-card.md) |
+| 0611 | [On a phone the header is round controls floating over the page](decisions/0611-on-a-phone-the-header-is-round-controls-floating-over-the-page.md) |
+| 0612 | [On a phone a message's actions are icons, and a person's own wait for a tap](decisions/0612-on-a-phone-message-actions-are-icons-and-a-persons-wait-for-a-tap.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.
