@@ -248,7 +248,10 @@ export function rowOf(s: Entry): Row {
 
 /** What a row adds once it is opened: the whole explanation, and the facts. */
 export type More = {
-  /** The registry's description, whole. */
+  /**
+   * The registry's description, whole; empty when the description is the
+   * short line itself, which the row already shows, so it is not said twice.
+   */
   about: string;
   /** What the box takes, when that is not plain. */
   hint: string;
@@ -267,7 +270,7 @@ export type More = {
 
 export function moreOf(s: Entry): More {
   return {
-    about: s.description,
+    about: s.description.trim() === shortLineOf(s).trim() ? "" : s.description,
     hint: s.changeable ? formatHint(s) : "",
     editable: s.changeable && controlOf(s) !== "switch",
     who: s.changeable ? "" : s.scope === "tenant-admin" ? "The admin sets this for each person." : "The admin sets this for the whole install.",

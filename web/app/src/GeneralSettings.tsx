@@ -224,7 +224,7 @@ function Row({ setting, onChanged, onSignedOut }: { setting: Setting; onChanged:
       )}
       {open && (
         <div className="sg-more" id={`${id}-more`} role="group" aria-labelledby={name}>
-          <p className="sg-about">{more.about}</p>
+          {more.about !== "" && <p className="sg-about">{more.about}</p>}
           {more.editable && (
             <div className="sg-edit">
               <Editor setting={setting} change={change} labelledBy={name} />

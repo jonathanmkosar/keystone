@@ -69,7 +69,12 @@ test("every setting's row shows its own name and its one short line", () => {
 test("every setting gives its whole explanation, its default and its key once opened", () => {
   for (const s of reg) {
     const more = moreOf(s);
-    assert.equal(more.about, s.description, `${s.key}: the explanation is the registry's description, whole`);
+    if (s.description.trim() === rowOf(s).line.trim()) {
+      // The row's short line is the whole description: opened, it is not said twice.
+      assert.equal(more.about, "", `${s.key}: a description that is the short line is not repeated`);
+    } else {
+      assert.equal(more.about, s.description, `${s.key}: the explanation is the registry's description, whole`);
+    }
     assert.equal(more.key, s.key);
     assert.ok(more.default !== "", `${s.key}: the default is said, an empty one as a word`);
   }
@@ -160,6 +165,16 @@ test("a setting added with no title and no summary still has a name and a line",
   assert.equal(rowOf(bare).title, "Search max results");
   assert.equal(shortLineOf(entry({ description: "One sentence with no stop" })), "One sentence with no stop");
   assert.equal(titleOf(entry({ title: "  " })), "B c");
+});
+
+test("an opened row does not say its short line twice", () => {
+  const short = entry({ summary: "The most chats one person may have.", description: "The most chats one person may have." });
+  assert.equal(moreOf(short).about, "", "a description that is the short line is not repeated");
+  assert.equal(moreOf(entry({ description: "One sentence with no stop" })).about, "", "nor one that became the short line");
+  const long = entry({ summary: "The most chats one person may have.", description: "The most chats one person may have. More follows." });
+  assert.equal(moreOf(long).about, long.description, "a longer description is given whole");
+  // The registry has such settings, so the rule is used and not only tested.
+  assert.ok(reg.some((s) => moreOf(s).about === ""), "some setting's description is its short line");
 });
 
 test("the control is chosen by the type and the options alone", () => {
