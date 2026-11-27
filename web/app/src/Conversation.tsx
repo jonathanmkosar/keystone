@@ -12,6 +12,7 @@ import { ReplyNotices, SaidMedia } from "./Attachments";
 import { useChatUploads } from "./uploads";
 import { Icon } from "./Icon";
 import { CopyButton, Markdown } from "./Markdown";
+import { InlineVisuals } from "./InlineVisuals";
 import { InspectButton, PinButton, SaidActions } from "./MessageActions";
 import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
@@ -170,7 +171,10 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
           const last = i === item.parts.length - 1;
           return (
             <div key={i} className={item.streaming && last ? "reply-text is-streaming" : "reply-text"}>
-              <Markdown text={p.text} />
+              {/* A chart or a diagram in the reply is drawn (P9-04); a block still arriving is waited for. */}
+              <InlineVisuals streaming={item.streaming && last}>
+                <Markdown text={p.text} />
+              </InlineVisuals>
             </div>
           );
         }

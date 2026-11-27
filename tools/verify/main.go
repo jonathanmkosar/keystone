@@ -139,6 +139,7 @@ var checks = []check{
 	{"sub-agents", checkSubagents},
 	{"dictation", checkDictation},
 	{"import", checkImport},
+	{"inline visuals", checkInlineVisuals},
 }
 
 func main() {

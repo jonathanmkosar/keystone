@@ -32,6 +32,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/unattended"
 	"github.com/jonathanmkosar/keystone/internal/uploads"
 	"github.com/jonathanmkosar/keystone/internal/usagereport"
+	"github.com/jonathanmkosar/keystone/internal/visuals"
 	"github.com/jonathanmkosar/keystone/internal/wikijobs"
 	"github.com/jonathanmkosar/keystone/settings"
 )
@@ -291,6 +292,9 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, shareapi.Routes(shareapi.Options{Install: c.Install, Log: log})...)
 	// Sub-agents (P8-02): a chat's lanes, and a stop for one.
 	all = append(all, subagents.Routes(c.subagents)...)
+	// Inline visuals (P9-04): the page a reply's diagram is drawn in, and
+	// keeping one as an artifact.
+	all = append(all, visuals.Routes(visuals.Options{Artifacts: c.Artifacts})...)
 	return all
 }
 

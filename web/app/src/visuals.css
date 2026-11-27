@@ -1,0 +1,345 @@
+/* Inline visuals (P9-04): a chart or a diagram in a reply. Every colour is
+   a token; the series' colours are the tokens in the order below. There is
+   no mockup of these, so the look is provisional (P1-06). Sizes that are
+   settings are attributes in the markup, never values here. */
+
+.visual {
+  min-width: 0;
+  margin: 0;
+  font: 14px/22px var(--font-sans);
+}
+
+.visual-box {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  overflow: hidden;
+}
+
+.visual-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  height: 36px;
+  padding: 0 6px 0 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.visual-kind {
+  flex: none;
+  color: var(--muted);
+  font: 12px var(--font-mono);
+  white-space: nowrap;
+}
+
+.visual-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font: 600 14px/20px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.is-pending .visual-title {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.visual-buttons {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.visual-head .copy-button:hover,
+.visual-head .copy-button[aria-expanded="true"],
+.visual-head .copy-button[aria-pressed="true"] {
+  background: var(--page);
+  color: var(--ink);
+}
+
+.visual-body {
+  position: relative;
+  min-width: 0;
+}
+
+.visual-body svg,
+.visual-hold svg {
+  display: block;
+}
+
+.visual-panel {
+  flex: none;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  overflow: auto;
+}
+
+.visual-summary {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font: 14px/22px var(--font-sans);
+}
+
+.visual-panel th[scope="row"] {
+  border-bottom-color: var(--line);
+  font-weight: 500;
+}
+
+/* A block that is not drawn: a note, then its source. */
+
+.visual-problem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.visual-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font: 14px/22px var(--font-sans);
+}
+
+.visual-note .ico {
+  margin-top: 3px;
+}
+
+/* A block still being written, and a diagram not yet near the window. */
+
+.visual-wait {
+  background: var(--sunk);
+  opacity: 0.5;
+}
+
+.is-pending .visual-wait {
+  animation: working 1.4s ease-in-out infinite;
+}
+
+/* The chart. --tone is a series' colour. */
+
+.tone-0 {
+  --tone: var(--accent);
+}
+
+.tone-1 {
+  --tone: var(--link);
+}
+
+.tone-2 {
+  --tone: var(--strong);
+}
+
+.tone-3 {
+  --tone: var(--ok);
+}
+
+.tone-4 {
+  --tone: var(--ink);
+}
+
+.tone-5 {
+  --tone: var(--err);
+}
+
+.chart-box {
+  min-width: 0;
+}
+
+.chart {
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.chart text {
+  fill: var(--muted);
+  font: 12px var(--font-sans);
+}
+
+.chart .chart-legend,
+.chart .chart-tip-title,
+.chart .chart-tip-row {
+  fill: var(--ink);
+}
+
+.chart .chart-tip-title {
+  font-weight: 600;
+}
+
+.chart-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.chart-zero,
+.chart-guide {
+  stroke: var(--strong);
+  stroke-width: 1;
+}
+
+.chart-bar,
+.chart-key {
+  fill: var(--tone);
+}
+
+.chart-area {
+  fill: var(--tone);
+  fill-opacity: 0.12;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--tone);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* A line's pattern, so colour is not all that tells two series apart. */
+
+.dash-1 {
+  stroke-dasharray: 8 5;
+}
+
+.dash-2 {
+  stroke-dasharray: 1 5;
+}
+
+.dash-3 {
+  stroke-dasharray: 10 4 1 4;
+}
+
+.dash-4 {
+  stroke-dasharray: 14 5;
+}
+
+.dash-5 {
+  stroke-dasharray: 4 4;
+}
+
+/* A ring in the ground's colour keeps a point clear of what it crosses,
+   and a gap in it keeps two slices apart. */
+
+.chart-dot,
+.chart-slice {
+  fill: var(--tone);
+  stroke: var(--raised);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.chart-hit {
+  fill: transparent;
+  stroke: none;
+}
+
+.chart-tip {
+  pointer-events: none;
+}
+
+.chart-tip > rect {
+  fill: var(--page);
+  stroke: var(--line);
+}
+
+/* The diagram: a frame of no origin, on the reply's own ground. */
+
+.diagram-box {
+  position: relative;
+  min-width: 0;
+}
+
+.diagram-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+}
+
+.diagram-wait {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: var(--muted);
+  font: 14px/22px var(--font-sans);
+  pointer-events: none;
+}
+
+/* Opened larger: the box over the page, and its place kept in the reply. */
+
+.visual-ground {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--sunk);
+  opacity: 0.8;
+}
+
+.is-large > .visual-box {
+  position: fixed;
+  inset: 16px;
+  z-index: 41;
+}
+
+.is-large .visual-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.is-large .chart-box {
+  position: absolute;
+  inset: 0;
+}
+
+.is-large .diagram-box,
+.is-large .diagram-frame {
+  height: 100%;
+}
+
+.is-large .visual-panel {
+  max-height: 45%;
+}
+
+/* The heading's height and its rule, then the drawing's. */
+.visual-hold {
+  padding-top: 37px;
+  border: 1px solid transparent;
+}
+
+@media (max-width: 760px) {
+  /* The buttons keep their names for a screen reader and show their pictures. */
+  .visual-button-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .visual-head {
+    padding-left: 10px;
+    gap: 8px;
+  }
+
+  .is-large > .visual-box {
+    inset: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-pending .visual-wait {
+    animation: none;
+  }
+}
