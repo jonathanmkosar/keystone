@@ -122,3 +122,35 @@ func TestServeRefusesABadAddress(t *testing.T) {
 		t.Errorf("want exit 1, got %d (%s)", code, errw.String())
 	}
 }
+
+// A file whose name stays the same from build to build is asked for again
+// each time and kept by its ETag; a hashed file under /assets is kept.
+func TestHandlerTellsBrowsersWhatToKeep(t *testing.T) {
+	rec := httptest.NewRecorder()
+	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/keystone.css", nil))
+	tag := rec.Header().Get("ETag")
+	if rec.Code != http.StatusOK || rec.Header().Get("Cache-Control") != "no-cache" || tag == "" {
+		t.Fatalf("GET /keystone.css: %d, Cache-Control %q, ETag %q", rec.Code, rec.Header().Get("Cache-Control"), tag)
+	}
+	again := httptest.NewRequest(http.MethodGet, "/keystone.css", nil)
+	again.Header.Set("If-None-Match", tag)
+	rec = httptest.NewRecorder()
+	handler(nil).ServeHTTP(rec, again)
+	if rec.Code != http.StatusNotModified {
+		t.Errorf("GET /keystone.css with its ETag: %d, want 304", rec.Code)
+	}
+	page := httptest.NewRecorder()
+	handler(nil).ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/", nil))
+	body := page.Body.String()
+	i := strings.Index(body, "\"/assets/")
+	if i < 0 {
+		t.Fatal("the page names no file under /assets")
+	}
+	asset := body[i+1:]
+	asset = asset[:strings.IndexByte(asset, '"')]
+	rec = httptest.NewRecorder()
+	handler(nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, asset, nil))
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Header().Get("Cache-Control"), "immutable") {
+		t.Errorf("GET %s: %d, Cache-Control %q", asset, rec.Code, rec.Header().Get("Cache-Control"))
+	}
+}

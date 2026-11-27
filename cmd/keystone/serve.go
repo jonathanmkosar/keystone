@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
@@ -13,6 +15,7 @@ import (
 	"os/signal"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
@@ -59,8 +62,45 @@ func handler(api http.Handler) http.Handler {
 			}
 			return
 		}
+		// A file under /assets has its content's hash in its name, so a browser
+		// may keep it for good. Every other file keeps its name from build to
+		// build (keystone.css, theme.js, mark.svg), so a browser must ask again
+		// each time, and an ETag of its content lets it keep its copy when
+		// nothing changed. Without this a phone kept an old stylesheet after a
+		// release (November 27, 2026).
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			h.Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
+			h.Set("Cache-Control", "no-cache")
+			if tag, ok := etagOf(r.URL.Path); ok {
+				h.Set("ETag", tag)
+			}
+		}
 		files.ServeHTTP(w, r)
 	})
+}
+
+// etags holds the ETag of each built file, worked out once from its bytes.
+var etags sync.Map
+
+// etagOf returns the ETag of the built file a path names, or false when
+// there is no such file.
+func etagOf(p string) (string, bool) {
+	name := strings.TrimPrefix(path.Clean("/"+p), "/")
+	if name == "" {
+		name = "index.html"
+	}
+	if tag, ok := etags.Load(name); ok {
+		return tag.(string), true
+	}
+	b, err := fs.ReadFile(web.Files(), name)
+	if err != nil {
+		return "", false
+	}
+	sum := sha256.Sum256(b)
+	tag := `"` + hex.EncodeToString(sum[:12]) + `"`
+	etags.Store(name, tag)
+	return tag, true
 }
 
 // isRoute reports whether a request path is a route of the interface and

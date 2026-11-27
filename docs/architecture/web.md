@@ -622,3 +622,7 @@ The app routes in the browser (decision [0071](decisions/0071-client-side-routes
   - Say in `ModelChoice` that the chat is held, and mark each model a held chat may not be sent to. The picker would then read it from the route, show it before any turn is refused and in every browser, and the mark in local storage could go.
   - Answer a new chat's model choice from the server, for example `GET /chats/model` with no chat. The new chat screen would then stop working the choice out itself, and the test tenant would see its one model there too.
   - Say `key_present` in `ModelInfo`, so the chat's own route is enough without reading the registry.
+
+## Caching
+
+Files under `/assets` carry their content's hash in their name and are sent with `Cache-Control: public, max-age=31536000, immutable`. Every other built file keeps its name from build to build (`index.html`, `keystone.css`, `theme.js`, `mark.svg`) and is sent with `Cache-Control: no-cache` and an `ETag` of its content, so a browser asks again each time and keeps its copy only when nothing changed (`cmd/keystone/serve.go`, `TestHandlerTellsBrowsersWhatToKeep`). Before this, a phone kept an old stylesheet after a release, and light mode went on showing the dark tile (November 27, 2026).
