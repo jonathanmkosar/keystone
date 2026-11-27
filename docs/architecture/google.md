@@ -65,6 +65,9 @@ A person can untick a scope on Google's consent screen; a service whose scopes w
 
 **Where Google is reached.** Every Google address is a setting, and is dialled as web_fetch dials (`web.Dial`): public addresses only, checked as they connect, no proxy, no redirect. `GoogleOptions.OnThisMachine`, which only tests and `verify` set, lets the stand-in on this machine be reached; it is not a setting.
 
+### A sign-in taken over from somewhere else (P12-04)
+
+A person may already have signed in to Google with the same client in another program on this machine, as the owner had in New Keystone for Calendar. `connectors.AdoptGoogle` takes that sign-in over, from `tools/tenant connector google <tenant-id> <account address> <scope> ...` with the refresh token on standard input: the token goes into the vault as `connector.google`, `google_accounts` gets the address and the scopes, and the connector of each service the scopes cover is added or switched on, by the same code a sign-in made here uses (`ensureGoogle`). A service the scopes do not cover is left alone, so a Calendar sign-in brings Calendar and not Gmail. It calls nothing; `tools/tenant connector check <tenant-id> calendar` is what proves the token to Google. The token is bound to the client it was made with, so the client id and secret in the person's settings and vault must be that client's. It is command line only: nobody signed in through the browser can hand Keystone a token.
 ## The OAuth client
 
 Keystone ships with no OAuth client. The owner makes one in the Google Cloud console and gives it to Keystone:

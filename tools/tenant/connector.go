@@ -24,7 +24,8 @@ import (
 const connectorUsage = "tenant connector add <tenant-id> <file.json|->   (- reads the entry from standard input)\n" +
 	"       tenant connector list <tenant-id>\n" +
 	"       tenant connector check <tenant-id> <name>\n" +
-	"       tenant connector remove <tenant-id> <name>"
+	"       tenant connector remove <tenant-id> <name>\n" +
+	"       tenant connector google <tenant-id> <account address> <scope> [<scope> ...]   (the refresh token is read from standard input)"
 
 var errConnectorUsage = errors.New("usage: " + connectorUsage)
 
@@ -73,7 +74,9 @@ func runConnector(in *tenant.Install, args []string, stdin io.Reader, out io.Wri
 	}
 	command, id, rest := args[0], args[1], args[2:]
 	wantArgs := map[string]int{"add": 1, "list": 0, "check": 1, "remove": 1}
-	if n, ok := wantArgs[command]; !ok || len(rest) != n {
+	if n, ok := wantArgs[command]; command == "google" && len(rest) >= 2 {
+		// P12-04: a Google sign-in made elsewhere on this machine, taken over.
+	} else if !ok || len(rest) != n {
 		return errConnectorUsage
 	}
 	o, err := connectorOptions()
@@ -88,6 +91,24 @@ func runConnector(in *tenant.Install, args []string, stdin io.Reader, out io.Wri
 	ctx := context.Background()
 
 	switch command {
+	case "google":
+		// The token comes on standard input, so it is in no command line,
+		// and nothing here prints it.
+		raw, err := io.ReadAll(io.LimitReader(stdin, 64<<10))
+		if err != nil {
+			return err
+		}
+		covered, err := connectors.AdoptGoogle(ctx, s, rest[0], rest[1:], string(raw), o.MaxTools)
+		if err != nil {
+			return err
+		}
+		names := make([]string, len(covered))
+		for i, svc := range covered {
+			names[i] = svc.Label()
+		}
+		fmt.Fprintf(out, "Took over the Google sign-in of %s for %s. Its token is in the vault as %s. Check it with: tenant connector check %s %s\n",
+			rest[0], strings.Join(names, " and "), connectors.GoogleSecret, id, covered[0])
+		return nil
 	case "add":
 		raw, err := readEntry(rest[0], stdin)
 		if err != nil {
