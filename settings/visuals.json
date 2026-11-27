@@ -1,0 +1,86 @@
+{
+  "lane": "visuals",
+  "settings": [
+    {
+      "key": "visuals.draw",
+      "title": "Draw charts and diagrams",
+      "summary": "Draws the charts and diagrams a reply holds, instead of their code.",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant",
+      "description": "Whether charts and diagrams in a reply are drawn. On, a fenced chart block is drawn as a chart and a fenced mermaid block as a diagram, and the model is told how to write them (visuals.instructions). Off, both are shown as code blocks and the model is told nothing."
+    },
+    {
+      "key": "visuals.instructions",
+      "title": "Chart and diagram instructions",
+      "summary": "What a model is told about drawing charts and diagrams.",
+      "type": "string",
+      "default": "When a chart or a diagram would make an answer clearer than words alone, you may draw one in your reply; otherwise answer in words. A diagram is a fenced code block with the language mermaid, holding Mermaid source. A chart is a fenced code block with the language chart, holding one JSON object and nothing else: {\"type\": \"bar\", \"title\": \"...\", \"x\": {\"title\": \"...\", \"labels\": [\"...\"]}, \"y\": {\"title\": \"...\"}, \"series\": [{\"name\": \"...\", \"values\": [1, 2]}]}. The type is bar, line, area, pie or scatter. Each series has one value for each label. A pie has one series, and its labels name the slices. A scatter chart has no labels, and each series has \"points\": [[x, y]] in place of values. Use plain numbers and only a few series, and say in a sentence what the visual shows.",
+      "scope": "tenant",
+      "description": "What a model is told about drawing charts and diagrams in a reply, added to the standing instructions while visuals.draw is on. It is the same in every call, so the start of a call stays cacheable. Empty tells the model nothing; blocks it writes anyway are still drawn."
+    },
+    {
+      "key": "visuals.max_block_bytes",
+      "title": "Chart or diagram size",
+      "summary": "The largest chart or diagram that is drawn.",
+      "type": "int",
+      "default": "20000",
+      "scope": "install",
+      "description": "The largest chart or diagram block that is drawn, in bytes. A larger one is shown as its source with a note."
+    },
+    {
+      "key": "visuals.chart_max_series",
+      "title": "Series in a chart",
+      "summary": "The most series a chart may have, or slices of a pie.",
+      "type": "int",
+      "default": "6",
+      "scope": "install",
+      "description": "The most series a chart may have, and the most slices of a pie. A chart with more is shown as its source with a note. The design has six series colours; past six they repeat."
+    },
+    {
+      "key": "visuals.chart_max_points",
+      "title": "Points in a series",
+      "summary": "The most points one series of a chart may have.",
+      "type": "int",
+      "default": "200",
+      "scope": "install",
+      "description": "The most points one series of a chart may have. A chart with more is shown as its source with a note."
+    },
+    {
+      "key": "visuals.chart_label_max_chars",
+      "title": "Chart label length",
+      "summary": "The longest a chart's title, label or series name may be.",
+      "type": "int",
+      "default": "80",
+      "scope": "install",
+      "description": "The most characters a chart's title, an axis title, a label or a series name may have."
+    },
+    {
+      "key": "visuals.chart_height",
+      "title": "Chart height",
+      "summary": "How tall a chart is drawn in a reply.",
+      "type": "int",
+      "default": "320",
+      "scope": "tenant",
+      "description": "How tall a chart is drawn in a reply, in pixels, at least 120. A chart still being written holds a place of this height, so the page does not jump when it draws."
+    },
+    {
+      "key": "visuals.diagram_height",
+      "title": "Diagram height",
+      "summary": "How tall a diagram's frame is in a reply.",
+      "type": "int",
+      "default": "360",
+      "scope": "tenant",
+      "description": "How tall a diagram's frame is in a reply, in pixels, at least 120. The diagram is fitted inside it, and Open larger shows it at the size of the window."
+    },
+    {
+      "key": "visuals.diagram_wait",
+      "title": "Diagram wait",
+      "summary": "How long the page waits for a diagram to draw.",
+      "type": "duration",
+      "default": "20s",
+      "scope": "install",
+      "description": "How long the page waits for a diagram's frame to draw before it shows the diagram's source with a note instead."
+    }
+  ]
+}

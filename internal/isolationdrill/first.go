@@ -51,6 +51,9 @@ type first struct {
 	// subagent is a sub-agent of chat A's turn (P8-02), put in the first
 	// person's record as a finished one.
 	subagent string
+	// research is a research task started from chat A (P8-04), put in the
+	// first person's record as a finished one.
+	research string
 	// googleAuth are the credentials the stand-in Google saw with the
 	// first person's calls.
 	googleAuth []string
@@ -297,6 +300,19 @@ func (g *rig) fillFirst() error {
 	if err != nil {
 		return err
 	}
+	// A research task started from chat A (P8-04), as a finished row in the
+	// first person's own record: the second person asks for it and tries to
+	// stop it.
+	f.research = "7c3e91d0a5b2f684"
+	err = g.with(one.id, func(s *tenant.Store) error {
+		_, err := s.DB().Exec(`INSERT INTO research(id, chat_id, work_chat_id, title, question, status, request_id, actor, budget_micros, max_parts, sources_per_part, report_words, call_id, summary, note_message_id, created_at)
+			VALUES(?, ?, ?, 'Lantern ledger', 'Where is the lantern ledger kept?', 'done', 'req-drill-research', 'person', 3000000, 4, 4, 1200, 'research-drill', 'The lantern ledger is in the blue tin.', 1, '2026-11-26T00:00:00.000Z')`,
+			f.research, f.chatA, f.chatB)
+		return err
+	})
+	if err != nil {
+		return err
+	}
 	// The memory pass of chat A's turn, into the built-in store.
 	err = waitFor("the first person's memory pass", 20*time.Second, func() (bool, error) {
 		var p memory.Pass
@@ -508,6 +524,9 @@ func (g *rig) idText(s string) string {
 			s = strings.ReplaceAll(s, r.id, r.as)
 		}
 	}
+	if f.research != "" { // P8-04
+		s = strings.ReplaceAll(s, f.research, "<one's research task>")
+	}
 	return s
 }
 
@@ -521,6 +540,9 @@ func (g *rig) longIDs() []string {
 		if len(id) >= 12 {
 			out = append(out, id)
 		}
+	}
+	if len(f.research) >= 12 { // P8-04
+		out = append(out, f.research)
 	}
 	return out
 }

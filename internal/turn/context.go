@@ -28,6 +28,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	mayRead := readsSensitive(p, m) // for the least of the route's models (P6-05)
 	profile, personMap := r.person(ctx, s, t, mayRead)
 	recalled, rule := r.recallFor(ctx, s, t, step, mayRead)
+	opts.SystemText = r.withVisuals(ctx, s, opts.SystemText) // how to write a chart or a diagram in a reply (P9-04, visuals.go)
 	opts.SystemText = withRule(opts.SystemText, rule)
 	offered := r.offered(ctx, s, m)                                       // the tool loop's (P7-01)
 	offered = append(offered, r.lookupTools(ctx, s, t, p, m, offered)...) // the knowledge lookups (P6-05)

@@ -16,6 +16,7 @@ export type Entry = {
   type: string;
   default: string;
   options: string[];
+  scope?: string;
   value: string;
   overridden: boolean;
   changeable: boolean;
@@ -62,6 +63,7 @@ const headings: [prefix: string, heading: string][] = [
   ["chats.search_", "Finding past chats"],
   ["chats.context_", "What a model is sent"],
   ["chats.compact", "Long chats"],
+  ["visuals.", "Charts and diagrams"],
   ["voice.", "Dictation"],
   ["styles.", "Styles"],
   ["projects.", "Projects"],
@@ -86,6 +88,7 @@ const headings: [prefix: string, heading: string][] = [
   ["agents.subagent", "Background tasks and sub-agents"],
   ["agents.pause", "Background tasks and sub-agents"],
   ["agents.unattended_", "Background tasks and sub-agents"],
+  ["agents.research_", "Research"],
   ["agents.schedule", "Scheduled tasks"],
   ["agents.time_zone", "Scheduled tasks"],
   ["agents.wiki_", "Wiki jobs"],
@@ -173,9 +176,16 @@ export function controlOf(s: Pick<Entry, "type" | "options" | "default" | "value
   return "text";
 }
 
-/** How a value reads in a line of text: a switch as a word, nothing as "Empty", a long text cut short. */
-export function valueText(s: Pick<Entry, "type">, value: string, most = 48): string {
+/** How one of a setting's options reads: "this_month" as "This month". What is stored stays the option itself. */
+export function optionText(option: string): string {
+  const words = option.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** How a value reads in a line of text: a switch as a word, an option in plain words, nothing as "Empty", a long text cut short. */
+export function valueText(s: Pick<Entry, "type" | "options">, value: string, most = 48): string {
   if (s.type === "bool") return value === "true" ? "On" : "Off";
+  if (s.options.includes(value)) return optionText(value);
   const one = value.replace(/\s+/g, " ").trim();
   if (one === "") return "Empty";
   const chars = [...one];
@@ -189,4 +199,90 @@ export function formatHint(s: Pick<Entry, "type" | "options">): string {
   if (s.type === "float") return "A number.";
   if (s.type === "duration") return "A length of time, such as 30s, 5m or 1h.";
   return "";
+}
+
+/**
+ * Whether a setting is marked Changed: the person has a value of their own
+ * and it is not the default's. A stored value that equals the default, such
+ * as a theme chosen so that it follows the person to another browser, reads
+ * as it would with nothing stored, so it carries no mark.
+ */
+export function isChanged(s: Pick<Entry, "overridden" | "value" | "default">): boolean {
+  return s.overridden && s.value !== s.default;
+}
+
+/**
+ * What a setting's row shows while it is closed: its name, its one short
+ * line and its value. The long explanation is not here; it is in moreOf.
+ */
+export type Row = {
+  key: string;
+  title: string;
+  line: string;
+  control: Control;
+  /** A switch the person may change is flipped where it is. Every other value is opened first. */
+  flips: boolean;
+  /**
+   * The value in a few words. A long text has none here: its first words
+   * say little and push the name onto two lines on a phone, so it is read
+   * and changed once the row is opened.
+   */
+  value: string;
+  /** The value is the person's own and not the default. */
+  changed: boolean;
+};
+
+export function rowOf(s: Entry): Row {
+  const control = controlOf(s);
+  return {
+    key: s.key,
+    title: titleOf(s),
+    line: shortLineOf(s),
+    control,
+    flips: control === "switch" && s.changeable,
+    value: control === "long-text" ? "" : valueText(s, s.value, 28),
+    changed: isChanged(s),
+  };
+}
+
+/** What a row adds once it is opened: the whole explanation, and the facts. */
+export type More = {
+  /** The registry's description, whole. */
+  about: string;
+  /** What the box takes, when that is not plain. */
+  hint: string;
+  /** There is a box to change the value in: the setting is the person's, and not a switch, which is in the row. */
+  editable: boolean;
+  /** Who sets it, for a setting that is not the person's to change. */
+  who: string;
+  /** A value the person cannot change and the row cuts short or leaves out, whole: with no box, this is where it is read. */
+  text: string;
+  /** The default, as a value reads. */
+  default: string;
+  /** The value is the person's own, so it can go back to the default. */
+  canReset: boolean;
+  key: string;
+};
+
+export function moreOf(s: Entry): More {
+  return {
+    about: s.description,
+    hint: s.changeable ? formatHint(s) : "",
+    editable: s.changeable && controlOf(s) !== "switch",
+    who: s.changeable ? "" : s.scope === "tenant-admin" ? "The admin sets this for each person." : "The admin sets this for the whole install.",
+    text: !s.changeable && rowOf(s).value !== valueText(s, s.value, Infinity) ? s.value : "",
+    default: valueText(s, s.default, 120),
+    canReset: s.changeable && isChanged(s),
+    key: s.key,
+  };
+}
+
+/** What narrows the list: words typed, one section, and only what was changed. */
+export type Filter = { query: string; section: string; onlyChanged: boolean };
+
+/** Whether a setting stays in the list under a filter. An empty filter keeps everything. */
+export function keeps(s: Entry, f: Filter): boolean {
+  if (f.onlyChanged && !isChanged(s)) return false;
+  if (f.section !== "" && headingOf(s.key) !== f.section) return false;
+  return found(s, f.query);
 }

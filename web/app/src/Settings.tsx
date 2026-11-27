@@ -73,7 +73,7 @@ export function Settings(props: Props) {
         <Route path="profile" element={<ProfileScreen {...props} />} />
         <Route path="appearance" element={<Appearance {...props} />} />
         <Route path="models" element={<ModelsAndKeys {...props} />} />
-        <Route path="general" element={<GeneralSettings onSignedOut={props.onSignedOut} onThemeKept={props.onThemeKept} />} />
+        <Route path="general" element={<GeneralSettings theme={props.theme} onSignedOut={props.onSignedOut} onThemeKept={props.onThemeKept} />} />
         <Route path="connectors" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="connectors/google" element={<ConnectorSettings onSignedOut={props.onSignedOut} />} />
         <Route path="styles" element={<StyleSettings onSignedOut={props.onSignedOut} />} />

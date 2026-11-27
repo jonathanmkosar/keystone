@@ -1,0 +1,83 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "a chart in the reply",
+      "when": {
+        "user_text": "Chart the kayak hires at the boathouse for the season."
+      },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "text",
+                  "text": "Here are the season's hires, single and double kayaks side by side.\n\n```chart\n{\n  \"type\": \"bar\",\n  \"title\": \"Kayak hires at the boathouse, April to September\",\n  \"x\": {\n    \"title\": \"Month\",\n    \"labels\": [\n      \"Apr\",\n      \"May\",\n      \"Jun\",\n      \"Jul\",\n      \"Aug\",\n      \"Sep\"\n    ]\n  },\n  \"y\": {\n    \"title\": \"Hires\"\n  },\n  \"series\": [\n    {\n      \"name\": \"Single kayaks\",\n      \"values\": [\n        42,\n        68,\n        95,\n        131,\n        124,\n        77\n      ]\n    },\n    {\n      \"name\": \"Double kayaks\",\n      \"values\": [\n        18,\n        30,\n        44,\n        61,\n        66,\n        35\n      ]\n    }\n  ]\n}\n```\n\nJuly was the busiest month for singles, and August for doubles. Every number here is invented."
+                }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": {
+              "input_tokens": 420,
+              "output_tokens": 260
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "a diagram in the reply",
+      "when": {
+        "user_text": "Draw how a kayak hire goes, from arriving to handing the paddle back."
+      },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "text",
+                  "text": "A hire goes like this:\n\n```mermaid\nflowchart LR\n  A[Arrive at the boathouse] --> B{Booked ahead?}\n  B -->|Yes| C[Sign the sheet]\n  B -->|No| D[Wait for a free kayak]\n  D --> C\n  C --> E[Fitted with a life jacket]\n  E --> F([On the water])\n  F --> G[Back by five]\n  G --> H[Rinse the kayak and hand in the paddle]\n```\n\nThe only branch is whether the visitor booked ahead."
+                }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": {
+              "input_tokens": 430,
+              "output_tokens": 180
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "one of each kind of visual",
+      "when": {
+        "user_text": "Show me one of each kind of chart, and a second diagram."
+      },
+      "steps": [
+        {
+          "reply": {
+            "message": {
+              "role": "assistant",
+              "blocks": [
+                {
+                  "type": "text",
+                  "text": "One of each, all with invented numbers.\n\nA line chart:\n\n```chart\n{\n  \"type\": \"line\",\n  \"title\": \"Water temperature at the slipway\",\n  \"x\": {\n    \"title\": \"Week\",\n    \"labels\": [\n      \"1\",\n      \"2\",\n      \"3\",\n      \"4\",\n      \"5\",\n      \"6\",\n      \"7\",\n      \"8\"\n    ]\n  },\n  \"y\": {\n    \"title\": \"Degrees Celsius\"\n  },\n  \"series\": [\n    {\n      \"name\": \"Morning\",\n      \"values\": [\n        9.5,\n        10.1,\n        11.4,\n        12.2,\n        13.6,\n        14.1,\n        15.3,\n        15.8\n      ]\n    },\n    {\n      \"name\": \"Afternoon\",\n      \"values\": [\n        11.2,\n        12,\n        13.1,\n        14.4,\n        15.2,\n        16.5,\n        17.1,\n        17.9\n      ]\n    }\n  ]\n}\n```\n\nA pie chart:\n\n```chart\n{\n  \"type\": \"pie\",\n  \"title\": \"How hires were paid for in July\",\n  \"x\": {\n    \"labels\": [\n      \"Card\",\n      \"Cash\",\n      \"Season pass\",\n      \"Voucher\"\n    ]\n  },\n  \"series\": [\n    {\n      \"name\": \"Hires\",\n      \"values\": [\n        104,\n        41,\n        33,\n        14\n      ]\n    }\n  ]\n}\n```\n\nAn area chart:\n\n```chart\n{\n  \"type\": \"area\",\n  \"title\": \"Life jackets out on a Saturday\",\n  \"x\": {\n    \"title\": \"Hour\",\n    \"labels\": [\n      \"09\",\n      \"10\",\n      \"11\",\n      \"12\",\n      \"13\",\n      \"14\",\n      \"15\",\n      \"16\",\n      \"17\"\n    ]\n  },\n  \"y\": {\n    \"title\": \"Jackets out\"\n  },\n  \"series\": [\n    {\n      \"name\": \"Jackets out\",\n      \"values\": [\n        4,\n        11,\n        19,\n        23,\n        17,\n        25,\n        21,\n        12,\n        3\n      ]\n    }\n  ]\n}\n```\n\nA scatter chart:\n\n```chart\n{\n  \"type\": \"scatter\",\n  \"title\": \"Wind and the length of a hire\",\n  \"x\": {\n    \"title\": \"Wind, knots\"\n  },\n  \"y\": {\n    \"title\": \"Minutes on the water\"\n  },\n  \"series\": [\n    {\n      \"name\": \"Single kayaks\",\n      \"points\": [\n        [\n          3,\n          95\n        ],\n        [\n          5,\n          88\n        ],\n        [\n          8,\n          74\n        ],\n        [\n          10,\n          61\n        ],\n        [\n          12,\n          52\n        ],\n        [\n          15,\n          40\n        ],\n        [\n          18,\n          28\n        ]\n      ]\n    },\n    {\n      \"name\": \"Double kayaks\",\n      \"points\": [\n        [\n          4,\n          110\n        ],\n        [\n          6,\n          102\n        ],\n        [\n          9,\n          90\n        ],\n        [\n          11,\n          81\n        ],\n        [\n          14,\n          66\n        ],\n        [\n          17,\n          50\n        ]\n      ]\n    }\n  ]\n}\n```\n\nA sequence diagram:\n\n```mermaid\nsequenceDiagram\n  participant V as Visitor\n  participant D as Desk\n  participant S as Slipway\n  V->>D: Asks for a double kayak\n  D->>S: Is one free?\n  S-->>D: Two are back\n  D-->>V: Sign here, and a jacket each\n  V->>S: Launches\n  S-->>D: Back and rinsed by five\n```\n\nAnd last, a block that is not a chart Keystone can draw, to show what the page does with one:\n\n```chart\n{\n  \"type\": \"radar\",\n  \"title\": \"Not drawn\",\n  \"series\": []\n}\n```\n\nIt is shown as its source, with a note."
+                }
+              ]
+            },
+            "stop_reason": "end",
+            "usage": {
+              "input_tokens": 460,
+              "output_tokens": 900
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

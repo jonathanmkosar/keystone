@@ -1,6 +1,6 @@
 # P7-05. Skills
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-04
 Owner gate: none

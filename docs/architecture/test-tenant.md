@@ -76,6 +76,10 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/scheduled-task.json` (P8-03) holds one: "Write the morning harbour brief: today's date, and what my chats say about the lighthouse walk." reads the time with `current_time` and answers with the brief. Make a schedule with that prompt to see a run in the browser; the `scheduled tasks` check runs it after a simulated outage. See [schedules.md](schedules.md).
 
+`turns/inline-visuals.json` (P9-04) holds three, with invented numbers about kayak hires at a boathouse: "Chart the kayak hires at the boathouse for the season." answers with a bar chart as a fenced `chart` block; "Draw how a kayak hire goes, from arriving to handing the paddle back." with a flowchart as a fenced `mermaid` block; and "Show me one of each kind of chart, and a second diagram." with a line, a pie, an area and a scatter chart, a sequence diagram, and a block that is not a chart. The chat `chats/04-kayak-hires.json`, "Kayak hires in charts", holds the first two, so a fresh checkout has a chart and a diagram to look at. See [inline-visuals.md](inline-visuals.md).
+
+`turns/research.json` (P8-04) holds four, for a research task started with the Research control, whatever the question: the plan (two parts), each part (a `web_search`, then its findings), and the report. They answer by words of the shipped prompts and of the plan's own parts, not by the question. One part's findings and the report each cite a source that was never read, so the check on citations has something to take out. The test tenant has no search key, so on the shipped server nothing is read and the report cites no source; the `research mode` check stores an invented key and points the search at a stand-in on this machine. See [research-mode.md](research-mode.md).
+
 ### A chat file
 
 ```json

@@ -104,6 +104,8 @@ func (g *rig) pathValue(path, name string) string {
 		return f.shareLink
 	case "sub":
 		return f.subagent
+	case "research":
+		return f.research
 	}
 	return ""
 }

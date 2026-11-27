@@ -1,27 +1,32 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Fragment, useEffect, useId, useState } from "react";
 import { ApiError, listSettings, resetSetting, setSetting, type FixedRule, type Setting } from "./api";
 import { Icon } from "./Icon";
 import { said, Section, useLoaded, Waiting } from "./SettingsParts";
-import { controlOf, formatHint, found, groupsOf, shortLineOf, titleOf, valueText } from "./settingsView";
+import { groupsOf, isChanged, keeps, moreOf, optionText, rowOf, type Filter } from "./settingsView";
 import type { ThemeChoice } from "./theme";
 import "./settings-general.css";
 
-// SKETCHES for P11-04, settings at a glance. Three ways to draw General,
-// chosen with ?sketch=a, b or c, on the real registry:
-//   a  the short line, and "More" opens the long text in place
-//   b  the short line, and an info button opens the long text in a sheet
-//      (phone) or a popover (desktop)
-//   c  a compact list of name and value, and each setting has a view of its own
-// One is chosen in a decision record and the other two are removed.
+// General, at a glance (P11-04): every setting of the registry, each as a
+// name, one short line and its value, with the long explanation, the box to
+// change it in, its default and its key opened in place. It is drawn from
+// GET /api/v1/settings and names no setting but the theme, which the page
+// wears at once. What a row and its opened part show is worked out in
+// settingsView.ts, which has the tests; this file draws it.
+// docs/architecture/settings-screens.md describes the screen, and decision
+// 0560 says why it is this one of the three that were tried.
+
+/** The one setting this screen names: the page wears it at once. */
+const themeKey = "appearance.theme";
 
 type Props = {
+  /** The theme the page wears now. */
+  theme: ThemeChoice;
   onSignedOut: () => void;
+  /** Wears a theme that has just been kept by a change here. */
   onThemeKept: (c: ThemeChoice) => void;
 };
 
 type All = { settings: Setting[]; rules: FixedRule[] };
-type Sketch = "a" | "b" | "c";
 
 /** One setting's change in flight: what is typed and not yet kept, and how the last try went. */
 type Change = {
@@ -29,6 +34,8 @@ type Change = {
   setDraft: (v: string | null) => void;
   busy: boolean;
   error: string;
+  /** True for a moment after a value was kept. */
+  saved: boolean;
   save: (value: string) => void;
   /** Keeps what was typed, when it differs from what is stored. */
   keep: () => void;
@@ -39,13 +46,23 @@ function useChange(setting: Setting, onChanged: (s: Setting) => void, onSignedOu
   const [draft, setDraft] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!saved) return;
+    const t = setTimeout(() => setSaved(false), 2500);
+    return () => clearTimeout(t);
+  }, [saved]);
 
   async function run(change: () => Promise<Setting>) {
+    if (busy) return;
     setBusy(true);
     setError("");
+    setSaved(false);
     try {
       onChanged(await change());
       setDraft(null);
+      setSaved(true);
     } catch (e) {
       if (e instanceof ApiError && e.kind === "signed-out") onSignedOut();
       else setError(said(e, "The setting could not be changed."));
@@ -59,6 +76,7 @@ function useChange(setting: Setting, onChanged: (s: Setting) => void, onSignedOu
     setDraft,
     busy,
     error,
+    saved,
     save,
     keep: () => {
       if (draft !== null && draft !== setting.value) save(draft);
@@ -68,45 +86,49 @@ function useChange(setting: Setting, onChanged: (s: Setting) => void, onSignedOu
   };
 }
 
-/** The control a setting's type calls for. A long text has a box of several lines. */
-function Control({ setting, change, id, labelledBy }: { setting: Setting; change: Change; id: string; labelledBy: string }) {
-  const kind = controlOf(setting);
+/** A switch, flipped where it is. */
+function Switch({ setting, change, labelledBy }: { setting: Setting; change: Change; labelledBy: string }) {
+  const on = setting.value === "true";
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-labelledby={labelledBy}
+      className={on ? "set-switch sg-switch is-on" : "set-switch sg-switch"}
+      disabled={change.busy}
+      onClick={() => change.save(on ? "false" : "true")}
+    >
+      <span className="set-switch-knob" />
+    </button>
+  );
+}
+
+/**
+ * The box a value is changed in, inside the opened row: a select of the
+ * options, a box of several lines for a long text, or one line. A choice is
+ * kept when it is made, and what is typed when the person presses Enter or
+ * leaves the box. Nothing here takes the focus by itself.
+ */
+function Editor({ setting, change, labelledBy }: { setting: Setting; change: Change; labelledBy: string }) {
+  const row = rowOf(setting);
   const shown = change.draft ?? setting.value;
-  if (!setting.changeable) return <span className="sg-fixed set-mono">{valueText(setting, setting.value)}</span>;
-  if (kind === "switch") {
-    const on = setting.value === "true";
+  if (row.control === "select") {
     return (
-      <button
-        type="button"
-        id={id}
-        role="switch"
-        aria-checked={on}
-        aria-labelledby={labelledBy}
-        className={on ? "set-switch sg-switch is-on" : "set-switch sg-switch"}
-        disabled={change.busy}
-        onClick={() => change.save(on ? "false" : "true")}
-      >
-        <span className="set-switch-knob" />
-      </button>
-    );
-  }
-  if (kind === "select") {
-    return (
-      <select id={id} className="input sg-select" aria-labelledby={labelledBy} value={setting.value} disabled={change.busy} onChange={(e) => change.save(e.target.value)}>
+      <select className="input sg-select" aria-labelledby={labelledBy} value={setting.value} disabled={change.busy} onChange={(e) => change.save(e.target.value)}>
         {setting.options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {optionText(o)}
           </option>
         ))}
       </select>
     );
   }
-  if (kind === "long-text") {
+  if (row.control === "long-text") {
     return (
       <textarea
-        id={id}
         className="input set-text sg-long"
-        rows={5}
+        rows={6}
         aria-labelledby={labelledBy}
         value={shown}
         disabled={change.busy}
@@ -118,13 +140,12 @@ function Control({ setting, change, id, labelledBy }: { setting: Setting; change
   }
   return (
     <input
-      id={id}
-      className={kind === "text" ? "input sg-text-input" : "input sg-number"}
+      className={row.control === "text" ? "input sg-text" : "input sg-number"}
       type="text"
       inputMode={setting.type === "int" ? "numeric" : setting.type === "float" ? "decimal" : undefined}
       aria-labelledby={labelledBy}
       value={shown}
-      placeholder={kind === "text" && setting.default === "" ? "Empty" : undefined}
+      placeholder={setting.default === "" ? "Empty" : undefined}
       disabled={change.busy}
       spellCheck={false}
       autoComplete="off"
@@ -141,6 +162,7 @@ function Control({ setting, change, id, labelledBy }: { setting: Setting; change
   );
 }
 
+/** Copies a setting's key, for the admin who wants it in a command or a note. */
 function CopyKey({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   useEffect(() => {
@@ -151,7 +173,7 @@ function CopyKey({ text }: { text: string }) {
   return (
     <button
       type="button"
-      className="sg-copy"
+      className="sg-act"
       onClick={() => {
         void navigator.clipboard?.writeText(text).then(
           () => setCopied(true),
@@ -160,249 +182,116 @@ function CopyKey({ text }: { text: string }) {
       }}
     >
       <Icon name={copied ? "check" : "copy"} size={14} />
-      <span aria-live="polite">{copied ? "Copied" : "Copy"}</span>
+      <span role="status">{copied ? "Copied" : "Copy"}</span>
     </button>
   );
 }
 
-/** The long text and the facts: the description, what the default is, and the key. */
-function Detail({ setting, change, editor }: { setting: Setting; change: Change; editor?: ReactNode }) {
-  const hint = formatHint(setting);
-  return (
-    <div className="sg-detail">
-      <p className="sg-about">{setting.description}</p>
-      {editor}
-      {hint && setting.changeable && <p className="set-hint">{hint}</p>}
-      <dl className="sg-facts">
-        <div className="sg-fact">
-          <dt>Default</dt>
-          <dd className="set-mono">{valueText(setting, setting.default, 80)}</dd>
-          {setting.overridden && setting.changeable && (
-            <button type="button" className="sg-reset" disabled={change.busy} onClick={change.reset}>
-              Reset
-            </button>
-          )}
-        </div>
-        <div className="sg-fact">
-          <dt>Key</dt>
-          <dd className="set-mono">{setting.key}</dd>
-          <CopyKey text={setting.key} />
-        </div>
-      </dl>
-    </div>
-  );
-}
-
-type RowProps = { setting: Setting; onChanged: (s: Setting) => void; onSignedOut: () => void };
-
-/** The head of a row in sketches a and b: the name, the short line, and the control. */
-function Head({ setting, change, id, after }: { setting: Setting; change: Change; id: string; after?: ReactNode }) {
-  const kind = controlOf(setting);
-  const long = kind === "long-text";
-  return (
-    <div className={kind === "text" || long ? "sg-head is-wide" : "sg-head"}>
-      <div className="sg-words">
-        <span className="sg-name">
-          <span id={`${id}-name`}>{titleOf(setting)}</span>
-          {setting.overridden && <span className="sg-changed">Changed</span>}
-          {after}
-        </span>
-        <span className="sg-line">{shortLineOf(setting)}</span>
-      </div>
-      <div className="sg-value">
-        {long ? <span className="sg-preview">{valueText(setting, change.draft ?? setting.value, 90)}</span> : <Control setting={setting} change={change} id={id} labelledBy={`${id}-name`} />}
-      </div>
-    </div>
-  );
-}
-
-// Sketch a: "More" opens the long text in place.
-
-function RowA({ setting, onChanged, onSignedOut }: RowProps) {
+/**
+ * One setting. Closed, it is a name, one short line and the value: the
+ * whole row opens it, and a switch is flipped where it is. Open, it adds
+ * the full explanation, the box to change the value in, the default with a
+ * way back to it, and the key.
+ */
+function Row({ setting, onChanged, onSignedOut }: { setting: Setting; onChanged: (s: Setting) => void; onSignedOut: () => void }) {
   const change = useChange(setting, onChanged, onSignedOut);
   const [open, setOpen] = useState(false);
   const id = useId();
-  const long = controlOf(setting) === "long-text";
+  const row = rowOf(setting);
+  const more = moreOf(setting);
+  const name = `${id}-name`;
   return (
-    <div className="sg-row" data-setting={setting.key} data-type={setting.type}>
-      <Head setting={setting} change={change} id={id} />
-      {change.error && (
-        <p className="form-error" role="alert">
-          {change.error}
-        </p>
-      )}
-      <button type="button" className="sg-more" aria-expanded={open} aria-controls={`${id}-detail`} onClick={() => setOpen(!open)}>
-        {open ? "Less" : long && setting.changeable ? "More, and edit" : "More"}
-        <Icon name="chevron" size={14} />
-      </button>
-      {open && (
-        <div id={`${id}-detail`}>
-          <Detail setting={setting} change={change} editor={long && setting.changeable ? <Control setting={setting} change={change} id={id} labelledBy={`${id}-name`} /> : undefined} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Sketch b: an info button opens the long text in a sheet on a phone and a
-// popover on a desktop.
-
-function RowB({ setting, onChanged, onSignedOut }: RowProps) {
-  const change = useChange(setting, onChanged, onSignedOut);
-  const [open, setOpen] = useState(false);
-  const id = useId();
-  const long = controlOf(setting) === "long-text";
-  const button = useRef<HTMLButtonElement>(null);
-  const wrap = useRef<HTMLDivElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    // The panel takes the focus, never a text box, so no keyboard rises.
-    panel.current?.focus();
-    function down(e: MouseEvent) {
-      if (!panel.current?.contains(e.target as Node) && !button.current?.contains(e.target as Node)) setOpen(false);
-    }
-    function key(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setOpen(false);
-        button.current?.focus();
-      }
-    }
-    document.addEventListener("mousedown", down);
-    document.addEventListener("keydown", key);
-    return () => {
-      document.removeEventListener("mousedown", down);
-      document.removeEventListener("keydown", key);
-    };
-  }, [open]);
-
-  // On a phone the sheet is fixed to what can be seen, which the keyboard
-  // shrinks and moves (attach.css does the same for the attach picker).
-  useEffect(() => {
-    const vv = window.visualViewport;
-    const el = wrap.current;
-    if (!open || !vv || !el) return;
-    const place = () => {
-      el.style.setProperty("--seen-top", `${vv.offsetTop}px`);
-      el.style.setProperty("--seen-height", `${vv.height}px`);
-    };
-    place();
-    vv.addEventListener("resize", place);
-    vv.addEventListener("scroll", place);
-    return () => {
-      vv.removeEventListener("resize", place);
-      vv.removeEventListener("scroll", place);
-    };
-  }, [open]);
-
-  return (
-    <div className="sg-row" data-setting={setting.key} data-type={setting.type}>
-      <Head
-        setting={setting}
-        change={change}
-        id={id}
-        after={
-          <button
-            type="button"
-            ref={button}
-            className="sg-info"
-            aria-label={`About ${titleOf(setting)}`}
-            aria-haspopup="dialog"
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-          >
-            i
+    <div className={open ? "sg-row is-open" : "sg-row"} data-setting={row.key} data-type={setting.type} data-control={row.control}>
+      <div className="sg-head">
+        <span className="sg-title">
+          <button type="button" className="sg-open" id={name} aria-expanded={open} aria-controls={open ? `${id}-more` : undefined} aria-describedby={`${id}-line`} onClick={() => setOpen(!open)}>
+            {row.title}
           </button>
-        }
-      />
+          {row.changed && <span className="sg-changed">Changed</span>}
+        </span>
+        <span className="sg-side">
+          {row.flips ? <Switch setting={setting} change={change} labelledBy={name} /> : <span className="sg-now">{row.value}</span>}
+          <Icon name="chevron" size={16} />
+        </span>
+        <span className="sg-line" id={`${id}-line`}>
+          {row.line}
+        </span>
+      </div>
       {change.error && (
-        <p className="form-error" role="alert">
+        <p className="form-error sg-error" role="alert">
           {change.error}
         </p>
       )}
       {open && (
-        <div className="sg-sheet-wrap" ref={wrap}>
-          <div className="sg-sheet" role="dialog" aria-labelledby={`${id}-about`} tabIndex={-1} ref={panel}>
-            <div className="sg-sheet-head">
-              <h3 className="set-subheading" id={`${id}-about`}>
-                {titleOf(setting)}
-              </h3>
-              <button
-                type="button"
-                className="icon-button"
-                aria-label="Close"
-                onClick={() => {
-                  setOpen(false);
-                  button.current?.focus();
-                }}
-              >
-                <Icon name="close" size={18} />
-              </button>
+        <div className="sg-more" id={`${id}-more`} role="group" aria-labelledby={name}>
+          <p className="sg-about">{more.about}</p>
+          {more.editable && (
+            <div className="sg-edit">
+              <Editor setting={setting} change={change} labelledBy={name} />
+              <span className="sg-edit-notes">
+                {more.hint && <span className="set-hint">{more.hint}</span>}
+                <span className="set-ok" role="status">
+                  {change.saved ? "Saved." : ""}
+                </span>
+              </span>
             </div>
-            <Detail setting={setting} change={change} editor={long && setting.changeable ? <Control setting={setting} change={change} id={id} labelledBy={`${id}-name`} /> : undefined} />
-          </div>
+          )}
+          {more.text && <p className="sg-text-shown">{more.text}</p>}
+          {more.who && <p className="set-hint">{more.who}</p>}
+          <dl className="sg-facts">
+            <div className="sg-fact">
+              <dt>Default</dt>
+              <dd className="set-mono">{more.default}</dd>
+              {more.canReset && (
+                <button type="button" className="sg-act sg-reset" disabled={change.busy} onClick={change.reset}>
+                  Reset to default
+                </button>
+              )}
+            </div>
+            <div className="sg-fact">
+              <dt>Key</dt>
+              <dd className="set-mono">
+                {/* A long key breaks after a dot or an underscore, not inside a word. */}
+                {more.key.split(/(?<=[._])/).map((part, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <wbr />}
+                    {part}
+                  </Fragment>
+                ))}
+              </dd>
+              <CopyKey text={more.key} />
+            </div>
+          </dl>
         </div>
       )}
     </div>
   );
 }
 
-// Sketch c: a compact list, and a view of its own for each setting.
-
-function RowC({ setting, onOpen }: { setting: Setting; onOpen: () => void }) {
+/** Settings under their plain headings, each group a card of rows. */
+function Groups({ settings, onChanged, onSignedOut }: { settings: Setting[]; onChanged: (s: Setting) => void; onSignedOut: () => void }) {
   return (
-    <button type="button" className="sg-nav" data-setting={setting.key} onClick={onOpen}>
-      <span className="sg-nav-name">{titleOf(setting)}</span>
-      <span className={setting.overridden ? "sg-nav-value is-changed" : "sg-nav-value"}>{valueText(setting, setting.value, 22)}</span>
-      <Icon name="caret" size={16} />
-    </button>
+    <>
+      {groupsOf(settings).map((g) => (
+        <section key={g.heading} className="sg-group" aria-label={g.heading}>
+          <h3 className="sg-group-name">{g.heading}</h3>
+          <div className="set-card">
+            {g.settings.map((s) => (
+              <Row key={s.key} setting={s} onChanged={onChanged} onSignedOut={onSignedOut} />
+            ))}
+          </div>
+        </section>
+      ))}
+    </>
   );
 }
 
-function ViewC({ setting, onChanged, onSignedOut, onBack }: RowProps & { onBack: () => void }) {
-  const change = useChange(setting, onChanged, onSignedOut);
-  const id = useId();
-  const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    heading.current?.focus();
-    window.scrollTo?.(0, 0);
-  }, []);
-  return (
-    <section className="set-section sg-view" data-setting={setting.key}>
-      <div>
-        <button type="button" className="sg-back" onClick={onBack}>
-          <Icon name="caret" size={16} />
-          General
-        </button>
-      </div>
-      <div className="set-section-head">
-        <h2 className="set-heading" id={`${id}-name`} tabIndex={-1} ref={heading}>
-          {titleOf(setting)}
-          {setting.overridden && <span className="sg-changed">Changed</span>}
-        </h2>
-        <p className="set-note">{shortLineOf(setting)}</p>
-      </div>
-      <div className="set-card sg-view-card">
-        <Control setting={setting} change={change} id={id} labelledBy={`${id}-name`} />
-        {change.error && (
-          <p className="form-error" role="alert">
-            {change.error}
-          </p>
-        )}
-      </div>
-      <Detail setting={setting} change={change} />
-    </section>
-  );
-}
-
-export function GeneralSettings({ onSignedOut, onThemeKept }: Props) {
+export function GeneralSettings({ theme, onSignedOut, onThemeKept }: Props) {
   const [loaded, reload, put] = useLoaded<All>(listSettings, onSignedOut);
-  const [params] = useSearchParams();
-  const sketch: Sketch = params.get("sketch") === "b" ? "b" : params.get("sketch") === "c" ? "c" : "a";
   const [query, setQuery] = useState("");
+  const [section, setSection] = useState("");
   const [onlyChanged, setOnlyChanged] = useState(false);
-  const [viewing, setViewing] = useState<string | null>(null);
+  const [installOpen, setInstallOpen] = useState(false);
 
   if (loaded.state !== "ready") {
     return (
@@ -411,89 +300,95 @@ export function GeneralSettings({ onSignedOut, onThemeKept }: Props) {
       </Section>
     );
   }
-  const { settings, rules } = loaded.data;
+  const { rules, settings: read } = loaded.data;
+  // The theme can be chosen in the sidebar while this screen is open, and
+  // the row says what the page wears, not what was read when it opened.
+  const settings = read.map((s) => (s.key === themeKey && s.value !== theme ? { ...s, value: theme, overridden: true } : s));
 
   function changed(next: Setting) {
-    put({ rules, settings: settings.map((s) => (s.key === next.key ? next : s)) });
+    put({ rules, settings: read.map((s) => (s.key === next.key ? next : s)) });
     // The theme is a setting like any other, and the page wears it at once.
-    if (next.key === "appearance.theme" && (next.value === "dark" || next.value === "light" || next.value === "system")) onThemeKept(next.value);
-  }
-
-  const picker = (
-    <p className="sg-sketches">
-      Sketch:{" "}
-      {(["a", "b", "c"] as Sketch[]).map((s) => (
-        <Link key={s} to={`?sketch=${s}`} className={s === sketch ? "is-on" : undefined}>
-          {s}
-        </Link>
-      ))}
-    </p>
-  );
-
-  const one = viewing === null ? undefined : settings.find((s) => s.key === viewing);
-  if (sketch === "c" && one) {
-    return (
-      <>
-        {picker}
-        <ViewC setting={one} onChanged={changed} onSignedOut={onSignedOut} onBack={() => setViewing(null)} />
-      </>
-    );
+    if (next.key === themeKey && (next.value === "dark" || next.value === "light" || next.value === "system")) onThemeKept(next.value);
   }
 
   const mine = settings.filter((s) => s.changeable);
-  const fixed = settings.filter((s) => !s.changeable);
-  const nChanged = mine.filter((s) => s.overridden).length;
-  const keep = (s: Setting) => found(s, query) && (!onlyChanged || s.overridden);
-  const shownMine = mine.filter(keep);
-  const shownFixed = onlyChanged ? [] : fixed.filter((s) => found(s, query));
-  const searching = query.trim() !== "" || onlyChanged;
+  const install = settings.filter((s) => !s.changeable);
+  const filter: Filter = { query, section, onlyChanged };
+  const filtering = query.trim() !== "" || section !== "" || onlyChanged;
+  const shownMine = mine.filter((s) => keeps(s, filter));
+  const shownInstall = install.filter((s) => keeps(s, filter));
+  const nChanged = mine.filter(isChanged).length;
+  const sections = groupsOf(settings).map((g) => g.heading);
 
-  const row = (s: Setting) =>
-    sketch === "a" ? (
-      <RowA key={s.key} setting={s} onChanged={changed} onSignedOut={onSignedOut} />
-    ) : sketch === "b" ? (
-      <RowB key={s.key} setting={s} onChanged={changed} onSignedOut={onSignedOut} />
-    ) : (
-      <RowC key={s.key} setting={s} onOpen={() => setViewing(s.key)} />
-    );
+  function clear() {
+    setQuery("");
+    setSection("");
+    setOnlyChanged(false);
+  }
 
   return (
     <>
-      {picker}
-      <Section title="General" note="Every setting that is yours to change. A change is kept as soon as you make it.">
+      <Section title="General" note="Every setting that is yours to change. Tap one to read more and to change it. A change is kept as soon as you make it.">
         <div className="sg-tools">
           <label className="sg-search">
             <Icon name="search" size={18} />
-            <input type="search" className="input" placeholder="Search settings" aria-label="Search settings" value={query} autoComplete="off" spellCheck={false} onChange={(e) => setQuery(e.target.value)} />
+            <input
+              type="search"
+              className="input"
+              placeholder="Search settings"
+              aria-label="Search settings"
+              value={query}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </label>
+          <select className="input sg-section" aria-label="Section" value={section} onChange={(e) => setSection(e.target.value)}>
+            <option value="">All sections</option>
+            {sections.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
           <button type="button" className={onlyChanged ? "sg-chip is-on" : "sg-chip"} aria-pressed={onlyChanged} onClick={() => setOnlyChanged(!onlyChanged)}>
             Changed <span className="sg-chip-n">{nChanged}</span>
           </button>
         </div>
         <p className="set-hint" role="status">
-          {searching ? `${shownMine.length} of ${mine.length} settings` : `${mine.length} settings`}
+          {filtering ? `${shownMine.length} of ${mine.length} settings` : `${mine.length} settings`}
+          {filtering && (
+            <>
+              {" · "}
+              <button type="button" className="sg-clear" onClick={clear}>
+                Show all
+              </button>
+            </>
+          )}
         </p>
       </Section>
-      {groupsOf(shownMine).map((g) => (
-        <section key={g.heading} className="sg-group">
-          <h3 className="sg-group-name">{g.heading}</h3>
-          <div className="set-card">{g.settings.map(row)}</div>
-        </section>
-      ))}
-      {searching && shownMine.length === 0 && <p className="quiet">No setting of yours matches.</p>}
-      <Section title="Set for the whole install" note="These are the admin's to change, so they are shown and cannot be changed here.">
-        <details className="set-card set-details" open={query.trim() !== "" && shownFixed.length > 0 ? true : undefined}>
-          <summary className="set-summary">
-            {shownFixed.length} {query.trim() !== "" ? "matching settings" : "settings"}
-          </summary>
-          {groupsOf(shownFixed).map((g) => (
-            <div key={g.heading} className="sg-fixed-group">
-              <h3 className="sg-group-name">{g.heading}</h3>
-              {g.settings.map(row)}
+      <Groups settings={shownMine} onChanged={changed} onSignedOut={onSignedOut} />
+      {shownMine.length === 0 && <p className="quiet">{mine.length === 0 ? "No setting is yours to change." : onlyChanged && nChanged === 0 ? "You have changed no setting." : "No setting of yours matches."}</p>}
+
+      {!onlyChanged && (
+        <Section title="Set for the whole install" note="These are the admin's to change. They are shown so you can see what this install runs with.">
+          {filtering ? (
+            <p className="set-hint" role="status">
+              {shownInstall.length} of {install.length} settings
+            </p>
+          ) : (
+            <div>
+              <button type="button" className={installOpen ? "button sg-all is-open" : "button sg-all"} aria-expanded={installOpen} onClick={() => setInstallOpen(!installOpen)}>
+                <Icon name="chevron" size={16} />
+                {installOpen ? "Hide them" : `Show the ${install.length} settings`}
+              </button>
             </div>
-          ))}
-        </details>
-      </Section>
+          )}
+          {(filtering || installOpen) && <Groups settings={shownInstall} onChanged={changed} onSignedOut={onSignedOut} />}
+        </Section>
+      )}
+
       <Section title="Fixed rules" note="Four rules that are not settings. Nothing on this screen, and nothing an admin can do, switches one off.">
         <div className="set-card">
           {rules.map((r) => (

@@ -4,14 +4,14 @@
 // HTML from text, so nothing a model writes can become markup or script.
 // Decision 0150 says why this is written here and not taken from a package.
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Cite } from "./citations";
 
 type Block =
   | { kind: "p"; text: string }
   | { kind: "h"; level: number; text: string }
-  | { kind: "code"; lang: string; text: string }
+  | { kind: "code"; lang: string; text: string; closed: boolean }
   | { kind: "list"; ordered: boolean; start: number; items: string[] }
   | { kind: "quote"; text: string }
   | { kind: "rule" }
@@ -55,8 +55,9 @@ function parse(source: string): Block[] {
       // A block with no closing fence runs to the end: that is a reply still
       // being written.
       while (i < lines.length && !close.test(lines[i])) body.push(lines[i++]);
+      const closed = i < lines.length; // its closing fence was found (P9-04)
       i++;
-      out.push({ kind: "code", lang: f[2], text: body.join("\n") });
+      out.push({ kind: "code", lang: f[2], text: body.join("\n"), closed });
       continue;
     }
 
@@ -227,7 +228,7 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
   );
 }
 
-function CodeBlock({ lang, text }: { lang: string; text: string }) {
+export function CodeBlock({ lang, text }: { lang: string; text: string }) {
   return (
     <div className="code-block">
       <div className="code-head">
@@ -239,6 +240,23 @@ function CodeBlock({ lang, text }: { lang: string; text: string }) {
       </pre>
     </div>
   );
+}
+
+/** A fenced block as it was read: its language, its text, and whether its closing fence was found. */
+export type FencedBlock = { lang: string; text: string; closed: boolean };
+
+/**
+ * What may draw a fenced block as something other than a code block (P9-04):
+ * it returns what to draw, or undefined for the code block. Only the
+ * conversation gives one (InlineVisuals.tsx). Everywhere else a reply's text is
+ * shown, on a shared page above all, there is none, and every fenced block
+ * is a code block.
+ */
+export const FenceDrawer = createContext<((block: FencedBlock) => ReactNode | undefined) | undefined>(undefined);
+
+function Fence({ lang, text, closed }: FencedBlock) {
+  const draw = useContext(FenceDrawer);
+  return draw?.({ lang, text, closed }) ?? <CodeBlock lang={lang} text={text} />;
 }
 
 function render(blocks: Block[], keyBase: string): ReactNode[] {
@@ -258,7 +276,7 @@ function render(blocks: Block[], keyBase: string): ReactNode[] {
         );
       }
       case "code":
-        return <CodeBlock key={key} lang={b.lang} text={b.text} />;
+        return <Fence key={key} lang={b.lang} text={b.text} closed={b.closed} />;
       case "rule":
         return <hr key={key} />;
       case "quote":

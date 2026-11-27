@@ -317,25 +317,7 @@ func (h googleHandlers) finish(w http.ResponseWriter, r *http.Request, c api.Cal
 // tools. A connector of another kind under the name is left alone and
 // ErrExists is returned; the status names it.
 func (h googleHandlers) ensure(ctx context.Context, s *tenant.Store, svc google.Service) error {
-	c := Connector{Name: string(svc), Label: svc.Label(), Transport: TransportGoogle, Secret: GoogleSecret, Enabled: true, Outside: true}
-	k, err := Get(ctx, s, c.Name)
-	switch {
-	case errors.Is(err, ErrNotFound):
-		// Built in, so it is not counted against agents.connectors_max.
-		if k, err = Add(ctx, s, c, ByPerson, 0); err != nil {
-			return err
-		}
-	case err != nil:
-		return err
-	case k.Transport != TransportGoogle:
-		return ErrExists
-	default:
-		c.Label, c.Outside = k.Label, k.Outside // the person's own choices stay
-		if k, err = Replace(ctx, s, c); err != nil {
-			return err
-		}
-	}
-	return saveGoogleTools(ctx, s, k.Connector, h.o.MaxTools)
+	return ensureGoogle(ctx, s, svc, h.o.MaxTools) // googleadopt.go
 }
 
 func (h googleHandlers) disconnect(w http.ResponseWriter, r *http.Request, c api.Call) {

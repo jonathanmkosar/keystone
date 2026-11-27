@@ -5120,6 +5120,1303 @@
         "summary": "Make the chat's recap now, with the model routing gives the summary task, and answer with it. It takes no body, and waits for the model, up to chats.recap_timeout."
       }
     },
+    "/api/v1/chats/{id}/research": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "research": {
+                      "items": {
+                        "properties": {
+                          "artifact_chat_id": {
+                            "type": "string"
+                          },
+                          "artifact_id": {
+                            "type": "string"
+                          },
+                          "at_budget": {
+                            "type": "boolean"
+                          },
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "dropped_citations": {
+                            "type": "integer"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "note_message_id": {
+                            "type": "integer"
+                          },
+                          "notice": {
+                            "type": "string"
+                          },
+                          "parts": {
+                            "items": {
+                              "properties": {
+                                "budget_micros": {
+                                  "type": "integer"
+                                },
+                                "call_id": {
+                                  "type": "string"
+                                },
+                                "chat_id": {
+                                  "type": "string"
+                                },
+                                "created": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "ended": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "error": {
+                                  "properties": {
+                                    "code": {
+                                      "type": "string"
+                                    },
+                                    "message": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "code",
+                                    "message"
+                                  ],
+                                  "type": "object"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "max_steps": {
+                                  "type": "integer"
+                                },
+                                "model": {
+                                  "type": "string"
+                                },
+                                "notice": {
+                                  "type": "string"
+                                },
+                                "outside": {
+                                  "type": "boolean"
+                                },
+                                "passed": {
+                                  "type": "boolean"
+                                },
+                                "position": {
+                                  "type": "integer"
+                                },
+                                "progress": {
+                                  "type": "string"
+                                },
+                                "result": {
+                                  "type": "string"
+                                },
+                                "sensitive": {
+                                  "type": "boolean"
+                                },
+                                "spent_micros": {
+                                  "type": "integer"
+                                },
+                                "started": {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                "status": {
+                                  "type": "string"
+                                },
+                                "steps": {
+                                  "type": "integer"
+                                },
+                                "task": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "turn_id": {
+                                  "type": "string"
+                                },
+                                "waiting": {
+                                  "type": "boolean"
+                                },
+                                "work_chat_id": {
+                                  "type": "string"
+                                },
+                                "work_turn_id": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "chat_id",
+                                "turn_id",
+                                "call_id",
+                                "position",
+                                "work_chat_id",
+                                "title",
+                                "task",
+                                "status",
+                                "progress",
+                                "waiting",
+                                "steps",
+                                "max_steps",
+                                "budget_micros",
+                                "spent_micros",
+                                "outside",
+                                "sensitive",
+                                "passed",
+                                "created"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "plan": {
+                            "items": {
+                              "properties": {
+                                "task": {
+                                  "type": "string"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "title",
+                                "task"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "question": {
+                            "type": "string"
+                          },
+                          "sources": {
+                            "items": {
+                              "properties": {
+                                "fetched": {
+                                  "type": "boolean"
+                                },
+                                "n": {
+                                  "type": "integer"
+                                },
+                                "part": {
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "type": "string"
+                                },
+                                "url": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "n",
+                                "title",
+                                "url",
+                                "part",
+                                "fetched"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "sources_read": {
+                            "type": "integer"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "stage": {
+                            "type": "string"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "work_chat_id",
+                          "title",
+                          "question",
+                          "status",
+                          "progress",
+                          "waiting",
+                          "budget_micros",
+                          "spent_micros",
+                          "at_budget",
+                          "plan",
+                          "parts",
+                          "sources",
+                          "sources_read",
+                          "dropped_citations",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "research"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The research tasks started from this chat, or working in it, oldest first, each with its plan, its parts, the sources they have read and what it has spent."
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "budget_usd": {
+                    "type": "number"
+                  },
+                  "question": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "question"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact_chat_id": {
+                      "type": "string"
+                    },
+                    "artifact_id": {
+                      "type": "string"
+                    },
+                    "at_budget": {
+                      "type": "boolean"
+                    },
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "dropped_citations": {
+                      "type": "integer"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "items": {
+                        "properties": {
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "call_id": {
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "max_steps": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "notice": {
+                            "type": "string"
+                          },
+                          "outside": {
+                            "type": "boolean"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "position": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          },
+                          "work_turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "turn_id",
+                          "call_id",
+                          "position",
+                          "work_chat_id",
+                          "title",
+                          "task",
+                          "status",
+                          "progress",
+                          "waiting",
+                          "steps",
+                          "max_steps",
+                          "budget_micros",
+                          "spent_micros",
+                          "outside",
+                          "sensitive",
+                          "passed",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "plan": {
+                      "items": {
+                        "properties": {
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "task"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "question": {
+                      "type": "string"
+                    },
+                    "sources": {
+                      "items": {
+                        "properties": {
+                          "fetched": {
+                            "type": "boolean"
+                          },
+                          "n": {
+                            "type": "integer"
+                          },
+                          "part": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "title",
+                          "url",
+                          "part",
+                          "fetched"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "sources_read": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "question",
+                    "status",
+                    "progress",
+                    "waiting",
+                    "budget_micros",
+                    "spent_micros",
+                    "at_budget",
+                    "plan",
+                    "parts",
+                    "sources",
+                    "sources_read",
+                    "dropped_citations",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Start a research task from this chat. It plans the question as parts, sends a sub-agent to search and read for each, and writes one report with numbered citations to the sources they read, saved as a Markdown artifact in this chat with a note that summarises it. It goes on without a client, within its own budget."
+      }
+    },
+    "/api/v1/chats/{id}/research/{research}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "research",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact_chat_id": {
+                      "type": "string"
+                    },
+                    "artifact_id": {
+                      "type": "string"
+                    },
+                    "at_budget": {
+                      "type": "boolean"
+                    },
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "dropped_citations": {
+                      "type": "integer"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "items": {
+                        "properties": {
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "call_id": {
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "max_steps": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "notice": {
+                            "type": "string"
+                          },
+                          "outside": {
+                            "type": "boolean"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "position": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          },
+                          "work_turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "turn_id",
+                          "call_id",
+                          "position",
+                          "work_chat_id",
+                          "title",
+                          "task",
+                          "status",
+                          "progress",
+                          "waiting",
+                          "steps",
+                          "max_steps",
+                          "budget_micros",
+                          "spent_micros",
+                          "outside",
+                          "sensitive",
+                          "passed",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "plan": {
+                      "items": {
+                        "properties": {
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "task"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "question": {
+                      "type": "string"
+                    },
+                    "sources": {
+                      "items": {
+                        "properties": {
+                          "fetched": {
+                            "type": "boolean"
+                          },
+                          "n": {
+                            "type": "integer"
+                          },
+                          "part": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "title",
+                          "url",
+                          "part",
+                          "fetched"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "sources_read": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "question",
+                    "status",
+                    "progress",
+                    "waiting",
+                    "budget_micros",
+                    "spent_micros",
+                    "at_budget",
+                    "plan",
+                    "parts",
+                    "sources",
+                    "sources_read",
+                    "dropped_citations",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One research task: where it is, its plan, its parts, the sources read, what it has spent, and its report's artifact once it is written."
+      }
+    },
+    "/api/v1/chats/{id}/research/{research}/stop": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "research",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact_chat_id": {
+                      "type": "string"
+                    },
+                    "artifact_id": {
+                      "type": "string"
+                    },
+                    "at_budget": {
+                      "type": "boolean"
+                    },
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "chat_id": {
+                      "type": "string"
+                    },
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "dropped_citations": {
+                      "type": "integer"
+                    },
+                    "ended": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "note_message_id": {
+                      "type": "integer"
+                    },
+                    "notice": {
+                      "type": "string"
+                    },
+                    "parts": {
+                      "items": {
+                        "properties": {
+                          "budget_micros": {
+                            "type": "integer"
+                          },
+                          "call_id": {
+                            "type": "string"
+                          },
+                          "chat_id": {
+                            "type": "string"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "ended": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "error": {
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "type": "object"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "max_steps": {
+                            "type": "integer"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "notice": {
+                            "type": "string"
+                          },
+                          "outside": {
+                            "type": "boolean"
+                          },
+                          "passed": {
+                            "type": "boolean"
+                          },
+                          "position": {
+                            "type": "integer"
+                          },
+                          "progress": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          },
+                          "sensitive": {
+                            "type": "boolean"
+                          },
+                          "spent_micros": {
+                            "type": "integer"
+                          },
+                          "started": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "steps": {
+                            "type": "integer"
+                          },
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "turn_id": {
+                            "type": "string"
+                          },
+                          "waiting": {
+                            "type": "boolean"
+                          },
+                          "work_chat_id": {
+                            "type": "string"
+                          },
+                          "work_turn_id": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "chat_id",
+                          "turn_id",
+                          "call_id",
+                          "position",
+                          "work_chat_id",
+                          "title",
+                          "task",
+                          "status",
+                          "progress",
+                          "waiting",
+                          "steps",
+                          "max_steps",
+                          "budget_micros",
+                          "spent_micros",
+                          "outside",
+                          "sensitive",
+                          "passed",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "plan": {
+                      "items": {
+                        "properties": {
+                          "task": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "task"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "progress": {
+                      "type": "string"
+                    },
+                    "question": {
+                      "type": "string"
+                    },
+                    "sources": {
+                      "items": {
+                        "properties": {
+                          "fetched": {
+                            "type": "boolean"
+                          },
+                          "n": {
+                            "type": "integer"
+                          },
+                          "part": {
+                            "type": "integer"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "n",
+                          "title",
+                          "url",
+                          "part",
+                          "fetched"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "sources_read": {
+                      "type": "integer"
+                    },
+                    "spent_micros": {
+                      "type": "integer"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "started": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "waiting": {
+                      "type": "boolean"
+                    },
+                    "work_chat_id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "chat_id",
+                    "work_chat_id",
+                    "title",
+                    "question",
+                    "status",
+                    "progress",
+                    "waiting",
+                    "budget_micros",
+                    "spent_micros",
+                    "at_budget",
+                    "plan",
+                    "parts",
+                    "sources",
+                    "sources_read",
+                    "dropped_citations",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Stop a research task. The step under way and its parts are stopped, what they did is kept in their chats, and the chat it was started from is told. It takes no body. Stopping one that has ended changes nothing."
+      }
+    },
     "/api/v1/chats/{id}/select": {
       "post": {
         "parameters": [
@@ -11468,6 +12765,165 @@
         "summary": "An upload's bytes. An image is served as itself; any other file as a download."
       }
     },
+    "/api/v1/chats/{id}/visuals/diagrams": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "content"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "language": {
+                          "type": "string"
+                        },
+                        "latest": {
+                          "type": "integer"
+                        },
+                        "link": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "type",
+                        "title",
+                        "latest",
+                        "created",
+                        "updated",
+                        "sensitive",
+                        "link"
+                      ],
+                      "type": "object"
+                    },
+                    "version": {
+                      "properties": {
+                        "artifact_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "origin": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "restored_from": {
+                          "type": "integer"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "artifact_id",
+                        "version",
+                        "title",
+                        "size",
+                        "sha256",
+                        "origin",
+                        "sensitive",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "version"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Keep a diagram of a reply as a Mermaid artifact of its chat, as version 1."
+      }
+    },
     "/api/v1/connectors": {
       "get": {
         "responses": {
@@ -16950,6 +18406,65 @@
         "summary": "Mark a knowledge file sensitive, or ordinary again. A sensitive file reaches only calls whose every model may read sensitive content, and the chat it reaches is held to such models from then on."
       }
     },
+    "/api/v1/research": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "budget_micros": {
+                      "type": "integer"
+                    },
+                    "open": {
+                      "type": "integer"
+                    },
+                    "open_max": {
+                      "type": "integer"
+                    },
+                    "parts": {
+                      "type": "integer"
+                    },
+                    "paused": {
+                      "type": "boolean"
+                    },
+                    "report_words": {
+                      "type": "integer"
+                    },
+                    "sources_per_part": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "budget_micros",
+                    "parts",
+                    "sources_per_part",
+                    "report_words",
+                    "open",
+                    "open_max",
+                    "paused"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "What a research task started now would run with: the person's budget for one, how many parts and sources it aims for, how long the report is asked to be, and how many of their tasks are under way."
+      }
+    },
     "/api/v1/schedules": {
       "get": {
         "responses": {
@@ -21672,6 +23187,36 @@
           }
         },
         "summary": "Your usage for a period: what your model calls cost and their tokens, in total and by model, by chat and by kind of work, each split into local, hosted and trusted models, with this month against the monthly cap and the memory pass's reserve. Summed from the usage records, so the lines of each breakdown add up to the total. With no query, the period is your usage.report_period."
+      }
+    },
+    "/api/v1/visuals/diagram": {
+      "get": {
+        "parameters": [
+          {
+            "description": "dark or light: the theme of the page around the diagram.",
+            "in": "query",
+            "name": "theme",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The page a reply's diagram is drawn in, inside a sandboxed frame: the same for every diagram, holding the renderer and no diagram, served with a policy of its own that fetches and sends nothing, runs that one script and gives the page no origin."
       }
     },
     "/api/v1/wiki-jobs": {
