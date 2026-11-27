@@ -76,6 +76,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/scheduled-task.json` (P8-03) holds one: "Write the morning harbour brief: today's date, and what my chats say about the lighthouse walk." reads the time with `current_time` and answers with the brief. Make a schedule with that prompt to see a run in the browser; the `scheduled tasks` check runs it after a simulated outage. See [schedules.md](schedules.md).
 
+`turns/inline-visuals.json` (P9-04) holds three, with invented numbers about kayak hires at a boathouse: "Chart the kayak hires at the boathouse for the season." answers with a bar chart as a fenced `chart` block; "Draw how a kayak hire goes, from arriving to handing the paddle back." with a flowchart as a fenced `mermaid` block; and "Show me one of each kind of chart, and a second diagram." with a line, a pie, an area and a scatter chart, a sequence diagram, and a block that is not a chart. The chat `chats/04-kayak-hires.json`, "Kayak hires in charts", holds the first two, so a fresh checkout has a chart and a diagram to look at. See [inline-visuals.md](inline-visuals.md).
+
 ### A chat file
 
 ```json

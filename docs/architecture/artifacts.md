@@ -90,6 +90,8 @@ Nothing is fetched or sent, not even from Keystone: everything a page needs is i
 
 **The renderers**, decision [0421](decisions/0421-renderers-are-built-for-the-sandbox-alone.md): `web/app/src/sandbox/react.ts` turns a React artifact into JavaScript with Sucrase (JSX, TypeScript and imports, the automatic runtime), runs it as a script of its own, and draws its default export under an error boundary; it may import `react` and `react-dom`, and anything else says it cannot be loaded. `web/app/src/sandbox/mermaid.ts` draws a diagram with Mermaid at its `strict` security level, in the page's theme. Each is built as one classic script, with nothing split out, into `web/dist/sandbox/react.js` (423 kB) and `mermaid.js` (5.2 MB) by `vite.sandbox.config.ts`, never into the main bundle, and the server writes it into the page with `Inline`, which writes each `<` of `</script`, `<script` and `<!--` as `\x3C`. A build without them says so in the page and shows the source.
 
+Since P9-04 the Mermaid renderer also draws a diagram of a reply: on a page whose body says `data-ks-inline` it reads no artifact, and waits for the page that frames it to hand it a diagram's source. That page and its messages are in [inline-visuals.md](inline-visuals.md).
+
 ## The screen
 
 Provisional until the workspace mockups (P1-06): there is no artifacts mockup, so it is built from the tokens and the patterns of the chat screen and the inspector, with the Artifacts icon of the sidebar in `design/screens`.

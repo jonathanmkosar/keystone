@@ -11097,6 +11097,165 @@
         "summary": "An upload's bytes. An image is served as itself; any other file as a download."
       }
     },
+    "/api/v1/chats/{id}/visuals/diagrams": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "content"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "artifact": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "language": {
+                          "type": "string"
+                        },
+                        "latest": {
+                          "type": "integer"
+                        },
+                        "link": {
+                          "type": "string"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "type",
+                        "title",
+                        "latest",
+                        "created",
+                        "updated",
+                        "sensitive",
+                        "link"
+                      ],
+                      "type": "object"
+                    },
+                    "version": {
+                      "properties": {
+                        "artifact_id": {
+                          "type": "string"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "origin": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "restored_from": {
+                          "type": "integer"
+                        },
+                        "sensitive": {
+                          "type": "boolean"
+                        },
+                        "sha256": {
+                          "type": "string"
+                        },
+                        "size": {
+                          "type": "integer"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "artifact_id",
+                        "version",
+                        "title",
+                        "size",
+                        "sha256",
+                        "origin",
+                        "sensitive",
+                        "created"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "artifact",
+                    "version"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Keep a diagram of a reply as a Mermaid artifact of its chat, as version 1."
+      }
+    },
     "/api/v1/connectors": {
       "get": {
         "responses": {
@@ -21065,6 +21224,36 @@
           }
         },
         "summary": "Your usage for a period: what your model calls cost and their tokens, in total and by model, by chat and by kind of work, each split into local, hosted and trusted models, with this month against the monthly cap and the memory pass's reserve. Summed from the usage records, so the lines of each breakdown add up to the total. With no query, the period is your usage.report_period."
+      }
+    },
+    "/api/v1/visuals/diagram": {
+      "get": {
+        "parameters": [
+          {
+            "description": "dark or light: the theme of the page around the diagram.",
+            "in": "query",
+            "name": "theme",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The page a reply's diagram is drawn in, inside a sandboxed frame: the same for every diagram, holding the renderer and no diagram, served with a policy of its own that fetches and sends nothing, runs that one script and gives the page no origin."
       }
     },
     "/api/v1/wiki-jobs": {

@@ -91,7 +91,8 @@ func TestAChatLongerThanTheWindowIsAnswered(t *testing.T) {
 		}
 		rules, _ := settings.Lookup(reg, contextbuild.KeySystemText)
 		note, _ := settings.Lookup(reg, contextbuild.KeyDroppedNote)
-		if len(sent.System) != 2 || sent.System[0].Text != rules.Default || sent.System[1].Text != note.Default {
+		visuals, _ := settings.Lookup(reg, KeyVisualsInstructions) // after the standing text, how to draw a chart or a diagram (P9-04)
+		if len(sent.System) != 2 || sent.System[0].Text != rules.Default+"\n\n"+visuals.Default || sent.System[1].Text != note.Default {
 			t.Fatalf("the call's system text is %+v", sent.System)
 		}
 		if got, want := len(sent.Messages), 2*recent.Kept+1; got != want {

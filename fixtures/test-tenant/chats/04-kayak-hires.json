@@ -1,0 +1,24 @@
+{
+  "test_data": true,
+  "title": "Kayak hires in charts",
+  "messages": [
+    {
+      "role": "user",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Chart the kayak hires at the boathouse for the season."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Draw how a kayak hire goes, from arriving to handing the paddle back."
+        }
+      ]
+    }
+  ]
+}
