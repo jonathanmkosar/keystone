@@ -12,11 +12,11 @@ Three things make that work.
 
 | Lane | Owns | Items |
 | --- | --- | --- |
-| core | `cmd/`, `internal/tenant`, `internal/api`, `internal/secrets`, `settings/`, `tools/`, operations, backup | P0, P2, P3-09, P11-02 and P11-03 (server side), P13 except P13-01 |
-| models | `internal/seam`, `internal/adapters` | P3-01 to P3-08, embeddings with knowledge |
-| chats | `internal/chat`, `internal/context`, projects, uploads, styles, sharing, import | P4-02, P4-03, P5, P9-01, P9-02, P9-05, P10-04, P12-03 |
+| core | `cmd/`, `internal/tenant`, `internal/api`, `internal/secrets`, `settings/`, `tools/`, operations, backup | P0, P2, P3-09, P11-02 and P11-03 (server side), P13 except P13-01, P14-07 (server side), P15 (server side) |
+| models | `internal/seam`, `internal/adapters` | P3-01 to P3-08, embeddings with knowledge, P14-01 to P14-03, P14-08 |
+| chats | `internal/chat`, `internal/context`, projects, uploads, styles, sharing, import | P4-02, P4-03, P5, P9-01, P9-02, P9-05, P10-04, P12-03, P14-04 and P14-05 (server side) |
 | knowledge | `internal/knowledge`, the store adapters, recall, the memory pass | P6, P12-01 |
-| agents | `internal/agent`, `internal/tools`, connectors, jobs, schedules, browser | P7, P8, P9-03, P10-03, P12-02, P13-01 |
+| agents | `internal/agent`, `internal/tools`, connectors, jobs, schedules, browser | P7, P8, P9-03, P10-03, P12-02, P13-01, P14-06 |
 | interface | `web/` | P4-01, P4-04, P9-04, P10-01, P10-02, P10-05, P11-01, and the screen half of every `+ interface` item |
 | design | `design/`, the Keystone UI canvas | P1 |
 
@@ -63,8 +63,10 @@ An agent stops and waits only when every remaining item in every lane rests on t
 | Tokens for his real Waymarks, and go-ahead to switch off New Keystone's wiki writes | P12-01 | Adapter and wiki jobs proven on a Waymarks test tenant |
 | Google sign-in for the connectors | P12-02 | Connectors proven on a stand-in mail and calendar server |
 | A copy of New Keystone's database, and go-ahead to import | P12-03 | The importer, proven on a fixture |
+| Ollama 0.35.1 or later with the decision model pulled, the largest hosted model registered, and his ladder | P14-02 and P14-08 (live checks only) | All router code, proven on recorded exchanges and the fake provider |
+| Answers A1 to A5 on admin and views (`docs/briefs/admin-and-views.md`) | P14-05 (screen), P15-01 to P15-04 | Everything, on the recommended answers, provisional |
 
-31 of the 76 items have an owner gate. Each of the 31 has something to build before the gate clears. Only one item, the final rebuild drill (P13-05), sits behind work that Jonathan alone can close.
+44 of the 94 items have an owner gate. All but two have something to build before the gate clears. Two items sit behind work that Jonathan alone can close: the final rebuild drill (P13-05) and the router's live check (P14-08), which is nothing but the live run.
 
 ## Waves
 

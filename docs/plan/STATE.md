@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P10-06 location per message (interface), asked for by the owner on November 27, 2026. The owner's asks of November 26, 2026: nothing; P7-05 skills is held. Browser use (P10-03) is built and waits on the agent mockups. The owner's Calendar sign-in was brought from New Keystone on November 26, 2026 (P12-04) and Google answers with it; Gmail still needs the Gmail API, its scopes and Keystone's redirect address on the client. The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built: P10-06 location per message (interface), asked for by the owner on November 27, 2026; phases 14 and 15, the model router and admin and views (`docs/plan/SPEC-router-and-admin.md`), from P14-01 and P14-02 (models) and P15-01 (core), with admin and views on the recommended answers to A1 to A5. The owner's asks of November 26, 2026: nothing; P7-05 skills is held. Browser use (P10-03) is built and waits on the agent mockups. The owner's Calendar sign-in was brought from New Keystone on November 26, 2026 (P12-04) and Google answers with it; Gmail still needs the Gmail API, its scopes and Keystone's redirect address on the client. The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -9,12 +9,12 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | nothing | P13-05 rebuild drill, after the tricked-agent drill and the week of daily use; scheduled backups once the owner answers |
-| models | nothing | the live checks of the adapters and embeddings, with the owner's keys and models |
-| chats | nothing | P10-02 voice mode with interface; streamed events removed a week after a turn ends, if the owner agrees |
+| core | P15-01 the admin mark and step-up (provisional on A1, A2) | P15-02 to P15-05 admin and views (provisional on A1 to A5), P14-07 Auto in usage after P14-04; P13-05 rebuild drill, after the tricked-agent drill and the week of daily use; scheduled backups once the owner answers |
+| models | P14-01 effort on the seam; P14-02 decision calls | P14-03 the router after both, P14-08 the router's live check (needs the owner); the live checks of the adapters and embeddings, with the owner's keys and models |
+| chats | nothing | P14-04 Auto in the turn after P14-03, then P14-05 the admin's router policy; P10-02 voice mode with interface; streamed events removed a week after a turn ends, if the owner agrees |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
-| agents | nothing | P13-01 the tricked-agent drill, now that browser use is in; P7-05 skills, held (a commit on its branch) |
-| interface | P10-06 location per message | P10-02 voice mode, P10-05 phone (needs the owner) |
+| agents | nothing | P14-06 Auto for unattended work after P14-04; P13-01 the tricked-agent drill, now that browser use is in; P7-05 skills, held (a commit on its branch) |
+| interface | P10-06 location per message | the screen half of P14-04, P14-05, P14-07 and P15-02 to P15-04, each once its contract is merged; P10-02 voice mode, P10-05 phone (needs the owner) |
 | design | nothing | P1-05 agent, P1-06 workspace and P1-07 settings mockups for the screens built without one; P1-01 the Claude reference library, with the owner's go-ahead |
 
 ## In flight
@@ -24,11 +24,20 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Item | Lane | Branch |
 | --- | --- | --- |
 | P10-06 location per message | interface | `interface/p10-06-location` |
+| P14-01 effort on the seam | models | `models/p14-01-effort` |
+| P14-02 decision calls | models | `models/p14-02-decision-calls` |
+| P15-01 the admin mark and step-up | core | `core/p15-01-admin-mark` |
 
 ## Waiting on the owner
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
+| A1. Is an admin a person with a mark, or a separate account? | A mark on a person, set only from the command line, with a step-up before the admin area | The recommendation | P15-01, P15-03 |
+| A2. What may an admin see of another person? | Numbers and settings only; never chats, titles, files, memory, traces or error words | The recommendation | P15-01, P15-02 |
+| A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
+| A4. Views person by person, or by named sets? | Named view sets, with per-person additions and removals | The recommendation | P15-04 |
+| A5. Who uses the install besides the owner? | A few people; the simple set is chat, projects, artifacts and general settings | The recommendation | P15-02, P15-04 |
+| The router's live check: Ollama 0.35.1 or later with the decision model pulled, the largest hosted model registered, and the ladder | Do all three before P14-08 | | P14-08 only |
 | Corrections on the first round of screens | Decided by the owner on November 27, 2026: the four drafts are approved as they are, and were recoloured in copper | | Nothing |
 | The mark on light pages | Decided by the owner on November 27, 2026: free-standing, with deeper coppers and a dark stone keystone, no tile (round two's A); the app and the browser-tab icon draw it | | Nothing |
 | The wordmark | Decided by the owner on November 27, 2026: Fraunces | | Nothing |
