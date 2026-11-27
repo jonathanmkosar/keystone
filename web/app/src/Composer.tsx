@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 import { AttachButton, AttachChips, useAttachments } from "./Attachments";
 import { DictationButton, DictationStatus, useDictation } from "./DictationControls";
 import { Icon } from "./Icon";
+import { mayTakeFocus, Sheet, useNarrow } from "./PhoneSheet";
 
 /**
  * The box a message is written in. Enter sends, and Shift with Enter makes a
@@ -17,6 +18,7 @@ export function Composer({
   onSend,
   onStop,
   beside,
+  model,
 }: {
   placeholder: string;
   /** A reply is arriving, so nothing can be sent and the button stops it. */
@@ -31,11 +33,17 @@ export function Composer({
   /** The message, and the files to upload with it (P9-02). */
   onSend: (text: string, files: File[]) => void;
   onStop?: () => void;
-  /** Drawn just before the send button: the model picker. */
+  /** Drawn before the model picker: the research, tools and style controls. On a phone they are rows of the + sheet. */
   beside?: ReactNode;
+  /** Drawn just before the microphone: the model picker. On a phone it is the chip beside the +. */
+  model?: ReactNode;
 }) {
   const [text, setText] = useState(initial);
   const area = useRef<HTMLTextAreaElement>(null);
+  const narrow = useNarrow(); // a phone: the + sheet (decision 0590)
+  const [sheet, setSheet] = useState(false);
+  const plus = useRef<HTMLButtonElement>(null);
+  const closeSheet = useCallback(() => setSheet(false), []);
   const attach = useAttachments(); // the files that go with the message (P9-02, Attachments.tsx)
   const dictation = useDictation(area, text, setText); // speech into the box, never sent by itself (P10-01, DictationControls.tsx)
 
@@ -49,8 +57,10 @@ export function Composer({
     el.style.height = `${el.scrollHeight}px`;
   }, [text]);
 
+  // On a phone nothing takes the focus by itself: its keyboard would rise
+  // over the chat that was opened.
   useEffect(() => {
-    area.current?.focus();
+    if (mayTakeFocus()) area.current?.focus();
   }, [focusKey]);
 
   const ready = (text.trim() !== "" || attach.files.length > 0) && !busy;
@@ -81,6 +91,16 @@ export function Composer({
     send();
   }
 
+  const sendButton = busy ? (
+    <button type="button" className="send-button is-stop" aria-label="Stop the reply" title="Stop" disabled={stopping || !onStop} onClick={onStop}>
+      <Icon name="stop" />
+    </button>
+  ) : (
+    <button type="submit" className="send-button" aria-label="Send" title="Send" disabled={!ready}>
+      <Icon name="send" />
+    </button>
+  );
+
   return (
     <form className={(large ? "composer composer-large" : "composer") + (attach.dragging ? " is-dropping" : "")} onSubmit={submit} {...attach.dropProps}>
       <AttachChips attach={attach} />
@@ -98,21 +118,31 @@ export function Composer({
         onKeyDown={keyDown}
       />
       <DictationStatus dictation={dictation} />
-      <div className="composer-row">
-        <AttachButton attach={attach} />
-        <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
-        {beside}
-        <DictationButton dictation={dictation} />
-        {busy ? (
-          <button type="button" className="send-button is-stop" aria-label="Stop the reply" title="Stop" disabled={stopping || !onStop} onClick={onStop}>
-            <Icon name="stop" />
+      {narrow ? (
+        // A phone: a round +, the model's chip, the microphone and a round
+        // send button; everything else is a row of the sheet the + opens.
+        <div className="composer-row is-phone">
+          <button ref={plus} type="button" className="plus-button" aria-label="Add files, chats and tools" aria-haspopup="dialog" aria-expanded={sheet} title="Add files, chats and tools" onClick={() => setSheet((s) => !s)}>
+            <Icon name="plus" size={20} />
           </button>
-        ) : (
-          <button type="submit" className="send-button" aria-label="Send" title="Send" disabled={!ready}>
-            <Icon name="send" />
-          </button>
-        )}
-      </div>
+          {model}
+          <DictationButton dictation={dictation} />
+          {sendButton}
+          <Sheet open={sheet} label="Add to your message" onClose={closeSheet} opener={plus}>
+            <AttachButton attach={attach} />
+            {beside}
+          </Sheet>
+        </div>
+      ) : (
+        <div className="composer-row">
+          <AttachButton attach={attach} />
+          <span className="composer-hint">Enter to send, Shift and Enter for a new line</span>
+          {beside}
+          {model}
+          <DictationButton dictation={dictation} />
+          {sendButton}
+        </div>
+      )}
     </form>
   );
 }

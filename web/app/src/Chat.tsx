@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { ApiError, createChat, openChat, type Message, type ModelChoice, type Person } from "./api";
 import { Approvals } from "./Approval";
 import { ArtifactPanel } from "./ArtifactPanel";
-import { AttachedChats } from "./AttachedChats";
+import { AttachChatRow, AttachedChats } from "./AttachedChats";
 import { useChats } from "./chats";
 import { Composer } from "./Composer";
 import { applyNewChatConnectors, ConnectorMenu } from "./ConnectorMenu";
@@ -79,7 +79,7 @@ export function Start({ person }: { person: Person }) {
       </div>
       <div className="composer-column">
         <ResearchHint newChatFor={person.id} />
-        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ResearchControl newChatFor={person.id} /><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /><ModelPicker newChatFor={person.id} /></>} />
+        <Composer key={unsent.tries} large placeholder={`How can I help you this ${part}?`} busy={busy} focusKey="start" initial={unsent.text} onSend={begin} beside={<><ResearchControl newChatFor={person.id} /><ConnectorMenu newChatFor={person.id} /><StylePicker newChatFor={person.id} /></>} model={<ModelPicker newChatFor={person.id} />} />
         <IncognitoSwitch on={incognito} onChange={setIncognito} />
         {problem && (
           <p className="composer-problem" role="alert">
@@ -240,7 +240,8 @@ function OneChat({ id }: { id: string }) {
             focusKey={id}
             onSend={sendHere}
             onStop={busy ? () => stop(id) : undefined}
-            beside={<><ResearchControl chatId={id} /><ConnectorMenu chatId={id} /><StylePicker chatId={id} /><ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} /></>}
+            beside={<><AttachChatRow chatId={id} /><ResearchControl chatId={id} /><ConnectorMenu chatId={id} /><StylePicker chatId={id} /></>}
+            model={<ModelPicker chatId={id} initial={loaded.state === "ready" ? loaded.model : undefined} />}
           />
           <p className="composer-note">{note ? `${note} · ${footnote}` : footnote}</p>
         </div>

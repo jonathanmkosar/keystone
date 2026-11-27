@@ -305,5 +305,6 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0560 | [A setting is a name, one short line and its value, and its row opens in place](decisions/0560-a-setting-is-a-name-a-short-line-and-a-value-and-opens-in-place.md) |
 | 0561 | [A setting's title and summary are in the registry, and a check asks for them, not the reader](decisions/0561-a-settings-title-and-summary-are-in-the-registry-and-a-check-asks-for-them.md) |
 | 0562 | [The settings screen's headings are worked out from key prefixes by the screen, not kept in the registry](decisions/0562-headings-are-worked-out-from-key-prefixes-by-the-screen.md) |
+| 0590 | [On a phone the composer's and the header's controls are rows of a sheet, drawn by each control itself](decisions/0590-on-a-phone-the-composer-and-header-controls-are-rows-of-a-sheet.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

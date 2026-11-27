@@ -12,7 +12,9 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Ke
 import { Link } from "react-router";
 import { ApiError } from "./api";
 import { useChats } from "./chats";
+import { styleState } from "./composerSheet";
 import { Icon } from "./Icon";
+import { SheetRow, useSheet } from "./PhoneSheet";
 import { chatStyle, chooseChatStyle, listStyles, type Style } from "./styleCalls";
 import { isActive, useLive } from "./turns";
 import "./model-picker.css";
@@ -81,6 +83,7 @@ export function StylePicker(props: { chatId: string } | { newChatFor: string }) 
   const personId = isNew ? props.newChatFor : "";
   const { lost } = useChats();
   useVersion();
+  const sheet = useSheet();
   const live = useLive(isNew ? undefined : chatId);
   const active = isActive(live);
   const [shown, setShown] = useState<Shown>();
@@ -154,11 +157,13 @@ export function StylePicker(props: { chatId: string } | { newChatFor: string }) 
       tell();
       setOpen(false);
       trigger.current?.focus();
+      sheet?.done();
       return;
     }
     if (st.id === shown?.current && shown.source === "chat") {
       setOpen(false);
       trigger.current?.focus();
+      sheet?.done();
       return;
     }
     setBusy(true);
@@ -167,6 +172,7 @@ export function StylePicker(props: { chatId: string } | { newChatFor: string }) 
       setShown({ styles: got.styles, current: got.style?.id ?? "", def: got.default, source: got.source });
       setOpen(false);
       trigger.current?.focus();
+      sheet?.done();
     } catch (e) {
       if (e instanceof ApiError && e.kind === "signed-out") lost();
       else setProblem("The style could not be changed. Check that the server is running.");
@@ -198,20 +204,25 @@ export function StylePicker(props: { chatId: string } | { newChatFor: string }) 
 
   const heading = isNew ? "Style for the new chat" : "Style for this chat";
   return (
-    <div className="style-picker" ref={wrap}>
-      <button
-        type="button"
-        ref={trigger}
-        className="model-button style-button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={`Style: ${label}. Pick another style`}
-        title={`The style replies are written in: ${label}`}
-        onClick={toggle}
-      >
-        <Icon name="pencil" size={16} />
-        <span className="style-button-label">{label}</span>
-      </button>
+    <div className={sheet ? "style-picker sheet-item" : "style-picker"} ref={wrap}>
+      {sheet ? (
+        // In the phone's + sheet it is a row, and its styles open under it (decision 0590).
+        <SheetRow ref={trigger} icon="pencil" name="Style" state={styleState(current?.name)} expanded={open} title={`The style replies are written in: ${label}`} onClick={toggle} />
+      ) : (
+        <button
+          type="button"
+          ref={trigger}
+          className="model-button style-button"
+          aria-haspopup="menu"
+          aria-expanded={open}
+          aria-label={`Style: ${label}. Pick another style`}
+          title={`The style replies are written in: ${label}`}
+          onClick={toggle}
+        >
+          <Icon name="pencil" size={16} />
+          <span className="style-button-label">{label}</span>
+        </button>
+      )}
       {open && (
         <div className="model-menu style-menu" role="menu" aria-label={heading} ref={menu} onKeyDown={menuKey}>
           <p className="model-menu-head">{heading}</p>
