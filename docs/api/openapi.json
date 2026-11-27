@@ -30,12 +30,274 @@
     }
   },
   "info": {
-    "description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. Every answer carries an X-Request-Id header.",
+    "description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is behind the admin door: it answers 403 not_admin to a person without the admin mark, and 401 step_up to a session without a fresh step-up, unless it is also marked x-keystone-step-up. Every answer carries an X-Request-Id header.",
     "title": "Keystone",
     "version": "1"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/people": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "people": {
+                      "items": {
+                        "properties": {
+                          "added": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "admin": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_sign_in": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "admin",
+                          "added"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "people"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every person on the install: id, name, admin mark, when added and last sign-in. Never a chat, a title or an error's words. Each other person's audit log records the read.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/step-up": {
+      "delete": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "ended": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ended"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Close the admin area on this session before its time.",
+        "x-keystone-admin": true
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "passkey": {
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "rawId": {
+                        "type": "string"
+                      },
+                      "response": {
+                        "properties": {
+                          "authenticatorData": {
+                            "type": "string"
+                          },
+                          "clientDataJSON": {
+                            "type": "string"
+                          },
+                          "signature": {
+                            "type": "string"
+                          },
+                          "userHandle": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "clientDataJSON",
+                          "authenticatorData",
+                          "signature",
+                          "userHandle"
+                        ],
+                        "type": "object"
+                      },
+                      "type": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "rawId",
+                      "type",
+                      "response"
+                    ],
+                    "type": "object"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "admin_until": {
+                      "format": "date-time",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "admin_until"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Open the admin area on this session: the password, or a passkey's answer, again. It stays open for the admin.step_up_for setting. A wrong one is 403 refused and counts towards the sign-in's wait.",
+        "x-keystone-admin": true,
+        "x-keystone-step-up": true
+      }
+    },
+    "/api/v1/admin/step-up/passkey": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "allowCredentials": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "challenge": {
+                      "type": "string"
+                    },
+                    "rpId": {
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "type": "integer"
+                    },
+                    "userVerification": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "challenge",
+                    "rpId",
+                    "allowCredentials",
+                    "userVerification",
+                    "timeout"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "A passkey prompt for a step-up, for navigator.credentials.get. 400 passkeys_off while passkeys are switched off.",
+        "x-keystone-admin": true,
+        "x-keystone-step-up": true
+      }
+    },
     "/api/v1/agents": {
       "get": {
         "responses": {
@@ -21122,6 +21384,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "admin": {
+                      "type": "boolean"
+                    },
                     "person": {
                       "properties": {
                         "id": {
@@ -21139,6 +21404,10 @@
                     },
                     "session": {
                       "properties": {
+                        "admin_until": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
                         "created": {
                           "format": "date-time",
                           "type": "string"
@@ -21165,7 +21434,8 @@
                   },
                   "required": [
                     "person",
-                    "session"
+                    "session",
+                    "admin"
                   ],
                   "type": "object"
                 }
@@ -21184,7 +21454,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Who is signed in, and until when."
+        "summary": "Who is signed in, and until when; whether they carry the admin mark, and until when their admin step-up lasts."
       },
       "post": {
         "requestBody": {
@@ -21215,6 +21485,9 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "admin": {
+                      "type": "boolean"
+                    },
                     "person": {
                       "properties": {
                         "id": {
@@ -21232,6 +21505,10 @@
                     },
                     "session": {
                       "properties": {
+                        "admin_until": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
                         "created": {
                           "format": "date-time",
                           "type": "string"
@@ -21258,7 +21535,8 @@
                   },
                   "required": [
                     "person",
-                    "session"
+                    "session",
+                    "admin"
                   ],
                   "type": "object"
                 }

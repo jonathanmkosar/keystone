@@ -218,21 +218,32 @@ func AddPasskey(s *tenant.Store, name string, c PasskeyCreation, o Options) (Pas
 // session, as SignIn does for a password. The passkey must be one this
 // tenant added: another tenant's is not in this database, and is refused.
 func PasskeySignIn(s *tenant.Store, a PasskeyAssertion, o Options) (string, Session, error) {
-	if err := checkOptions(o); err != nil {
+	t, err := checkAssertion(s, a, purposeSignIn, o)
+	if err != nil {
 		return "", Session{}, err
+	}
+	return newSession(s, MethodPasskey, o, t)
+}
+
+// checkAssertion is the passkey check PasskeySignIn and PasskeyStepUp share.
+// The answer must be to a prompt handed out for purpose. It returns the time
+// it read the clock.
+func checkAssertion(s *tenant.Store, a PasskeyAssertion, purpose string, o Options) (time.Time, error) {
+	if err := checkOptions(o); err != nil {
+		return time.Time{}, err
 	}
 	if err := checkPasskeyOptions(o); err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
-	if err := checkClientData(s, a.ClientDataJSON, typeGet, purposeSignIn, o); err != nil {
-		return "", Session{}, err
+	if err := checkClientData(s, a.ClientDataJSON, typeGet, purpose, o); err != nil {
+		return time.Time{}, err
 	}
 	// The device says whose passkey it is: the user id it was given when
 	// the passkey was made, which is the tenant's id. The signature does
 	// not cover it, so this is a second check and not the first. The first
 	// is that the passkey's key is in this tenant's database.
 	if string(a.UserHandle) != s.TenantID() {
-		return "", Session{}, refused("the passkey does not say it belongs to this tenant")
+		return time.Time{}, refused("the passkey does not say it belongs to this tenant")
 	}
 	var (
 		id     string
@@ -243,36 +254,36 @@ func PasskeySignIn(s *tenant.Store, a PasskeyAssertion, o Options) (string, Sess
 	err := db.QueryRow("SELECT id, public_key, sign_count FROM signin_passkeys WHERE credential_id = ?", a.CredentialID).
 		Scan(&id, &spki, &stored)
 	if errors.Is(err, sql.ErrNoRows) {
-		return "", Session{}, refused("the passkey is not known here")
+		return time.Time{}, refused("the passkey is not known here")
 	}
 	if err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	ad, err := parseAuthData(a.AuthenticatorData, o.PasskeyRPID)
 	if err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	key, err := parseKey(spki)
 	if err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	// What the device signed: its own data, then the hash of the client data.
 	clientHash := sha256.Sum256(a.ClientDataJSON)
 	signed := append(append([]byte{}, a.AuthenticatorData...), clientHash[:]...)
 	if !verify(key, signed, a.Signature) {
-		return "", Session{}, refused("the signature does not match the passkey")
+		return time.Time{}, refused("the signature does not match the passkey")
 	}
 	// A device that counts its uses must count upward. A count that stands
 	// still or goes back means a copy of the passkey is in use. Passkeys
 	// that sync between devices do not count, and always say zero.
 	count := int64(ad.signCount)
 	if (count != 0 || stored != 0) && count <= stored {
-		return "", Session{}, refused("the passkey's use count went backwards, so it may have been copied")
+		return time.Time{}, refused("the passkey's use count went backwards, so it may have been copied")
 	}
 	if _, err := db.Exec("UPDATE signin_passkeys SET sign_count = ?, last_used_at = ? WHERE id = ?", count, stamp(t), id); err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
-	return newSession(s, MethodPasskey, o, t)
+	return t, nil
 }
 
 // Passkeys lists the tenant's passkeys, oldest first.
