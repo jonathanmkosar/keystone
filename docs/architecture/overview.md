@@ -317,5 +317,8 @@ Recorded in [`decisions/`](decisions/), one file each, numbered. A decision that
 | 0601 | [The model gets the location as one line before the person's words, written once, in every call that sends that message](decisions/0601-the-model-gets-one-line-before-the-persons-words-written-once.md) |
 | 0602 | [Keystone's own pages may ask for the position, by a second Permissions-Policy line beside the microphone's](decisions/0602-the-position-is-allowed-by-a-second-permissions-policy-line.md) |
 | 0603 | [The position is asked for on a tap, once, at low accuracy, and rounded in the page before anything holds it](decisions/0603-the-position-is-asked-for-on-a-tap-once-and-rounded-in-the-page.md) |
+| 0610 | [The phone's composer is one element, a pill while idle and the card once used](decisions/0610-the-phone-composer-is-one-element-idle-as-a-pill-and-expanded-as-a-card.md) |
+| 0611 | [On a phone the header is round controls floating over the page](decisions/0611-on-a-phone-the-header-is-round-controls-floating-over-the-page.md) |
+| 0612 | [On a phone a message's actions are icons, and a person's own wait for a tap](decisions/0612-on-a-phone-message-actions-are-icons-and-a-persons-wait-for-a-tap.md) |
 
 `verify` fails if a record in `decisions/` is not linked here.

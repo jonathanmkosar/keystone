@@ -220,10 +220,13 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setState("idle"), 1600);
   }
+  const said = state === "copied" ? "Copied" : state === "failed" ? "Could not copy" : label;
+  // The words are a span of their own: on a phone, under a message, only the
+  // icon shows and the words are for a screen reader (P10-07).
   return (
-    <button type="button" className="copy-button" onClick={copy} aria-live="polite">
+    <button type="button" className="copy-button" onClick={copy} aria-live="polite" aria-label={said} title={said}>
       <Icon name={state === "copied" ? "check" : "copy"} size={14} />
-      {state === "copied" ? "Copied" : state === "failed" ? "Could not copy" : label}
+      <span className="action-label">{said}</span>
     </button>
   );
 }

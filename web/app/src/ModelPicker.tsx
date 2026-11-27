@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "re
 import { Link } from "react-router";
 import { ApiError, chatModel, getTurn, listModels, listSettings, type ModelChoice, type ModelInfo, type RegisteredModel } from "./api";
 import { useChats } from "./chats";
-import { shortModelName } from "./composerSheet";
+import { footnote, shortModelName } from "./composerSheet";
 import { Icon } from "./Icon";
 import { Sheet, useNarrow } from "./PhoneSheet";
 import { markHeld, mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, useHeld, usePickEntry } from "./modelPicks";
@@ -205,7 +205,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
 
   const label = shown ? labelOf(shown) : "Pick a model";
   const warn = shownRow?.blocked ?? "";
-  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} />;
+  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} phone={narrow} />;
 
   return (
     <div className="model-picker" ref={wrap}>
@@ -239,7 +239,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   );
 }
 
-function MenuBody({ isNew, rows, held, foot, choose, close }: { isNew: boolean; rows: Row[]; held: boolean; foot: string; choose: (r: Row) => void; close: () => void }) {
+function MenuBody({ isNew, rows, held, foot, choose, close, phone }: { isNew: boolean; rows: Row[]; held: boolean; foot: string; choose: (r: Row) => void; close: () => void; phone: boolean }) {
   return (
     <>
           <p className="model-menu-head">{isNew ? "Model for the new chat" : "Model for this chat"}</p>
@@ -269,6 +269,8 @@ function MenuBody({ isNew, rows, held, foot, choose, close }: { isNew: boolean; 
           <Link className="model-menu-link" to="/settings/models" onClick={close}>
             Models and keys
           </Link>
+          {/* On a phone the note under the composer is gone; its words are here (P10-07). */}
+          {phone && <p className="model-menu-note model-menu-foot">{footnote}</p>}
     </>
   );
 }
