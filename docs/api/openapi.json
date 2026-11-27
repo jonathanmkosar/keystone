@@ -1680,6 +1680,91 @@
         "summary": "Make a chat with no title and no messages. It takes no body."
       }
     },
+    "/api/v1/chats/delete": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "ids": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "ids"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "deleted": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "skipped": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "reason": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "why": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "reason",
+                          "why"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "deleted",
+                    "skipped"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Delete many chats in one call, each as DELETE chats/{id} does, with its messages, turns, files, artifacts and share links, and each in the audit log. Nothing is stopped: a chat with a turn queued or running, or with a background task or a sub-agent still at work in it or for it, is left and named in skipped with its reason, and so is an id that is not one of the person's chats. More ids than chats.delete_batch_max is refused. There is no undo."
+      }
+    },
     "/api/v1/chats/incognito": {
       "post": {
         "responses": {
@@ -2256,6 +2341,325 @@
           }
         },
         "summary": "Search the person's chats by the words of their titles and messages, on every branch."
+      }
+    },
+    "/api/v1/chats/table": {
+      "get": {
+        "parameters": [
+          {
+            "description": "The words to look for. Every word must be in the chat's title or in one of its messages, on any branch; a word also matches as the start of a longer one. Each row then has a match, with the matching words marked.",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "active (the last message, the default), title, messages, or match (the best match first, the default while searching).",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "asc or desc. The default is desc for active and messages, asc for title and match.",
+            "in": "query",
+            "name": "order",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Marks a chat must wear, separated by commas: starred, imported, project, task, subagent. A chat must wear every one named.",
+            "in": "query",
+            "name": "filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The most rows to return. The chats.table_page_rows setting is the most and the default.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "How many rows to skip from the top.",
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "true also returns the ids of every chat that matches, at most chats.table_select_max, for selecting them all.",
+            "in": "query",
+            "name": "ids",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "delete_max": {
+                      "type": "integer"
+                    },
+                    "filters": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "ids_cut": {
+                      "type": "boolean"
+                    },
+                    "more": {
+                      "type": "boolean"
+                    },
+                    "order": {
+                      "type": "string"
+                    },
+                    "page_rows": {
+                      "type": "integer"
+                    },
+                    "query": {
+                      "type": "string"
+                    },
+                    "rows": {
+                      "items": {
+                        "properties": {
+                          "active": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "busy": {
+                            "type": "boolean"
+                          },
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "held": {
+                            "type": "boolean"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "imported": {
+                            "properties": {
+                              "at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "first": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "from": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string"
+                              },
+                              "last": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "models": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "note": {
+                                "type": "string"
+                              },
+                              "steps": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "turns": {
+                                "type": "integer"
+                              },
+                              "unanswered": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "kind",
+                              "at",
+                              "turns",
+                              "first",
+                              "last",
+                              "models"
+                            ],
+                            "type": "object"
+                          },
+                          "incognito": {
+                            "type": "boolean"
+                          },
+                          "match": {
+                            "properties": {
+                              "message_id": {
+                                "type": "integer"
+                              },
+                              "messages": {
+                                "type": "integer"
+                              },
+                              "role": {
+                                "type": "string"
+                              },
+                              "snippet": {
+                                "items": {
+                                  "properties": {
+                                    "match": {
+                                      "type": "boolean"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "text"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "title": {
+                                "type": "boolean"
+                              },
+                              "title_parts": {
+                                "items": {
+                                  "properties": {
+                                    "match": {
+                                      "type": "boolean"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "text"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "messages"
+                            ],
+                            "type": "object"
+                          },
+                          "messages": {
+                            "type": "integer"
+                          },
+                          "project": {
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ],
+                            "type": "object"
+                          },
+                          "shared": {
+                            "type": "integer"
+                          },
+                          "starred": {
+                            "type": "boolean"
+                          },
+                          "subagent": {
+                            "type": "boolean"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "task": {
+                            "type": "boolean"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "working": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "created",
+                          "active",
+                          "messages",
+                          "busy",
+                          "working",
+                          "starred"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "sort": {
+                      "type": "string"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "rows",
+                    "total",
+                    "more",
+                    "query",
+                    "sort",
+                    "order",
+                    "filters",
+                    "page_rows",
+                    "delete_max"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Every chat of the person's as a row of a table: its title, its recap's summary, its last activity, how many messages it holds and the marks it wears. It can be searched by the words of titles and messages, narrowed to marks, sorted and paged."
       }
     },
     "/api/v1/chats/{id}": {

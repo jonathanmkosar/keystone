@@ -437,6 +437,27 @@
       "description": "Which imported chats are held to local or trusted models, as a chat that was sent content from a sensitive space is. New Keystone marked nothing as sensitive, so none are by default. wiki holds the chats in which New Keystone read the person's Waymarks wiki; all holds every imported chat. A held chat stays held, and is left out of the past-chat search for a hosted model."
     },
     {
+      "key": "chats.table_page_rows",
+      "type": "int",
+      "default": "50",
+      "scope": "tenant",
+      "description": "How many chats one page of the Chats screen's table holds, from 1 to 500. The screen reads the next page as the end of the list comes into view."
+    },
+    {
+      "key": "chats.table_select_max",
+      "type": "int",
+      "default": "2000",
+      "scope": "tenant",
+      "description": "The most chats \"select all that match\" selects at once on the Chats screen, from 1 to 100000. With more than this the screen says how many it took, and the rest are selected after those are dealt with."
+    },
+    {
+      "key": "chats.delete_batch_max",
+      "type": "int",
+      "default": "100",
+      "scope": "tenant",
+      "description": "The most chats one delete request removes, from 1 to 1000. The Chats screen sends a larger selection as several requests, one after another."
+    },
+    {
       "key": "chats.context_pinned_heading",
       "type": "string",
       "default": "A message from earlier in this chat that the person pinned, so it is always shown to you.",

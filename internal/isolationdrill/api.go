@@ -191,6 +191,8 @@ func (g *rig) bodyFor(method, path string) (string, []byte) {
 		return `{"policy":"always"}`, nil
 	case "POST /api/v1/chats/{id}/shares":
 		return `{"view":"live"}`, nil
+	case "POST /api/v1/chats/delete": // the batch delete (P4-06), with the first person's chats
+		return jsonOf(turn.DeleteManyBody{IDs: []string{f.chatA, f.chatB, f.chatD, f.incognito}}), nil
 	}
 	if method == "POST" || method == "PUT" || method == "PATCH" {
 		return `{}`, nil
@@ -209,6 +211,9 @@ func (g *rig) queryFor(method, path string) string {
 		q.Set("request_id", f.requestA)
 	case "GET /api/v1/chats/search":
 		q.Set("q", "Lantern Accounts")
+	case "GET /api/v1/chats/table": // the table of every chat (P4-06), searched with the first person's words
+		q.Set("q", "Lantern Accounts")
+		q.Set("ids", "true")
 	case "GET /api/v1/artifacts/{artifact}/compare":
 		q.Set("from", "1")
 		q.Set("to", "2")

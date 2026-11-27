@@ -142,6 +142,7 @@ var checks = []check{
 	{"inline visuals", checkInlineVisuals},
 	{"research mode", checkResearch},
 	{"load test", checkLoadTest},
+	{"manage chats", checkManageChats},
 }
 
 func main() {
