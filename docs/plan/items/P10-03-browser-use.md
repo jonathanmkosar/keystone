@@ -1,6 +1,6 @@
 # P10-03. Browser use
 
-Status: todo
+Status: doing (agents)
 Lane: agents
 Depends on: P7-02
 Owner gate: none

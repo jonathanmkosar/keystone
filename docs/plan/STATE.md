@@ -1,7 +1,7 @@
 # State
 
 Phase: 4, the first usable chat. Keystone runs in a browser: sign in, open a chat, send a message, read a streamed reply, with the fake provider. Phases 0, 2 and 3 are built; phase 1, design, waits on the owner.
-Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built, the owner's asks of November 26, 2026 first: P7-05 skills (agents). The owner's Calendar sign-in was brought from New Keystone on November 26, 2026 (P12-04) and Google answers with it; Gmail still needs the Gmail API, its scopes and Keystone's redirect address on the client. The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
+Next: the owner's priorities first: Waymarks, scheduled tasks, chat and context, Gmail and Calendar, connectors. Being built, the owner's asks of November 26, 2026 first: P10-03 browser use (agents), started at the owner's word on November 27, 2026. P7-05 skills is held. The owner's Calendar sign-in was brought from New Keystone on November 26, 2026 (P12-04) and Google answers with it; Gmail still needs the Gmail API, its scopes and Keystone's redirect address on the client. The importer from New Keystone (P12-03) is merged; the owner gave his go-ahead on November 26, 2026, and his real import ran that day: 33 chats, 224 messages and the morning brief as a paused schedule, with `agents.time_zone` set to America/Chicago. The item is provisional until he has seen his chats. These lanes stopped on a usage limit on November 26 and are picked up from their branches. Embeddings are built and wait on a local embedding model and the owner's Waymarks embedder token. Gmail and Calendar are built; the owner's Google client from New Keystone is in his vault, and he still adds Keystone's redirect address and the Gmail API to it (`docs/runbooks/google.md`). Waymarks is connected for the owner since November 26, 2026 with New Keystone's own token as both reader and intake, until Keystone has tokens of its own; then P12-01, the Waymarks cutover.
 Blocked: nothing
 Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the plan says `main`, read `reboot`. `AGENTS.md` is where any agent starts.
 
@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | the live checks of the adapters and embeddings, with the owner's keys and models |
 | chats | nothing | P10-02 voice mode with interface; streamed events removed a week after a turn ends, if the owner agrees |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
-| agents | P7-05 skills | P10-03 browser use, then P13-01 the tricked-agent drill |
+| agents | P10-03 browser use | P13-01 the tricked-agent drill; P7-05 skills, held (a commit on its branch) |
 | interface | nothing | P10-02 voice mode, P10-05 phone (needs the owner), the model route reporting a held chat and missing keys (decisions 0240, 0241) |
 | design | nothing | P1-05 agent, P1-06 workspace and P1-07 settings mockups for the screens built without one; P1-01 the Claude reference library, with the owner's go-ahead |
 
@@ -23,7 +23,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
-| P7-05 skills | agents | `agents/p7-05-skills` |
+| P10-03 browser use | agents | `agents/p10-03-browser-use` |
 
 ## Waiting on the owner
 
