@@ -210,3 +210,21 @@
     max-width: none;
   }
 }
+
+/* On a phone the menu is a sheet (ModelPicker.tsx, PhoneSheet.tsx): its rows
+   fill the sheet's width and are at least 44px tall. */
+.model-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.model-sheet .model-item {
+  min-height: 48px;
+}
+
+.model-sheet .model-menu-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}

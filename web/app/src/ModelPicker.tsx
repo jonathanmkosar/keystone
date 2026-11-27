@@ -4,7 +4,7 @@ import { ApiError, chatModel, getTurn, listModels, listSettings, type ModelChoic
 import { useChats } from "./chats";
 import { shortModelName } from "./composerSheet";
 import { Icon } from "./Icon";
-import { useNarrow } from "./PhoneSheet";
+import { Sheet, useNarrow } from "./PhoneSheet";
 import { markHeld, mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, useHeld, usePickEntry } from "./modelPicks";
 import { isActive, useLive } from "./turns";
 import "./model-picker.css";
@@ -130,9 +130,11 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
     );
   }, [isNew, held, chatId, failedTurn]);
 
-  // A click outside, or Escape, closes the menu.
+  // A click outside, or Escape, closes the menu. On a phone the menu is a
+  // sheet drawn into the body, which closes itself on a tap outside and on
+  // Escape, so a tap inside it must not count as outside here.
   useEffect(() => {
-    if (!open) return;
+    if (!open || narrow) return;
     function down(e: MouseEvent) {
       if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false);
     }
@@ -148,7 +150,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
       document.removeEventListener("mousedown", down);
       document.removeEventListener("keydown", escape);
     };
-  }, [open]);
+  }, [open, narrow]);
 
   // The menu opens on the model that will answer.
   useEffect(() => {
@@ -203,6 +205,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
 
   const label = shown ? labelOf(shown) : "Pick a model";
   const warn = shownRow?.blocked ?? "";
+  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} />;
 
   return (
     <div className="model-picker" ref={wrap}>
@@ -220,8 +223,25 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
         <span className="model-button-label">{narrow ? shortModelName(label) : label}</span>
         <Icon name="chevron" size={16} />
       </button>
-      {open && (
+      {narrow ? (
+        // On a phone the menu rises from the foot of the screen as a sheet,
+        // as the composer's + does: opening upward from the chip, it ran off
+        // the top of the new chat screen (the owner's report, November 27, 2026).
+        <Sheet open={open} label={isNew ? "Model for the new chat" : "Model for this chat"} onClose={() => setOpen(false)} opener={trigger}>
+          {open && <div className="model-sheet" role="menu" aria-label={isNew ? "Model for the new chat" : "Model for this chat"} ref={menu} onKeyDown={menuKey}>{menuBody}</div>}
+        </Sheet>
+      ) : open && (
         <div className="model-menu" role="menu" aria-label={isNew ? "Model for the new chat" : "Model for this chat"} ref={menu} onKeyDown={menuKey}>
+          {menuBody}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuBody({ isNew, rows, held, foot, choose, close }: { isNew: boolean; rows: Row[]; held: boolean; foot: string; choose: (r: Row) => void; close: () => void }) {
+  return (
+    <>
           <p className="model-menu-head">{isNew ? "Model for the new chat" : "Model for this chat"}</p>
           {rows.map((r) => (
             <button
@@ -246,11 +266,9 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
           ))}
           {held && <p className="model-menu-note">This chat holds content from a sensitive space, so only local and trusted models can answer it.</p>}
           {foot && <p className="model-menu-note">{foot}</p>}
-          <Link className="model-menu-link" to="/settings/models" onClick={() => setOpen(false)}>
+          <Link className="model-menu-link" to="/settings/models" onClick={close}>
             Models and keys
           </Link>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
