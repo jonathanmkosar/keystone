@@ -21,7 +21,6 @@ The router only ever narrows or orders what `routing.Plan` allows. It never adds
 - **Auto**: the picker's choice that lets the router decide. A chat is on Auto or on a named model.
 - **Ladder**: the admin's ordered list of models for a person, smallest first.
 - **Step**: one model on the ladder.
-- **Floor**: the lowest step a chat may use. It starts at the bottom and only rises.
 - **Verdict**: the router's answer for one request: step, effort, probability and a one-line reason.
 
 ### The ladder
@@ -37,8 +36,7 @@ A name that is not a usable model in the person's registry is skipped. An empty 
 1. **Held chat.** A chat held for sensitive content (decision 0211) may use only steps whose model may read sensitive content (`models.Model.MayReadSensitive`). If none is left, the turn fails with the code `sensitive`, as today.
 2. **Needs.** An image asks for `vision` (decision 0382), offered tools ask for `tools`, a file asks for `files`. A step whose model lacks one is skipped.
 3. **Size.** A step with a size limit is skipped when the call's estimate is over it. Every step must also fit the call in its window (the budget's check).
-4. **Floor.** No step below the chat's floor.
-5. **Local machine down.** When the decision call or the last call to a local endpoint failed with `unavailable` within `router.local_down_for`, local steps are skipped for this request and the reply carries the notice `local_unavailable`. A held chat with only local steps fails with the code `local_unavailable` and says to try again when the machine is back. It never moves to a hosted model.
+4. **Local machine down.** When the decision call or the last call to a local endpoint failed with `unavailable` within `router.local_down_for`, local steps are skipped for this request and the reply carries the notice `local_unavailable`. A held chat with only local steps fails with the code `local_unavailable` and says to try again when the machine is back. It never moves to a hosted model.
 
 What is left are the **candidates**. With one candidate there is no verdict call.
 
@@ -47,7 +45,7 @@ What is left are the **candidates**. With one candidate there is no verdict call
 The decision model is the registry entry named by `router.decision_model`, which has the capability `decision` (below). It is shown:
 
 - the newest message's text, cut to `router.verdict_max_chars`;
-- the call's facts: estimated tokens, whether it holds images or files, how many tools are offered, the floor step's label, and how many turns the chat has.
+- the call's facts: estimated tokens, whether it holds images or files, how many tools are offered, the step the previous message used, and how many turns the chat has.
 
 It is never shown the rest of the chat.
 
@@ -89,13 +87,14 @@ The router never asks for more than `router.max_effort`.
 
 ### Auto in the turn
 
-- A migration gives each chat `auto` (yes or no) and `auto_floor` (a registry name). A new chat takes `router.auto_default` and the ladder's bottom.
-- A turn of a chat on Auto, with a ladder, asks the router. The chosen model is the ask's model, and the effort is set. Everything after that is the existing route and chain.
-- When the reply ends well, the floor rises to the step that was asked for, if that is higher. A fallback that answered does not lower it.
+- A migration gives each chat `auto` (yes or no). A new chat takes `router.auto_default`.
+- **Every message is routed afresh, before its call.** The router decides from that message and the call's facts. Nothing from earlier messages holds a chat on a step. The chosen model is the ask's model, and the effort is set. Everything after that is the existing route and chain.
+- **The choice holds for the whole turn.** Every tool step of that message's tool loop uses the same model and effort, since a thinking block goes back only to the model that wrote it. The next message is routed again.
+- **Switching costs the cache.** A message routed to another model than the one before loses that provider's prompt cache for its call. The reason line says so ("switched from <label>"), and the usage records already show cache reads and writes, so the cost is visible on Usage.
 - The turn's record keeps `auto`, the step, the effort, the reason and the verdict's id.
 - A new table, `router_verdicts`: id, turn id, request id, the decision model, the facts it was shown (as JSON, without the message text, which is in the chat), the step answered, its probability, the effort, `moved_up`, `timed_out`, `rules_only` with its reason, latency in milliseconds, `stronger_asked`, and when.
-- **Try a stronger model.** `POST /api/v1/chats/{id}/turns/{turn}/stronger` writes that turn again, on a new branch of the message tree (decision 0020), one step above the step that answered. It raises the floor and sets `stronger_asked` on the verdict. It is refused on the top step, or when no step higher up may take the call.
-- `GET /api/v1/chats/{id}/model` (`ModelChoice`) gains `auto`, `floor`, `ladder` (names and labels), `may_switch_off`, `allowed` and `held`. `held` replaces the browser's own record of held chats (decision 0241), which can then be dropped.
+- **Try a stronger model.** `POST /api/v1/chats/{id}/turns/{turn}/stronger` writes that turn again, on a new branch of the message tree (decision 0020), one step above the step that answered, and sets `stronger_asked` on the verdict. The next message is routed afresh. It is refused on the top step, or when no step higher up may take the call.
+- `GET /api/v1/chats/{id}/model` (`ModelChoice`) gains `auto`, `last_step`, `ladder` (names and labels), `may_switch_off`, `allowed` and `held`. `held` replaces the browser's own record of held chats (decision 0241), which can then be dropped.
 - A turn's stream starts with a `route` event: `auto`, the model, the step, the effort, the reason, and any notice.
 
 ### The admin's policy for each person
@@ -136,7 +135,7 @@ Picking a named model in a chat on Auto takes the chat off Auto, when that is al
 
 ### Unattended work
 
-Sub-agents, background tasks and scheduled runs start on Auto with their own floor at the bottom, unless the call that started them names a model. A held parent's sub-agent is held, as decision 0483 already says. At the cap, unattended work falls back to a local model or stops, as decision 0392 says.
+Sub-agents, background tasks and scheduled runs start on Auto, each of their turns routed afresh, unless the call that started them names a model. A held parent's sub-agent is held, as decision 0483 already says. At the cap, unattended work falls back to a local model or stops, as decision 0392 says.
 
 ### Screens
 
@@ -150,7 +149,8 @@ Sub-agents, background tasks and scheduled runs start on Auto with their own flo
 
 - Recorded turns in the test tenant reach each step of the ladder, with the fake provider giving the verdicts.
 - A held chat on Auto, given a verdict that names a hosted step, reaches no hosted model. This joins the `sensitive content` check in `verify`.
-- A verdict under the confidence level moves up one step. A timed-out verdict uses the rules alone. A chat's floor never falls.
+- A verdict under the confidence level moves up one step. A timed-out verdict uses the rules alone.
+- Each message is routed afresh: a hard message followed by an easy one goes back down, and every tool step of one turn stays on its model.
 - The local machine not answering: a chat on Auto is answered by the next step with the notice; a held chat fails with `local_unavailable`.
 - A person who may not pick a model, or may not leave Auto, is refused by the server.
 - Effort reaches each adapter's request in the shape in the table above, on recorded exchanges.
