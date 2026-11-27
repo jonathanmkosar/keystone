@@ -23,6 +23,53 @@ export function shortModelName(label: string): string {
   return s === "" ? whole : s;
 }
 
+/** What the box says on a phone, where the screen has no room for a longer line (P10-07). */
+export const phonePlaceholder = "Message Keystone";
+
+/** The note that sat under the composer; on a phone it is at the foot of the model's sheet (P10-07). */
+export const footnote = "Keystone can make mistakes. Check what matters against its sources.";
+
+/** What the phone's composer holds and does: enough to say how it is drawn. */
+export type ComposerState = {
+  /** The focus is in the composer: its box, its buttons, or a sheet it opened. */
+  focused: boolean;
+  text: string;
+  /** The files to go with the message. */
+  files: number;
+  /** Dictation is listening or finishing (P10-01). */
+  dictating?: boolean;
+};
+
+/**
+ * The phone's composer is one pill row while it is idle, and the card with
+ * the box over its row once it is focused or holds anything (P10-07,
+ * decision 0610). Text that is only spaces still counts: the person typed it.
+ */
+export function composerExpanded(s: ComposerState): boolean {
+  return s.focused || s.text !== "" || s.files > 0 || s.dictating === true;
+}
+
+/** A person's first name, for the phone's one-line greeting: the first word of their name. */
+export function firstName(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? "";
+  return first;
+}
+
+/** The phone's greeting on the new chat screen: "Good afternoon, Test", or no name when there is none. */
+export function phoneGreeting(part: string, name: string): string {
+  const first = firstName(name);
+  return first === "" ? `Good ${part}` : `Good ${part}, ${first}`;
+}
+
+/**
+ * Whether a person's own message shows its actions. On a phone they wait
+ * for a tap on the message, except that a pinned one keeps showing its pin
+ * (decision 0612); elsewhere they are there, shown on hover by the stylesheet.
+ */
+export function saidActionsShown(s: { phone: boolean; tapped: boolean; pinned: boolean }): boolean {
+  return !s.phone || s.tapped || s.pinned;
+}
+
 /** The line a row is read out by: its name and its state, "Style: Concise". */
 export function rowLabel(name: string, state: string): string {
   return state === "" ? name : `${name}: ${state}`;

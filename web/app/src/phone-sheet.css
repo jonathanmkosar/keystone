@@ -360,33 +360,7 @@
     margin: -6px -4px -6px -10px;
   }
 
-  /* The header: the sidebar button, the chat's title with the room, and
-     the ... button. */
-  header.header {
-    gap: 4px;
-    padding: 6px 8px;
-  }
-
-  .header .header-left {
-    flex: 1;
-    gap: 2px;
-  }
-
-  .header .icon-button {
-    flex: none;
-    width: 44px;
-    height: 44px;
-  }
-
-  .header .title-wrap {
-    flex: 1 1 auto;
-  }
-
-  .header .title-button {
-    min-height: 44px;
-    padding: 0 6px;
-  }
-
+  /* The header on a phone is .float-header, below (P10-07). */
   .title-wrap .menu-item {
     min-height: 44px;
   }
@@ -395,26 +369,435 @@
     display: flex;
     flex: none;
   }
+}
 
-  /* Renaming, the box has the ... button's room too. */
-  .header:has(.rename-form) .chat-menu {
-    display: none;
+/* P10-07: the phone's layout after the owner's pictures of another app's
+   phone screens (November 27, 2026; decision 0611). Its layout and feel, in
+   Keystone's own mark, words, tokens and fonts. The header is not a bar but
+   round controls floating over the page; the composer is one pill row while
+   idle and the card once used. Shell.tsx draws the float header and adds
+   .is-phone to the main area only at the phone's width, so these rules are
+   not in a media query. Translucent surfaces are --raised mixed with
+   transparency, since the tokens hold no translucent colour, and are solid
+   where the browser cannot blur behind them. */
+
+.main.is-phone {
+  position: relative;
+}
+
+/* Every page but a chat and the new chat starts under the floating header. */
+.main.is-phone .content {
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+}
+
+.main.is-phone.is-under .content {
+  padding-top: 0;
+}
+
+.main.is-phone .chat-scroll {
+  padding-top: calc(72px + env(safe-area-inset-top, 0px));
+}
+
+/* Under the drawer's scrim (z-index 10), over the page. Taps on its empty
+   parts and its fade reach the page beneath. */
+.float-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 22px;
+  pointer-events: none;
+}
+
+/* The soft fade at the top, which the conversation scrolls beneath. */
+.float-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to bottom, var(--page) 45%, transparent);
+  background: linear-gradient(to bottom, var(--page) 0%, color-mix(in srgb, var(--page) 88%, transparent) 50%, transparent 100%);
+  pointer-events: none;
+}
+
+.float-header > .float-button,
+.float-centre > *,
+.float-end > * {
+  pointer-events: auto;
+}
+
+.float-centre {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+/* As wide as the menu button at least, so a lone title sits in the middle. */
+.float-end {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  min-width: 44px;
+}
+
+.float-button,
+.float-pill {
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--ink);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.16);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .float-button,
+  .float-pill {
+    background: color-mix(in srgb, var(--raised) 74%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    backdrop-filter: blur(16px) saturate(1.3);
+  }
+}
+
+.float-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Incognito on: the soft accent, so the state shows at a glance. */
+.float-button.incognito-button.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.float-pill {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 22px;
+}
+
+.float-title {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 18px;
+  font: 500 15px/42px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.float-header .title-wrap {
+  flex-direction: column;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.float-header .title-button.title-pill {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 4px 20px;
+  border-radius: 22px;
+}
+
+.title-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-width: 0;
+  font: 600 15px/19px var(--font-sans);
+}
+
+.title-sub {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font: 400 12px/15px var(--font-sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The title's menu hangs from the middle of its pill. */
+.float-header .menu {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.float-header .menu-item {
+  min-height: 44px;
+}
+
+/* Renaming: the box takes the header's middle, and the right pill steps aside. */
+.float-header:has(.rename-form) .float-end {
+  display: none;
+}
+
+.float-header .title-wrap:has(.rename-form) {
+  flex: 1;
+}
+
+.float-header .rename-form {
+  flex: 1;
+  width: 100%;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--raised);
+}
+
+.float-header .rename-form .input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  min-height: 44px;
+  border-radius: 20px;
+  font-size: 16px;
+}
+
+.float-header .rename-form .button {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 20px;
+}
+
+.float-header .header-note {
+  max-width: 100%;
+  padding: 2px 10px;
+  border-radius: 8px;
+  background: var(--raised);
+}
+
+/* The right pill: the working mark while a turn runs, and the ... button. */
+.float-actions {
+  gap: 0;
+}
+
+.float-actions .chat-menu-button.icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+}
+
+.float-working {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 42px;
+  padding-left: 6px;
+}
+
+.float-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--line);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: float-spin 0.9s linear infinite;
+}
+
+@keyframes float-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The composer on a phone (decision 0610). One element for both states, a
+   wrapping flex box: the row's buttons join it through display: contents,
+   and order places them. Expanded, anything over the box (chips) and the
+   box itself take a whole line, and the row's buttons share the next.
+   Idle, the +, the box, the microphone and send are one line, the model's
+   chip waits, and anything else still takes a line of its own. */
+form.composer.is-phone {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 24px;
+}
+
+form.composer.is-phone > * {
+  flex: 1 0 100%;
+  min-width: 0;
+}
+
+form.composer.is-phone > .composer-row.is-phone {
+  display: contents;
+}
+
+form.composer.is-phone .composer-text {
+  order: 1;
+  min-height: 40px;
+  padding: 8px 6px 0;
+}
+
+form.composer.is-phone .dictation-status {
+  order: 2;
+}
+
+form.composer.is-phone .plus-button {
+  order: 3;
+}
+
+form.composer.is-phone .model-picker {
+  order: 4;
+}
+
+form.composer.is-phone .dictation-button {
+  order: 5;
+}
+
+form.composer.is-phone .send-button {
+  order: 6;
+}
+
+form.composer.is-phone.is-idle {
+  gap: 6px;
+  padding: 6px;
+  border-radius: 28px;
+}
+
+form.composer.is-phone.is-idle .plus-button {
+  order: 1;
+}
+
+form.composer.is-phone.is-idle .composer-text {
+  order: 2;
+  flex: 1 1 0;
+  min-height: 44px;
+  padding: 10px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+form.composer.is-phone.is-idle .model-picker {
+  display: none;
+}
+
+form.composer.is-phone.is-idle .dictation-button {
+  order: 3;
+  margin-left: 0;
+}
+
+form.composer.is-phone.is-idle .send-button {
+  order: 4;
+  margin-left: 0;
+}
+
+/* The new chat on a phone: the mark and a short greeting in the middle of
+   the free space, the composer at the foot as in a chat. */
+.start.is-phone {
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+.start.is-phone .start-greeting {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 72px 8px 24px;
+}
+
+.start.is-phone .home-greeting {
+  font: 600 26px/32px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.start-incognito {
+  max-width: 300px;
+  margin: 0;
+  color: var(--softink);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* The footnote, at the foot of the model's sheet. */
+.sheet .model-menu-foot {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 760px) {
+  .chat .composer-dock {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   }
 
-  .header .rename-form {
-    flex: 1;
-  }
-
-  .header .rename-form .input {
-    flex: 1;
-    width: auto;
-    min-width: 0;
-    min-height: 44px;
+  /* Messages: the person's a rounder bubble on the right, the reply full
+     width with no bubble, as before. */
+  .conversation .said-wrap > .said {
+    padding: 10px 16px;
+    border-radius: 20px;
     font-size: 16px;
+    line-height: 24px;
   }
 
-  .header .rename-form .button {
+  .said-wrap.is-phone .said[role="button"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .said-wrap.is-phone .said-actions {
+    margin-right: -10px;
+    opacity: 1;
+  }
+
+  /* The actions under a message are icons only, a thumb's size; their
+     words stay for a screen reader. */
+  .reply > .reply-actions {
+    gap: 0;
+    margin: -8px 0 0 -12px;
+  }
+
+  .reply-actions .copy-button,
+  .said-actions .copy-button {
+    position: relative;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
     min-height: 44px;
-    padding: 0 10px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .reply-actions .copy-button .ico,
+  .said-actions .copy-button .ico {
+    width: 18px;
+    height: 18px;
+  }
+
+  .reply-actions .action-label,
+  .said-actions .action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-spinner {
+    animation: none;
   }
 }

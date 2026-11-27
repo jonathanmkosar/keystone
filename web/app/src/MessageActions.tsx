@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { ApiError } from "./api";
+import { saidActionsShown } from "./composerSheet";
 import { Icon } from "./Icon";
 import { openInspector } from "./Inspector";
 import { CopyButton } from "./Markdown";
@@ -33,19 +34,25 @@ export function PinButton({ chatId, messageId }: { chatId: string; messageId: nu
       type="button"
       className={pinned ? "copy-button action-on" : "copy-button"}
       aria-pressed={pinned}
+      aria-label={label}
       disabled={busy}
       title={pinned ? "Pinned: sent with every reply in this chat. Click to take the pin off." : "Pin: send this message with every reply in this chat, even when the turns around it are left out."}
       onClick={() => void toggle()}
     >
       <Icon name="pin" size={14} />
-      {label}
+      <span className="action-label">{label}</span>
     </button>
   );
 }
 
-/** Copy and Pin under a person's message. They show on hover and focus, and always once it is pinned. */
-export function SaidActions({ chatId, messageId, text }: { chatId: string; messageId: number; text: string }) {
+/**
+ * Copy and Pin under a person's message. They show on hover and focus, and
+ * always once it is pinned. On a phone (phone) they are drawn only once the
+ * message is tapped, or while it is pinned (P10-07, decision 0612).
+ */
+export function SaidActions({ chatId, messageId, text, phone = false, tapped = false }: { chatId: string; messageId: number; text: string; phone?: boolean; tapped?: boolean }) {
   const pinned = usePins(chatId).has(messageId);
+  if (!saidActionsShown({ phone, tapped, pinned })) return null;
   return (
     <div className={pinned ? "said-actions is-pinned" : "said-actions"}>
       {text !== "" && <CopyButton text={text} />}
@@ -57,9 +64,9 @@ export function SaidActions({ chatId, messageId, text }: { chatId: string; messa
 /** Opens the turn inspector for the turn that wrote a reply. */
 export function InspectButton({ chatId, turnId }: { chatId: string; turnId: string }) {
   return (
-    <button type="button" className="copy-button" title="What went into this reply, with tokens and cost" onClick={() => openInspector(chatId, turnId)}>
+    <button type="button" className="copy-button" aria-label="Inspect" title="What went into this reply, with tokens and cost" onClick={() => openInspector(chatId, turnId)}>
       <Icon name="layers" size={14} />
-      Inspect
+      <span className="action-label">Inspect</span>
     </button>
   );
 }

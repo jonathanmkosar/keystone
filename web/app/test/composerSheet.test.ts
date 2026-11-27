@@ -4,7 +4,7 @@
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { attachedState, connectorsState, filesState, phoneQuery, projectState, rowLabel, shortModelName, styleState, switchState } from "../src/composerSheet.ts";
+import { attachedState, composerExpanded, connectorsState, filesState, firstName, footnote, phoneGreeting, phonePlaceholder, phoneQuery, projectState, rowLabel, saidActionsShown, shortModelName, styleState, switchState } from "../src/composerSheet.ts";
 
 test("the model chip drops what is in brackets at the end of a label", () => {
   assert.equal(shortModelName("Qwen 3.8 27B (Mac mini)"), "Qwen 3.8 27B");
@@ -68,4 +68,50 @@ test("the style and project rows name theirs, or say none", () => {
 
 test("the phone's layout is the sidebar drawer's width", () => {
   assert.equal(phoneQuery, "(max-width: 760px)");
+});
+
+// P10-07: the phone's composer, idle or expanded (decision 0610).
+
+const idle = { focused: false, text: "", files: 0 };
+
+test("an empty composer with no focus is the idle pill", () => {
+  assert.equal(composerExpanded(idle), false);
+  assert.equal(composerExpanded({ ...idle, dictating: false }), false);
+});
+
+test("the focus expands the composer into the card", () => {
+  assert.equal(composerExpanded({ ...idle, focused: true }), true);
+});
+
+test("text keeps the card when the focus leaves, even text that is only spaces", () => {
+  assert.equal(composerExpanded({ ...idle, text: "Tide times for Saturday" }), true);
+  assert.equal(composerExpanded({ ...idle, text: "  " }), true);
+});
+
+test("a file waiting to go keeps the card", () => {
+  assert.equal(composerExpanded({ ...idle, files: 1 }), true);
+});
+
+test("dictation keeps the card while it listens", () => {
+  assert.equal(composerExpanded({ ...idle, dictating: true }), true);
+});
+
+test("the phone's greeting has the first name only", () => {
+  assert.equal(firstName("Test Person One"), "Test");
+  assert.equal(firstName("  Robin  "), "Robin");
+  assert.equal(firstName(""), "");
+  assert.equal(phoneGreeting("afternoon", "Test Person One"), "Good afternoon, Test");
+  assert.equal(phoneGreeting("morning", " "), "Good morning");
+});
+
+test("a person's message waits for a tap on a phone, unless it is pinned", () => {
+  assert.equal(saidActionsShown({ phone: true, tapped: false, pinned: false }), false);
+  assert.equal(saidActionsShown({ phone: true, tapped: true, pinned: false }), true);
+  assert.equal(saidActionsShown({ phone: true, tapped: false, pinned: true }), true);
+  assert.equal(saidActionsShown({ phone: false, tapped: false, pinned: false }), true);
+});
+
+test("the phone's words are short and keep the footnote", () => {
+  assert.equal(phonePlaceholder, "Message Keystone");
+  assert.match(footnote, /^Keystone can make mistakes\./);
 });
