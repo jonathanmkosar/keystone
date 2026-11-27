@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "re
 import { Link } from "react-router";
 import { ApiError, chatModel, getTurn, listModels, listSettings, type ModelChoice, type ModelInfo, type RegisteredModel } from "./api";
 import { useChats } from "./chats";
+import { shortModelName } from "./composerSheet";
 import { Icon } from "./Icon";
+import { useNarrow } from "./PhoneSheet";
 import { markHeld, mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, useHeld, usePickEntry } from "./modelPicks";
 import { isActive, useLive } from "./turns";
 import "./model-picker.css";
@@ -75,6 +77,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   const held = useHeld(chatId);
   const live = useLive(isNew ? undefined : chatId);
   const active = isActive(live);
+  const narrow = useNarrow(); // a phone: the chip beside the composer's + shows the model's short name (decision 0590)
   const [registry, setRegistry] = useState<Map<string, RegisteredModel>>();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -214,7 +217,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
         onClick={toggle}
       >
         {warn && <Icon name="alert" size={16} />}
-        <span className="model-button-label">{label}</span>
+        <span className="model-button-label">{narrow ? shortModelName(label) : label}</span>
         <Icon name="chevron" size={16} />
       </button>
       {open && (

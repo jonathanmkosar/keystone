@@ -9,7 +9,9 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type Ke
 import { Link } from "react-router";
 import { ApiError, chatConnectors, listConnectors, switchChatConnector, type ChatConnector } from "./api";
 import { useChats } from "./chats";
+import { connectorsState } from "./composerSheet";
 import { Icon } from "./Icon";
+import { SheetRow, useSheet } from "./PhoneSheet";
 import "./model-picker.css";
 import "./connectors.css";
 
@@ -53,6 +55,7 @@ export function ConnectorMenu(props: { chatId: string } | { newChatFor: string }
   const personId = isNew ? props.newChatFor : "";
   const { lost } = useChats();
   useVersion();
+  const sheet = useSheet();
   const [rows, setRows] = useState<ChatConnector[]>();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState("");
@@ -153,11 +156,16 @@ export function ConnectorMenu(props: { chatId: string } | { newChatFor: string }
 
   const label = `Tools: ${on} of ${shown.length} connectors on${isNew ? " for the new chat" : " in this chat"}`;
   return (
-    <div className="tools-menu" ref={wrap}>
-      <button type="button" ref={trigger} className="model-button tools-button" aria-haspopup="menu" aria-expanded={open} aria-label={`${label}. Change them`} title={label} onClick={toggle}>
-        <Icon name="plug" size={16} />
-        <span className="tools-count">{on}</span>
-      </button>
+    <div className={sheet ? "tools-menu sheet-item" : "tools-menu"} ref={wrap}>
+      {sheet ? (
+        // In the phone's + sheet it is a row, and its switches open under it (decision 0590).
+        <SheetRow ref={trigger} icon="plug" name="Connectors" state={connectorsState(on, shown.length)} expanded={open} title={label} onClick={toggle} />
+      ) : (
+        <button type="button" ref={trigger} className="model-button tools-button" aria-haspopup="menu" aria-expanded={open} aria-label={`${label}. Change them`} title={label} onClick={toggle}>
+          <Icon name="plug" size={16} />
+          <span className="tools-count">{on}</span>
+        </button>
+      )}
       {open && (
         <div className="model-menu tools-list" role="menu" aria-label={isNew ? "Connectors for the new chat" : "Connectors in this chat"} ref={menu} onKeyDown={menuKey}>
           <p className="model-menu-head">{isNew ? "Connectors for the new chat" : "Connectors in this chat"}</p>

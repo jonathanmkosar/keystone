@@ -19,7 +19,9 @@ import { ApiError } from "./api";
 import { openArtifact, useOpenArtifact } from "./artifacts";
 import { CitationSources, type Source } from "./citations";
 import { Icon } from "./Icon";
+import { switchState } from "./composerSheet";
 import { CopyButton, Markdown } from "./Markdown";
+import { SheetRow, useSheet } from "./PhoneSheet";
 import {
   armResearch,
   getResearch,
@@ -79,6 +81,24 @@ function useTerms(wanted: boolean): ResearchTerms | undefined {
 export function ResearchControl({ chatId, newChatFor }: { chatId?: string; newChatFor?: string }) {
   const key = chatId ?? newChatKey(newChatFor ?? "");
   const on = useResearchArmed(key);
+  const sheet = useSheet(); // in the phone's + sheet it is a row (decision 0590)
+  if (sheet) {
+    return (
+      <div className="sheet-item">
+        <SheetRow
+          icon="search"
+          name="Research"
+          state={switchState(on)}
+          pressed={on}
+          title={on ? "Research is on: your next message starts a research task" : "Research: a long report from many sources, written in the background"}
+          onClick={() => {
+            armResearch(key, !on);
+            sheet.done();
+          }}
+        />
+      </div>
+    );
+  }
   return (
     <button
       type="button"

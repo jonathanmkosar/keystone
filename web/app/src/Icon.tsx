@@ -172,6 +172,8 @@ const shapes = {
   open: <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />,
   // Dictation's microphone (P10-01), after New Keystone's.
   mic: <path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM18 11a6 6 0 0 1-12 0M12 17v4M9 21h6" />,
+  // The phone's ... button in a chat's header (decision 0590): three dots.
+  more: <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth="3.5" />,
 } as const;
 
 export type IconName = keyof typeof shapes;

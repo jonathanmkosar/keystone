@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation, useMatch } from "react-router";
 import type { Chat, Person } from "./api";
 import { titleOf, useChats } from "./chats";
-import { ChatLinks } from "./ChatLinks";
+import { ChatLinks, ChatMenu } from "./ChatLinks";
+import { useNarrow } from "./PhoneSheet";
 import { ChatTitle } from "./ChatTitle";
 import { Icon, type IconName } from "./Icon";
 import { ImportedTag } from "./Imported";
@@ -70,6 +71,7 @@ export function Shell({
   const recent = chats.filter((c) => !c.starred);
   const [open, setOpen] = useState(true);
   const [drawer, setDrawer] = useState(false);
+  const narrow = useNarrow(); // a phone: the chat's actions are behind one ... button (decision 0590)
 
   // A narrow screen shows the sidebar as a drawer, and moving to another
   // screen closes it.
@@ -160,9 +162,9 @@ export function Shell({
               <Icon name="sidebar" />
             </button>
             {openChat ? <ChatTitle id={openChat} /> : <span className="header-title">{titleFor(location.pathname)}</span>}
-            {openChat && <ChatProjectChip key={openChat} chatId={openChat} />}
+            {openChat && !narrow && <ChatProjectChip key={openChat} chatId={openChat} />}
           </div>
-          {openChat && <ChatLinks key={openChat} id={openChat} />}
+          {openChat && (narrow ? <ChatMenu key={openChat} id={openChat} /> : <ChatLinks key={openChat} id={openChat} />)}
         </header>
         <div className="content">{children}</div>
       </main>

@@ -12,7 +12,9 @@
 
 import { useEffect, useId, useRef, useState, type DragEvent } from "react";
 import type { Block } from "./api";
+import { filesState } from "./composerSheet";
 import { Icon } from "./Icon";
+import { SheetRow, useSheet } from "./PhoneSheet";
 import { acceptOf, contentURL, refusal, size, uploadLimits, type ChatUploads, type Limits, type Notice } from "./uploads";
 import "./uploads.css";
 
@@ -111,10 +113,11 @@ function endingOf(name: string): string {
   return dot > 0 && name.length - dot <= 6 ? name.slice(dot + 1).toUpperCase() : "FILE";
 }
 
-/** The composer's attach button, with the file picker it opens. */
+/** The composer's attach button, with the file picker it opens. In the phone's + sheet it is a row (decision 0590). */
 export function AttachButton({ attach, disabled = false }: { attach: Attachments; disabled?: boolean }) {
   const picker = useRef<HTMLInputElement>(null);
   const id = useId();
+  const sheet = useSheet();
   return (
     <>
       <input
@@ -130,9 +133,24 @@ export function AttachButton({ attach, disabled = false }: { attach: Attachments
           e.target.value = ""; // the same file may be picked again after it is removed
         }}
       />
-      <button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={disabled} onClick={() => picker.current?.click()}>
-        <Icon name="plus" size={18} />
-      </button>
+      {sheet ? (
+        <div className="sheet-item">
+          <SheetRow
+            icon="file"
+            name="Files or photos"
+            state={filesState(attach.files.length)}
+            disabled={disabled}
+            onClick={() => {
+              picker.current?.click();
+              sheet.done();
+            }}
+          />
+        </div>
+      ) : (
+        <button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={disabled} onClick={() => picker.current?.click()}>
+          <Icon name="plus" size={18} />
+        </button>
+      )}
     </>
   );
 }
