@@ -11,6 +11,15 @@
       "description": "The address and port Keystone listens on. The default is reachable from this machine only."
     },
     {
+      "key": "admin.step_up_for",
+      "title": "Admin step-up length",
+      "summary": "How long the admin area stays open after the password is asked again.",
+      "type": "duration",
+      "default": "15m",
+      "scope": "install",
+      "description": "How long the admin area stays open on one session after an admin enters their password or uses a passkey again, never past the session's own end. After it, every admin route asks again (P15-01, decision 0643)."
+    },
+    {
       "key": "server.secure_cookie",
       "title": "HTTPS-only cookie",
       "summary": "Marks the sign-in cookie for HTTPS only.",

@@ -146,6 +146,7 @@ var checks = []check{
 	{"manage chats", checkManageChats},
 	{"browser use", checkBrowserUse},
 	{"location", checkLocation},
+	{"admin isolation", checkAdminIsolation}, // P15-01: adminisolation.go
 }
 
 func main() {

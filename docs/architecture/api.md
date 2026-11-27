@@ -65,6 +65,12 @@ There are two, and both are for signing in. `tools/verify/routes.go` repeats the
 
 Since P10-04 there are four: the two share doors, `GET /api/v1/shared/{token}` and `GET /api/v1/shared/{token}/images/{image}`, show one chat through a share link to someone who has not signed in. Each finds its one tenant from the link's token alone, with `share.Find`, the way `signin.Resolve` finds a session's; reads no cookie and sets none; and writes each call that finds a link in that tenant's audit log under the route's pattern, never the token. See [share.md](share.md) and decision [0470](decisions/0470-a-share-link-is-a-door-that-finds-its-tenant-from-its-token.md).
 
+## The admin door
+
+Since P15-01 (provisional on the owner's answer A1), a route under `/api/v1/admin/` (`api.AdminPrefix`) is marked `Admin`, and `api.Check` refuses a route whose mark and path disagree, a door that is an admin route and a `StepUp` route that is not one. Between `audit.Wrap` and the routes, the shell refuses every request to a path under the prefix, a route or not, with 403 `not_admin` when its person does not carry the admin mark, read from `keystone.json` for that call, and with 401 `step_up` when their session has no fresh step-up, unless the route is marked `StepUp`. Such a call is recorded with the actor `admin` when the person carries the mark, and `person` when not. A handler of an admin route gets `Call.Admin` true. The routes and the rest are in [admin.md](admin.md); decision [0642](decisions/0642-the-admin-door-is-a-mark-on-a-route-checked-by-the-shell.md) says why.
+
+`GET /api/v1/session` and the sign-in answer gain `admin` and `session.admin_until`.
+
 ## Errors
 
 Every answer that is not a success has this body, `api.ErrorBody`:
@@ -79,6 +85,8 @@ Every answer that is not a success has this body, `api.ErrorBody`:
 | `refused` | 401 | Sign-in was refused. It never says why. |
 | `wait` | 429 | Too many wrong passwords in a row. `Retry-After` says how long. |
 | `cross_origin` | 403 | A page on another site tried a write. |
+| `not_admin` | 403 | An admin route, and the person does not carry the admin mark (P15-01). |
+| `step_up` | 401 | An admin route, and the session has no fresh step-up. The session itself is still good (P15-01). |
 | `bad_request` | 400 | The body or a parameter is not what the route takes. |
 | `too_large` | 413 | The body is over `server.max_body_bytes`. |
 | `no_route` | 404 | There is no such route. Only a signed-in caller is told so. |

@@ -112,9 +112,12 @@ const (
 // words.
 func openRig(p Profile, parent string, scripts []fake.Script) (g *rig, err error) {
 	g = &rig{p: p, real: map[string][]realCall{}, loose: map[string]bool{}, now: time.Now()}
+	// A failure returns a nil rig, so the one to close is held apart:
+	// closing g itself would close nothing and panic.
+	opened := g
 	defer func() {
 		if err != nil {
-			g.close()
+			opened.close()
 		}
 	}()
 	if g.dir, err = os.MkdirTemp(parent, "keystone-loadtest-"); err != nil {

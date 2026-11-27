@@ -60,6 +60,12 @@ func Document(routes []Route, version string) ([]byte, error) {
 			op["security"] = []object{}
 			op["x-keystone-door"] = true
 		}
+		if rt.Admin {
+			op["x-keystone-admin"] = true
+		}
+		if rt.StepUp {
+			op["x-keystone-step-up"] = true
+		}
 		item, _ := paths[rt.Path].(object)
 		if item == nil {
 			item = object{}
@@ -72,7 +78,7 @@ func Document(routes []Route, version string) ([]byte, error) {
 		"info": object{
 			"title":       "Keystone",
 			"version":     version,
-			"description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. Every answer carries an X-Request-Id header.",
+			"description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is behind the admin door: it answers 403 not_admin to a person without the admin mark, and 401 step_up to a session without a fresh step-up, unless it is also marked x-keystone-step-up. Every answer carries an X-Request-Id header.",
 		},
 		"paths":    paths,
 		"security": []object{{"session": []string{}}},

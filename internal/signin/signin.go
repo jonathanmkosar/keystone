@@ -156,6 +156,16 @@ type Session struct {
 	Method  string
 	Created time.Time
 	Expires time.Time
+	// AdminUntil is when this session's admin step-up ends: zero until the
+	// person proves their password or a passkey again (StepUp), and never
+	// past Expires (P15-01, decision 0643).
+	AdminUntil time.Time
+}
+
+// SteppedUp reports whether the session has a step-up that is still fresh
+// at t. The admin door asks it on every admin route.
+func (s Session) SteppedUp(t time.Time) bool {
+	return !s.AdminUntil.IsZero() && t.Before(s.AdminUntil)
 }
 
 // SetPassword gives the tenant a password, or replaces the one it has, and
@@ -216,11 +226,21 @@ func HasPassword(s *tenant.Store) (bool, error) {
 // After Options.FailuresBeforeWait wrong passwords in a row, the next try
 // is ErrWait until Options.FailureWait has passed since the last one.
 func SignIn(s *tenant.Store, password string, o Options) (string, Session, error) {
-	if err := checkOptions(o); err != nil {
+	t, err := checkPassword(s, password, o)
+	if err != nil {
 		return "", Session{}, err
 	}
+	return newSession(s, MethodPassword, o, t)
+}
+
+// checkPassword is the password check SignIn and StepUp share, with its
+// count of wrong tries and its wait. It returns the time it read the clock.
+func checkPassword(s *tenant.Store, password string, o Options) (time.Time, error) {
+	if err := checkOptions(o); err != nil {
+		return time.Time{}, err
+	}
 	if len(password) > maxPasswordBytes {
-		return "", Session{}, ErrRefused
+		return time.Time{}, ErrRefused
 	}
 	db, t := s.DB(), now()
 
@@ -230,19 +250,19 @@ func SignIn(s *tenant.Store, password string, o Options) (string, Session, error
 		WHERE id = 1 AND NOT (failures >= ? AND last_failure > ?)`,
 		stamp(t), o.FailuresBeforeWait, stamp(t.Add(-o.FailureWait)))
 	if err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	if n, err := res.RowsAffected(); err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	} else if n == 0 {
 		has, err := HasPassword(s)
 		if err != nil {
-			return "", Session{}, err
+			return time.Time{}, err
 		}
 		if has {
-			return "", Session{}, ErrWait
+			return time.Time{}, ErrWait
 		}
-		return "", Session{}, ErrRefused
+		return time.Time{}, ErrRefused
 	}
 
 	var (
@@ -252,31 +272,31 @@ func SignIn(s *tenant.Store, password string, o Options) (string, Session, error
 	)
 	if err := db.QueryRow("SELECT algorithm, iterations, salt, hash FROM signin_password WHERE id = 1").
 		Scan(&alg, &iterations, &salt, &hash); err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	if alg != algorithm || iterations < 1 || len(hash) == 0 {
-		return "", Session{}, fmt.Errorf("tenant %s: the stored password is in a form this binary does not know (%s)", s.TenantID(), alg)
+		return time.Time{}, fmt.Errorf("tenant %s: the stored password is in a form this binary does not know (%s)", s.TenantID(), alg)
 	}
 	got, err := pbkdf2.Key(sha256.New, password, salt, iterations, len(hash))
 	if err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
 	if subtle.ConstantTimeCompare(got, hash) != 1 {
-		return "", Session{}, ErrRefused
+		return time.Time{}, ErrRefused
 	}
 
 	// The password is right. Clear the count, and move the stored hash to
 	// today's iteration setting if it was made under another.
 	if iterations != o.PasswordIterations {
 		if salt, hash, err = hashPassword(password, o.PasswordIterations); err != nil {
-			return "", Session{}, err
+			return time.Time{}, err
 		}
 	}
 	if _, err := db.Exec("UPDATE signin_password SET failures = 0, last_failure = '', iterations = ?, salt = ?, hash = ? WHERE id = 1",
 		o.PasswordIterations, salt, hash); err != nil {
-		return "", Session{}, err
+		return time.Time{}, err
 	}
-	return newSession(s, MethodPassword, o, t)
+	return t, nil
 }
 
 func hashPassword(password string, iterations int) (salt, hash []byte, err error) {
@@ -330,6 +350,13 @@ func newSession(s *tenant.Store, method string, o Options, t time.Time) (string,
 		sess.ID, hashToken(token), method, stamp(sess.Created), stamp(sess.Expires)); err != nil {
 		return "", Session{}, err
 	}
+	// The last sign-in, for the admin's list of people (P15-01, decision
+	// 0646). Sessions are deleted at sign-out, so the newest session would
+	// forget it.
+	if _, err := db.Exec(`INSERT INTO tenant_meta(key, value) VALUES('last_sign_in', ?)
+		ON CONFLICT(key) DO UPDATE SET value = excluded.value`, stamp(sess.Created)); err != nil {
+		return "", Session{}, err
+	}
 	return token, sess, nil
 }
 
@@ -342,9 +369,9 @@ func Check(s *tenant.Store, token string) (Session, error) {
 		return Session{}, ErrNoSession
 	}
 	sess := Session{TenantID: s.TenantID()}
-	var created, expires string
-	err := s.DB().QueryRow("SELECT id, method, created_at, expires_at FROM signin_sessions WHERE token_hash = ?", hashToken(token)).
-		Scan(&sess.ID, &sess.Method, &created, &expires)
+	var created, expires, adminUntil string
+	err := s.DB().QueryRow("SELECT id, method, created_at, expires_at, admin_until FROM signin_sessions WHERE token_hash = ?", hashToken(token)).
+		Scan(&sess.ID, &sess.Method, &created, &expires, &adminUntil)
 	if errors.Is(err, sql.ErrNoRows) {
 		return Session{}, ErrNoSession
 	}
@@ -356,6 +383,11 @@ func Check(s *tenant.Store, token string) (Session, error) {
 	}
 	if sess.Expires, err = time.Parse(stampLayout, expires); err != nil {
 		return Session{}, err
+	}
+	if adminUntil != "" {
+		if sess.AdminUntil, err = time.Parse(stampLayout, adminUntil); err != nil {
+			return Session{}, err
+		}
 	}
 	if !now().Before(sess.Expires) {
 		if _, err := s.DB().Exec("DELETE FROM signin_sessions WHERE id = ?", sess.ID); err != nil {
