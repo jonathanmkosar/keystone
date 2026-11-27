@@ -42,9 +42,12 @@ Files, in `mark/`:
 
 Text and button pairs were checked at 4.5 to 1 or better. Neutral grounds, type and spacing are shared with Waymarks. Copper replaces Waymarks' moss as the accent, so the two apps can be told apart.
 
+## Decided on November 27, 2026
+
+- The wordmark is Fraunces, as in Waymarks.
+- The four draft screens (`Home`, `Scheduled`, `Operations`, `Admin`) are approved, and were recoloured in copper the same day.
+
 ## Still open
 
-- On light pages: the mark on a dark tile (recommended) or free-standing with a dark keystone.
-- The wordmark: Fraunces, as in Waymarks, or Art Deco capitals.
-- Approval of the dark and light chat screens in the new colours.
+- On light pages: the owner turned down the dark tile ("I don't like the black background") and likes the dark theme as it is. A second round of light-page marks with no dark tile is on the review page; until one is chosen, the app keeps drawing what it draws today.
 - Motion: the idea of copper lighting up as an agent works has not been redrawn for this mark.

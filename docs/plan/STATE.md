@@ -31,9 +31,9 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
-| Corrections on the first round of screens | | The drafts stand | P1-02, P1-04 |
-| The mark on light pages: on a dark tile, or free-standing with a dark keystone | On a dark tile | On a dark tile | P1-03 |
-| The wordmark: Fraunces or Art Deco capitals | Fraunces | Fraunces | P1-02 |
+| Corrections on the first round of screens | Decided by the owner on November 27, 2026: the four drafts are approved as they are, and were recoloured in copper | | Nothing |
+| The mark on light pages. On November 27, 2026 the owner turned down the dark tile ("I don't like the black background") and kept the dark theme as it is; a second round with no dark tile is on his review page | His pick from round two | What the app draws today | P1-03 |
+| The wordmark | Decided by the owner on November 27, 2026: Fraunces | | Nothing |
 | Claude.ai captures, or go-ahead to capture | Go-ahead to capture | Layout from knowledge of Claude.ai | P1-01 |
 | How the sign-in screen asks who is signing in. There are no user names (core 005) | The screen lists the people on the install and the person picks their own. Look again when phone access from outside is decided (P10-05) | The sign-in functions take the tenant's store, so either answer fits | Nothing built. It shapes the sign-in route in P2-05 and the screen in P4-01 |
 | Should the built-in knowledge store's pages be files a person can open, or is the database enough (knowledge 002, decision 0060) | The database is the truth, and Keystone exports to and imports from a Markdown folder on request | Rows only, no export | P6-02 |
