@@ -1029,6 +1029,36 @@
         "summary": "The signed-in person's audit log, oldest first, a page at a time."
       }
     },
+    "/api/v1/browser/shots/{shot}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "shot",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "One screenshot the agent's browser took (P10-03), as a JPEG. Only the person whose chat it is in can read it."
+      }
+    },
     "/api/v1/chats": {
       "get": {
         "parameters": [

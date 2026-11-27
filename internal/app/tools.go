@@ -4,6 +4,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/artifacts"
 	"github.com/jonathanmkosar/keystone/internal/tools"
+	"github.com/jonathanmkosar/keystone/internal/tools/browser"
 	"github.com/jonathanmkosar/keystone/internal/tools/builtin"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 )
@@ -43,6 +44,13 @@ func Tools(c Config) (*tools.Registry, error) {
 		if err := c.subagents.AddTool(r); err != nil {
 			return nil, err
 		}
+	}
+	// Browser use (P10-03): the agent's own headless browser, offered only to
+	// a person who switches it on. Clicking and typing change something, so
+	// they ask. Each person's browser closes after its idle time, and with
+	// Keystone.
+	if _, err := browser.Add(r, c.Browser); err != nil {
+		return nil, err
 	}
 	return r, nil
 }

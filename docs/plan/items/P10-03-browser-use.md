@@ -1,9 +1,10 @@
 # P10-03. Browser use
 
-Status: doing (agents)
+Status: provisional
 Lane: agents
 Depends on: P7-02
-Owner gate: none
+Owner gate: Approval of the agent mockups (P1-05), for the screen only.
+Built without the gate: The browser, its guard, the six tools, the screenshots and their tests; the step rows and the screenshot under a step built from the design tokens, marked provisional until the mockups are approved.
 Scope: The agent drives a separate headless browser profile with none of the person's sign-ins; every page read is outside content.
 Proof: The profile holds no cookies from the person's browsers; a page with planted instructions cannot cause an unapproved side effect.
 
@@ -11,3 +12,25 @@ See `docs/plan/PLAN.md` for the design this item delivers, and `docs/plan/PARALL
 
 ## Plan and result
 
+### Plan (agents lane, November 27, 2026)
+
+Branch `agents/p10-03-browser-use`, cut from `reboot` at 014284e. Asked for by the owner today. New code goes in new files; every line changed in a shared file is listed in the journal.
+
+1. **The rules, a new package `internal/tools/browser/guard`**, listed in `tools/verify/fixedrules.go` as a guard of rule 2 (and rule 4 for the record of each call), importing nothing of Keystone's. It holds: which actions are side effects (click and type) and which only read (open, read, screenshot, back); the address check for a page (http and https, a host, no user name, not on the block list); the request check every request of the browser passes (only GET, HEAD and OPTIONS unless an approved click or type is under way, so a page cannot send a form on its own; no scheme but http and https, and the browser's own; no blocked host); the field check (no typing into a password, payment, one-time-code or sign-in field, nor into any field of a form that holds a password; nothing typed that looks like a key or password; no click on a file chooser or on a sign-in form's button); the cookie check (every cookie the profile holds is from a host this browser itself asked for, and there are none at start); and the launch check (headless, the debugging pipe only, never a port or an address, a profile folder that is fresh, empty and inside the person's own tenant folder).
+2. **The browser, `internal/tools/browser`.** A Chromium-family browser already on the machine (`agents.browser_path`, else Edge's and Chrome's usual places), started headless with `--remote-debugging-pipe`, so the DevTools protocol runs over two pipes only this process holds: no port is opened at all (on Windows the pipe handles are passed with `--remote-debugging-io-pipes`; tried against Edge 158 before planning). Raw CDP in Go, no new dependency. One browser per person, with one tab, owned by the chat that last opened a page; closed after `agents.browser_idle_timeout`, and killed with Keystone (a Windows job object). The profile is `browser-profile` in the person's tenant folder, made new at each start, removed at close, and left out of backups. Every request is intercepted at the browser level (`Fetch`), checked by the guard and by web_fetch's address rules (public addresses only), downloads are denied, dialogs are dismissed and new windows closed.
+3. **Six tools**, offered only when `agents.browser_use` (per person, off by default) is on: `browser_open`, `browser_read` (text cut to `agents.browser_text_max_chars`, with numbered elements), `browser_click` and `browser_type` (side effects: not read-only, so they ask, and always after outside content), `browser_screenshot`, `browser_back`. None is `Inside`: every result opens with the outside-content mark. Off in a chat held for sensitive content, as the web tools are. Calls and pages counted through a turn from the chat record (`agents.browser_max_steps`, `agents.browser_max_pages`). Each call is recorded by `tools.Run` as every call is. Screenshots are kept in a new table `browser_shots`, gone with the chat, and served by `GET /api/v1/browser/shots/{shot}`; the result names the shot and the step shows it.
+4. **The proof**: guard tests; a fake driver (pages in memory, the same request policy) proving the rules on any machine; tests that drive the real browser against pages served on this machine and skip with a reason when none is found: the profile holds no cookies at start and none it was not given; a page with planted instructions and a script that sends its form on load sends nothing; a password field is refused; a download is refused. In a real turn with the fake provider (`internal/turn`), the planted page's click asks and, declined, never sends. A standing check `browser use` (fake driver on the real server with a recorded turn; the real browser too where one is found). The drill gets `{shot}`.
+5. **Settings** in `settings/agents.json`: the switch, the path, idle time, page timeout, pages and steps a turn may use, the text limit, the element limit, the block list, the window's width and height (the screenshot's size).
+6. **The screen**: the switch is a tenant setting, so Settings draws it; the six steps' lines in `steps.ts` and the screenshot under a step, from the tokens; provisional on the agent mockups (P1-05).
+7. **The write-up**: `docs/architecture/browser-use.md`, decisions from 0580, the journal `2026-11-27-agents-014.md`, the status.
+
+
+### Result (agents lane, November 27, 2026)
+
+Provisional on the agent mockups for the screen only: there is no mockup of the browser's steps or of a screenshot under a step. The browser, the rules and the proof are complete, and a real Microsoft Edge was driven by the tests.
+
+- Built as planned: `internal/tools/browser/guard` (a guard of rule 2 in `fixedrules.go`), `internal/tools/browser` (the program finder, the pipe on Windows and Unix, the DevTools reader and writer, the Chromium driver, the fake driver, the pool, the six tools, the screenshots and their route), `internal/turn/browser.go`, migration `20261127T090000_browser_shots.sql`, eleven settings in `settings/agents.json`, the recorded turns `fixtures/test-tenant/turns/browser.json`, the check `browser use`, `{shot}` in the drill, the screen (`BrowserShot.tsx`, `browser.css`, rows in `steps.ts`, one line in `Conversation.tsx`) and the OpenAPI document. Decisions 0580 to 0585. No dependency was added.
+- Changed from the plan: a call to a browser tool with the switch off is refused by the turn without asking the person (a few lines in `internal/turn/approvals.go`), since the tool was not offered; the check found that a click asked first. Click and type take the element's `label` as well as its number, and refuse when the page's element says something else (decision 0583). A page the browser refuses is aborted, so the tab keeps the page it showed. Backups leave the profile folder out (two lines in `internal/tenant/backup.go`).
+- The proof: the profile holds no cookie at start, after each call only cookies of hosts the browser asked for, and one from anywhere else closes it; a page with planted instructions, whose script sends its form on a timer, posts in the background and loads a frame that posts, sends nothing; its button's click asks, even with the person's policy set to always, and declined is never sent; a password field, a sign-in form's email, a sign-in button and a card number are refused; a download is refused. With the fake driver in `go test` and the check, and with Edge 158 against a server on this machine in `go test` and the check. `verify` is 45 of 45.
+- Not seen in a browser: the step rows and the screenshot under a step were type-checked and not drawn on a running server.
+- See `docs/journal/2026-11-27-agents-014.md` and `docs/architecture/browser-use.md`.

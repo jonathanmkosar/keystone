@@ -18,6 +18,7 @@ import { errorLabel, toolLine } from "./steps";
 import { CitationSources, sourcesOf } from "./citations";
 import { TaskNote } from "./Tasks";
 import { isSubagentsStep, SubagentLanes } from "./Subagents";
+import { BrowserShot } from "./BrowserShot";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -144,6 +145,7 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
           )}
         </div>
       )}
+      <BrowserShot name={step.name} result={step.result} failed={step.failed} />
     </>
   );
 }

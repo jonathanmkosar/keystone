@@ -28,6 +28,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/subagents"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
+	"github.com/jonathanmkosar/keystone/internal/tools/browser"
 	"github.com/jonathanmkosar/keystone/internal/tools/web"
 	"github.com/jonathanmkosar/keystone/internal/turn"
 	"github.com/jonathanmkosar/keystone/internal/unattended"
@@ -126,6 +127,10 @@ type Config struct {
 	// it after the sub-agents' runner and before the turn runner, and bind it
 	// to the turn runner after.
 	research *research.Runner
+	// Browser is what browser use runs with (P10-03), in settings/agents.json.
+	// A caller may give Browser.Driver its own driver, such as the fake, and
+	// Browser.HostAllowed its own rule for the hosts it serves pages from.
+	Browser browser.Options
 }
 
 // Defaults returns the configuration as the settings registry ships it,
@@ -194,6 +199,10 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	}
 	// Research mode's settings (P8-04), in settings/agents.json.
 	if c.Research, err = research.ReadConfig(get); err != nil {
+		return Config{}, err
+	}
+	// Browser use's settings (P10-03), in settings/agents.json.
+	if c.Browser, err = browser.ReadOptions(get); err != nil {
 		return Config{}, err
 	}
 	read := func(key string, parse func(string) error) {
@@ -315,6 +324,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// Research mode (P8-04): what a task would run with, a chat's tasks, one,
 	// and its stop.
 	all = append(all, research.Routes(c.research)...)
+	// Browser use (P10-03): a screenshot the agent's browser took.
+	all = append(all, browser.Routes()...)
 	return all
 }
 

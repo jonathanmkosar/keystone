@@ -19,6 +19,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/tools"
 	"github.com/jonathanmkosar/keystone/internal/tools/approval"
+	"github.com/jonathanmkosar/keystone/internal/tools/browser"
 )
 
 // The approval policy's part of a turn (P7-02). The rule itself is in
@@ -225,10 +226,17 @@ func (r *Runner) approveStep(ctx context.Context, s *tenant.Store, t row, step i
 	}
 	plans = make([]planned, len(calls))
 	waiting := false
+	browserOn := r.browserOn(ctx, s) // P10-03
 	for i, c := range calls {
 		tool, known := r.toolFor(t, c.Name)
 		if !known {
 			plans[i] = planned{verdict: approval.VerdictRun} // the registry answers that there is no such tool
+			continue
+		}
+		if browser.IsTool(c.Name) && !browserOn {
+			// Browser use is off, so the tool was not offered: the call is
+			// refused, and the person is not asked about it (P10-03).
+			plans[i] = planned{verdict: approval.VerdictRefuse, refusal: browser.Off}
 			continue
 		}
 		pol, set := pols[c.Name]

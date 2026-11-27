@@ -106,6 +106,8 @@ func (g *rig) pathValue(path, name string) string {
 		return f.subagent
 	case "research":
 		return f.research
+	case "shot": // P10-03
+		return f.browserShot
 	}
 	return ""
 }

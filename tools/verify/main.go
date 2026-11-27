@@ -144,6 +144,7 @@ var checks = []check{
 	{"settings at a glance", checkSettingsGlance},
 	{"load test", checkLoadTest},
 	{"manage chats", checkManageChats},
+	{"browser use", checkBrowserUse},
 }
 
 func main() {

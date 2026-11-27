@@ -47,6 +47,13 @@ var takenApart = map[string]bool{
 	secretsFile: true, secretsFile + ".tmp": true,
 }
 
+// BrowserProfileFolder is the folder at the top of a tenant's folder that
+// holds the agent's browser profile while its browser runs (P10-03, the
+// guard's ProfileFolder). It is made new at each start and removed at
+// close, and its files are held open while the browser runs, so a backup
+// leaves it out.
+const BrowserProfileFolder = "browser-profile"
+
 // ErrTenantExists is returned by Restore when the tenant in the backup is
 // already on the install and the restore was not told to replace it.
 var ErrTenantExists = errors.New("a restore does not replace a tenant unless it is told to")
@@ -170,6 +177,9 @@ func (in *Install) Backup(id string, w io.Writer, passphrase string, o BackupOpt
 		}
 		if p == "." || (!strings.Contains(p, "/") && takenApart[p]) {
 			return nil
+		}
+		if p == BrowserProfileFolder && d.IsDir() { // P10-03
+			return fs.SkipDir
 		}
 		switch {
 		case d.IsDir():
