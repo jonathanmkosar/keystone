@@ -137,3 +137,7 @@ The functions that use them take a `Limits` value. `DefaultLimits` reads the reg
 ## Importing a chat
 
 Since P12-03, `Import(store, limits, chat, also)` (`imported.go`) writes a chat that happened elsewhere: its title, its messages as one branch and their search rows, in one transaction, with the times it is given. The chat is made at its first message's time and was last active at its newest, so it takes its true place in the list. `also` runs in the same transaction with the chat and its messages' ids, so what the caller writes about the chat is kept with it or not at all. The title is checked as `Rename` checks it and the content as `Append` does; a message that refers to a file is refused. The import from New Keystone is its one caller ([import.md](import.md)).
+
+## Searching by chat
+
+Since P4-06, `SearchByChat(store, query)` (`bychat.go`) reads the same two search tables with the same reading of a query as `Search`, and returns every chat that matches, once each: whether its title matched, how many of its messages did, and the best of them, the title matches first. `Excerpts(store, limits, query, found)` cuts, for the chats of one page, the title and about `chats.search_snippet_words` words of the best message into parts with the matching words marked. `Search` is unchanged. The table of every chat is their one caller ([manage-chats.md](manage-chats.md)).

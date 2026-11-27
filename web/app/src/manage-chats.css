@@ -1,0 +1,615 @@
+/* The Chats screen (P4-06): the table of every chat. Built from the tokens;
+   provisional on the mockups, which draw no such screen. Below 760 pixels a
+   row is a few short lines and nothing scrolls sideways. */
+
+.manage-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 960px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 40px 20px 0;
+}
+
+/* Search, filters and sort */
+
+.manage-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.manage-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--strong);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--muted);
+}
+
+.manage-search-wrap:focus-within {
+  border-color: var(--c3);
+}
+
+/* 16px, or a phone's browser zooms the whole page in when the box takes the
+   focus. */
+.manage-search {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--ink);
+  font: 400 16px var(--font-sans);
+  appearance: none;
+}
+
+.manage-search::placeholder {
+  color: var(--muted);
+}
+
+.manage-search::-webkit-search-cancel-button {
+  display: none;
+}
+
+.manage-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.manage-search-clear:hover {
+  background: var(--page);
+  color: var(--ink);
+}
+
+.manage-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.manage-chip {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: none;
+  color: var(--muted);
+  font: 500 13px var(--font-sans);
+  cursor: pointer;
+}
+
+.manage-chip:hover {
+  border-color: var(--strong);
+  color: var(--ink);
+}
+
+.manage-chip.is-on {
+  border-color: var(--accent);
+  background: var(--soft);
+  color: var(--softink);
+}
+
+/* The sort control is for a phone, where the table has no heading row. */
+.manage-sort {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.manage-select {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--strong);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--ink);
+  font: 400 16px var(--font-sans);
+}
+
+.manage-order {
+  flex: none;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.manage-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* The table */
+
+.manage-table {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--line);
+}
+
+.manage-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 90px 120px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+}
+
+.manage-row:hover,
+.manage-row.is-picked {
+  background: var(--raised);
+}
+
+.manage-head {
+  align-items: center;
+  min-height: 40px;
+  color: var(--muted);
+  font: 600 11px/16px var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.manage-head:hover {
+  background: none;
+}
+
+.manage-head-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.manage-head-button:hover {
+  color: var(--ink);
+}
+
+.manage-head-title {
+  padding: 0 10px 0 0;
+}
+
+.manage-arrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+}
+
+.manage-arrow.is-up {
+  border-top: 0;
+  border-bottom: 5px solid currentColor;
+}
+
+/* The checkbox sits in a square a thumb can hit. */
+.manage-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 52px;
+  cursor: pointer;
+}
+
+.manage-head .manage-check {
+  min-height: 40px;
+}
+
+.manage-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* The words beside the heading's checkbox are for a phone, where the
+   heading row has no columns. The checkbox itself carries its name. */
+.manage-check-words {
+  display: none;
+}
+
+.manage-open {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 10px 12px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.manage-title-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.manage-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.manage-marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.manage-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+
+.manage-mark-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.manage-mark.is-project {
+  border-color: transparent;
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.manage-mark.is-held {
+  border-style: dashed;
+  border-color: var(--c2);
+  color: var(--c3);
+}
+
+.manage-mark.is-busy {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.manage-line {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.manage-who {
+  font-weight: 500;
+}
+
+.manage-hit {
+  border-radius: 3px;
+  background: var(--soft);
+  color: var(--softink);
+  font-weight: 600;
+}
+
+.manage-more-hits {
+  white-space: nowrap;
+}
+
+/* On a wide screen the count and the time have columns of their own, and
+   the line under the title that repeats them is left out. */
+.manage-facts {
+  display: none;
+  color: var(--muted);
+  font: 12px/18px var(--font-mono);
+}
+
+.manage-size,
+.manage-when {
+  padding: 14px 10px 12px 0;
+  color: var(--muted);
+  font: 12px/20px var(--font-mono);
+  text-align: right;
+}
+
+.manage-head .manage-size,
+.manage-head .manage-when {
+  padding-top: 0;
+  padding-bottom: 0;
+  font: inherit;
+}
+
+.manage-all {
+  padding: 8px 10px 8px 44px;
+  border-bottom: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--softink);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.manage-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.manage-link:disabled {
+  cursor: default;
+  text-decoration: none;
+}
+
+.manage-end {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* The bar with the count and Delete stays at the foot of what can be seen
+   while anything is selected. margin-top: auto keeps it at the foot of a
+   short list too. */
+.manage-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: auto -20px 0;
+  padding: 10px 20px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--strong);
+  background: var(--raised);
+  box-shadow: 0 -6px 20px rgb(0 0 0 / 0.2);
+}
+
+.manage-bar-count {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+/* Written out in full: other stylesheets give .button-danger different
+   colours, and the later one wins. */
+.button.manage-danger {
+  border-color: var(--err);
+  background: var(--err);
+  color: var(--page);
+}
+
+.button.manage-danger:hover {
+  border-color: var(--err);
+}
+
+/* What a delete did */
+
+.manage-report {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 8px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.manage-report-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.manage-report p {
+  margin: 0;
+}
+
+.manage-report-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.manage-report-title {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* The confirmation. It covers the part of the screen that can be seen:
+   --seen-top and --seen-height are the visible part's, kept by
+   ManageChats.tsx as a phone's keyboard comes and goes. */
+.manage-overlay {
+  position: fixed;
+  top: var(--seen-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--seen-height, 100dvh);
+  padding: 16px;
+  background: rgb(0 0 0 / 0.5);
+}
+
+.manage-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 100%;
+  padding: 20px;
+  overflow-y: auto;
+  border: 1px solid var(--strong);
+  border-radius: 12px;
+  background: var(--raised);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+}
+
+.manage-dialog-title {
+  margin: 0;
+  font: 600 22px/28px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.manage-dialog-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.manage-dialog-text p {
+  margin: 0;
+}
+
+.manage-dialog-text .manage-dialog-strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.manage-dialog-progress {
+  margin: 0;
+  color: var(--softink);
+  font-size: 14px;
+}
+
+.manage-dialog-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.manage-dialog-row .button {
+  flex: 1 1 auto;
+  min-height: 44px;
+}
+
+@media (max-width: 760px) {
+  .manage-page {
+    padding: 20px 14px 0;
+  }
+
+  .manage-sort {
+    display: flex;
+  }
+
+  /* A row is the checkbox and, beside it, the title, the marks, a line of
+     summary or snippet, and the count and the time. */
+  .manage-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .manage-row > .manage-size,
+  .manage-row > .manage-when,
+  .manage-head > .manage-head-title {
+    display: none;
+  }
+
+  .manage-facts {
+    display: block;
+  }
+
+  /* A title takes two lines before it is cut, so a word the search found
+     further along it can still be seen. */
+  .manage-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .manage-title-line {
+    align-items: flex-start;
+  }
+
+  .manage-title-line .star-mark {
+    margin-top: 5px;
+  }
+
+  .manage-head {
+    grid-template-columns: minmax(0, 1fr);
+    text-transform: none;
+    letter-spacing: 0;
+    font: 500 13px/20px var(--font-sans);
+  }
+
+  .manage-head .manage-check {
+    justify-content: flex-start;
+    gap: 10px;
+    width: auto;
+    padding-left: 13px;
+  }
+
+  .manage-check-words {
+    display: inline;
+  }
+
+  .manage-all {
+    padding-left: 13px;
+  }
+
+  .manage-bar {
+    margin: auto -14px 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .manage-bar .button {
+    min-height: 44px;
+  }
+
+  .manage-overlay {
+    align-items: flex-end;
+    padding: 10px;
+  }
+}
