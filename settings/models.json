@@ -425,6 +425,24 @@
       "description": "Whether a chat made from now on starts on Auto, where the router chooses the model and the effort for each message from the ladder. It has no effect while the ladder is empty: a chat then uses the model picked. Chats that already exist keep what they are on."
     },
     {
+      "key": "router.may_switch_off",
+      "title": "May take a chat off Auto",
+      "summary": "The person may pick a model by hand in place of Auto.",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant-admin",
+      "description": "Whether the person may take a chat off Auto by picking a model. When false, and the ladder has a step the person can use, every chat is on Auto, a chat made starts on it whatever New chats start on Auto says, and a message that names a model is refused with auto_required. With an empty ladder there is no Auto to stay on, and this has no effect."
+    },
+    {
+      "key": "router.allowed_models",
+      "title": "Models picked by hand",
+      "summary": "The models the person may pick by hand. Empty means every one.",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "Registry names, separated by commas, of the models the person may pick by hand. Empty means every model in their registry. A message that names another is refused with model_not_allowed, the picker shows it greyed, and the person's default model is passed over when it is not in the list. Auto uses the ladder whatever this says."
+    },
+    {
       "key": "router.min_confidence",
       "title": "Auto's confidence level",
       "summary": "A verdict less sure than this moves up one step.",

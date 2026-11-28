@@ -408,6 +408,10 @@ func (r *Runner) openTurn(ctx context.Context, s *tenant.Store, t *row, say func
 	if err != nil {
 		return broke("reading the test tenant's mark", err)
 	}
+	// P14-05: the admin's policy as it stands now (policy.go).
+	if failure := r.policyAtStart(ctx, s, t, test); failure != nil {
+		return models.Model{}, nil, nil, failure
+	}
 	// The person's pick for this message: auto puts the chat on Auto, a
 	// named model takes it off.
 	if t.input.Auto || strings.TrimSpace(t.input.Model) != "" {

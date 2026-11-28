@@ -183,10 +183,14 @@ type ModelChoice struct {
 	// use. Empty means Auto is not offered.
 	Ladder []LadderStep `json:"ladder"`
 	// MaySwitchOff says the person may take the chat off Auto by picking a
-	// model. Always true until the admin's policy (P14-05).
+	// model: the admin's router.may_switch_off, and true while there is no
+	// ladder (P14-05). When false the chat is on Auto and a message naming a
+	// model is refused, 403 auto_required.
 	MaySwitchOff bool `json:"may_switch_off"`
-	// Allowed are the registry names the person may pick by hand. Every
-	// model in Models until the admin's policy (P14-05).
+	// Allowed are the registry names of Models the person may pick by hand,
+	// from the admin's router.allowed_models (P14-05). A message naming
+	// another is refused, 403 model_not_allowed, and Model is chosen among
+	// these only.
 	Allowed []string `json:"allowed"`
 	// Held says the chat holds content from a sensitive space, so only a
 	// local or trusted model may answer it (decision 0211).
@@ -296,7 +300,9 @@ type SendBody struct {
 	RetryOf int64 `json:"retry_of,omitempty"`
 	// Model is the registry name of the model to answer. Absent means the
 	// chat's own, as GET chats/{id}/model gives it. Naming one takes a chat
-	// that is on Auto off it (P14-04).
+	// that is on Auto off it (P14-04). The admin's policy refuses it with
+	// 403 auto_required while the person may not leave Auto, and 403
+	// model_not_allowed for a model they may not pick by hand (P14-05).
 	Model string `json:"model,omitempty"`
 	// Auto puts the chat on Auto for this message and the ones after it:
 	// the router chooses the model and the effort for each (P14-04). Give
@@ -394,7 +400,7 @@ func Routes(r *Runner) []api.Route {
 		},
 		{
 			Method: "POST", Path: chats, Handle: r.create,
-			Summary: "Make a chat with no title and no messages. It takes no body.",
+			Summary: "Make a chat with no title and no messages. It takes no body. It starts on Auto when router.auto_default says so, or when the admin keeps the person on Auto.",
 			Reply:   ChatReply{},
 		},
 		{
@@ -445,7 +451,7 @@ func Routes(r *Runner) []api.Route {
 		},
 		{
 			Method: "POST", Path: turns, Handle: r.send,
-			Summary: "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn.",
+			Summary: "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn. A message that names a model is refused with 403 auto_required while the admin keeps the person on Auto, and 403 model_not_allowed for a model they may not pick by hand; nothing is queued.",
 			Body:    SendBody{}, Events: streamEvents,
 		},
 		{

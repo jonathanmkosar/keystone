@@ -153,6 +153,13 @@ In `settings/models.json`. Names, types, defaults and scopes are the spec's.
 | --- | --- | --- | --- | --- |
 | `router.auto_default` | bool | true | tenant-admin | A chat made from now on starts on Auto. No effect while the ladder is empty. |
 
+P14-05 added the last two, read by the turn and the chat routes ([router-policy.md](router-policy.md)):
+
+| Key | Type | Default | Scope | Meaning |
+| --- | --- | --- | --- | --- |
+| `router.may_switch_off` | bool | true | tenant-admin | The person may take a chat off Auto. While false and the ladder has a usable step, a message naming a model is refused, 403 `auto_required`. |
+| `router.allowed_models` | string | empty | tenant-admin | Registry names the person may pick by hand. Empty: every model. Another is refused, 403 `model_not_allowed`. Auto uses the ladder whatever this says. |
+
 ## Decisions
 
 - [0670](decisions/0670-the-router-asks-the-plan-for-each-step-and-reads-nothing-itself.md): each step is asked of `routing.Plan` on its own, and the router reads nothing itself.
@@ -186,7 +193,7 @@ In `verify` since P14-04, the same check sends a message on Auto through the rea
 
 ## Not here yet
 
-- **The admin's policy** beyond the ladder, the decision model, the step notes and `router.auto_default` (P14-05).
+- **The admin's settings screen** (P15-03), which will draw the six settings from the registry; until then the admin sets them with `tools/tenant setting set`. The policy itself is built (P14-05, [router-policy.md](router-policy.md)).
 - **Unattended work** on Auto (P14-06) and **Auto in usage** (P14-07).
   - Built in P14-06 ([unattended-auto.md](unattended-auto.md)): sub-agents, background tasks, scheduled runs and research tasks start on Auto unless the call that started them names a model, through `turn.Runner.StartOnAuto`; each of their turns is routed by the turn as above. Nothing in this package changed.
 - **The live check** with the owner's decision model and chat model on his local machine, and his hosted models (P14-08).

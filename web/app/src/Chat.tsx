@@ -225,7 +225,8 @@ function OneChat({ id }: { id: string }) {
   }
 
   const busy = isActive(live);
-  const noModel = loaded.state === "ready" && !loaded.model.model;
+  // A chat on Auto needs no model picked by hand (P14-05: the admin may allow none).
+  const noModel = loaded.state === "ready" && !loaded.model.model && shown?.auto !== true;
   const note = loaded.state === "ready" && shown ? modelLine(shown) : "";
 
   return (
