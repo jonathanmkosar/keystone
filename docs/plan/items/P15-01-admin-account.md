@@ -1,14 +1,14 @@
-# P15-01. The admin mark and step-up
+# P15-01. The admin account
 
-Status: provisional (core) on A1 and A2
+Status: provisional (core): A1 was answered on November 27, 2026 as a separate account, so the first pass is reworked
 Lane: core
 Depends on: P2-02, P2-04, P2-05
-Owner gate: The owner's answers A1 and A2.
-Built without the gate: Everything, on the assumed answers, provisional until they are confirmed.
-Scope: The `admin` mark in `keystone.json` and the `tools/tenant admin` command, step-up and `admin_until`, the admin door, audit entries in both logs, `internal/adminview`, and the first part of the `admin isolation` check (the imports).
-Proof: A person without the mark, and an admin without a fresh step-up, are refused on every admin route. Every admin call is in both audit logs.
+Owner gate: None: A1 and A2 are answered.
+Built without the gate: Everything.
+Scope: Admin accounts in their own database, `data/admin/admin.db`: accounts, passwords and passkeys, sessions with `ksa_` tokens, and the admin audit log. `tools/admin add` and `password`, `/admin/sign-in`, the session and idle limits, and a door that tells a person's token from an admin's before anything is read. Remove the first pass's mark, `tools/tenant admin` and the step-up. Keep `internal/adminview` and the two audit logs, and show a person the admin entries of their own log in their Settings. A decision record replaces 0640 and 0643.
+Proof: A person's token is refused on every admin route and an admin's on every person's route. An admin account has no chat, file or model route. Every admin call is in both audit logs, and the person sees it.
 
-See `docs/plan/SPEC-router-and-admin.md`, Part 2, "The admin mark" and "Reading another person", for the design this item delivers; `docs/plan/PLAN.md` for the intent; and `docs/plan/PARALLEL.md` for lanes and gates.
+See `docs/plan/SPEC-router-and-admin.md`, Part 2, "The admin account" and "What an admin never sees", for the design this item delivers; `docs/plan/PLAN.md` for the intent; and `docs/plan/PARALLEL.md` for lanes and gates.
 
 ## Plan
 

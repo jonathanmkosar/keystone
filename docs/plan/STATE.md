@@ -28,8 +28,8 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
-| A1. Is an admin a person with a mark, or a separate account? | A mark on a person, set only from the command line, with a step-up before the admin area | The recommendation | P15-01, P15-03 |
-| A2. What may an admin see of another person? | Numbers and settings only; never chats, titles, files, memory, traces or error words | The recommendation | P15-01, P15-02 |
+| A1. Is an admin a person with a mark, or a separate account? | Decided by the owner on November 27, 2026: a separate account that shows only admin controls | | P15-01, to be reworked |
+| A2. What may an admin see of another person? | Decided by the owner on November 27, 2026: numbers and settings only, never their data or logs; each person's data is encrypted at rest with server-held keys (P15-06) | | Nothing |
 | A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
 | A4. Views person by person, or by named sets? | Named view sets, with per-person additions and removals | The recommendation | P15-04 |
 | A5. Who uses the install besides the owner? | A few people; the simple set is chat, projects, artifacts and general settings | The recommendation | P15-02, P15-04 |
