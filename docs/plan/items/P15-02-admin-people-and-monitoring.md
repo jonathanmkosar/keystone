@@ -1,6 +1,6 @@
 # P15-02. People, the install and monitoring
 
-Status: doing (core)
+Status: provisional
 Lane: core + interface
 Depends on: P15-01
 Owner gate: None for the server side. The screens follow the approved drafts.
@@ -27,3 +27,7 @@ Branch `core/p15-02-admin-people`, cut from `reboot`. Built on the owner's answe
 - **Screens**, provisional on the drafts (`design/screens/Admin.html`, `Operations.html`): the admin page gains tabs People, A person and Install. People is the table of the draft with the new numbers, Add a person (which shows the code once), Disable and Enable, and Read again. A person is their numbers, usage by day and by model, failures by kind, storage over time, and a new setup code. Install is the totals, by model and by day, failures, the disk, the people and the sampler. `/setup` is the person's page for the code.
 - **Proof.** Tests: the admin's numbers for each person equal `operations.Read` and `usagereport.Read` for that person, and the install's equal their sum, on two people with records, tasks, schedules and files; a disabled person cannot sign in, has no session, their schedule does not fire, their task does not run and their share link answers revoked, and enabling restores each; a setup code works once and not after it expires, nor for another person; marker words in a person's chats, titles and task errors appear in no admin reply; a person added from the command line survives the server's save. The `admin isolation` check gains `internal/figures` in the packages it holds, and its walk calls the new routes.
 - **Left out.** Install settings and their changes (P15-03), views (P15-04), the marker-word drill over every route (P15-05), removing a person (the command line), passkeys at setup.
+
+## Result
+
+Built as planned, November 28, 2026; see `docs/architecture/people.md`, decisions 0700 to 0704 and the journal `docs/journal/2026-11-28-core-018.md`. The proof passes in tests: each person's numbers in the admin's list equal `operations.Read`, `operations.Watch` and `usagereport.Read` for that person (the database within the two log entries the admin's read itself writes), and the install's equal the sum of each person's; a disabled person cannot sign in, has no session, the scheduler holds their schedule, their switch reads paused and their share link answers revoked, and enabling restores each; a setup code works once, for its person, not after it expires or after a newer one, and never for a disabled person; no marker word of a person's reaches an admin reply. Changes from the plan: `GET /api/v1/admin/people/{id}` was added, for the person screen; the install disk's watch level is `operations.watch_disk_percent` as shipped until P15-03 makes install settings; the install settings that were changed are left to P15-03. Provisional on A5 (the recommended answer: a few people) and on a look in a browser: the screens type-check and build, and were not opened against a running server.
