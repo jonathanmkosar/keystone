@@ -32,6 +32,7 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `usage` | models | A record for each model call, a month's sums, and the monthly spend cap |
 | `decision` | models | Decision calls (P14-02): which decision model a call may go to, through routing's guard, and the call made with its audit entries and usage record (a guard of fixed rule 3) |
 | `adapters/systemone` | models | The adapter for Ollama's decision API, `POST /v1/systemone` |
+| `router` | models | The model router (P14-03): the ladder, the four rules, the verdict and the reason line for a message on Auto; only narrows what routing allows (a guard of fixed rule 3) |
 | `usagereport` | core | A period's usage records summed by model, by chat and by kind of work against the cap, and its route |
 | `operations` | core | Operations and Monitor: tasks, schedules, model health, recent traces and limits with their trends, the snapshots behind them and the sampler, and its two routes |
 | `settingsapi` | interface | The routes behind the settings screens: settings, secret names, the model registry and the profile |
