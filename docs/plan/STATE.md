@@ -23,6 +23,9 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Item | Lane | Branch |
 | --- | --- | --- |
+| P15-01 the admin account (rework) | core | `core/p15-01-admin-account` |
+| P15-06 encryption at rest | core | `core/p15-06-encryption-at-rest` |
+| P14-03 the router | models | `models/p14-03-router` |
 
 ## Waiting on the owner
 
