@@ -158,6 +158,10 @@ func ShellRoutes(s Shell) []Route {
 			logf("%s sign-in refused for tenant %s: waiting after wrong passwords", id, store.TenantID())
 			w.Header().Set("Retry-After", strconv.Itoa(int(s.SignIn.FailureWait.Seconds())+1))
 			Error(w, r, http.StatusTooManyRequests, "wait", "too many wrong passwords in a row: wait, then try again")
+		case errors.Is(err, signin.ErrDisabled): // P15-02: the admin disabled them
+			record(http.StatusForbidden)
+			logf("%s sign-in refused for tenant %s: disabled", id, store.TenantID())
+			Error(w, r, http.StatusForbidden, "disabled", "This account is disabled. Ask the admin to enable it.")
 		case errors.Is(err, signin.ErrRefused):
 			record(http.StatusUnauthorized)
 			logf("%s sign-in refused for tenant %s", id, store.TenantID())

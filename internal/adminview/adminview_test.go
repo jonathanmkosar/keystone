@@ -91,7 +91,7 @@ func TestPeopleIsWrittenInEachPersonsLog(t *testing.T) {
 	json.Unmarshal(raw, &fields)
 	for k := range fields {
 		switch k {
-		case "id", "name", "added", "last_sign_in":
+		case "id", "name", "added", "last_sign_in", "enabled", "has_password", "spend", "storage", "jobs", "schedules", "models", "crossed":
 		default:
 			t.Errorf("a person, as the admin sees them, has the field %q", k)
 		}
@@ -108,7 +108,7 @@ func TestPeopleIsWrittenInEachPersonsLog(t *testing.T) {
 			e := got[i]
 			var touch Touch
 			json.Unmarshal([]byte(e.Sent), &touch)
-			if e.Actor != ActorPrefix+admin.ID || e.RequestID != a.RequestID || e.Action != a.Action || e.Outcome != want || touch.By != "Test Admin" || len(touch.Read) != 1 || touch.Read[0] != "last_sign_in" {
+			if e.Actor != ActorPrefix+admin.ID || e.RequestID != a.RequestID || e.Action != a.Action || e.Outcome != want || touch.By != "Test Admin" || len(touch.Read) != len(numbersRead) || touch.Read[0] != "last_sign_in" {
 				t.Errorf("entry %d in %s's log is %+v", i, p.Name, e)
 			}
 		}

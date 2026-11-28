@@ -248,6 +248,10 @@ func Fallback(ctx context.Context, s *tenant.Store) (bool, error) {
 // schedule is on. A caller that gets an error counts the switch as on:
 // unattended work does not go on when the person's wish cannot be read.
 func Paused(ctx context.Context, s *tenant.Store) (bool, error) {
+	// P15-02: a person the admin disabled is paused, whatever their switch.
+	if _, off, err := s.Disabled(ctx); off || err != nil {
+		return true, err
+	}
 	v, err := setting(ctx, s, KeyPaused)
 	if err != nil {
 		return true, err

@@ -65,6 +65,9 @@ type Options struct {
 	// IdleFor is how long a session may go unused before it ends:
 	// admin.idle_for.
 	IdleFor time.Duration
+	// SetupCodeFor is how long a setup code may be used: admin.setup_code_for
+	// (P15-02, setupcodes.go).
+	SetupCodeFor time.Duration
 }
 
 // Defaults returns the options as the settings registry ships them.
@@ -86,7 +89,7 @@ func ReadOptions(get func(key string) (string, bool)) (Options, error) {
 	if o.SignIn, err = signin.ReadOptions(get); err != nil {
 		return Options{}, err
 	}
-	for key, into := range map[string]*time.Duration{"admin.session_for": &o.SessionFor, "admin.idle_for": &o.IdleFor} {
+	for key, into := range map[string]*time.Duration{"admin.session_for": &o.SessionFor, "admin.idle_for": &o.IdleFor, "admin.setup_code_for": &o.SetupCodeFor} {
 		v, ok := get(key)
 		if !ok {
 			return Options{}, fmt.Errorf("the %s setting is missing", key)
@@ -104,6 +107,8 @@ func (o Options) check() error {
 		return errors.New("admin.session_for must be longer than nothing")
 	case o.IdleFor <= 0:
 		return errors.New("admin.idle_for must be longer than nothing")
+	case o.SetupCodeFor < 0:
+		return errors.New("admin.setup_code_for must be longer than nothing")
 	}
 	return nil
 }

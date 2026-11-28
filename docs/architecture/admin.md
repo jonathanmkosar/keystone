@@ -87,6 +87,8 @@ Every function of the view takes an `adminview.Asker` (the admin account's id, t
 
 The shapes are in `docs/api/openapi.json`, where each admin route is marked `x-keystone-admin` and carries the `admin` cookie scheme.
 
+P15-02's routes (one person, adding a person, setup codes, disable and enable, a person's usage, the install, and the door `POST /api/v1/setup`) are in [people.md](people.md).
+
 ## Screens
 
 - `/admin/sign-in`: the account's name and password. `/admin`: who is signed in, when the session ends, and sign out. The admin screens for people, the install and settings are P15-02 to P15-04. A path under `/admin` is drawn by `AdminApp` in place of the person's app (`main.tsx`), so the admin page never asks who the person is.
@@ -130,7 +132,7 @@ P15-05 adds the drill: marker words in a second person's chats, titles, files, m
 
 ## Not here yet
 
-- The people and install numbers, adding a person with a setup code, `/setup`, disabling a person, and moving install-wide Operations to the admin account: P15-02. The packages that already sum a person's numbers (`usagereport`, `operations`, `jobs`, `schedules`) reach forbidden packages through their own imports, so `adminview` cannot call them; P15-02 reads those numbers through narrow functions or splits the packages.
+- Built since by P15-02, in [people.md](people.md): the people and install numbers through `internal/figures`, adding a person with a setup code, `/setup`, disabling a person, and the disk moved from a person's Operations to the admin account.
 - Settings from the browser, install settings in `keystone.json`, and a change's old and new value in both logs: P15-03.
 - Views and view sets: P15-04.
 - The marker-word drill: P15-05.

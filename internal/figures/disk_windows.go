@@ -1,10 +1,10 @@
-package operations
+package figures
 
 import "golang.org/x/sys/windows"
 
-// volume returns the size of the volume that holds dir, and the bytes on it
+// Volume returns the size of the volume that holds dir, and the bytes on it
 // this process may still write, from Windows.
-func volume(dir string) (total, free uint64, err error) {
+func Volume(dir string) (total, free uint64, err error) {
 	p, err := windows.UTF16PtrFromString(dir)
 	if err != nil {
 		return 0, 0, err

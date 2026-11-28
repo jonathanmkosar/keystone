@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -181,7 +182,7 @@ func (in *Install) createPlain(name string) (Tenant, error) {
 	}
 	in.tenants = append(in.tenants, t)
 	if err := in.save(); err != nil {
-		in.tenants = in.tenants[:len(in.tenants)-1]
+		in.tenants = slices.DeleteFunc(in.tenants, func(have Tenant) bool { return have.ID == id }) // P15-02: the save may have merged others after it
 		return Tenant{}, err
 	}
 	built = true
@@ -248,6 +249,9 @@ func openStore(folder, id string, vault *secrets.Vault) (*Store, error) {
 }
 
 func (in *Install) save() error {
+	if err := in.mergeFromDisk(); err != nil { // P15-02: keep a person another process added (merge.go)
+		return err
+	}
 	out := map[string]json.RawMessage{}
 	for k, v := range in.other {
 		out[k] = v

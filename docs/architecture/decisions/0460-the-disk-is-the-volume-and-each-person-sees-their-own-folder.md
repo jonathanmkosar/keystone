@@ -1,6 +1,6 @@
 # 0460. The disk is the volume, and each person sees their own folder
 
-November 26, 2026 · decided in P11-03
+November 26, 2026 · decided in P11-03 · changed by decision [0701](0701-the-disk-is-shown-only-in-the-admin-account.md): the disk is shown only in the admin account
 
 ## The question
 

@@ -442,6 +442,12 @@ func Find(in *tenant.Install, token string) (*tenant.Store, Link, error) {
 // ErrHeld or ErrIncognito when it does not, and nil when it does. The chat
 // is read again, so a chat held since the link was made is refused.
 func Usable(ctx context.Context, s *tenant.Store, l Link) error {
+	// P15-02: a person the admin disabled has every link answer as revoked.
+	if _, off, err := s.Disabled(ctx); err != nil {
+		return err
+	} else if off {
+		return ErrRevoked
+	}
 	switch {
 	case l.Revoked != nil:
 		return ErrRevoked

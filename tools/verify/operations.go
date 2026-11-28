@@ -39,7 +39,7 @@ import (
 //     the admin lowers its monthly cap to a cent, of which nine tenths are
 //     spent.
 //  3. GET /api/v1/operations: every limit (the cap, the memory reserve,
-//     the disk, the database, the files and the artifacts) has a share
+//     the database, the files and the artifacts; not the disk) has a share
 //     that is its used of its limit, a watch level, and a trend that knows
 //     its rate from more than a day of points ending at the reading now;
 //     the cap is GET /api/v1/usage's; the turn is a trace whose tokens and
@@ -214,7 +214,12 @@ func operationsProblems() (problems []string, err error) {
 	for _, l := range rep.Limits {
 		byKey[l.Key] = l
 	}
-	for _, key := range []string{operations.LimitCap, operations.LimitReserve, operations.LimitDisk, operations.LimitDatabase, operations.LimitFiles, operations.LimitArtifacts} {
+	// The disk is the install's, shown only in the admin account (P15-02,
+	// decision 0701): no person's report has it.
+	if _, ok := byKey[operations.LimitDisk]; ok {
+		problems = append(problems, "GET /api/v1/operations has the disk, which only the admin account shows (decision 0701)")
+	}
+	for _, key := range []string{operations.LimitCap, operations.LimitReserve, operations.LimitDatabase, operations.LimitFiles, operations.LimitArtifacts} {
 		l, ok := byKey[key]
 		switch {
 		case !ok:
