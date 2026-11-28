@@ -13,7 +13,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 | models | nothing | P14-08 the router's live check (needs the owner); the live checks of the adapters and embeddings, with the owner's keys and models |
 | chats | nothing | P14-04 Auto in the turn, ready now (the router is merged), then P14-05 the admin's router policy; P10-02 voice mode with interface; streamed events removed a week after a turn ends, if the owner agrees |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
-| agents | nothing | P14-06 Auto for unattended work after P14-04; P13-01 the tricked-agent drill, now that browser use is in; P7-05 skills, held (a commit on its branch) |
+| agents | nothing | P7-06 search providers and the fallback, ready now, then P7-07 Brave, Exa, Serper and SearXNG (live check needs the owner's keys) and P7-08 the search screens after P15-02; P14-06 Auto for unattended work after P14-04; P13-01 the tricked-agent drill, now that browser use is in; P7-05 skills, held (a commit on its branch) |
 | interface | nothing | the screen half of P14-04, P14-05, P14-07 and P15-02 to P15-04, each once its contract is merged; P10-02 voice mode, P10-05 phone (needs the owner) |
 | design | nothing | P1-05 agent, P1-06 workspace and P1-07 settings mockups for the screens built without one; P1-01 the Claude reference library, with the owner's go-ahead |
 
@@ -30,6 +30,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
+| Keys for Brave, Exa and Serper, and the address of a SearXNG, for the search providers' live check | Give them before P7-07's live check | | P7-07's live check only |
 | A1. Is an admin a person with a mark, or a separate account? | Decided by the owner on November 27, 2026: a separate account that shows only admin controls | | P15-01, to be reworked |
 | A2. What may an admin see of another person? | Decided by the owner on November 27, 2026: numbers and settings only, never their data or logs; each person's data is encrypted at rest with server-held keys (P15-06) | | Nothing |
 | A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
