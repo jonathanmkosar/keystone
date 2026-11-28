@@ -8,6 +8,7 @@
 import { useSyncExternalStore } from "react";
 import { ApiError, followTurn, openChat, sendMessage, stopTurn, strongerTurn, type Block, type Message, type StreamReader, type TurnEvent, type TurnRoute } from "./api";
 import { strongerProblem } from "./autoWords";
+import { policyProblem } from "./policyWords";
 
 /** A block of the reply that is still being written. */
 export type DraftBlock =
@@ -227,6 +228,7 @@ const retryWaits = [400, 1000, 2000, 4000, 8000, 8000];
 function sendProblem(e: unknown): string {
   if (!(e instanceof ApiError)) return "The message could not be sent.";
   if (e.code === "no_stronger" || e.code === "not_auto") return strongerProblem(e.code, e.said ?? ""); // P14-04
+  if (policyProblem(e.code, e.said ?? "")) return policyProblem(e.code, e.said ?? ""); // P14-05: the admin's router policy
   if (e.code === "queue_full") return "This chat already has messages waiting for a reply. Wait for one to finish, then send again.";
   if (e.code === "not_built") return "The server cannot answer yet: this part of it is not built.";
   if (e.kind === "missing") return "This chat is no longer in your record. It may have been deleted.";

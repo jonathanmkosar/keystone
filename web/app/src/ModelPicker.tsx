@@ -7,6 +7,7 @@ import { footnote, shortModelName } from "./composerSheet";
 import { Icon } from "./Icon";
 import { Sheet, useNarrow } from "./PhoneSheet";
 import { mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, showsAuto, usePickEntry } from "./modelPicks";
+import { allowedByHand, autoRequired, autoRequiredNote, newChatPolicy, notAllowedWhy } from "./policyWords";
 import { isActive, useLive } from "./turns";
 import "./model-picker.css";
 import "./auto.css";
@@ -18,6 +19,9 @@ const defaultModelKey = "chats.default_model";
 // The ladder and whether a new chat starts on Auto (P14-04), for the same.
 const ladderKey = "router.ladder";
 const autoDefaultKey = "router.auto_default";
+// The admin's router policy (P14-05), for the same.
+const allowedKey = "router.allowed_models";
+const maySwitchOffKey = "router.may_switch_off";
 
 type Row = {
   model: ModelInfo;
@@ -35,7 +39,7 @@ const heldWhy = "Not for this chat: it holds content from a sensitive space, whi
  * chats.default_model when it names a model a chat can use, or else the
  * first such model by name. The registry is listed by name.
  */
-function newChatChoice(registry: RegisteredModel[], defaultName: string, ladderSetting = "", autoDefault = false): ModelChoice {
+function newChatChoice(registry: RegisteredModel[], defaultName: string, ladderSetting = "", autoDefault = false, allowedSetting = "", maySwitchOffSetting = "true"): ModelChoice {
   const models: ModelInfo[] = registry
     // Embedding and decision models answer no chat (decision 0630).
     .filter((r) => !r.problem && !(r.entry.capabilities ?? []).some((c) => c === "embedding" || c === "decision"))
@@ -46,11 +50,14 @@ function newChatChoice(registry: RegisteredModel[], defaultName: string, ladderS
     const m = models.find((x) => x.name === name);
     if (m) ladder.push({ name, label: m.label || name, class: m.class, step: i + 1 });
   });
-  const auto = autoDefault && ladder.length > 0;
-  const byDefault = models.find((m) => m.name === defaultName);
-  if (byDefault) return { model: byDefault, source: "default", models, ladder, auto };
-  if (models.length > 0) return { model: models[0], source: "first", models, ladder, auto };
-  return { source: "none", models, ladder, auto };
+  // The admin's policy, as the server applies it (P14-05): the default and the first model among the allowed only.
+  const policy = newChatPolicy(models.map((m) => m.name), allowedSetting, maySwitchOffSetting, ladder.length);
+  const auto = (autoDefault || !policy.may_switch_off) && ladder.length > 0;
+  const allowed = models.filter((m) => policy.allowed.includes(m.name));
+  const byDefault = allowed.find((m) => m.name === defaultName);
+  if (byDefault) return { model: byDefault, source: "default", models, ladder, auto, ...policy };
+  if (allowed.length > 0) return { model: allowed[0], source: "first", models, ladder, auto, ...policy };
+  return { source: "none", models, ladder, auto, ...policy };
 }
 
 function labelOf(m: ModelInfo): string {
@@ -109,7 +116,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
           const [models, settings] = await Promise.all([listModels(), listSettings()]);
           setRegistry(new Map(models.models.filter((r) => !r.problem).map((r) => [r.entry.name, r])));
           const value = (k: string) => settings.settings.find((s) => s.key === k)?.value ?? "";
-          rememberChoice(key, newChatChoice(models.models, value(defaultModelKey), value(ladderKey), value(autoDefaultKey) === "true"), idle);
+          rememberChoice(key, newChatChoice(models.models, value(defaultModelKey), value(ladderKey), value(autoDefaultKey) === "true", value(allowedKey), value(maySwitchOffKey) || "true"), idle);
         } else {
           const [choice, models] = await Promise.all([chatModel(chatId), listModels().catch(() => undefined)]);
           if (models) setRegistry(new Map(models.models.filter((r) => !r.problem).map((r) => [r.entry.name, r])));
@@ -174,6 +181,7 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
     let blocked = "";
     if (keyMissing) blocked = keyMissingWhy;
     else if (held && !mayReadSensitive(m)) blocked = heldWhy;
+    else if (!allowedByHand(choice, m.name)) blocked = notAllowedWhy; // P14-05
     return { model: m, current: !auto && m.name === shown?.name, keyMissing, blocked };
   });
   const shownRow = rows.find((r) => r.current);
@@ -219,7 +227,9 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   const label = auto ? autoLabel : shown ? labelOf(shown) : "Pick a model";
   const warn = auto ? "" : (shownRow?.blocked ?? "");
   const autoRow = ladder.length > 0 ? { current: auto, steps: ladder.length, choose: chooseAuto } : undefined;
-  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} phone={narrow} auto={autoRow} />;
+  // P14-05: while the admin keeps the person on Auto, the model rows, which are the switch off Auto, are hidden.
+  const required = autoRequired(choice);
+  const menuBody = <MenuBody isNew={isNew} rows={required ? [] : rows} held={held && !required} foot={required ? autoRequiredNote : foot} choose={choose} close={() => setOpen(false)} phone={narrow} auto={autoRow} />;
 
   return (
     <div className="model-picker" ref={wrap}>

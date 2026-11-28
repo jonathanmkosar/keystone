@@ -25,6 +25,7 @@
 import { useSyncExternalStore } from "react";
 import type { ModelChoice, ModelInfo } from "./api";
 import { autoPick } from "./autoWords";
+import { allowedByHand, autoRequired } from "./policyWords";
 
 export type Pick = {
   /** The registry name of the model picked. */
@@ -87,9 +88,14 @@ export function showsAuto(choice: ModelChoice | undefined, pick: Pick | undefine
   return choice?.auto === true;
 }
 
-/** A pick the chat may make: Auto while there is a ladder, or one of its models. */
+/**
+ * A pick the chat may make: Auto while there is a ladder, or one of its
+ * models the admin lets the person pick by hand, while they may leave Auto
+ * (P14-05, policyWords.ts). A pick the server would refuse is let go.
+ */
 function mayPick(choice: ModelChoice, name: string): boolean {
-  return name === autoPick ? (choice.ladder?.length ?? 0) > 0 : choice.models.some((m) => m.name === name);
+  if (name === autoPick) return (choice.ladder?.length ?? 0) > 0;
+  return choice.models.some((m) => m.name === name) && allowedByHand(choice, name) && !autoRequired(choice);
 }
 
 /** A pick that is already the server's choice: Auto on a chat on Auto, or the chat's model off Auto. */

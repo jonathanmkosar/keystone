@@ -280,9 +280,9 @@ export type ModelChoice = {
   last_step?: string;
   /** The person's ladder, smallest first. Empty: Auto is not offered. */
   ladder?: LadderStep[];
-  /** The person may take the chat off Auto (always, until P14-05). */
+  /** The person may take the chat off Auto: the admin's router.may_switch_off, true while there is no ladder (P14-05). */
   may_switch_off?: boolean;
-  /** The models the person may pick by hand (all, until P14-05). */
+  /** The models the person may pick by hand, from the admin's router.allowed_models (P14-05). */
   allowed?: string[];
   /** The chat holds content from a sensitive space: only local and trusted models may answer it. */
   held?: boolean;
