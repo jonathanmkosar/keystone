@@ -280,6 +280,24 @@ a {
   background: var(--raised);
 }
 
+/* A row with a quick link at its end: Memory, with Waymarks' own page. */
+.nav-with-end {
+  position: relative;
+}
+
+.nav-with-end > .nav {
+  padding-right: 44px;
+}
+
+.nav-with-end > .nav-end {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  width: 36px;
+  height: 36px;
+  transform: translateY(-50%);
+}
+
 .nav.active {
   background: var(--raised);
   font-weight: 500;

@@ -123,19 +123,26 @@ export function Shell({
           New chat
         </Link>
         <div className="nav-group">
-          {places.map((p) => (
-            <NavLink key={p.to} to={p.to} end className="nav">
-              <Icon name={p.icon} />
-              {p.label}
-            </NavLink>
-          ))}
-          {/* Waymarks' own page, in a new tab, while it is the person's knowledge store (the owner, November 27, 2026). */}
-          {waymarks && (
-            <a href={waymarks} className="nav" target="_blank" rel="noopener noreferrer" title="Open Waymarks in a new tab">
-              <Icon name="open" />
-              Waymarks
-            </a>
-          )}
+          {places.map((p) => {
+            const row = (
+              <NavLink key={p.to} to={p.to} end className="nav">
+                <Icon name={p.icon} />
+                {p.label}
+              </NavLink>
+            );
+            // Waymarks' own page is a quick link at the end of the Memory
+            // row, not a row of its own, while it is the person's knowledge
+            // store (the owner, November 27, 2026: "the menu is too crowded").
+            if (p.to !== "/memory" || !waymarks) return row;
+            return (
+              <div key={p.to} className="nav-with-end">
+                {row}
+                <a href={waymarks} className="icon-button nav-end" target="_blank" rel="noopener noreferrer" aria-label="Open Waymarks in a new tab" title="Open Waymarks">
+                  <Icon name="open" size={16} />
+                </a>
+              </div>
+            );
+          })}
         </div>
         {starred.length > 0 && (
           <div className="nav-group">
