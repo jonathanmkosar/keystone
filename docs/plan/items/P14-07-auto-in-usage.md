@@ -1,6 +1,6 @@
 # P14-07. Auto in the usage report
 
-Status: doing (core)
+Status: provisional
 Lane: core + interface
 Depends on: P14-04
 Owner gate: Approval of the settings mockups (P1-07), for the screen only.
@@ -25,3 +25,7 @@ Branch `core/p14-07-auto-in-usage`, cut from `reboot` at `165ada6`. Contract fir
 5. **Screen**, provisional on the settings mockups (P1-07): an Auto card on Settings → Usage after the totals (new `UsageAuto.tsx` and `usage-auto.css`; one import and one element in `UsageSettings.tsx`, one field in `usageCalls.ts`): what the replies on Auto cost with their decisions against the same tokens at the top step, a bar, what was saved, and how often a stronger model was asked for. Hidden when the period has nothing on Auto.
 
 No setting: the report reads `router.ladder` as it stands, as it reads today's cap for a past month. Left to others: the admin's per-person figures (P15-02 reads the same report).
+
+## Result
+
+Provisional on November 28, 2026, on the settings mockups (P1-07) for the card only (journal `docs/journal/2026-11-28-core-020.md`). The server side is done: the usage report's `auto` field (`usagereport.ReadAuto`, called by `Read`), with the replies on Auto and the router's decisions summed from the usage records under a request id that has a verdict, the same tokens priced call by call at the ladder's top step as it stands now, what was saved, and the turns, stronger asks and rewrites counted from `router_verdicts`; an index on `router_verdicts(request_id)`; and the paragraph in `tools/tenant usage`. The proof is `internal/turn/autousage_test.go` on the test tenant and `internal/usagereport/auto_test.go` on generated data. The Auto card on Settings → Usage type-checks and builds and has not been seen in a browser. Decisions 0740 to 0743. Surface: `usagereport.Report.Auto` (JSON `auto`), `usagereport.ReadAuto`, `usagereport.Auto`, `usagereport.TopStep`.

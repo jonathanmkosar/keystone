@@ -150,6 +150,7 @@ In `verify`: the standing check `usage report`, in `tools/verify/usagereport.go`
   - Built in P11-03 ([operations.md](operations.md)): the cap and the memory reserve on Operations, and on the home screen's notice, are `Read` with the month, and the `operations` check compares them with `GET /api/v1/usage`.
 - **A chart over time.** The report is totals for a period. Spend by day would be one more breakdown over the same records.
 - **An admin's view of every person.** There is no admin role; each person sees their own.
+- **Auto.** Built in P14-07 ([auto-in-usage.md](auto-in-usage.md)): the report gained one field, `auto`, from the same records and the router's verdicts, and the Usage screen an Auto card after the totals. `tools/tenant usage` prints it after the reserve.
 
 ## Provisional
 

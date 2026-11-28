@@ -188,4 +188,5 @@ In `verify` since P14-04, the same check sends a message on Auto through the rea
 
 - **The admin's policy** beyond the ladder, the decision model, the step notes and `router.auto_default` (P14-05).
 - **Unattended work** on Auto (P14-06) and **Auto in usage** (P14-07).
+  - Auto in usage is built ([auto-in-usage.md](auto-in-usage.md)): the usage report sums the records under a request id that has a verdict, and counts turns, stronger asks and rewrites from `router_verdicts`, through a new index on its `request_id`.
 - **The live check** with the owner's decision model and chat model on his local machine, and his hosted models (P14-08).

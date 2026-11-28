@@ -105,6 +105,8 @@ Since P8-06 there is the check `wiki jobs`, which makes 28, in `tools/verify/wik
 
 Since P11-02, `go run ./tools/tenant usage <tenant-id> [<month> | <first day> <last day> | this_month | last_month | last_7_days | last_30_days]` prints the usage report: by model, by kind of work and by chat, the split by class, the month against the cap and the memory pass's reserve. It calls `usagereport.Read`, the function behind `GET /api/v1/usage`, so it prints what Settings → Usage shows ([usage-report.md](usage-report.md)).
 
+Since P14-07, when the period has anything on Auto, it prints one more paragraph after the reserve: the replies on Auto, their calls and cost, the router's decisions, what the same tokens would have cost at the ladder's top step, and how often a stronger model was asked for ([auto-in-usage.md](auto-in-usage.md)).
+
 `go run ./tools/tenant setting set | clear | list <tenant-id> [key] [value]` stores, clears and lists a tenant's own values for settings (since P3-08). It is how the cap, the fallback chain and a default model are set until the settings screens exist (P11-01). A value is stored as the role the setting's scope asks for, and an install setting and a fixed rule are refused, as `internal/tenantsettings` refuses them ([tenant-settings.md](tenant-settings.md)).
 
 Since P15-01, admin accounts are made with their own command, `tools/admin`, and kept in `data/admin/admin.db`, apart from people (`tools/tenant admin`, the first pass's mark, is gone):
