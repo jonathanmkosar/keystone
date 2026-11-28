@@ -1,6 +1,6 @@
 # P15-06. Encryption at rest
 
-Status: doing (core)
+Status: done
 Lane: core
 Depends on: P2-01, P2-03
 Owner gate: None.
@@ -23,3 +23,7 @@ Branch `core/p15-06-encryption-at-rest`, cut from `reboot`.
 - **Settings** in `settings/core.json`: `encryption.at_rest` (bool, true, install) and `encryption.lock_wait` (duration, 30s, install).
 - **Proof.** Tests in `internal/atrest` and `internal/tenant`: every file in a sealed person's folder, read from disk, holds no marker word and no SQLite header; the folder copied into another person's, or opened with another master key, does not open; a first start cut at each step resumes and never opens a half-done person; a torn journal block reads as SQLite expects. A standing check, `encryption at rest`, runs the real packages (chat, uploads, artifacts, project files, memory) on a sealed install and scans the folder. The load test runs with encryption on, and `verify` passes.
 - **Left out.** Rotating a data key; sealing the agent's browser profile while its browser runs (it is removed at close); turning a sealed install back to plain.
+
+## Result
+
+Built as planned, November 27, 2026; see `docs/architecture/encryption.md`, decisions 0660 to 0664 and the journal `docs/journal/2026-11-27-core-017.md`. Changes from the plan: a third setting, `encryption.backup_folder` (where the backups made before sealing go); the VFS keeps one handle on each file for the whole process, owned by the hold that locks out other processes, because Windows took about a millisecond per open and the driver closes the journal after every transaction (streaming a reply went from 0.9 to 3.3 s to about 0.5 s, against 16 ms plain and a budget of 1 s); a plain backup restored into a sealing install is sealed at the server's next start, not by the restore; and `go run ./tools/tenant encryption status | passphrase` reports and reads a pre-sealing backup's passphrase. The proof passes: every file of a sealed person read from disk holds no marker word, no plain database header and no plain name; a folder copied into another person's, or opened under another master key, does not open; a sealing stopped at each step resumes and never opens a half-done person; the load test and `verify` (48 of 48, with the new check `encryption at rest`) pass with encryption on.

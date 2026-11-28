@@ -59,6 +59,20 @@ A restore refuses a person who is already on the install, and says so. To go bac
 
 If anything fails, the person is left as they were.
 
+## The backups made before encryption
+
+The first time the server starts with encryption at rest on (`encryption.at_rest`, on by default), it encrypts each person who is still plain, and writes a backup of each just before, to `data/backups/before-encryption/` (the `encryption.backup_folder` setting). Each backup has a `.key` file beside it holding its passphrase, wrapped by this install's master key: only this install, on this machine, under this Windows account, can read it.
+
+To bring a person back as they were before they were encrypted, with the server stopped:
+
+```
+go run ./tools/tenant encryption passphrase data/backups/before-encryption/<file>.keystone-backup | go run ./tools/tenant restore --replace data/backups/before-encryption/<file>.keystone-backup
+```
+
+They come back plain. With `encryption.at_rest` still on, the next start encrypts them again, with a new backup; switch it off first to keep them plain.
+
+These backups hold everything the person had. Once the encrypted install has worked for a while, a week of use, delete the folder. `go run ./tools/tenant encryption status` shows who is encrypted.
+
 ## When it says no
 
 | Message | What to do |

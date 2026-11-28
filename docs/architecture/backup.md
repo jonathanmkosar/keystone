@@ -43,6 +43,8 @@ The contents are a gzip-compressed tar. An entry is a regular file or a folder, 
 
 `Install.Backup(id, w, passphrase, options)` writes it and returns a `BackupInfo`: the tenant, when it was made, how many files and bytes, and how many secrets. It never names a secret. `BackupOptions` carries the rounds and the shortest passphrase, which the command reads from the settings: `internal/tenant` guards tenant isolation and reads no setting.
 
+Since P15-06, a sealed person's backup holds their bytes as they are on disk: the snapshot is written through the VFS under the same keys, and `seal.json` and the sealed files are copied as they are. A restore opens the folder with the keys from its own secrets file, under this install's keeper, before it is put in place, so the person comes back sealed; a plain backup restores plain and is sealed at the server's next start. The server also writes a backup of each person just before it seals them for the first time, under a random passphrase kept beside it wrapped by the install master key ([encryption.md](encryption.md), decisions [0663](decisions/0663-an-existing-install-is-sealed-at-start-one-person-at-a-time.md) and [0664](decisions/0664-a-sealed-persons-backup-carries-the-sealed-bytes.md)).
+
 ## Restore
 
 `Install.Restore(file, passphrase, options)` is all or nothing (decision 0262).
