@@ -120,7 +120,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<Start person={session.person} />} />
           <Route path="/signin" element={<Navigate to="/" replace />} />
-          <Route path="/search" element={<Soon title="Search" />} />
+          <Route path="/search" element={<Navigate to="/chats" replace state={{ find: true }} />} />
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:id" element={<ChatPage />} />
           <Route path="/projects" element={<Projects />} />

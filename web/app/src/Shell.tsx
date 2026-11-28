@@ -11,9 +11,9 @@ import { IncognitoButton } from "./Incognito";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
 
+// Search and Chats are not rows: the magnifier in the sidebar's head opens the
+// chats screen with its search box ready (the owner, November 27, 2026).
 const places: { to: string; label: string; icon: IconName }[] = [
-  { to: "/search", label: "Search", icon: "search" },
-  { to: "/chats", label: "Chats", icon: "chats" },
   { to: "/projects", label: "Projects", icon: "projects" },
   { to: "/artifacts", label: "Artifacts", icon: "artifacts" },
   { to: "/agents", label: "Agents", icon: "agents" },
@@ -33,6 +33,7 @@ function titleFor(path: string): string {
   if (path === "/") return "New chat";
   if (path === "/settings" || path.startsWith("/settings/")) return "Settings";
   if (path.startsWith("/projects/")) return "Projects";
+  if (path === "/chats") return "Chats";
   const place = places.find((p) => p.to === path);
   return place ? place.label : "Keystone";
 }
@@ -91,9 +92,14 @@ export function Shell({
             <Mark size={30} />
             <span className="wordmark">Keystone</span>
           </Link>
-          <button type="button" className="icon-button" aria-label="Close sidebar" onClick={toggle}>
-            <Icon name="sidebar" />
-          </button>
+          <div className="sidebar-head-end">
+            <Link to="/chats" state={{ find: true }} className="icon-button search-button" aria-label="Search chats" title="Search chats">
+              <Icon name="search" />
+            </Link>
+            <button type="button" className="icon-button" aria-label="Close sidebar" onClick={toggle}>
+              <Icon name="sidebar" />
+            </button>
+          </div>
         </div>
         <Link to="/" className="new-chat">
           <span className="new-chat-plus">

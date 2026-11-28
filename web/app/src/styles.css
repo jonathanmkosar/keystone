@@ -189,6 +189,23 @@ a {
   padding: 4px 6px;
 }
 
+.sidebar-head-end {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* On a phone the magnifier is a round button, as in the phone's own apps. */
+@media (max-width: 760px) {
+  .sidebar-head .search-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--raised);
+    color: var(--ink);
+  }
+}
+
 .new-chat {
   display: flex;
   align-items: center;

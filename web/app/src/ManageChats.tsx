@@ -10,7 +10,7 @@
 // screen that can be seen, which the keyboard moves and CSS cannot tell.
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ApiError } from "./api";
 import { useChats } from "./chats";
 import { Icon } from "./Icon";
@@ -310,6 +310,12 @@ export function Chats() {
   const [again, setAgain] = useState(0);
   const turn = useRef(0);
   const end = useRef<HTMLDivElement>(null);
+  // The sidebar's magnifier comes here to search: the box is ready to type in.
+  const find = (useLocation().state as { find?: boolean } | null)?.find === true;
+  const box = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (find) box.current?.focus();
+  }, [find]);
 
   const failed = useCallback(
     (e: unknown, words: string) => {
@@ -507,7 +513,7 @@ export function Chats() {
           <label className="offscreen" htmlFor="manage-search">
             Search the titles and messages of your chats
           </label>
-          <input id="manage-search" type="search" className="manage-search" placeholder="Search titles and messages" value={typed} autoComplete="off" enterKeyHint="search" onChange={(e) => setTyped(e.target.value)} />
+          <input ref={box} id="manage-search" type="search" className="manage-search" placeholder="Search titles and messages" value={typed} autoComplete="off" enterKeyHint="search" onChange={(e) => setTyped(e.target.value)} />
           {typed && (
             <button type="button" className="manage-search-clear" aria-label="Clear the search" title="Clear" onClick={() => setTyped("")}>
               <Icon name="close" size={14} />

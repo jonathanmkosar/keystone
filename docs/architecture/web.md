@@ -46,13 +46,14 @@ Addresses are real paths (decision [0071](decisions/0071-client-side-routes-are-
 | `/chats` | Every chat as a table, with search, filters, sorting, and select and delete (P4-06): see "The Chats screen" below. |
 | `/chats/<id>` | One chat. |
 | `/signin` | Goes to `/` when signed in. Signed out, every path shows sign-in and keeps its address. |
-| `/search`, `/projects`, `/artifacts`, `/agents`, `/scheduled` | A placeholder saying the screen is not built yet. |
+| `/search` | Goes to `/chats` with its search box ready, as the sidebar's magnifier does. |
+| `/agents` | A placeholder saying the screen is not built yet. |
 | `/operations` | Operations and Monitor (P11-03): see its section below. |
 | anything else | Page not found, with a link back to the start. |
 
 ### The frame
 
-Laid out as in `MainDark.html` and `MainLight.html`. The sidebar is 272 pixels wide and holds the mark and wordmark, a button to close it, New chat, the six places, the starred chats, the thirty most recent of the others with a link to the rest, and the signed-in person with a sign-out button. The theme switch left the sidebar at the owner's word (November 27, 2026): it is under Settings, General, and on the sign-in screen. The main area has a header with the screen's title, and the content below it. On a chat the title is a button that opens the chat's menu.
+Laid out as in `MainDark.html` and `MainLight.html`. The sidebar is 272 pixels wide and holds the mark and wordmark, a magnifier and a button to close it, New chat, the six places, the starred chats, the thirty most recent of the others with a link to the rest, and the signed-in person with a sign-out button. The theme switch left the sidebar at the owner's word (November 27, 2026): it is under Settings, General, and on the sign-in screen. Search and Chats are not rows either, also at his word: the magnifier in the sidebar's head opens the Chats screen with the cursor in its search box, and on a phone it is a round button (`.search-button` in `styles.css`). The main area has a header with the screen's title, and the content below it. On a chat the title is a button that opens the chat's menu.
 
 Below 760 pixels wide the sidebar becomes a drawer over the page, opened from the header and closed by its own button, by the dimmed area beside it, or by moving to another screen.
 
