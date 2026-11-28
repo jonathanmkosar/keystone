@@ -265,6 +265,14 @@ func sensitiveProblems(g *knowledgeRig, e *ears) ([]string, error) {
 		} else if marker(call, markers) == "" {
 			say("%s: the test tenant's local model asked about the sensitive space was given none of it, so the check proves nothing", store)
 		}
+		// Auto in the turn (P14-04): the chat just held, on Auto (autoturn.go).
+		more, err := autoHeldProblems(g, testToken, t.chatID)
+		if err != nil {
+			return nil, err
+		}
+		for _, p := range more {
+			say("%s: %s", store, p)
+		}
 
 		// 2. Recall to the hosted model.
 		if err := g.set(person.ID, turn.KeyFallbackModels, ""); err != nil {

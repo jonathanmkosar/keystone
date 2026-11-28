@@ -42,18 +42,23 @@ type row struct {
 	// media is what the turn's images decide about its route (P9-02,
 	// uploads.go).
 	media *turnMedia
+	// route is how the turn was routed, once it has been, and strongerOf
+	// the turn it writes again one step up (P14-04, auto.go).
+	route      *turnRoute
+	strongerOf string
 }
 
 const turnColumns = `id, chat_id, status, request_id, actor, input, model, user_message_id,
 	reply_message_id, stop_reason, error, usage, cost_micros, stop_requested, last_event,
-	created_at, started_at, ended_at`
+	created_at, started_at, ended_at, ` + routeColumns
 
 func scanTurn(sc interface{ Scan(...any) error }) (row, error) {
 	var t row
 	var input, failure, usage, created, started, ended string
-	err := sc.Scan(&t.ID, &t.ChatID, &t.Status, &t.requestID, &t.actor, &input, &t.Model, &t.UserMessageID,
+	var rc routeCells // P14-04 (auto.go)
+	err := sc.Scan(append([]any{&t.ID, &t.ChatID, &t.Status, &t.requestID, &t.actor, &input, &t.Model, &t.UserMessageID,
 		&t.ReplyMessageID, &t.StopReason, &failure, &usage, &t.CostMicros, &t.stopAsked, &t.LastEventID,
-		&created, &started, &ended)
+		&created, &started, &ended}, rc.targets()...)...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return row{}, errNoTurn
 	}
@@ -88,6 +93,7 @@ func scanTurn(sc interface{ Scan(...any) error }) (row, error) {
 		}
 		*x.into = &at
 	}
+	t.Route, t.strongerOf = rc.route(t.Model), rc.strongerOf // P14-04 (auto.go)
 	return t, nil
 }
 
@@ -182,6 +188,12 @@ var errQueueFull = errors.New("the chat's queue is full")
 // enqueue writes a new turn, waiting, with its first event. queueMax is
 // the most turns that may wait behind the one that runs.
 func enqueue(ctx context.Context, s *tenant.Store, chatID, requestID, actor string, body SendBody, queueMax int) (row, error) {
+	return enqueueStronger(ctx, s, chatID, requestID, actor, body, queueMax, "")
+}
+
+// enqueueStronger is enqueue for a turn that writes the turn strongerOf
+// again one step up (P14-04, auto.go), or for any turn when it is empty.
+func enqueueStronger(ctx context.Context, s *tenant.Store, chatID, requestID, actor string, body SendBody, queueMax int, strongerOf string) (row, error) {
 	id, err := newID()
 	if err != nil {
 		return row{}, err
@@ -199,8 +211,8 @@ func enqueue(ctx context.Context, s *tenant.Store, chatID, requestID, actor stri
 		if open > queueMax {
 			return errQueueFull
 		}
-		if _, err := tx.Exec("INSERT INTO turns(id, chat_id, status, request_id, actor, input, created_at) VALUES(?, ?, 'queued', ?, ?, ?, ?)",
-			id, chatID, requestID, actor, string(input), stamp()); err != nil {
+		if _, err := tx.Exec("INSERT INTO turns(id, chat_id, status, request_id, actor, input, created_at, stronger_of) VALUES(?, ?, 'queued', ?, ?, ?, ?, ?)",
+			id, chatID, requestID, actor, string(input), stamp(), strongerOf); err != nil {
 			return err
 		}
 		out, err = emitTurn(tx, id, EventTurn)
@@ -332,6 +344,7 @@ type meta struct {
 	usage      *seam.Usage
 	costMicros int64
 	location   *SentLocation // the person's message was sent with it (P10-06, location.go)
+	route      *TurnRoute    // how an assistant message's turn on Auto was routed (P14-04, auto.go)
 }
 
 // noteMessage records that a turn wrote a message.
@@ -376,6 +389,9 @@ func metaOf(ctx context.Context, s *tenant.Store, chatID string) (map[int64]meta
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+	if err := withRoutes(ctx, s, chatID, out); err != nil { // P14-04: how each reply's turn on Auto was routed (auto.go)
+		return nil, err
+	}
 	return out, withLocations(ctx, s, chatID, out) // P10-06: the locations the person's messages were sent with
 }
 
@@ -385,6 +401,6 @@ func withMeta(m chat.Message, x meta) Message {
 		ID: m.ID, ChatID: m.ChatID, ParentID: m.ParentID, Role: m.Role, Blocks: m.Blocks,
 		Created: m.Created, Siblings: m.Siblings,
 		TurnID: x.turnID, Model: x.model, StopReason: x.stopReason, Usage: x.usage, CostMicros: x.costMicros,
-		Location: x.location,
+		Location: x.location, Route: x.route,
 	}
 }

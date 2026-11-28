@@ -125,6 +125,9 @@ type InspectReply struct {
 	// line each of its calls carried before the person's words (P10-06).
 	// Absent when the message carried none.
 	Location *SentLocation `json:"location,omitempty"`
+	// Verdict is the router's record of how the turn on Auto was routed
+	// (P14-04, auto.go). Absent on a turn that was not on Auto.
+	Verdict *Verdict `json:"verdict,omitempty"`
 }
 
 // SkipsReply answers the skip routes: what the chat's next turn leaves out.
@@ -216,6 +219,9 @@ func (r *Runner) inspection(ctx context.Context, s *tenant.Store, t row) (Inspec
 		if reply.Location, err = locationOf(ctx, s, t.UserMessageID); err != nil { // P10-06 (location.go)
 			return InspectReply{}, err
 		}
+	}
+	if reply.Verdict, err = turnVerdict(ctx, s, t); err != nil { // P14-04 (auto.go)
+		return InspectReply{}, err
 	}
 	return reply, nil
 }

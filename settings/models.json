@@ -416,6 +416,15 @@
       "description": "Descriptions of steps of the ladder for the decision model, as name=words, separated by semicolons. A step with no note is described by its label and its place on the ladder."
     },
     {
+      "key": "router.auto_default",
+      "title": "New chats start on Auto",
+      "summary": "A new chat lets the router choose the model for each message.",
+      "type": "bool",
+      "default": "true",
+      "scope": "tenant-admin",
+      "description": "Whether a chat made from now on starts on Auto, where the router chooses the model and the effort for each message from the ladder. It has no effect while the ladder is empty: a chat then uses the model picked. Chats that already exist keep what they are on."
+    },
+    {
       "key": "router.min_confidence",
       "title": "Auto's confidence level",
       "summary": "A verdict less sure than this moves up one step.",
