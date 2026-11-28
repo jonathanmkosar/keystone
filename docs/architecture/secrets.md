@@ -12,6 +12,8 @@ So a copy of the data folder alone cannot be read. It takes the data folder and 
 
 Both the wrap and the encryption are bound to the tenant id. A `secrets.bin` copied from one tenant's folder to another's is refused, and so is a wrapped key moved between files.
 
+**The install vault** (P7-06, decision [0680](decisions/0680-install-search-providers-have-their-own-database-and-vault-in-data-admin.md)) holds what belongs to the install and to no one person: the keys of the search providers the admin sets for everyone, as `search.<name>`. It is the same kind of file, `data/admin/secrets.bin`, its data key wrapped under the same install master key, and both bound to the id `install` (`secrets.InstallID`, `secrets.OpenInstall` in `internal/secrets/install.go`), which no tenant can have, so a person's file in `data/admin/` and the install's in a person's folder are refused. `tenant.Install.InstallVault()` returns it (`internal/tenant/admin_folder.go`). Nothing returns an install key: not to a person, and not to the admin once it is written. A person's backup does not hold it.
+
 ## The file
 
 `secrets.bin` is a four-byte magic, the length of the wrapped data key as two bytes, the wrapped data key, and then the encrypted secrets. Each write goes to a temporary file beside it and is renamed into place, so a crash never leaves half a file. A file that cannot be opened is an error and is left as it is: Keystone never replaces a file it could not read.

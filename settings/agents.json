@@ -318,6 +318,106 @@
       "description": "The most redirects web_fetch follows for one page. Each one is checked like the first address: only public addresses are read."
     },
     {
+      "key": "web.strategy",
+      "title": "Search provider order",
+      "summary": "How a search picks among the providers that are ready.",
+      "type": "string",
+      "default": "free_first",
+      "options": ["free_first", "order", "weighted"],
+      "scope": "install",
+      "description": "How a web search orders the search providers that are ready, within the person's own and then within the install's (a person's own always come first). free_first tries those with free quota left first, keeping their order, then the rest in order; order keeps the order set; weighted spreads searches by each provider's share of quota left, and uses a provider with no quota at all, such as a SearXNG, only after the others."
+    },
+    {
+      "key": "web.max_attempts",
+      "title": "Search providers tried",
+      "summary": "The most providers one search tries before it gives up.",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "The most search providers one web search tries. It moves on from one that is out of quota, rate limited, unavailable or refusing its key, and stops at a request a provider calls malformed."
+    },
+    {
+      "key": "web.quota_reserve",
+      "title": "Search quota reserve",
+      "summary": "Searches left at which a provider counts as out of quota.",
+      "type": "int",
+      "default": "0",
+      "scope": "install",
+      "description": "When what is left of a search provider's quota, as it reports or as Keystone counts, is at most this many searches, the provider is taken out of the rotation until its quota resets or a soft test finds quota again."
+    },
+    {
+      "key": "web.cooling_for",
+      "title": "Rate limit rest",
+      "summary": "How long a rate-limited provider rests when it gives no wait.",
+      "type": "duration",
+      "default": "60s",
+      "scope": "install",
+      "description": "How long a search provider that answered with a rate limit is left out of the rotation when it did not say how long to wait."
+    },
+    {
+      "key": "web.cooling_max",
+      "title": "Longest rate limit rest",
+      "summary": "A longer wait than this counts as out of quota.",
+      "type": "duration",
+      "default": "10m",
+      "scope": "install",
+      "description": "A rate limit whose wait is shorter than this cools a search provider for that wait. A longer wait is taken as a spent quota: the provider is out until the wait has passed."
+    },
+    {
+      "key": "web.fail_after",
+      "title": "Search failures before failing",
+      "summary": "Failures in a row that take a provider out of rotation.",
+      "type": "int",
+      "default": "3",
+      "scope": "install",
+      "description": "How many failures in a row of a search provider's own (unavailable, timed out, a server error) take it out of the rotation as failing, until a soft test succeeds."
+    },
+    {
+      "key": "web.fail_cooldown",
+      "title": "Failing provider rest",
+      "summary": "How long a failing provider rests before its first test.",
+      "type": "duration",
+      "default": "15m",
+      "scope": "install",
+      "description": "How long a failing search provider is left alone before its first soft test. Each failed test doubles the wait, up to the longest soft test wait."
+    },
+    {
+      "key": "web.test_first",
+      "title": "First soft test",
+      "summary": "How long after going out a provider is first tested.",
+      "type": "duration",
+      "default": "30m",
+      "scope": "install",
+      "description": "How long after a search provider ran out of quota its first soft test runs: its free check, such as Tavily's usage check, or else one real search sent to it first, alone. Each failed test doubles the wait."
+    },
+    {
+      "key": "web.test_max",
+      "title": "Longest soft test wait",
+      "summary": "The longest wait between soft tests, which double after each failure.",
+      "type": "duration",
+      "default": "24h",
+      "scope": "install",
+      "description": "The longest wait between two soft tests of a search provider that is out of quota or failing. The wait doubles after each failed test until it reaches this."
+    },
+    {
+      "key": "web.test_tick",
+      "title": "Soft test sweep",
+      "summary": "How often the free quota checks that are due are run.",
+      "type": "duration",
+      "default": "5m",
+      "scope": "install",
+      "description": "How often Keystone runs the free checks that are due, of every search provider that is out of quota or failing and has one, such as Tavily's usage check."
+    },
+    {
+      "key": "web.unknown_weight",
+      "title": "Unknown quota weight",
+      "summary": "How much an unknown quota counts when spreading searches.",
+      "type": "float",
+      "default": "0.5",
+      "scope": "install",
+      "description": "With the weighted strategy, a search provider whose quota left is not known counts as this share of a full quota, from 0 to 1."
+    },
+    {
       "key": "agents.browser_use",
       "title": "Browser use",
       "summary": "Let the agent use a browser of its own, with none of your sign-ins.",

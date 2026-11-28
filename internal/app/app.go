@@ -389,6 +389,10 @@ func Handler(c Config) (http.Handler, error) {
 	// Then every person's limits are recorded now and every
 	// operations.snapshot_every, for Operations' trends (P11-03).
 	operations.Start(c.runner, c.Install, c.Operations, log, c.Clock)
+	// Then each person's provider.tavily becomes their first own search
+	// provider, and search providers out of the rotation are soft-tested
+	// now and every web.test_tick (P7-06).
+	web.StartSweep(c.runner, c.Install, c.Web, log.Printf)
 	return api.Handler(api.Options{
 		Install:      c.Install,
 		Log:          log,
