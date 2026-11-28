@@ -287,7 +287,7 @@ func TestTheProfileIsFreshAndInsideThePersonsFolderAndGoesWhenIdle(t *testing.T)
 		t.Error("what an earlier browser left in the profile is still there")
 	}
 	deadline := time.Now().Add(3 * time.Second)
-	for g.fake.Open() != 0 && time.Now().Before(deadline) {
+	for (g.fake.Open() != 0 || g.pool.Running() != 0) && time.Now().Before(deadline) {
 		time.Sleep(20 * time.Millisecond)
 	}
 	if g.fake.Open() != 0 || g.pool.Running() != 0 {

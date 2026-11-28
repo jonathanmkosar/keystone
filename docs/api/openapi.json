@@ -2727,7 +2727,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Make a chat with no title and no messages. It takes no body."
+        "summary": "Make a chat with no title and no messages. It takes no body. It starts on Auto when router.auto_default says so, or when the admin keeps the person on Auto."
       }
     },
     "/api/v1/chats/delete": {
@@ -12419,7 +12419,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn."
+        "summary": "Send a message and stream the reply. The turn's id is in the X-Turn-Id header and in the first event. A turn sent while another runs in the chat waits its turn. A message that names a model is refused with 403 auto_required while the admin keeps the person on Auto, and 403 model_not_allowed for a model they may not pick by hand; nothing is queued."
       }
     },
     "/api/v1/chats/{id}/turns/{turn}": {

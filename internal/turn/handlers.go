@@ -126,6 +126,10 @@ func (r *Runner) create(w http.ResponseWriter, req *http.Request, c api.Call) {
 		r.answer(w, req, c, err)
 		return
 	}
+	if err := r.autoIfRequired(req.Context(), c.Store, made.ID); err != nil { // P14-05: on Auto when it is required (policy.go)
+		r.answer(w, req, c, err)
+		return
+	}
 	reply, err := r.whole(req.Context(), c.Store, made)
 	if err != nil {
 		r.answer(w, req, c, err)
@@ -333,6 +337,9 @@ func (r *Runner) send(w http.ResponseWriter, req *http.Request, c api.Call) {
 	}
 	if err := r.checkLocation(req.Context(), c.Store, &body); err != nil { // P10-06: rounded here, before it is written (location.go)
 		r.answer(w, req, c, err)
+		return
+	}
+	if !r.refusePick(w, req, c, body) { // P14-05: 403 model_not_allowed or auto_required (policy.go)
 		return
 	}
 	if r.o.Install == nil {
