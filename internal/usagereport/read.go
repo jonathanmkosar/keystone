@@ -79,6 +79,9 @@ type Report struct {
 	Breakdowns
 	Cap     Cap     `json:"cap"`
 	Reserve Reserve `json:"memory_reserve"`
+	// Auto is the period's use of Auto, from the same records and the
+	// router's verdicts (P14-07, auto.go).
+	Auto Auto `json:"auto"`
 }
 
 // Config is the report's own settings, as they stand for one tenant.
@@ -151,6 +154,9 @@ func Read(ctx context.Context, s *tenant.Store, reg []settings.Setting, a Ask, n
 	}
 	out := Report{Period: p, Breakdowns: b}
 	if out.Cap, out.Reserve, err = Standing(ctx, s, reg, month); err != nil {
+		return Report{}, err
+	}
+	if out.Auto, err = ReadAuto(ctx, s, reg, recs, p); err != nil {
 		return Report{}, err
 	}
 	return out, nil

@@ -27104,6 +27104,329 @@
                       ],
                       "type": "object"
                     },
+                    "auto": {
+                      "properties": {
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "decisions": {
+                          "properties": {
+                            "Total": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "hosted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "local": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "trusted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "Total",
+                            "local",
+                            "hosted",
+                            "trusted"
+                          ],
+                          "type": "object"
+                        },
+                        "replies": {
+                          "properties": {
+                            "Total": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "hosted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "local": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "trusted": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "Total",
+                            "local",
+                            "hosted",
+                            "trusted"
+                          ],
+                          "type": "object"
+                        },
+                        "rewrites": {
+                          "type": "integer"
+                        },
+                        "saved_micros": {
+                          "type": "integer"
+                        },
+                        "stronger_asked": {
+                          "type": "integer"
+                        },
+                        "top_step": {
+                          "properties": {
+                            "class": {
+                              "type": "string"
+                            },
+                            "cost_micros": {
+                              "type": "integer"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "problem": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "cost_micros"
+                          ],
+                          "type": "object"
+                        },
+                        "turns": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "turns",
+                        "stronger_asked",
+                        "rewrites",
+                        "replies",
+                        "decisions",
+                        "cost_micros",
+                        "top_step",
+                        "saved_micros"
+                      ],
+                      "type": "object"
+                    },
                     "cap": {
                       "properties": {
                         "left_micros": {
@@ -27195,7 +27518,8 @@
                     "period",
                     "Breakdowns",
                     "cap",
-                    "memory_reserve"
+                    "memory_reserve",
+                    "auto"
                   ],
                   "type": "object"
                 }

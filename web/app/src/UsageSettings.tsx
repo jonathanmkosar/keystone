@@ -9,6 +9,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router";
 import { ApiError } from "./api";
 import { Icon } from "./Icon";
+import { AutoCard, hasAuto } from "./UsageAuto";
 import { readUsage, type Tally, type UsageAsk, type UsageCap, type UsageReport, type UsageReserve, type UsageRow, type UsageSum } from "./usageCalls";
 import "./usage.css";
 
@@ -415,6 +416,7 @@ export function UsageSettings({ onSignedOut }: { onSignedOut: () => void }) {
           {periodWords(p.from, p.to)}
         </p>
         <Totals report={report} />
+        {hasAuto(report.auto) && <AutoCard auto={report.auto} when={p.name === "this_month" ? "this month" : "in this period"} />}
         {report.total.calls === 0 && <p className="quiet">No model calls in this period.</p>}
       </section>
 
