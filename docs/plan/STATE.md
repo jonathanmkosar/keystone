@@ -26,6 +26,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | P15-01 the admin account (rework) | core | `core/p15-01-admin-account` |
 | P15-06 encryption at rest | core | `core/p15-06-encryption-at-rest` |
 | P7-06 search providers and the fallback | agents | `agents/p7-06-search-fallback` |
+| P14-04 Auto in the turn | chats + interface | `chats/p14-04-auto-in-the-turn` |
 
 ## Waiting on the owner
 
