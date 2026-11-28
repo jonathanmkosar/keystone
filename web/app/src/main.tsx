@@ -11,12 +11,14 @@ import { App } from "./App";
 import { isSharedPath, SharedPage } from "./Shared";
 // The admin account's pages are drawn in place of the person's app (P15-01).
 import { AdminApp, isAdminPath } from "./AdminApp";
+// A new person's setup page, with the code an admin gave them (P15-02).
+import { isSetupPath, SetupPage } from "./SetupPage";
 
 const path = window.location.pathname;
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      {isSharedPath(path) ? <SharedPage /> : isAdminPath(path) ? <AdminApp /> : <App />}
+      {isSharedPath(path) ? <SharedPage /> : isAdminPath(path) ? <AdminApp /> : isSetupPath(path) ? <SetupPage /> : <App />}
     </BrowserRouter>
   </StrictMode>,
 );

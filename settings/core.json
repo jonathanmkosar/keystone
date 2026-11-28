@@ -29,6 +29,15 @@
       "description": "How long an admin account's session may go without a call before it ends, however long it had left (P15-01, decision 0652)."
     },
     {
+      "key": "admin.setup_code_for",
+      "title": "Setup code life",
+      "summary": "How long a new person's setup code works.",
+      "type": "duration",
+      "default": "24h",
+      "scope": "install",
+      "description": "How long a one-time setup code an admin makes works, for a new person or one who needs a new password, before it expires. It works once either way (P15-02, decision 0703)."
+    },
+    {
       "key": "server.secure_cookie",
       "title": "HTTPS-only cookie",
       "summary": "Marks the sign-in cookie for HTTPS only.",

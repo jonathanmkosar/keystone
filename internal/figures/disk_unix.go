@@ -1,12 +1,12 @@
 //go:build linux || darwin || freebsd
 
-package operations
+package figures
 
 import "syscall"
 
-// volume returns the size of the volume that holds dir, and the bytes on it
+// Volume returns the size of the volume that holds dir, and the bytes on it
 // an ordinary process may still write, from statfs.
-func volume(dir string) (total, free uint64, err error) {
+func Volume(dir string) (total, free uint64, err error) {
 	var st syscall.Statfs_t
 	if err := syscall.Statfs(dir, &st); err != nil {
 		return 0, 0, err

@@ -101,6 +101,7 @@ export function SignIn({
       else if (err instanceof ApiError && err.kind === "wait")
         setMessage("Too many wrong passwords. Wait a minute, then try again.");
       else if (err instanceof ApiError && err.kind === "not-ready") onNotReady(err.status);
+      else if (err instanceof ApiError && err.code === "disabled") setMessage("This account is disabled. Ask the admin to enable it.");
       else setMessage("Sign-in did not work. Try again.");
       setPassword("");
     } finally {

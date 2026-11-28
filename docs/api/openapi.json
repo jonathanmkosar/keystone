@@ -41,6 +41,352 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/install": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Use": {
+                      "properties": {
+                        "days": {
+                          "items": {
+                            "properties": {
+                              "Total": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "capped_micros": {
+                                    "type": "integer"
+                                  },
+                                  "errors": {
+                                    "type": "integer"
+                                  },
+                                  "refusals": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "capped_micros",
+                                  "errors",
+                                  "refusals"
+                                ],
+                                "type": "object"
+                              },
+                              "day": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "day",
+                              "Total"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "Total": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "capped_micros": {
+                                    "type": "integer"
+                                  },
+                                  "errors": {
+                                    "type": "integer"
+                                  },
+                                  "refusals": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "capped_micros",
+                                  "errors",
+                                  "refusals"
+                                ],
+                                "type": "object"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "model",
+                              "class",
+                              "Total"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "total": {
+                          "properties": {
+                            "Total": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "capped_micros": {
+                              "type": "integer"
+                            },
+                            "errors": {
+                              "type": "integer"
+                            },
+                            "refusals": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "Total",
+                            "capped_micros",
+                            "errors",
+                            "refusals"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "days",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "at": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "cap_micros": {
+                      "type": "integer"
+                    },
+                    "disk": {
+                      "properties": {
+                        "crossed": {
+                          "type": "boolean"
+                        },
+                        "of": {
+                          "type": "integer"
+                        },
+                        "percent": {
+                          "type": "integer"
+                        },
+                        "problem": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string"
+                        },
+                        "used": {
+                          "type": "integer"
+                        },
+                        "watch": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "used",
+                        "of",
+                        "percent",
+                        "watch",
+                        "state",
+                        "crossed"
+                      ],
+                      "type": "object"
+                    },
+                    "failures": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "people": {
+                      "properties": {
+                        "disabled": {
+                          "type": "integer"
+                        },
+                        "enabled": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "waiting": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "enabled",
+                        "disabled",
+                        "waiting"
+                      ],
+                      "type": "object"
+                    },
+                    "period": {
+                      "properties": {
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "to"
+                      ],
+                      "type": "object"
+                    },
+                    "sampler": {
+                      "properties": {
+                        "every": {
+                          "type": "string"
+                        },
+                        "newest": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "every"
+                      ],
+                      "type": "object"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "at",
+                    "period",
+                    "Use",
+                    "failures",
+                    "cap_micros",
+                    "disk",
+                    "people",
+                    "version",
+                    "sampler"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "The whole install this month: everyone's calls and spend by model and by day (the sum of each person's), failures by kind, the disk, the people, the version and the sampler's state. Each person's audit log records the read.",
+        "x-keystone-admin": true
+      }
+    },
     "/api/v1/admin/passkeys": {
       "get": {
         "responses": {
@@ -351,6 +697,122 @@
                     "people": {
                       "items": {
                         "properties": {
+                          "Numbers": {
+                            "properties": {
+                              "crossed": {
+                                "items": {
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              "disabled_at": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "has_password": {
+                                "type": "boolean"
+                              },
+                              "jobs": {
+                                "properties": {
+                                  "failed": {
+                                    "type": "integer"
+                                  },
+                                  "stuck": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "failed",
+                                  "stuck"
+                                ],
+                                "type": "object"
+                              },
+                              "models": {
+                                "additionalProperties": {
+                                  "type": "integer"
+                                },
+                                "type": "object"
+                              },
+                              "schedules": {
+                                "type": "integer"
+                              },
+                              "setup_until": {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              "spend": {
+                                "properties": {
+                                  "left_micros": {
+                                    "type": "integer"
+                                  },
+                                  "limit_micros": {
+                                    "type": "integer"
+                                  },
+                                  "month": {
+                                    "type": "string"
+                                  },
+                                  "problem": {
+                                    "type": "string"
+                                  },
+                                  "spent_micros": {
+                                    "type": "integer"
+                                  },
+                                  "state": {
+                                    "type": "string"
+                                  },
+                                  "warn_at_micros": {
+                                    "type": "integer"
+                                  },
+                                  "warn_percent": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "month",
+                                  "spent_micros",
+                                  "limit_micros",
+                                  "warn_percent",
+                                  "warn_at_micros",
+                                  "left_micros",
+                                  "state"
+                                ],
+                                "type": "object"
+                              },
+                              "storage": {
+                                "properties": {
+                                  "artifacts": {
+                                    "type": "integer"
+                                  },
+                                  "database": {
+                                    "type": "integer"
+                                  },
+                                  "files": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "database",
+                                  "files",
+                                  "artifacts"
+                                ],
+                                "type": "object"
+                              }
+                            },
+                            "required": [
+                              "enabled",
+                              "has_password",
+                              "spend",
+                              "storage",
+                              "jobs",
+                              "schedules",
+                              "models",
+                              "crossed"
+                            ],
+                            "type": "object"
+                          },
                           "added": {
                             "format": "date-time",
                             "type": "string"
@@ -369,7 +831,8 @@
                         "required": [
                           "id",
                           "name",
-                          "added"
+                          "added",
+                          "Numbers"
                         ],
                         "type": "object"
                       },
@@ -402,6 +865,1169 @@
           }
         ],
         "summary": "Every person on the install: id, name, when added and last sign-in. Never a chat, a title, a file or an error's words. Each person's own audit log records the read.",
+        "x-keystone-admin": true
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "properties": {
+                        "Numbers": {
+                          "properties": {
+                            "crossed": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "disabled_at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "has_password": {
+                              "type": "boolean"
+                            },
+                            "jobs": {
+                              "properties": {
+                                "failed": {
+                                  "type": "integer"
+                                },
+                                "stuck": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "failed",
+                                "stuck"
+                              ],
+                              "type": "object"
+                            },
+                            "models": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "schedules": {
+                              "type": "integer"
+                            },
+                            "setup_until": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "spend": {
+                              "properties": {
+                                "left_micros": {
+                                  "type": "integer"
+                                },
+                                "limit_micros": {
+                                  "type": "integer"
+                                },
+                                "month": {
+                                  "type": "string"
+                                },
+                                "problem": {
+                                  "type": "string"
+                                },
+                                "spent_micros": {
+                                  "type": "integer"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "warn_at_micros": {
+                                  "type": "integer"
+                                },
+                                "warn_percent": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "month",
+                                "spent_micros",
+                                "limit_micros",
+                                "warn_percent",
+                                "warn_at_micros",
+                                "left_micros",
+                                "state"
+                              ],
+                              "type": "object"
+                            },
+                            "storage": {
+                              "properties": {
+                                "artifacts": {
+                                  "type": "integer"
+                                },
+                                "database": {
+                                  "type": "integer"
+                                },
+                                "files": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "database",
+                                "files",
+                                "artifacts"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "has_password",
+                            "spend",
+                            "storage",
+                            "jobs",
+                            "schedules",
+                            "models",
+                            "crossed"
+                          ],
+                          "type": "object"
+                        },
+                        "added": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_sign_in": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "added",
+                        "Numbers"
+                      ],
+                      "type": "object"
+                    },
+                    "setup_code": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "expires"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "setup_code"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Add a person with a name. Answers the person and a one-time setup code, good for admin.setup_code_for, which the person enters at /setup to set their own password. The code is shown this once and kept only as a hash. The admin never sees or sets a password.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "properties": {
+                        "Numbers": {
+                          "properties": {
+                            "crossed": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "disabled_at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "has_password": {
+                              "type": "boolean"
+                            },
+                            "jobs": {
+                              "properties": {
+                                "failed": {
+                                  "type": "integer"
+                                },
+                                "stuck": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "failed",
+                                "stuck"
+                              ],
+                              "type": "object"
+                            },
+                            "models": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "schedules": {
+                              "type": "integer"
+                            },
+                            "setup_until": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "spend": {
+                              "properties": {
+                                "left_micros": {
+                                  "type": "integer"
+                                },
+                                "limit_micros": {
+                                  "type": "integer"
+                                },
+                                "month": {
+                                  "type": "string"
+                                },
+                                "problem": {
+                                  "type": "string"
+                                },
+                                "spent_micros": {
+                                  "type": "integer"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "warn_at_micros": {
+                                  "type": "integer"
+                                },
+                                "warn_percent": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "month",
+                                "spent_micros",
+                                "limit_micros",
+                                "warn_percent",
+                                "warn_at_micros",
+                                "left_micros",
+                                "state"
+                              ],
+                              "type": "object"
+                            },
+                            "storage": {
+                              "properties": {
+                                "artifacts": {
+                                  "type": "integer"
+                                },
+                                "database": {
+                                  "type": "integer"
+                                },
+                                "files": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "database",
+                                "files",
+                                "artifacts"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "has_password",
+                            "spend",
+                            "storage",
+                            "jobs",
+                            "schedules",
+                            "models",
+                            "crossed"
+                          ],
+                          "type": "object"
+                        },
+                        "added": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_sign_in": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "added",
+                        "Numbers"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "person"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "One person, as a row of the people list: numbers only. Their own audit log records the read.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}/disable": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "properties": {
+                        "Numbers": {
+                          "properties": {
+                            "crossed": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "disabled_at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "has_password": {
+                              "type": "boolean"
+                            },
+                            "jobs": {
+                              "properties": {
+                                "failed": {
+                                  "type": "integer"
+                                },
+                                "stuck": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "failed",
+                                "stuck"
+                              ],
+                              "type": "object"
+                            },
+                            "models": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "schedules": {
+                              "type": "integer"
+                            },
+                            "setup_until": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "spend": {
+                              "properties": {
+                                "left_micros": {
+                                  "type": "integer"
+                                },
+                                "limit_micros": {
+                                  "type": "integer"
+                                },
+                                "month": {
+                                  "type": "string"
+                                },
+                                "problem": {
+                                  "type": "string"
+                                },
+                                "spent_micros": {
+                                  "type": "integer"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "warn_at_micros": {
+                                  "type": "integer"
+                                },
+                                "warn_percent": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "month",
+                                "spent_micros",
+                                "limit_micros",
+                                "warn_percent",
+                                "warn_at_micros",
+                                "left_micros",
+                                "state"
+                              ],
+                              "type": "object"
+                            },
+                            "storage": {
+                              "properties": {
+                                "artifacts": {
+                                  "type": "integer"
+                                },
+                                "database": {
+                                  "type": "integer"
+                                },
+                                "files": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "database",
+                                "files",
+                                "artifacts"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "has_password",
+                            "spend",
+                            "storage",
+                            "jobs",
+                            "schedules",
+                            "models",
+                            "crossed"
+                          ],
+                          "type": "object"
+                        },
+                        "added": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_sign_in": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "added",
+                        "Numbers"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "person"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Disable a person: they cannot sign in, every session ends, their schedules are held and their tasks pause, and their share links answer as revoked. Their data is kept. Both audit logs record it.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}/enable": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "properties": {
+                        "Numbers": {
+                          "properties": {
+                            "crossed": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "disabled_at": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "has_password": {
+                              "type": "boolean"
+                            },
+                            "jobs": {
+                              "properties": {
+                                "failed": {
+                                  "type": "integer"
+                                },
+                                "stuck": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "failed",
+                                "stuck"
+                              ],
+                              "type": "object"
+                            },
+                            "models": {
+                              "additionalProperties": {
+                                "type": "integer"
+                              },
+                              "type": "object"
+                            },
+                            "schedules": {
+                              "type": "integer"
+                            },
+                            "setup_until": {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            "spend": {
+                              "properties": {
+                                "left_micros": {
+                                  "type": "integer"
+                                },
+                                "limit_micros": {
+                                  "type": "integer"
+                                },
+                                "month": {
+                                  "type": "string"
+                                },
+                                "problem": {
+                                  "type": "string"
+                                },
+                                "spent_micros": {
+                                  "type": "integer"
+                                },
+                                "state": {
+                                  "type": "string"
+                                },
+                                "warn_at_micros": {
+                                  "type": "integer"
+                                },
+                                "warn_percent": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "month",
+                                "spent_micros",
+                                "limit_micros",
+                                "warn_percent",
+                                "warn_at_micros",
+                                "left_micros",
+                                "state"
+                              ],
+                              "type": "object"
+                            },
+                            "storage": {
+                              "properties": {
+                                "artifacts": {
+                                  "type": "integer"
+                                },
+                                "database": {
+                                  "type": "integer"
+                                },
+                                "files": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "database",
+                                "files",
+                                "artifacts"
+                              ],
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "has_password",
+                            "spend",
+                            "storage",
+                            "jobs",
+                            "schedules",
+                            "models",
+                            "crossed"
+                          ],
+                          "type": "object"
+                        },
+                        "added": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_sign_in": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "added",
+                        "Numbers"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "person"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Enable a disabled person again: sign-in, schedules and share links return. Runs missed while disabled are not caught up.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}/setup-code": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "setup_code": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "expires"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "setup_code"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "A new setup code for a person, ending any earlier one. Used, it sets their password and ends every session they had. 409 disabled for a person who is disabled.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}/usage": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The first day, as 2026-11-01. The first of this month when left out.",
+            "in": "query",
+            "name": "from",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The last day, as 2026-11-30. Today when left out.",
+            "in": "query",
+            "name": "to",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "Use": {
+                      "properties": {
+                        "days": {
+                          "items": {
+                            "properties": {
+                              "Total": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "capped_micros": {
+                                    "type": "integer"
+                                  },
+                                  "errors": {
+                                    "type": "integer"
+                                  },
+                                  "refusals": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "capped_micros",
+                                  "errors",
+                                  "refusals"
+                                ],
+                                "type": "object"
+                              },
+                              "day": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "day",
+                              "Total"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "models": {
+                          "items": {
+                            "properties": {
+                              "Total": {
+                                "properties": {
+                                  "Total": {
+                                    "properties": {
+                                      "cache_read_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "cache_write_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "calls": {
+                                        "type": "integer"
+                                      },
+                                      "cost_micros": {
+                                        "type": "integer"
+                                      },
+                                      "input_tokens": {
+                                        "type": "integer"
+                                      },
+                                      "output_tokens": {
+                                        "type": "integer"
+                                      }
+                                    },
+                                    "required": [
+                                      "calls",
+                                      "input_tokens",
+                                      "output_tokens",
+                                      "cache_read_tokens",
+                                      "cache_write_tokens",
+                                      "cost_micros"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "capped_micros": {
+                                    "type": "integer"
+                                  },
+                                  "errors": {
+                                    "type": "integer"
+                                  },
+                                  "refusals": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "Total",
+                                  "capped_micros",
+                                  "errors",
+                                  "refusals"
+                                ],
+                                "type": "object"
+                              },
+                              "class": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "model",
+                              "class",
+                              "Total"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "total": {
+                          "properties": {
+                            "Total": {
+                              "properties": {
+                                "cache_read_tokens": {
+                                  "type": "integer"
+                                },
+                                "cache_write_tokens": {
+                                  "type": "integer"
+                                },
+                                "calls": {
+                                  "type": "integer"
+                                },
+                                "cost_micros": {
+                                  "type": "integer"
+                                },
+                                "input_tokens": {
+                                  "type": "integer"
+                                },
+                                "output_tokens": {
+                                  "type": "integer"
+                                }
+                              },
+                              "required": [
+                                "calls",
+                                "input_tokens",
+                                "output_tokens",
+                                "cache_read_tokens",
+                                "cache_write_tokens",
+                                "cost_micros"
+                              ],
+                              "type": "object"
+                            },
+                            "capped_micros": {
+                              "type": "integer"
+                            },
+                            "errors": {
+                              "type": "integer"
+                            },
+                            "refusals": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "Total",
+                            "capped_micros",
+                            "errors",
+                            "refusals"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "days",
+                        "models"
+                      ],
+                      "type": "object"
+                    },
+                    "failures": {
+                      "additionalProperties": {
+                        "type": "integer"
+                      },
+                      "type": "object"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "period": {
+                      "properties": {
+                        "from": {
+                          "type": "string"
+                        },
+                        "to": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "from",
+                        "to"
+                      ],
+                      "type": "object"
+                    },
+                    "storage": {
+                      "items": {
+                        "properties": {
+                          "artifacts": {
+                            "type": "integer"
+                          },
+                          "at": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "database": {
+                            "type": "integer"
+                          },
+                          "files": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "at",
+                          "database",
+                          "files",
+                          "artifacts"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "period",
+                    "Use",
+                    "failures",
+                    "storage"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "One person's model calls and spend by day and by model, failures counted by kind (never their words) and storage over time, for a period: from and to are dates, this month to today when left out.",
         "x-keystone-admin": true
       }
     },
@@ -25198,6 +26824,103 @@
           }
         },
         "summary": "Store the person's own value for one setting. Refused for a setting that is not theirs to change, and for a fixed rule."
+      }
+    },
+    "/api/v1/setup": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "session": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "method": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "method",
+                        "created",
+                        "expires"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "session"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [],
+        "summary": "Set up a person with the one-time code an admin gave them: sets the password they choose and signs them in, with the session in the cookie. 401 refused for a code that does not work (used, replaced, expired, or typed wrong), 403 disabled for a person the admin has disabled, 400 bad_password for a password the rules refuse.",
+        "x-keystone-door": true
       }
     },
     "/api/v1/shared/{token}": {

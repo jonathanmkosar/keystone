@@ -326,9 +326,17 @@ func newSession(s *tenant.Store, method string, o Options, t time.Time) (string,
 	if _, err := db.Exec("DELETE FROM signin_sessions WHERE expires_at <= ?", stamp(t)); err != nil {
 		return "", Session{}, err
 	}
-	if _, err := db.Exec("INSERT INTO signin_sessions(id, token_hash, method, created_at, expires_at) VALUES(?, ?, ?, ?, ?)",
-		sess.ID, hashToken(token), method, stamp(sess.Created), stamp(sess.Expires)); err != nil {
+	// P15-02: no session opens while the admin has disabled the person, in
+	// the same statement, so a sign-in racing a disable leaves none behind.
+	res, err := db.Exec("INSERT INTO signin_sessions(id, token_hash, method, created_at, expires_at) SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM tenant_meta WHERE key = ?)",
+		sess.ID, hashToken(token), method, stamp(sess.Created), stamp(sess.Expires), tenant.DisabledKey)
+	if err != nil {
 		return "", Session{}, err
+	}
+	if n, err := res.RowsAffected(); err != nil {
+		return "", Session{}, err
+	} else if n == 0 {
+		return "", Session{}, ErrDisabled
 	}
 	// The last sign-in, for the admin's list of people (P15-01, decision
 	// 0646). Sessions are deleted at sign-out, so the newest session would

@@ -1,0 +1,120 @@
+/* The admin account's People, A person and Install (P15-02). Every colour
+   is a token; the tables, pills and tiles are Operations' own
+   (operations.css), following design/screens/Admin.html. Provisional on
+   the drafts. */
+
+.adm-h1 {
+  margin: 0;
+  font: 600 28px/34px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.adm-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+  font: 600 22px/28px var(--font-serif);
+}
+
+.adm-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.adm-tab {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font: 400 14px var(--font-sans);
+  cursor: pointer;
+}
+
+.adm-tab[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.adm-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.adm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.adm-add,
+.adm-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.adm-code {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: var(--soft);
+}
+
+.adm-code-text {
+  margin: 0;
+  color: var(--softink);
+  font: 600 22px/30px var(--font-mono);
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.adm-days {
+  display: block;
+  width: 100%;
+  height: 120px;
+}
+
+.adm-day {
+  fill: var(--accent);
+}
+
+.adm-person h3 {
+  margin-top: 12px;
+}
+
+/* The admin page's top line: the mark, who is signed in, sign out. */
+
+.adm-page {
+  min-height: 100vh;
+  background: var(--page);
+}
+
+.adm-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.adm-who {
+  flex: 1 1 280px;
+  margin: 0;
+}

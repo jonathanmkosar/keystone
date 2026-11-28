@@ -2,11 +2,11 @@ package operations
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/api"
+	"github.com/jonathanmkosar/keystone/internal/figures"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/settings"
 )
@@ -71,20 +71,9 @@ func Snapshots(ctx context.Context, s *tenant.Store, key string, since time.Time
 }
 
 // Newest returns the time of the tenant's newest snapshot, and false when
-// it has none.
+// it has none: figures.Newest, which the admin's install reads too.
 func Newest(ctx context.Context, s *tenant.Store) (time.Time, bool, error) {
-	var at sql.NullString
-	if err := s.DB().QueryRowContext(ctx, "SELECT max(at) FROM operations_snapshots").Scan(&at); err != nil {
-		return time.Time{}, false, fmt.Errorf("operations: %w", err)
-	}
-	if !at.Valid || at.String == "" {
-		return time.Time{}, false, nil
-	}
-	t, err := time.Parse(timeLayout, at.String)
-	if err != nil {
-		return time.Time{}, false, fmt.Errorf("operations: the newest snapshot has a time that cannot be read")
-	}
-	return t, true, nil
+	return figures.Newest(ctx, s)
 }
 
 // Sample records where each of a tenant's limits stands now, but a run's

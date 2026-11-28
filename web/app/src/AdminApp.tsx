@@ -1,13 +1,14 @@
 // The admin account's pages (P15-01): /admin/sign-in, and /admin, which
 // shows only admin controls. An admin is a separate account: it has no
 // chats, no files and no models, and signs in apart from any person. The
-// admin screens for people, the install and settings come with the items
-// that build them; until then the page says who is signed in and signs out.
+// screens for people and the install are P15-02's (AdminPeople.tsx); admin
+// settings come with P15-03.
 // docs/architecture/admin.md.
 
 import { useEffect, useState, type FormEvent } from "react";
 import { ApiError } from "./api";
 import { adminSignIn, adminSignOut, adminWho, type AdminSession } from "./adminCalls";
+import { AdminSections } from "./AdminPeople";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -108,22 +109,26 @@ export function AdminApp() {
     }
     await check();
   }
+  // People, A person and Install (P15-02), under who is signed in.
   return (
-    <Card>
-      <h1 className="card-title">Admin</h1>
-      <p className="quiet">
-        Signed in as <strong>{account.name}</strong>, an admin account. It shows admin controls only: it has no chats, no files and no models, and it sees people's numbers and settings, never
-        their data or their logs. Each time it reads something of a person's, that person can see it in their own Settings.
-      </p>
-      <p className="quiet">
-        This session ends at {when(session.expires)}, or sooner if it is left unused until {when(session.idle_until)}.
-      </p>
-      <p className="quiet">The admin screens for people, the install and settings are not built yet.</p>
-      <button type="button" className="button" onClick={() => void leave()}>
-        Sign out
-      </button>
-      <ThemeSwitch choice={theme} onChoose={setTheme} />
-    </Card>
+    <div className="adm-page">
+      <div className="adm-top">
+        <div className="brand">
+          <Mark size={26} />
+          <span className="wordmark">Keystone</span>
+        </div>
+        <p className="quiet adm-who">
+          Signed in as <strong>{account.name}</strong>, an admin account, until {when(session.expires)} or {when(session.idle_until)} if left unused.
+        </p>
+        <div className="adm-actions">
+          <ThemeSwitch choice={theme} onChoose={setTheme} />
+          <button type="button" className="button" onClick={() => void leave()}>
+            Sign out
+          </button>
+        </div>
+      </div>
+      <AdminSections />
+    </div>
   );
 }
 

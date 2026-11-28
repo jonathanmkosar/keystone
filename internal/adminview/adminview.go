@@ -29,8 +29,8 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/audit"
-	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
+	"github.com/jonathanmkosar/keystone/settings"
 )
 
 // ActorPrefix starts the actor of the entries an admin's reads leave in a
@@ -46,6 +46,7 @@ var actionShape = regexp.MustCompile(`^(GET|POST|PUT|PATCH|DELETE) /api/v1/admin
 // View reads people for the admin routes.
 type View struct {
 	in *tenant.Install
+	o  Options // P15-02: the switch's hooks, the setup code's length, the clock (numbers.go)
 }
 
 // New returns the view over an install. internal/app makes the one view and
@@ -135,8 +136,7 @@ func (v *View) with(ctx context.Context, a Asker, id string, touch Touch, f func
 }
 
 // Person is one person on the install, as the admin sees them: numbers and
-// settings, never content. P15-02 adds the numbers (spend, room, jobs,
-// schedules, model health, watch levels) as more fields.
+// settings, never content: since P15-02 with their numbers.
 type Person struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -145,22 +145,29 @@ type Person struct {
 	// LastSignIn is when they last signed in, and is left out when that is
 	// not known.
 	LastSignIn time.Time `json:"last_sign_in,omitzero"`
+	// Numbers are the rest of the row (P15-02, numbers.go).
+	Numbers
 }
 
 // People returns every person the server serves, oldest first, with their
-// last sign-in. Each person's log gets the read.
+// last sign-in and their numbers (P15-02). Each person's log gets the read.
 func (v *View) People(ctx context.Context, a Asker) ([]Person, error) {
 	acc, err := v.check(a)
 	if err != nil {
 		return nil, err
 	}
+	reg, err := settings.Registry()
+	if err != nil {
+		return nil, err
+	}
+	now := v.now()
+	waiting, err := v.setupWaiting(now)
+	if err != nil {
+		return nil, err
+	}
 	out := []Person{}
 	for _, t := range v.in.Tenants() {
-		p := Person{ID: t.ID, Name: t.Name, Added: t.Created}
-		err := v.with(ctx, a, t.ID, Touch{By: acc.Name, Read: []string{"last_sign_in"}}, func(s *tenant.Store) (err error) {
-			p.LastSignIn, err = signin.LastSignIn(s)
-			return err
-		})
+		p, err := v.readPerson(ctx, a, acc, t, reg, waiting, now)
 		if err != nil {
 			return nil, err
 		}

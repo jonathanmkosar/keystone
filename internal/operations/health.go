@@ -11,24 +11,19 @@ import (
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/audit"
+	"github.com/jonathanmkosar/keystone/internal/figures"
 	"github.com/jonathanmkosar/keystone/internal/models"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/internal/usage"
 )
 
-// The states of a model's health over the window.
+// The states of a model's health over the window: internal/figures' own.
 const (
-	// HealthGood is a model whose calls failed less than the watch share.
-	HealthGood = "good"
-	// HealthErrors is a model whose calls failed at or past the watch share.
-	HealthErrors = "errors"
-	// HealthFailing is a model every call of which that was sent failed.
-	HealthFailing = "failing"
-	// HealthRefused is a model whose every call Keystone did not send: at
-	// the cap, or too long for its window.
-	HealthRefused = "refused"
-	// HealthIdle is a model that took no call in the window.
-	HealthIdle = "idle"
+	HealthGood    = figures.HealthGood
+	HealthErrors  = figures.HealthErrors
+	HealthFailing = figures.HealthFailing
+	HealthRefused = figures.HealthRefused
+	HealthIdle    = figures.HealthIdle
 )
 
 // CallError is a model call that failed, as a person may read it: its kind
@@ -79,23 +74,10 @@ type ModelsPart struct {
 	Models []ModelHealth `json:"models"`
 }
 
-// windowRecords returns the usage records at or after since, oldest first,
-// month by month through the month index.
+// windowRecords returns the usage records at or after since, oldest first:
+// figures.WindowRecords.
 func windowRecords(ctx context.Context, s *tenant.Store, since, now time.Time) ([]usage.Record, error) {
-	var out []usage.Record
-	first, _ := time.Parse("2006-01", usage.MonthOf(since))
-	for m := first; !m.After(now.UTC()); m = m.AddDate(0, 1, 0) {
-		recs, err := usage.List(ctx, s, usage.Filter{Month: usage.MonthOf(m)})
-		if err != nil {
-			return nil, err
-		}
-		for _, r := range recs {
-			if !r.At.Before(since) && !r.At.After(now) {
-				out = append(out, r)
-			}
-		}
-	}
-	return out, nil
+	return figures.WindowRecords(ctx, s, since, now)
 }
 
 // readHealth is every model in the person's registry, and any other that
@@ -149,23 +131,8 @@ func readHealth(ctx context.Context, s *tenant.Store, cfg Settings, now time.Tim
 	}
 	for _, name := range order {
 		m := byName[name]
-		sent := m.Calls - m.Refusals
-		if sent > 0 {
-			m.ErrorPercent = m.Errors * 100 / sent
-		}
 		m.MedianMS = median(times[name])
-		switch {
-		case m.Calls == 0:
-			m.State = HealthIdle
-		case sent == 0:
-			m.State = HealthRefused
-		case m.Errors == sent:
-			m.State = HealthFailing
-		case m.ErrorPercent >= cfg.ModelErrorWatch:
-			m.State = HealthErrors
-		default:
-			m.State = HealthGood
-		}
+		m.State, m.ErrorPercent = figures.HealthState(m.Calls, m.Refusals, m.Errors, cfg.ModelErrorWatch)
 		if r, ok := lastErr[name]; ok {
 			if m.LastError, err = callError(ctx, s.DB(), r); err != nil {
 				return part, err

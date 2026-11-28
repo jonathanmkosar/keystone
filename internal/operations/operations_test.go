@@ -181,7 +181,7 @@ func TestEachLimitHasItsShareAndTrend(t *testing.T) {
 		t.Fatal(err)
 	}
 	rates := map[string]int64{
-		LimitCap: 600_000, LimitReserve: 50_000, LimitDisk: 200 << 20, LimitDatabase: 3 << 20, LimitFiles: 40 << 20, LimitArtifacts: 1 << 20,
+		LimitCap: 600_000, LimitReserve: 50_000, LimitDatabase: 3 << 20, LimitFiles: 40 << 20, LimitArtifacts: 1 << 20,
 	}
 	var snaps []Snapshot
 	for _, r := range current {
@@ -211,7 +211,7 @@ func TestEachLimitHasItsShareAndTrend(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{LimitCap, LimitReserve, LimitDisk, LimitDatabase, LimitFiles, LimitArtifacts} {
+	for _, key := range []string{LimitCap, LimitReserve, LimitDatabase, LimitFiles, LimitArtifacts} {
 		l := find(t, all, key)
 		if l.State == StateUnknown || l.Of <= 0 {
 			t.Errorf("%s: state %s of %d (%s)", key, l.State, l.Of, l.Problem)
@@ -236,9 +236,6 @@ func TestEachLimitHasItsShareAndTrend(t *testing.T) {
 		}
 		rate := float64(rates[key])
 		tolerance := 0.02
-		if key == LimitDisk {
-			tolerance = 0.1 // the volume is shared with everything else on this machine
-		}
 		if got := float64(l.Trend.PerDay); math.Abs(got-rate) > rate*tolerance {
 			t.Errorf("%s: grows %d a day, and the snapshots grow %d", key, l.Trend.PerDay, rates[key])
 		}
@@ -251,7 +248,7 @@ func TestEachLimitHasItsShareAndTrend(t *testing.T) {
 			}
 		}
 		if l.Trend.FullAt == nil {
-			if key != LimitDisk && float64(l.Of-l.Used)/rate < 100*365 {
+			if float64(l.Of-l.Used)/rate < 100*365 {
 				t.Errorf("%s: no fill date at %d a day with %d of %d used", key, l.Trend.PerDay, l.Used, l.Of)
 			}
 		} else if want := now.Add(time.Duration(float64(l.Of-l.Used) / float64(l.Trend.PerDay) * 24 * float64(time.Hour))); l.Trend.FullAt.Sub(want).Abs() > time.Hour {
@@ -267,8 +264,11 @@ func TestEachLimitHasItsShareAndTrend(t *testing.T) {
 	if f := find(t, all, LimitFiles); f.Used != int64(len("harbour "))*4096 || f.Scope != ScopeTenant {
 		t.Errorf("the files: %+v", f)
 	}
-	if d := find(t, all, LimitDisk); d.Scope != ScopeInstall || d.Unit != UnitBytes {
-		t.Errorf("the disk: %+v", d)
+	// The disk left a person's report (P15-02, decision 0701).
+	for _, l := range all {
+		if l.Key == LimitDisk || l.Scope == ScopeInstall {
+			t.Errorf("a person's report has an install limit: %+v", l)
+		}
 	}
 }
 
@@ -423,7 +423,7 @@ func TestSampleDue(t *testing.T) {
 		t.Fatalf("sampled %d tenants, not 2", n)
 	}
 	for _, s := range []*tenant.Store{one, two} {
-		for _, key := range []string{LimitCap, LimitReserve, LimitDisk, LimitDatabase, LimitFiles, LimitArtifacts} {
+		for _, key := range []string{LimitCap, LimitReserve, LimitDatabase, LimitFiles, LimitArtifacts} {
 			got, err := Snapshots(ctx, s, key, now.Add(-100*time.Hour))
 			if err != nil {
 				t.Fatal(err)
@@ -431,6 +431,11 @@ func TestSampleDue(t *testing.T) {
 			if len(got) != 1 || !got[0].At.Equal(now) {
 				t.Errorf("%s: %s has %d snapshots: %+v", s.TenantID(), key, len(got), got)
 			}
+		}
+		// The disk is the install's, shown only in the admin account (P15-02,
+		// decision 0701): the sampler no longer records it in a person's database.
+		if got, _ := Snapshots(ctx, s, LimitDisk, time.Time{}); len(got) != 0 {
+			t.Errorf("%s: the disk was recorded in a person's database: %+v", s.TenantID(), got)
 		}
 	}
 	if n := SampleDue(ctx, in, reg, c, now.Add(59*time.Minute), nil); n != 0 {

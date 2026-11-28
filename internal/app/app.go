@@ -26,6 +26,7 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/research"
 	"github.com/jonathanmkosar/keystone/internal/schedules"
 	"github.com/jonathanmkosar/keystone/internal/settingsapi"
+	"github.com/jonathanmkosar/keystone/internal/setupapi"
 	"github.com/jonathanmkosar/keystone/internal/shareapi"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/subagents"
@@ -340,6 +341,15 @@ func routes(c Config, log *api.Log) []api.Route {
 	// The admin account's routes (P15-01), behind the admin door. They are
 	// given the one view of people, and never the install (decision 0644).
 	all = append(all, adminapi.Routes(adminapi.Options{View: adminview.New(c.Install), Open: c.openAdmin, Accounts: c.Admin, SecureCookie: c.SecureCookie, Log: log})...)
+	// People, the install and monitoring (P15-02): adding a person with a
+	// setup code, disabling and enabling, a person's usage and the install,
+	// through a view handed the pause switch's hooks, never the packages.
+	all = append(all, adminapi.PeopleRoutes(adminapi.PeopleOptions{View: adminview.NewWith(c.Install, adminview.Options{
+		Pause: c.jobs.PauseAll, Rearm: c.schedules.Rearm, Resume: c.jobs.ResumeAll,
+		SetupCodeFor: c.Admin.SetupCodeFor, SampleEvery: c.Operations.SnapshotEvery, Now: c.Clock,
+	}), Log: log})...)
+	// The door a new person sets their password at, with a setup code (P15-02).
+	all = append(all, setupapi.Routes(setupapi.Options{Install: c.Install, SignIn: c.SignIn, SecureCookie: c.SecureCookie, Log: log})...)
 	// A person's own view of what admin accounts read of theirs (P15-01).
 	all = append(all, api.AdminEntriesRoute(c.PageLimit, log))
 	return all

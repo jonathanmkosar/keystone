@@ -43,6 +43,9 @@ var doorRoutes = map[string]string{
 	// is also listed in adminisolation.go.
 	"POST /api/v1/admin/session":         "signing in to an admin account is how its session begins",
 	"POST /api/v1/admin/session/passkey": "the passkey prompt an admin signs in with",
+	// A new person's setup (P15-02): the one-time code an admin gave them opens
+	// that one person, once, to set their own password.
+	"POST /api/v1/setup": "a new person sets their own password with the one-time code an admin gave them",
 }
 
 // Invented passwords, used in throwaway folders only.
