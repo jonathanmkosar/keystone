@@ -21,7 +21,7 @@ import { CitationSources, sourcesOf } from "./citations";
 import { TaskNote } from "./Tasks";
 import { isSubagentsStep, SubagentLanes } from "./Subagents";
 import { BrowserShot } from "./BrowserShot";
-import { ReplySpinner } from "./Spinner";
+import { ReplySpinner, SpinMark } from "./Spinner";
 
 export type Step =
   | { kind: "thinking"; text: string; running: boolean; seconds?: number }
@@ -51,14 +51,21 @@ function seconds(n: number): string {
   return whole === 1 ? "1 second" : `${whole} seconds`;
 }
 
-function ThinkingStep({ step }: { step: Extract<Step, { kind: "thinking" }> }) {
+// spin: the step is the last thing in a reply still being written, so the
+// turning mark starts its line and the caret moves to the end.
+function ThinkingStep({ step, spin = false }: { step: Extract<Step, { kind: "thinking" }>; spin?: boolean }) {
   const [open, setOpen] = useState(false);
   const label = step.running ? "Thinking" : step.seconds !== undefined ? `Thought for ${seconds(step.seconds)}` : "Thought";
+  const caret = (
+    <span className={[open ? "step-caret is-open" : "step-caret", spin ? "step-caret-end" : ""].filter(Boolean).join(" ")}>
+      <Icon name="caret" size={16} />
+    </span>
+  );
   // A model may keep its thinking to itself. Then there is nothing to open.
   if (step.text === "") {
     return (
-      <div className={step.running ? "step is-running" : "step"}>
-        <Icon name="caret" size={16} />
+      <div className={step.running ? "step is-running" : "step"} role={spin ? "status" : undefined}>
+        {spin ? <SpinMark size={20} /> : <Icon name="caret" size={16} />}
         {step.running ? label : `${label}. The model kept it to itself.`}
       </div>
     );
@@ -66,10 +73,9 @@ function ThinkingStep({ step }: { step: Extract<Step, { kind: "thinking" }> }) {
   return (
     <>
       <button type="button" className={step.running ? "step step-button is-running" : "step step-button"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className={open ? "step-caret is-open" : "step-caret"}>
-          <Icon name="caret" size={16} />
-        </span>
+        {spin ? <SpinMark size={20} /> : caret}
         {label}
+        {spin && caret}
       </button>
       {open && <div className="step-body step-thinking">{step.text}</div>}
     </>
@@ -87,7 +93,7 @@ function pretty(json: string): string {
 // One tool call: a readable line of what it is doing or did, a few words on
 // the right about what came back, and, opened, what it was sent and what it
 // gave back. It is closed until the person opens it. steps.ts writes the line.
-function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
+function ToolStep({ step, spin = false }: { step: Extract<Step, { kind: "tool" }>; spin?: boolean }) {
   const [open, setOpen] = useState(false);
   const input = step.input.trim();
   const sent = input !== "" && input !== "{}";
@@ -109,7 +115,7 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
   ) : null;
   const body = (
     <>
-      <Icon name={line.icon} size={16} />
+      {spin && step.running && !waiting ? <SpinMark size={20} /> : <Icon name={line.icon} size={16} />}
       <span className="step-label" title={step.name}>
         {label}
       </span>
@@ -154,12 +160,23 @@ function ToolStep({ step }: { step: Extract<Step, { kind: "tool" }> }) {
   );
 }
 
-function Steps({ steps }: { steps: Step[] }) {
+function Steps({ steps, spinLast = false }: { steps: Step[]; spinLast?: boolean }) {
   return (
     <div className="steps">
-      {steps.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : isSubagentsStep(s) ? <SubagentLanes key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} />))}
+      {steps.map((s, i) => {
+        const spin = spinLast && i === steps.length - 1;
+        return s.kind === "thinking" ? <ThinkingStep key={i} step={s} spin={spin} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : isSubagentsStep(s) ? <SubagentLanes key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} spin={spin} />;
+      })}
     </div>
   );
+}
+
+/** The reply's last step is running on a line of its own, which can wear the turning mark. */
+function spinsInline(item: Extract<Item, { kind: "reply" }>): boolean {
+  const last = item.parts[item.parts.length - 1];
+  if (!item.streaming || last?.kind !== "steps") return false;
+  const step = last.steps[last.steps.length - 1];
+  return step !== undefined && step.running && (step.kind === "thinking" || (!isArtifactCard(step) && !isSubagentsStep(step)));
 }
 
 function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
@@ -169,10 +186,14 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
     .map((p) => p.text)
     .join("\n\n");
   const empty = item.parts.length === 0;
+  // A note last in a reply still running says it is waiting or connecting
+  // again; it wears the turning mark on its line, as a running step does.
+  const noteLast = item.streaming && item.parts[item.parts.length - 1]?.kind === "note";
+  const inline = spinsInline(item) || noteLast;
   return (
     <div className="reply" aria-busy={item.streaming}>
       {item.parts.map((p, i) => {
-        if (p.kind === "steps") return <Steps key={i} steps={p.steps} />;
+        if (p.kind === "steps") return <Steps key={i} steps={p.steps} spinLast={inline && i === item.parts.length - 1} />;
         if (p.kind === "text") {
           const last = i === item.parts.length - 1;
           return (
@@ -185,6 +206,14 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
           );
         }
         if (p.kind === "note") {
+          if (noteLast && i === item.parts.length - 1) {
+            return (
+              <p key={i} className="reply-note has-spin" role="status">
+                <SpinMark size={20} />
+                <span>{p.text}</span>
+              </p>
+            );
+          }
           return (
             <p key={i} className="reply-note">
               {p.text}
@@ -209,8 +238,10 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
       })}
       {/* While the turn runs, the turning mark sits at the reply's foot. With
           nothing written yet it says so; after that the steps and the text
-          say what is happening, and the mark only shows it is not done. */}
-      {item.streaming && <ReplySpinner words={empty ? "Thinking" : undefined} />}
+          say what is happening, and the mark only shows it is not done. When
+          a running step is the last thing, the mark is on that step's line
+          instead, so the working and its words are one line. */}
+      {item.streaming && !inline && <ReplySpinner words={empty ? "Thinking" : undefined} />}
       {!item.streaming && (text !== "" || item.turnId) && (
         <div className="reply-actions">
           {text !== "" && <CopyButton text={text} />}

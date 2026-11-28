@@ -460,6 +460,20 @@
   font-size: 13px;
 }
 
+/* Waiting or connecting again, with the turning mark on the same line. */
+.reply-note.has-spin {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  font-size: 15px;
+}
+
+.step .spinner,
+.reply-note .spinner {
+  flex: none;
+}
+
 .reply-actions {
   display: flex;
   align-items: center;

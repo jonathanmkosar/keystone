@@ -10,6 +10,7 @@ import { ImportedTag } from "./Imported";
 import { IncognitoButton } from "./Incognito";
 import { Mark } from "./Mark";
 import { ChatProjectChip, SidebarProjects } from "./Projects";
+import { UsageButton } from "./UsageRing";
 
 // Search and Chats are not rows: the magnifier in the sidebar's head opens the
 // chats screen with its search box ready (the owner, November 27, 2026).
@@ -169,7 +170,8 @@ export function Shell({
             <div className="float-end">
               {openChat && (
                 <div className="float-pill float-actions">
-                  {/* A turn's working mark is at the foot of its reply, not here (the owner, November 27, 2026). */}
+                  {/* A turn's working mark is in its reply, not here; the ring is the month's usage (the owner, November 27, 2026). */}
+                  <UsageButton chatId={openChat} />
                   <ChatMenu key={openChat} id={openChat} />
                 </div>
               )}

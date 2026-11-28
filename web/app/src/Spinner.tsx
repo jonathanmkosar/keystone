@@ -10,15 +10,26 @@ const keystone = "M26.8 13.5A27 27 0 0 1 37.2 13.5L33.3 33.5A6.6 6.6 0 0 0 30.7 
 export function ReplySpinner({ words }: { words?: string }) {
   return (
     <div className="reply-spinner" role="status" aria-label={words ? `Keystone is ${words.toLowerCase()}` : "Keystone is working"}>
-      <svg className="spinner" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
-        <g className="spinner-arcs">
-          <circle className="spinner-c3" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="0" />
-          <circle className="spinner-c2" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="-20" />
-          <circle className="spinner-c1" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="-40" />
-        </g>
-        <path className="spinner-key" d={keystone} transform="translate(-1.44 2.13) scale(0.42)" />
-      </svg>
+      <SpinMark size={28} />
       {words && <span>{words}</span>}
     </div>
+  );
+}
+
+/**
+ * The mark alone. A running step that is the last thing in its reply wears it
+ * at the start of its own line, so the working and the words are one line
+ * (the owner, November 27, 2026).
+ */
+export function SpinMark({ size }: { size: number }) {
+  return (
+    <svg className="spinner" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <g className="spinner-arcs">
+        <circle className="spinner-c3" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="0" />
+        <circle className="spinner-c2" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="-20" />
+        <circle className="spinner-c1" cx="12" cy="12" r="10" pathLength="60" strokeDasharray="14 46" strokeDashoffset="-40" />
+      </g>
+      <path className="spinner-key" d={keystone} transform="translate(-1.44 2.13) scale(0.42)" />
+    </svg>
   );
 }

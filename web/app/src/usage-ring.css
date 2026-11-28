@@ -1,0 +1,135 @@
+/* The usage ring in a chat's header on a phone, and the sheet it opens
+   (UsageRing.tsx). Built from the tokens; the bars are usage.css's. No
+   mockup: after the owner's example of another app (November 27, 2026), and
+   provisional. */
+
+.float-actions .usage-button.icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+}
+
+.usage-ring {
+  transform: rotate(-90deg);
+}
+
+.usage-ring circle {
+  fill: none;
+  stroke-width: 2.6;
+}
+
+.usage-ring-track {
+  stroke: var(--line);
+}
+
+.usage-ring-fill {
+  stroke-linecap: round;
+}
+
+.usage-ring-fill.is-ok {
+  stroke: var(--ok);
+}
+
+.usage-ring-fill.is-warn {
+  stroke: var(--accent);
+}
+
+.usage-ring-fill.is-bad {
+  stroke: var(--err);
+}
+
+.usage-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 2px 12px;
+}
+
+.usage-sheet-title {
+  margin: 0;
+  font: 600 18px/1 var(--font-sans);
+}
+
+.usage-round-pair {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--sunk);
+}
+
+.usage-round {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--sunk);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.usage-round-pair .usage-round {
+  border: 0;
+  background: none;
+}
+
+.usage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--sunk);
+}
+
+.usage-card-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usage-card-name {
+  font: 500 17px/22px var(--font-sans);
+}
+
+.usage-card-used,
+.usage-card-sub {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.usage-card-sub {
+  margin: 0;
+}
+
+.usage-sheet-bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* The card is the bar's usual track colour, so here the track is a line's. */
+.usage-sheet-bar .use-bar-track {
+  fill: var(--line);
+}
+
+.usage-sheet-heading {
+  margin: 14px 0 6px;
+  padding: 0 18px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.usage-sheet-quiet {
+  margin: 10px 0 4px;
+  padding: 0 18px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 19px;
+}
