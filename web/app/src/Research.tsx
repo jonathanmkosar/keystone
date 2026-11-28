@@ -42,6 +42,7 @@ import {
   type ResearchTerms,
 } from "./researchCalls";
 import { Lane } from "./Subagents";
+import { SourcesFold } from "./SourcesFold";
 import { onEnd } from "./turns";
 import "./research.css";
 
@@ -254,10 +255,9 @@ function ResearchCard({ chatId, task, onChange }: { chatId: string; task: Resear
         </>
       )}
       {task.sources.length > 0 && (
-        <>
-          <div className="research-heading">{plural(task.sources.length, "source", "sources")} found</div>
+        <SourcesFold count={task.sources.length}>
           <SourceList sources={task.sources} cited={false} />
-        </>
+        </SourcesFold>
       )}
       <p className="task-link">
         {own ? (
@@ -425,10 +425,9 @@ export function ResearchNote({ chatId, task, text }: { chatId: string; task: Res
           <p className="task-link">The report is being saved.</p>
         ))}
       {task.status === "done" && task.sources.length > 0 && (
-        <>
-          <div className="research-heading">Sources</div>
+        <SourcesFold count={task.sources.length}>
           <SourceList sources={task.sources} cited />
-        </>
+        </SourcesFold>
       )}
       {task.parts.length > 0 && (
         <>

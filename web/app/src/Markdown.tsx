@@ -7,6 +7,8 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { Cite } from "./citations";
+import { foldSources } from "./foldSources";
+import { SourcesFold } from "./SourcesFold";
 
 type Block =
   | { kind: "p"; text: string }
@@ -326,6 +328,16 @@ function render(blocks: Block[], keyBase: string): ReactNode[] {
 }
 
 /** A model's text, shown as it reads. Safe to call again as the text grows. */
+// A list of sources in the text (foldSources.ts) is folded, closed until the
+// person opens it; what comes after it stays where it was.
 export function Markdown({ text }: { text: string }) {
-  return <div className="md">{render(parse(text), "b")}</div>;
+  const fold = foldSources(text);
+  if (!fold) return <div className="md">{render(parse(text), "b")}</div>;
+  return (
+    <div className="md">
+      {fold.before !== "" && render(parse(fold.before), "b")}
+      <SourcesFold count={fold.count}>{render(parse(fold.list), "s")}</SourcesFold>
+      {fold.after !== "" && render(parse(fold.after), "a")}
+    </div>
+  );
 }

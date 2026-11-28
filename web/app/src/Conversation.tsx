@@ -18,6 +18,7 @@ import { InlineVisuals } from "./InlineVisuals";
 import { LocationMark } from "./LocationControl";
 import { InspectButton, PinButton, SaidActions } from "./MessageActions";
 import { errorLabel, toolLine } from "./steps";
+import { workLabel, type WorkEntry } from "./workBox";
 import { CitationSources, sourcesOf } from "./citations";
 import { TaskNote } from "./Tasks";
 import { isSubagentsStep, SubagentLanes } from "./Subagents";
@@ -54,8 +55,8 @@ function seconds(n: number): string {
 
 // spin: the step is the last thing in a reply still being written, so the
 // turning mark starts its line and the caret moves to the end.
-function ThinkingStep({ step, spin = false }: { step: Extract<Step, { kind: "thinking" }>; spin?: boolean }) {
-  const [open, setOpen] = useState(false);
+function ThinkingStep({ step, spin = false, defaultOpen = false }: { step: Extract<Step, { kind: "thinking" }>; spin?: boolean; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   const label = step.running ? "Thinking" : step.seconds !== undefined ? `Thought for ${seconds(step.seconds)}` : "Thought";
   const caret = (
     <span className={[open ? "step-caret is-open" : "step-caret", spin ? "step-caret-end" : ""].filter(Boolean).join(" ")}>
@@ -161,14 +162,53 @@ function ToolStep({ step, spin = false }: { step: Extract<Step, { kind: "tool" }
   );
 }
 
-function Steps({ steps, spinLast = false }: { steps: Step[]; spinLast?: boolean }) {
+/** A card of its own in the steps: an artifact or the sub-agents' lanes, which stay in sight. */
+function isCard(s: Step): boolean {
+  return s.kind === "tool" && (isArtifactCard(s) || isSubagentsStep(s));
+}
+
+// The thinking and the tool calls between two stretches of text are one box,
+// closed until the person opens it. Its line says what is happening while
+// the reply runs, with the turning mark when the work is the last thing,
+// and a summary once it is done (workBox.ts). Opened, the steps are listed
+// and the thinking is shown open. Artifact cards and sub-agents' lanes are
+// drawn under the box, never inside it.
+function Steps({ steps, spinLast = false, live = false }: { steps: Step[]; spinLast?: boolean; live?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const work = steps.filter((s) => !isCard(s));
+  const cards = steps.filter(isCard);
+  const lastTool = [...work].reverse().find((s): s is Extract<Step, { kind: "tool" }> => s.kind === "tool");
+  const waiting = useWaitingFor(lastTool?.id ?? "") && lastTool?.running === true;
+  const entries: WorkEntry[] = work.map((s) =>
+    s.kind === "thinking"
+      ? { kind: "thinking", running: s.running, seconds: s.seconds }
+      : { kind: "tool", running: s.running, failed: s.failed, waiting: s === lastTool && waiting, line: toolLine(s.name, s.input.trim(), s.result) },
+  );
+  const spin = spinLast && work.length > 0 && work[work.length - 1].running && !(waiting && work[work.length - 1] === lastTool);
+  const label = workLabel(entries, live);
+  const caret = (
+    <span className={[open ? "step-caret is-open" : "step-caret", spin ? "step-caret-end" : ""].filter(Boolean).join(" ")}>
+      <Icon name="caret" size={16} />
+    </span>
+  );
   return (
-    <div className="steps">
-      {steps.map((s, i) => {
-        const spin = spinLast && i === steps.length - 1;
-        return s.kind === "thinking" ? <ThinkingStep key={i} step={s} spin={spin} /> : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : isSubagentsStep(s) ? <SubagentLanes key={s.id || i} step={s} /> : <ToolStep key={s.id || i} step={s} spin={spin} />;
-      })}
-    </div>
+    <>
+      {work.length > 0 && (
+        <div className={open ? "steps work-box is-open" : "steps work-box"}>
+          <button type="button" className={live && work[work.length - 1].running ? "step step-button work-head is-running" : "step step-button work-head"} aria-expanded={open} role={spin ? "status" : undefined} onClick={() => setOpen((o) => !o)}>
+            {spin ? <SpinMark size={20} /> : caret}
+            <span className="step-label">{label}</span>
+            {spin && caret}
+          </button>
+          {open && (
+            <div className="work-body">
+              {work.map((s, i) => (s.kind === "thinking" ? <ThinkingStep key={i} step={s} defaultOpen /> : <ToolStep key={s.id || i} step={s} />))}
+            </div>
+          )}
+        </div>
+      )}
+      {cards.map((s, i) => (s.kind !== "tool" ? null : isArtifactCard(s) ? <ArtifactCard key={s.id || i} step={s} /> : <SubagentLanes key={s.id || i} step={s} />))}
+    </>
   );
 }
 
@@ -194,7 +234,7 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
   return (
     <div className="reply" aria-busy={item.streaming}>
       {item.parts.map((p, i) => {
-        if (p.kind === "steps") return <Steps key={i} steps={p.steps} spinLast={inline && i === item.parts.length - 1} />;
+        if (p.kind === "steps") return <Steps key={i} steps={p.steps} spinLast={inline && i === item.parts.length - 1} live={item.streaming && i === item.parts.length - 1} />;
         if (p.kind === "text") {
           const last = i === item.parts.length - 1;
           return (

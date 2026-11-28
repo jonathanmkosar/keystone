@@ -1,0 +1,37 @@
+/* A folded list of sources (SourcesFold.tsx): a small pill until opened. */
+.sources-fold {
+  margin: 10px 0;
+}
+
+.sources-fold-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sources-fold-head:hover {
+  color: var(--ink);
+}
+
+.sources-fold-body {
+  margin-top: 8px;
+  padding: 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--raised);
+  font-size: 14px;
+}
+
+.sources-fold-body ol,
+.sources-fold-body ul {
+  margin: 6px 0;
+}
