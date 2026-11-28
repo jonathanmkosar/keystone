@@ -1,6 +1,6 @@
 # P14-04. Auto in the turn
 
-Status: todo
+Status: provisional
 Lane: chats + interface
 Depends on: P14-03, P4-03
 Owner gate: Approval of the chat mockups (P1-04), for the screen only.
@@ -26,3 +26,7 @@ What will be built, contract first (`docs/api/openapi.json` regenerated before t
 8. **Proof.** `go test ./internal/turn`: the test tenant's recorded turns reach each of its three steps; a hard message followed by an easy one goes back down; every tool step of one turn is on one model with one effort; a held chat on Auto with a verdict naming the hosted step reaches no hosted model; with the local machine not answering the reply carries the notice and a held chat fails with `local_unavailable`; stronger, and its refusals; a named model takes the chat off Auto. In `verify`, the `sensitive content` check gains a held chat on Auto through the real server, with a verdict naming the hosted step (`tools/verify/autoturn.go`).
 
 Left to others: the admin's refusals and the picker's greyed models (P14-05), unattended work on Auto (P14-06), Auto in usage (P14-07), the live check (P14-08).
+
+## Result
+
+Provisional on November 27, 2026, on the chat mockups (P1-04) for the screens only (journal `docs/journal/2026-11-27-chats-013.md`). The server side is done: `chats.auto` and `router.auto_default`; every message of a chat on Auto routed afresh by `router.Route` before its first call, the choice and its effort held for the whole turn, tool steps and a resumed turn included; `router_verdicts`; the `route` event; `ModelChoice`'s new fields; `POST /chats/{id}/turns/{turn}/stronger`; and a local step that does not answer routed again once, with the notice or, for a held chat, `local_unavailable`. The test tenant has a recorded ladder that ships switched off. Proven by `internal/turn/auto_test.go` and a case in the `sensitive content` check (`tools/verify/autoturn.go`). The screens (Auto in the picker and the phone's model sheet, the footnote, the verdict in the inspector, Try a stronger model) were seen in a browser at desktop and 375px widths and wait on P1-04. Decisions 0690 to 0696. Surface for P14-05 to P14-07: `SendBody.Auto`, `turn.ChatAuto`, `turn.SetChatAuto`, `turn.Verdicts`, `ModelChoice.may_switch_off` and `allowed` (placeholders until P14-05).
