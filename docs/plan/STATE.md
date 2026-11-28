@@ -9,7 +9,7 @@ Branch: `reboot` on github.com/jonathanmkosar/keystone, a public repo. Where the
 
 | Lane | In progress | Next |
 | --- | --- | --- |
-| core | nothing | P15-02 and P15-03, ready now, then P15-04 and P15-05 admin and views (provisional on A1 to A5), P14-07 Auto in usage after P14-04; P13-05 rebuild drill, after the tricked-agent drill and the week of daily use; scheduled backups once the owner answers |
+| core | nothing | P15-01 the admin account, reopened to rework the first pass into a separate account, and P15-06 encryption at rest, both ready now; then P15-02 and P15-03 after P15-01, P15-04 views (provisional on A3 to A5) and P15-05 admin isolation last, P14-07 Auto in usage after P14-04; P13-05 rebuild drill, after the tricked-agent drill and the week of daily use; scheduled backups once the owner answers |
 | models | nothing | P14-03 the router, ready now, P14-08 the router's live check (needs the owner); the live checks of the adapters and embeddings, with the owner's keys and models |
 | chats | nothing | P14-04 Auto in the turn after P14-03, then P14-05 the admin's router policy; P10-02 voice mode with interface; streamed events removed a week after a turn ends, if the owner agrees |
 | knowledge | nothing | P12-01 Waymarks cutover (needs the owner and P8-06) |
@@ -28,8 +28,8 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
-| A1. Is an admin a person with a mark, or a separate account? | A mark on a person, set only from the command line, with a step-up before the admin area | The recommendation | P15-01, P15-03 |
-| A2. What may an admin see of another person? | Numbers and settings only; never chats, titles, files, memory, traces or error words | The recommendation | P15-01, P15-02 |
+| A1. Is an admin a person with a mark, or a separate account? | Decided by the owner on November 27, 2026: a separate account that shows only admin controls | | P15-01, to be reworked |
+| A2. What may an admin see of another person? | Decided by the owner on November 27, 2026: numbers and settings only, never their data or logs; each person's data is encrypted at rest with server-held keys (P15-06) | | Nothing |
 | A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
 | A4. Views person by person, or by named sets? | Named view sets, with per-person additions and removals | The recommendation | P15-04 |
 | A5. Who uses the install besides the owner? | A few people; the simple set is chat, projects, artifacts and general settings | The recommendation | P15-02, P15-04 |
@@ -41,8 +41,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 | Effort: should each registry entry carry its highest effort, since a level a model does not take is refused? | Not now: `router.max_effort` ships as high, which every effort model takes | The recommendation | P14-01 |
 | Effort: is the default `anthropic.effort_models` list right for the owner's registry? | Check it at the P14-08 live check | The recommendation | P14-01 |
 | Admin: how often may Admin, People read the list, since every read writes two entries in each person's log? | On opening and on a refresh button, never on a timer | The recommendation | P15-02 |
-| Admin: a person added from the command line while the server runs is dropped by the server's next save of `keystone.json` (older than P15-01) | P15-02 merges the tenant list from disk on every save, as the marks are | The recommendation | P15-02 |
-| Admin: is `--yes` enough to remove the last admin? | Yes | The recommendation | P15-01 |
+| Admin: a person added from the command line while the server runs is dropped by the server's next save of `keystone.json` (older than P15-01) | P15-02 merges the tenant list from disk on every save | The recommendation | P15-02 |
 | The router's live check: Ollama 0.35.1 or later with the decision model pulled, the largest hosted model registered, and the ladder | Do all three before P14-08 | | P14-08 only |
 | Corrections on the first round of screens | Decided by the owner on November 27, 2026: the four drafts are approved as they are, and were recoloured in copper | | Nothing |
 | The mark on light pages | Decided by the owner on November 27, 2026: free-standing, with deeper coppers and a dark stone keystone, no tile (round two's A); the app and the browser-tab icon draw it | | Nothing |

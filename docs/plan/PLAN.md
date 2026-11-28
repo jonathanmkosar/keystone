@@ -195,7 +195,7 @@ Phases group the work; they are not a queue. Several lanes build at once, an ite
 | 12. Cutover | Own Waymarks tokens, New Keystone's wiki writes switched off, Gmail and Calendar as connectors, import of old chats and routines. | Only Keystone writes to Waymarks for Jonathan, and the morning brief runs here. |
 | 13. Hardening | Tricked-agent drill, tenant isolation drill, load test, backup and restore, rebuild drill, final screen comparison. | Every drill passes and the results are in the journal. |
 | 14. Model router | Effort on the seam, decision calls, the router, Auto in the turn, the admin's router policy, Auto for unattended work, Auto in usage, the live check. `docs/plan/SPEC-router-and-admin.md`, Part 1. | A held chat on Auto never reaches a hosted model, each step answers in the live check, and Usage shows Auto against the top step. |
-| 15. Admin and views | The admin mark and step-up, people and the install, admin settings from the browser, views and view sets, the admin isolation drill. `docs/plan/SPEC-router-and-admin.md`, Part 2. | An admin manages people, settings and views from the browser, sees no one's content, and a view that is off is refused by the server. |
+| 15. Admin and views | The admin account, people and monitoring, disabling a person, admin settings from the browser, views and view sets, encryption at rest, the admin isolation drill. `docs/plan/SPEC-router-and-admin.md`, Part 2. | An admin manages people, settings and views from the browser, sees no one's content, and a view that is off is refused by the server. |
 
 Jonathan has a chat he can use at the end of phase 4, with memory at the end of phase 6, and agents at the end of phase 8.
 

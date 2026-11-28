@@ -22,7 +22,7 @@ The model seam, the registry, routes, fallbacks, the spend cap and usage records
 
 - A new chat starts on Auto. Each reply names the model that answered, the effort, and the reason for the verdict, in its footnote and in the inspector.
 - On Auto a request passes the rules, then the decision model's verdict, then the model of the step the verdict names. The local chat model answers when the verdict says it can.
-- A chat on Auto never moves down a step. A new chat starts at the bottom.
+- Each message on Auto is routed afresh before its call. A hard message followed by an easy one goes back down.
 - With the local machine off or not answering, a chat on Auto is answered by the small hosted model and the reply says so. A held chat waits and says why.
 - A held chat on Auto reaches no hosted model, whatever the verdict.
 - An admin sets three things for each person: whether Auto is the default, whether the person may switch Auto off, and which models the person may pick. The server refuses a named model to a person who may not pick it; the screen only reflects that.
@@ -75,12 +75,12 @@ Rows that begin "Settled" were answered by the owner on November 26, 2026. "Assu
 | Settled. Nothing of the router runs on the machine that serves the local model. That machine serves two models: the chat model and the decision model | That machine serves a model. If it is off, routing must still work | No | the owner |
 | Settled. Rules first, then a verdict from a small local decision model that runs beside the chat model. With no decision model registered, the local chat model gives the verdict | Rules are free and exact. A decision model returns a typed answer with a probability far sooner than a 27B chat model writes one. The owner raised this on November 26, 2026 | No | the owner |
 | A verdict is a call of its own on the seam, as an embedding is (decision 0410), with one adapter for the decision endpoint | A decision model takes a state and typed questions and returns typed answers. None of the three adapters speaks that | It changes the seam's contract, which every lane builds on | the owner |
-| Settled. The decision model is shown the newest message and the call's facts: its size, whether it holds images or needs tools, and the step the chat is on. It is not shown the whole chat | A decision takes a small request, and a long chat is far larger. It also keeps a verdict quick | No | the owner |
+| Settled. The decision model is shown the newest message and the call's facts: its size, whether it holds images or needs tools, and the step the previous message used. It is not shown the whole chat | A decision takes a small request, and a long chat is far larger. It also keeps a verdict quick | No | the owner |
 | Settled. The admin policy is three settings for each person, at the `tenant-admin` scope: Auto is the default, the person may switch Auto off, and the models the person may pick | It is what the owner asked for, and the scope exists (decision 0001) | No | the owner |
 | Settled. Sub-agents and scheduled runs use Auto with the same ladder | Nobody is watching them to pick a model | No | the owner |
 | Assumed. The verdict chooses an effort of low, medium or high. The seam carries the effort and each adapter turns it into what its provider takes. Higher efforts are a setting | Every provider that takes an effort takes these three (decision 0111) | It changes the seam's contract | the owner |
 | A verdict whose probability is under a setting moves the request up one step | An unsure verdict is the cheapest sign that a request is hard | No | the owner |
-| Settled. A chat stays on the step it reached and only moves up. A new chat starts at the bottom | Prompt caches are kept for one model; changing model each message throws them away | No | the owner |
+| Settled. Every message is routed afresh before its call, and the choice holds for that message's whole turn, tool steps included (the owner, November 27, 2026; previously a chat stayed on the step it reached and only moved up) | The point is to pick the model before each message, so one hard message does not keep a chat on a costly model. A switch loses the prompt cache for that call, and Usage shows it | No | the owner |
 | Settled. With the local machine off or not answering, rules alone decide and a chat on Auto starts at the small hosted model, with a notice on the reply. A held chat waits and says why | Routing must not depend on one machine, and a held chat may never reach a hosted model | No | the owner |
 | Assumed. "Under 100k" is the size of the call in tokens: under it, the small hosted model is the step after the local one; over it, the call goes straight to a larger model. The number is a setting | It is the reading that fits the ladder the owner described | No | the owner |
 
@@ -89,7 +89,7 @@ Rows that begin "Settled" were answered by the owner on November 26, 2026. "Assu
 - The local model's verdict is slow or wrong -> a timeout that falls to rules alone, and a record of every verdict so it can be measured.
 - The local model answers when it should not have -> a "try a stronger model" action on every reply, counted as a miss.
 - Auto spends more than a fixed pick -> the usage report compares them.
-- One hard message keeps the rest of a chat on a costly model -> the reply names the step, and the spend cap still holds.
+- A switch of model loses the prompt cache for that call -> the reason line names the switch, and Usage shows cache reads, so the cost is measured.
 - Decision models are tested on sorting requests by intent, not on judging how hard one is -> every verdict is recorded with its probability and with whether the person asked for a stronger model.
 - A verdict waits behind the chat model on the same machine -> a timeout, a setting, after which rules alone decide.
 
@@ -111,7 +111,6 @@ Built as numbered items on `reboot`, in the models, chats, agents and interface 
 
 | Question | Owner | Blocks start? |
 |---|---|---|
-| May a person step a chat back down by hand? | the owner | No |
 | Is Auto measured in the background before it becomes the default? | the owner | No |
 | Is the local machine's Ollama at 0.35.1 or later? | the owner | No. It blocks the live check only |
 | When is the largest hosted model registered? Until then the ladder ends at the mid-sized one | the owner | No |
@@ -123,3 +122,4 @@ Built as numbered items on `reboot`, in the models, chats, agents and interface 
 - November 26, 2026: the owner gave the local machine's memory, 64 GB. A decision model fits beside the chat model.
 - November 26, 2026: round 1 answered. Settled: decision model first, a chat stays and only moves up, and the small hosted model with a notice when the local machine is off. Assumed: 100k is the call's size in tokens.
 - November 26, 2026: round 2 answered. Settled: nothing besides Keystone uses the router for now, Ollama serves the local models, the decision model sees the newest message and the call's facts, the admin policy is three settings for each person, and sub-agents and scheduled runs use Auto. Status clear. What this run missed: the first recommendation had the 27B chat model give the verdict; the owner's question about a separate decision model found the better design. A question to add to round one of a build that picks between models: is there a model made for this one job?
+- November 27, 2026: the owner changed stickiness: every message is routed afresh before its call, held for that message's turn. The floor is gone.

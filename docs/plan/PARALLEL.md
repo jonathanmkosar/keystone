@@ -64,9 +64,9 @@ An agent stops and waits only when every remaining item in every lane rests on t
 | Google sign-in for the connectors | P12-02 | Connectors proven on a stand-in mail and calendar server |
 | A copy of New Keystone's database, and go-ahead to import | P12-03 | The importer, proven on a fixture |
 | Ollama 0.35.1 or later with the decision model pulled, the largest hosted model registered, and his ladder | P14-02 and P14-08 (live checks only) | All router code, proven on recorded exchanges and the fake provider |
-| Answers A1 to A5 on admin and views (`docs/briefs/admin-and-views.md`) | P14-05 (screen), P15-01 to P15-04 | Everything, on the recommended answers, provisional |
+| Answers A3 to A5 on admin and views (`docs/briefs/admin-and-views.md`); A1 and A2 were answered on November 27, 2026 | P14-05 (screen), P15-04 | Everything, on the recommended answers, provisional |
 
-44 of the 94 items have an owner gate. All but two have something to build before the gate clears. Two items sit behind work that Jonathan alone can close: the final rebuild drill (P13-05) and the router's live check (P14-08), which is nothing but the live run.
+42 of the 95 items have an owner gate. All but two have something to build before the gate clears. Two items sit behind work that Jonathan alone can close: the final rebuild drill (P13-05) and the router's live check (P14-08), which is nothing but the live run.
 
 ## Waves
 

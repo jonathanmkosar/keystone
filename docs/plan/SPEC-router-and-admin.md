@@ -1,8 +1,8 @@
 # Spec: the model router, and admin and views
 
-Written from `docs/briefs/model-router.md` (clear) and `docs/briefs/admin-and-views.md`. The second brief's round of questions is not answered yet, so Part 2 takes the recommended answers. Each is marked **Assumed**, is listed in `STATE.md` under "Waiting on the owner", and the work that rests on it is `provisional`.
+Written from `docs/briefs/model-router.md` (clear) and `docs/briefs/admin-and-views.md`. The owner answered A1 and A2 on November 27, 2026, and chose encryption at rest. A3 to A5 are still the recommended answers, marked **assumed**, listed in `STATE.md` under "Waiting on the owner"; the work that rests on them is `provisional`.
 
-The items are P14-01 to P14-08 and P15-01 to P15-05 in `docs/plan/items/`. When this spec and the code disagree, this spec wins until a decision record changes it. The four fixed rules in `PLAN.md` hold for everything here, and nothing here loosens a check on them. Every value someone might change is a setting; the tables below name each one, its default and its scope.
+The items are P14-01 to P14-08 and P15-01 to P15-06 in `docs/plan/items/`. When this spec and the code disagree, this spec wins until a decision record changes it. The four fixed rules in `PLAN.md` hold for everything here, and nothing here loosens a check on them. Every value someone might change is a setting; the tables below name each one, its default and its scope.
 
 ## Part 1. The model router
 
@@ -21,7 +21,6 @@ The router only ever narrows or orders what `routing.Plan` allows. It never adds
 - **Auto**: the picker's choice that lets the router decide. A chat is on Auto or on a named model.
 - **Ladder**: the admin's ordered list of models for a person, smallest first.
 - **Step**: one model on the ladder.
-- **Floor**: the lowest step a chat may use. It starts at the bottom and only rises.
 - **Verdict**: the router's answer for one request: step, effort, probability and a one-line reason.
 
 ### The ladder
@@ -37,8 +36,7 @@ A name that is not a usable model in the person's registry is skipped. An empty 
 1. **Held chat.** A chat held for sensitive content (decision 0211) may use only steps whose model may read sensitive content (`models.Model.MayReadSensitive`). If none is left, the turn fails with the code `sensitive`, as today.
 2. **Needs.** An image asks for `vision` (decision 0382), offered tools ask for `tools`, a file asks for `files`. A step whose model lacks one is skipped.
 3. **Size.** A step with a size limit is skipped when the call's estimate is over it. Every step must also fit the call in its window (the budget's check).
-4. **Floor.** No step below the chat's floor.
-5. **Local machine down.** When the decision call or the last call to a local endpoint failed with `unavailable` within `router.local_down_for`, local steps are skipped for this request and the reply carries the notice `local_unavailable`. A held chat with only local steps fails with the code `local_unavailable` and says to try again when the machine is back. It never moves to a hosted model.
+4. **Local machine down.** When the decision call or the last call to a local endpoint failed with `unavailable` within `router.local_down_for`, local steps are skipped for this request and the reply carries the notice `local_unavailable`. A held chat with only local steps fails with the code `local_unavailable` and says to try again when the machine is back. It never moves to a hosted model.
 
 What is left are the **candidates**. With one candidate there is no verdict call.
 
@@ -47,7 +45,7 @@ What is left are the **candidates**. With one candidate there is no verdict call
 The decision model is the registry entry named by `router.decision_model`, which has the capability `decision` (below). It is shown:
 
 - the newest message's text, cut to `router.verdict_max_chars`;
-- the call's facts: estimated tokens, whether it holds images or files, how many tools are offered, the floor step's label, and how many turns the chat has.
+- the call's facts: estimated tokens, whether it holds images or files, how many tools are offered, the step the previous message used, and how many turns the chat has.
 
 It is never shown the rest of the chat.
 
@@ -89,13 +87,14 @@ The router never asks for more than `router.max_effort`.
 
 ### Auto in the turn
 
-- A migration gives each chat `auto` (yes or no) and `auto_floor` (a registry name). A new chat takes `router.auto_default` and the ladder's bottom.
-- A turn of a chat on Auto, with a ladder, asks the router. The chosen model is the ask's model, and the effort is set. Everything after that is the existing route and chain.
-- When the reply ends well, the floor rises to the step that was asked for, if that is higher. A fallback that answered does not lower it.
+- A migration gives each chat `auto` (yes or no). A new chat takes `router.auto_default`.
+- **Every message is routed afresh, before its call.** The router decides from that message and the call's facts. Nothing from earlier messages holds a chat on a step. The chosen model is the ask's model, and the effort is set. Everything after that is the existing route and chain.
+- **The choice holds for the whole turn.** Every tool step of that message's tool loop uses the same model and effort, since a thinking block goes back only to the model that wrote it. The next message is routed again.
+- **Switching costs the cache.** A message routed to another model than the one before loses that provider's prompt cache for its call. The reason line says so ("switched from <label>"), and the usage records already show cache reads and writes, so the cost is visible on Usage.
 - The turn's record keeps `auto`, the step, the effort, the reason and the verdict's id.
 - A new table, `router_verdicts`: id, turn id, request id, the decision model, the facts it was shown (as JSON, without the message text, which is in the chat), the step answered, its probability, the effort, `moved_up`, `timed_out`, `rules_only` with its reason, latency in milliseconds, `stronger_asked`, and when.
-- **Try a stronger model.** `POST /api/v1/chats/{id}/turns/{turn}/stronger` writes that turn again, on a new branch of the message tree (decision 0020), one step above the step that answered. It raises the floor and sets `stronger_asked` on the verdict. It is refused on the top step, or when no step higher up may take the call.
-- `GET /api/v1/chats/{id}/model` (`ModelChoice`) gains `auto`, `floor`, `ladder` (names and labels), `may_switch_off`, `allowed` and `held`. `held` replaces the browser's own record of held chats (decision 0241), which can then be dropped.
+- **Try a stronger model.** `POST /api/v1/chats/{id}/turns/{turn}/stronger` writes that turn again, on a new branch of the message tree (decision 0020), one step above the step that answered, and sets `stronger_asked` on the verdict. The next message is routed afresh. It is refused on the top step, or when no step higher up may take the call.
+- `GET /api/v1/chats/{id}/model` (`ModelChoice`) gains `auto`, `last_step`, `ladder` (names and labels), `may_switch_off`, `allowed` and `held`. `held` replaces the browser's own record of held chats (decision 0241), which can then be dropped.
 - A turn's stream starts with a `route` event: `auto`, the model, the step, the effort, the reason, and any notice.
 
 ### The admin's policy for each person
@@ -136,7 +135,7 @@ Picking a named model in a chat on Auto takes the chat off Auto, when that is al
 
 ### Unattended work
 
-Sub-agents, background tasks and scheduled runs start on Auto with their own floor at the bottom, unless the call that started them names a model. A held parent's sub-agent is held, as decision 0483 already says. At the cap, unattended work falls back to a local model or stops, as decision 0392 says.
+Sub-agents, background tasks and scheduled runs start on Auto, each of their turns routed afresh, unless the call that started them names a model. A held parent's sub-agent is held, as decision 0483 already says. At the cap, unattended work falls back to a local model or stops, as decision 0392 says.
 
 ### Screens
 
@@ -150,7 +149,8 @@ Sub-agents, background tasks and scheduled runs start on Auto with their own flo
 
 - Recorded turns in the test tenant reach each step of the ladder, with the fake provider giving the verdicts.
 - A held chat on Auto, given a verdict that names a hosted step, reaches no hosted model. This joins the `sensitive content` check in `verify`.
-- A verdict under the confidence level moves up one step. A timed-out verdict uses the rules alone. A chat's floor never falls.
+- A verdict under the confidence level moves up one step. A timed-out verdict uses the rules alone.
+- Each message is routed afresh: a hard message followed by an easy one goes back down, and every tool step of one turn stays on its model.
 - The local machine not answering: a chat on Auto is answered by the next step with the notice; a held chat fails with `local_unavailable`.
 - A person who may not pick a model, or may not leave Auto, is refused by the server.
 - Effort reaches each adapter's request in the shape in the table above, on recorded exchanges.
@@ -159,65 +159,92 @@ Sub-agents, background tasks and scheduled runs start on Auto with their own flo
 
 ## Part 2. Admin and views
 
-### Assumed answers (owner to confirm)
+### The owner's answers (November 27, 2026)
 
-- **A1.** An admin is a person with a mark, not a second account. The first admin is marked from the command line only. The admin area asks for the password or a passkey again, and stays open for `admin.step_up_for`.
-- **A2.** An admin sees another person's numbers and settings, never their chats, titles, messages, files, memory, traces or error words.
-- **A3.** A view that is off is off: its routes and its tools are refused for that person, not only hidden from the menu.
+- **A1, answered.** An admin is a separate account, not a person with a mark. Signing in as an admin shows only admin controls: no chats, no files, no models of its own.
+- **A2, answered.** An admin sees another person's numbers and settings, never their data or their logs: no chats, titles, messages, files, artifacts, memory, traces, error words or audit log entries.
+- **Encryption at rest, answered.** Every person's data is encrypted on disk with their own key, held by the operating system (server-held keys).
+- **Operations, answered.** A person's own jobs, spend and storage stay in that person's Settings. Anything install-wide is in the admin account only.
+- **Disable, asked for.** An admin can disable a person, and enable them again.
+
+Still assumed, from the recommendations, and listed in `STATE.md`:
+
+- **A3.** A view that is off is off: its routes and its tools are refused for that person, not only hidden.
 - **A4.** Views are given by named view sets, with per-person additions and removals on top.
-- **A5.** Besides the owner, a few people use the install. The shipped "simple" set is chat, projects, artifacts and the settings needed to use them.
+- **A5.** Besides the owner, a few people use the install. The shipped "simple" set is chat, projects, artifacts and general settings.
 
-### The admin mark
+### The admin account
 
-- Each tenant's entry in `keystone.json` gains `admin`, yes or no. Only `go run ./tools/tenant admin <id> on|off` changes it. No route can. The command warns before it removes the last admin.
-- **Step-up.** `POST /api/v1/admin/step-up` with the password or a passkey. The session row gains `admin_until`, now plus `admin.step_up_for`. Every admin route refuses a session without it: 401, code `step_up`.
-- The admin routes are under `/api/v1/admin/`, behind a new door in the API's list (decision 0040). The door checks the mark and the step-up.
-- **Audit.** Every admin route call is written to the admin's own audit log with the actor `admin`. Every read or change of another person's numbers or settings is also written to that person's log, with the actor `admin:<the admin's tenant id>`, and a change records the old and the new value.
+- Admin accounts are kept apart from people, in their own database, `data/admin/admin.db`: the accounts, their passwords and passkeys, their sessions, and the admin audit log. An admin account has no tenant database, so it has nothing of a person's to show.
+- An admin session's token has its own form, `ksa_` and 32 random bytes as hex. A person's token is refused on every admin route, and an admin's token on every person's route. The two kinds are told apart by the door before anything is read.
+- Admin accounts are made only from the command line: `go run ./tools/admin add "Name"`, then `go run ./tools/admin password <id>`. No route makes or removes one. The command warns before it removes the last one.
+- Sign-in is at `/admin/sign-in`, with a password or a passkey, under the same rules as a person's (wrong tries, waits, hashing: `docs/architecture/signin.md`). A session lasts `admin.session_for` and ends after `admin.idle_for` without use.
+- The owner has two sign-ins: his own person, and his admin account.
+- **Replaces the first pass.** P15-01 built the admin as a mark on a person with a step-up. The mark, `tools/tenant admin` and the step-up are removed. The door, `internal/adminview` and the two audit logs stay.
 
-### Reading another person
+### What an admin never sees
 
-- A new package, `internal/adminview`, is the only code the admin routes use to read another tenant. It returns numbers and settings, nothing else.
-- A new standing check, `admin isolation`:
-  - it proves `internal/adminview` does not import the chat, turn, context, knowledge, uploads, artifacts, projects, recap, inspector or share packages, itself or through another;
-  - it runs a drill in the manner of the isolation drill (decision 0491): marker words placed in a second person's chats, titles, files, memory and traces appear in no reply of any admin route.
+- `internal/adminview` is the only code the admin routes use to read a person. It returns numbers and settings, nothing else.
+- Every admin read or change of a person is written to the admin audit log, and to that person's audit log with the actor `admin:<admin id>`. A change records the old and the new value. The person can see these entries in their own Settings. The admin cannot read the person's log.
+- The server's own log carries no person's content.
+- The standing check `admin isolation`:
+  - `internal/adminview` imports none of the chat, turn, context, knowledge, uploads, artifacts, projects, recap, inspector, share or audit-reading packages, itself or through another;
+  - marker words placed in a second person's chats, titles, files, memory, traces and audit log appear in no reply of any admin route, and in no line of the server's log.
 
-### People and the install
+### Encryption at rest
 
-- `GET /api/v1/admin/people`, for each person: id, name, admin mark, when added, last sign-in, spend this month against the cap, the size of their database, files and artifacts, jobs failed and stuck in the health window, the number of schedules, model health as counts by state, and which watch levels are crossed. No titles, no error words.
-- `GET /api/v1/admin/install`: the disk, the number of people, the version, the install settings that were changed, and the sampler's state.
-- `POST /api/v1/admin/people` adds a person by name and returns a one-time setup code, good for `admin.setup_code_for`. The person opens `/setup`, enters the code, and sets their own password or passkey.
-- `POST /api/v1/admin/people/{id}/setup-code` gives a new setup code. The admin never sees or sets anyone's password.
+Server-held keys: each person's data key, wrapped by the install master key that the operating system holds (decision 0006). The same key already seals the person's secrets.
+
+- **What is encrypted:** the person's database (chats, messages, memory, vectors, usage records, the audit log, snapshots and everything else in it), their uploads, files, artifacts and project files. Nothing of a person's is left in plain text in their folder.
+- **The database** is encrypted page by page, with its write-ahead log and any temporary files. The driver Keystone uses (decision 0003) has no encryption of its own, as far as the planner knows. The item chooses between an encrypting layer under the driver and another driver, measures it with the load test, and records the choice in a decision record.
+- **Files** are sealed with AES-256-GCM, in chunks for large files, bound to the tenant id. A file kept by its hash is named by a keyed hash, so equal names do not show equal files across people.
+- **An existing install** is encrypted in place at the first start of the new version, one person at a time, after a backup of each, and refuses to start a person whose folder is half done.
+- **Backups** stay sealed under their passphrase (decision 0260).
+- **What it protects:** a copied data folder, a stolen disk and a backup file read without its passphrase. The admin account has no route to content at all. It does not protect against someone who controls the machine and runs code as the account Keystone runs as. The owner chose this, knowing it.
+
+### Disabling a person
+
+- `POST /api/v1/admin/people/{id}/disable` and `.../enable`.
+- A disabled person:
+  - cannot sign in, and is told the account is disabled and to ask the admin;
+  - has every session ended at once;
+  - has their schedules held, and their background tasks and sub-agents paused, through the pause switches that exist (decisions 0343, 0390);
+  - has their share links answer as revoked while disabled.
+- Their data is kept, and stays encrypted. Enabling them restores sign-in, the schedules and the links. Runs missed while disabled are not caught up.
 - Removing a person stays on the command line.
-- Screens: **Admin → People** and **Admin → Install**, from `design/screens/Admin.html` and `Operations.html` (approved November 27, 2026).
 
-### Settings from the browser
+### People, the install and monitoring
 
-- Install settings are stored in `keystone.json` under `settings`, and read at start and on each change. The registry gains an optional field, `restart`, for a setting that takes effect only after a restart. The screen says so.
+- **People:** `GET /api/v1/admin/people`, for each person: id, name, enabled, when added, last sign-in, spend this month against the cap, the size of their database, files and artifacts, jobs failed and stuck, the number of schedules, model health as counts by state, and the watch levels crossed.
+- **One person:** `GET /api/v1/admin/people/{id}/usage?from=&to=`: spend and calls by day and by model, failures counted by kind (never their words), and storage over time.
+- **The whole install:** `GET /api/v1/admin/install`: spend and calls for all people this month, by model and by day; failures by kind; the disk; the number of people; the version; the install settings that were changed; and the sampler's state.
+- **Adding a person:** `POST /api/v1/admin/people` with a name returns a one-time setup code, good for `admin.setup_code_for`. The person opens `/setup`, enters it, and sets their own password or passkey. `POST /api/v1/admin/people/{id}/setup-code` gives a new one. The admin never sees or sets anyone's password.
+- **Operations moves.** A person's Operations page keeps their own jobs, schedules, spend, storage and model health, under Settings. The disk and everything install-wide leave it, and are shown only in the admin account. This changes decision 0460.
+- Screens: **People**, **A person**, **Install**, from `design/screens/Admin.html` and `Operations.html` (approved November 27, 2026).
+
+### Settings for people
+
 - `GET` and `PUT /api/v1/admin/people/{id}/settings`: that person's `tenant-admin` settings, through `tenantsettings.Set` with the role `admin`. The router's policy is set here.
-- `GET` and `PUT /api/v1/admin/install/settings`: the `install` settings.
+- `GET` and `PUT /api/v1/admin/install/settings`: the `install` settings, stored in `keystone.json` under `settings` and read at start and on each change. The registry gains an optional field, `restart`, for a setting that takes effect only after a restart.
+- **Assumed:** the admin also sets install-wide defaults for the settings that are each person's own (`tenant` scope). A new person starts with them. A person's own choice stays theirs, and the admin cannot change it.
 - The fixed rules are refused for every role, as now.
 
 ### Views
 
-- **The view list**, data in `internal/views`: for each view an id, a label, a parent (for submenus), its screen paths, its API route prefixes, its tool names, and whether it is always on. For example: chat (always), projects, artifacts, tasks, scheduled, operations, usage, memory, connectors, settings.general (always), settings.models, settings.approvals, settings.connectors. Admin is shown only to admins and is in no set.
-- **View sets** are install data in `keystone.json` under `view_sets`, a name and its views. Shipped: `full` (every view) and `simple` (chat, projects, artifacts, settings.general). `GET` and `PUT /api/v1/admin/view-sets`.
-- **For each person**, `tenant-admin` settings: `views.set` (default `full`), `views.add` and `views.remove` (view ids, separated by commas).
+- **The view list**, data in `internal/views`: for each view an id, a label, a parent (for submenus), its screen paths, its API route prefixes, its tool names, and whether it is always on. For example: chat (always), projects, artifacts, tasks, scheduled, operations, usage, memory, connectors, settings.general (always), settings.models, settings.approvals, settings.connectors.
+- **View sets** are install data in `keystone.json` under `view_sets`. Shipped: `full` (every view) and `simple` (chat, projects, artifacts, settings.general). `GET` and `PUT /api/v1/admin/view-sets`.
+- **For each person**, `tenant-admin` settings: `views.set` (default `full`), `views.add` and `views.remove`.
 - **The person's own**, `tenant` settings: `views.hidden` and `views.order`. These only hide or reorder views the person has.
-- **Enforcement.**
-  - The API door checks each route against the person's views. A route of a view they lack is refused: 403, code `view_off`.
-  - The tool registry withholds the tools of a view they lack.
-  - A person without `scheduled` keeps their schedules, held, until the view returns.
-- `GET /api/v1/me/views`: the person's views in their order, with the hidden ones marked. The sidebar and every submenu are drawn from it.
-- Screens:
-  - Settings → General → Menus, for hiding and ordering.
-  - Admin → People → a person → Views.
-  - Admin → View sets.
+- **Enforcement.** The door refuses a route of a view the person lacks: 403, code `view_off`. The tool registry withholds the view's tools. A person without `scheduled` keeps their schedules, held, until the view returns.
+- `GET /api/v1/me/views` draws the sidebar and every submenu.
+- Screens: Settings → General → Menus; the admin's A person → Views; the admin's View sets.
 
 ### Admin settings
 
 | Key | Type | Default | Scope |
 | --- | --- | --- | --- |
-| `admin.step_up_for` | duration | 15m | install |
+| `admin.session_for` | duration | 8h | install |
+| `admin.idle_for` | duration | 30m | install |
 | `admin.setup_code_for` | duration | 24h | install |
 | `views.set` | string | full | tenant-admin |
 | `views.add` | string | empty | tenant-admin |
@@ -227,12 +254,14 @@ Sub-agents, background tasks and scheduled runs start on Auto with their own flo
 
 ### Proof
 
-- A person without the mark is refused on every admin route. An admin without a fresh step-up is refused.
-- The `admin isolation` check passes.
-- Each admin read and change is in both audit logs.
-- An admin changes a person's `tenant-admin` setting, and the person's next turn uses it. A person cannot change it.
-- A person on `simple` is refused the routes and tools of a view outside it. Their sidebar shows only their views. A held schedule does not run.
-- A person hides and reorders their own views. They cannot add one they were not given.
+- A person's token is refused on every admin route, and an admin's token on every person's route. An admin account has no chat, file or model route at all.
+- The `admin isolation` check passes, including the server's log.
+- Each admin read and change is in both audit logs, and the person sees it in their Settings.
+- Every file in a person's folder, read straight from disk, holds no marker word and no plain database header. A folder copied to another tenant, or opened without the master key, does not open. The load test still passes with encryption on.
+- An existing plain install is encrypted in place, and a start interrupted halfway refuses the half-done person and resumes.
+- A disabled person cannot sign in, their sessions end, their schedules do not run, and their share links answer as revoked. Enabling them restores all of it.
+- An admin changes a person's `tenant-admin` setting, and the person's next turn uses it. The admin cannot change a person's own setting.
+- A person on `simple` is refused the routes and tools outside it, and sees only their views.
 - A setup code works once, and not after it expires.
 
 ## Out of scope
