@@ -258,8 +258,10 @@ func TestOfferAndCallOverHTTP(t *testing.T) {
 			t.Errorf("%s was offered whole before it was loaded: %+v", d.Name, d)
 		}
 	}
-	if !strings.HasPrefix(offer[4].Description, "Searches the notes for words.") || strings.Contains(offer[4].Description, "Use it before") {
-		t.Errorf("the search was offered with %q, want its first line", offer[4].Description)
+	// The connector's results are outside content, so its words are offered
+	// only through load_tools (P13-01, decision 0760).
+	if strings.Contains(offer[4].Description, "Searches the notes") || !strings.Contains(offer[4].Description, "Notes connector") {
+		t.Errorf("the search was offered with %q, want its connector's name and none of the server's words", offer[4].Description)
 	}
 
 	// load_tools gives the definitions, as outside content.
