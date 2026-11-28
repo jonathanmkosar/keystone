@@ -1,6 +1,6 @@
 # P13-01. Tricked-agent drill
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P7-03, P7-04, P10-03
 Owner gate: none
@@ -32,3 +32,8 @@ A test runs it, and a new standing check, `tricked-agent drill`, runs it in `ver
 
 Not tried, with the reason in the doc: a real browser (the browser check covers it where one is installed), real Google and real search providers (live checks are the owner's), Waymarks (one instance per person; the built-in store has the same labels).
 
+## Result
+
+Done on November 28, 2026. `internal/trickdrill` runs the drill in about six seconds: 41 attempts from thirteen cases, with every tool that changes something set to `always`. Planted instructions in a web search result, a web page and a fetched file in the agent's browser, an email, a calendar event, a connector's result, a connector tool's description (loaded, and offered by name in a fresh chat) and a knowledge source try to send mail, draft it, invite and delete, write files through a connector, type and click on a page, start a background task, start a sub-agent that writes, call `set_tool_policy` and `approve_tool_call`, reach Keystone's own address with `web_fetch` and the browser, and carry a sensitive word to the hosted model through a sub-agent, `web_search`, `web_fetch`, the browser, the knowledge lookups and `read_chat`. Every attempt is asked (and declined), refused, withheld, contained or kept out; no stand-in saw a side effect; neither the hosted model nor the search provider was sent the sensitive marker; the person's policies and settings did not move; and every call has both its audit entries. It runs in `go test` and as the standing check `tricked-agent drill`; `verify` is 49 of 49.
+
+**One attempt got through and was fixed**: a connector tool's description is offered in every call before the tool is loaded, so it reached the model before any tool had run, the chat was not marked as having read outside content, and a tool set to `always` ran on it. A connector whose results are outside content is now offered by its tools' names alone until `load_tools`, whose result marks the chat (decision 0760, `internal/connectors/offer.go`, `TestAnOutsideConnectorsWordsAreNotOfferedBeforeLoadTools`). Reported, not changed: a fetch's address can carry a non-sensitive chat's words to a site without asking (an owner question, decision 0763). Every attempt and its result: `docs/architecture/tricked-agent-drill.md`. Journal: `docs/journal/2026-11-28-agents-018.md`.
