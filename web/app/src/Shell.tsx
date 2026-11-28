@@ -96,7 +96,7 @@ export function Shell({
             <Link to="/chats" state={{ find: true }} className="icon-button search-button" aria-label="Search chats" title="Search chats">
               <Icon name="search" />
             </Link>
-            <button type="button" className="icon-button" aria-label="Close sidebar" onClick={toggle}>
+            <button type="button" className="icon-button close-sidebar" aria-label="Close sidebar" onClick={toggle}>
               <Icon name="sidebar" />
             </button>
           </div>

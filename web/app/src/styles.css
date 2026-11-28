@@ -195,14 +195,34 @@ a {
   gap: 2px;
 }
 
-/* On a phone the magnifier is a round button, as in the phone's own apps. */
+/* On a phone the drawer's head is the wordmark alone, large, and a round
+   magnifier; a tap on the page beside the drawer closes it, so it has no
+   close button (the owner, November 27, 2026). */
 @media (max-width: 760px) {
+  .sidebar-head {
+    min-height: 56px;
+    padding: 6px 2px 6px 8px;
+  }
+
+  .sidebar-head .brand .mark {
+    display: none;
+  }
+
+  .sidebar-head .wordmark {
+    font-size: 30px;
+  }
+
   .sidebar-head .search-button {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
     border-radius: 50%;
     background: var(--raised);
     color: var(--ink);
+  }
+
+  .sidebar-head .close-sidebar {
+    display: none;
   }
 }
 
@@ -546,15 +566,24 @@ a {
     display: inline-flex;
   }
 
+  /* The drawer takes all but a strip of the screen, and the page slides
+     over to fill that strip, its edge rounded, as in the phone's own apps. */
+  .frame {
+    --drawer-width: min(calc(100vw - 72px), 360px);
+    overflow: hidden;
+  }
+
   .sidebar {
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 20;
-    max-width: 86vw;
+    width: var(--drawer-width);
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+    border-right: 0;
     transform: translateX(-100%);
-    transition: transform 160ms ease;
+    transition: transform 200ms ease;
   }
 
   .sidebar,
@@ -566,13 +595,24 @@ a {
     transform: none;
   }
 
+  .main {
+    transition: transform 200ms ease;
+  }
+
+  .drawer-open .main {
+    transform: translateX(var(--drawer-width));
+    overflow: hidden;
+    border-left: 1px solid var(--line);
+    border-radius: 28px 0 0 28px;
+  }
+
   .drawer-open .scrim {
     display: block;
     position: fixed;
     inset: 0;
     z-index: 10;
     border: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.25);
   }
 
   .home {
@@ -585,7 +625,8 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sidebar {
+  .sidebar,
+  .main {
     transition: none;
   }
 }
