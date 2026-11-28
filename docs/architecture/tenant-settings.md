@@ -49,8 +49,11 @@ Structured data a tenant holds, such as the model registry (P3-02), does not go 
 - Each of the four fixed rules is tried by both roles, with the real registry and with a forged one that lists the rule as a setting, and straight into the table. All are refused.
 - A stored value that no longer fits a changed registry falls back to the default.
 
+## The install's defaults
+
+Since P15-03, a setting with no stored value has the default in force for the install: `Get` and `All` fall back to `settings.DefaultFor`, the install's own value when the admin set one in `keystone.json`, and the shipped default otherwise, whatever registry they were handed. A person who has not chosen follows a person default the admin sets, and a new person starts with it; a person's own value always wins, and the role `admin` still cannot set or clear it. See [admin-settings.md](admin-settings.md) and decision [0712](decisions/0712-a-persons-default-is-followed-until-they-choose.md).
+
 ## Not here yet
 
-- The install's own stored values, for settings with the `install` scope. `keystone serve` takes its address from a flag, and the data folder is the default.
 - Routes to read and change settings. They come with the API shell (P2-05). A change made through the API is recorded in the audit log like any other call.
 - Values read as their type. `Get` returns text, and a caller reads it as the registry's type says.

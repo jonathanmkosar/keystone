@@ -37,6 +37,7 @@ Each lane keeps its settings in its own JSON file: `settings/core.json`, `settin
 | `options` | For a string with a fixed set of values. The default must be one of them. |
 | `scope` | Who may change it. See below. |
 | `description` | One or more full sentences: the whole explanation. The settings screen shows it once a setting's row is opened. |
+| `restart` | Optional, `true` or left out. On an install setting only: the server reads it once, at start, so a change takes effect when Keystone next starts. Since P15-03 (decision [0713](decisions/0713-restart-marks-install-settings-read-once-at-start.md)). |
 
 ## Who may change a setting
 
@@ -90,6 +91,4 @@ Reading the registry fails, and so does `verify`, when a file's name and its `la
 
 A tenant's own values are kept in its database by `internal/tenantsettings`. See [tenant-settings.md](tenant-settings.md).
 
-## Not built yet
-
-The install's own stored values, for settings with the `install` scope. Today those have their defaults, and `keystone serve` takes its address from a flag.
+The install's own values (P15-03): an `install` setting's value, and the default each person's own setting starts from, are kept in `keystone.json` and set by the admin from the browser. `settings.UseInstalled` hands them to the registry: `Registry()` gives each as its setting's `Default`, `settings.Shipped` gives the lane file's, and `settings.DefaultFor` gives the default in force now for a registry read before a change. See [admin-settings.md](admin-settings.md).

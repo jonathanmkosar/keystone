@@ -2,7 +2,7 @@
 
 Folders: `internal/installsettings`, with `settings/installed.go` (the overlay), `internal/tenant/installvalues.go` (the file), `internal/adminview/settings.go` and `internal/adminapi/settings.go` (the routes), `cmd/keystone/installsettings.go`. Screens: `web/app/src/AdminSettings.tsx`, `adminSettingsCalls.ts` and `admin-settings.css`.
 
-P15-03. The design is `docs/plan/SPEC-router-and-admin.md`, Part 2, "Settings for people", with the admin account of [admin.md](admin.md) and the registry of [settings.md](settings.md). Decisions 0710 to 0715.
+P15-03. The design is `docs/plan/SPEC-router-and-admin.md`, Part 2, "Settings for people", with the admin account of [admin.md](admin.md) and the registry of [settings.md](settings.md). Decisions [0710](decisions/0710-install-values-are-kept-in-keystone-json.md) to [0715](decisions/0715-admin-settings-screens-are-drawn-by-scope.md).
 
 ## Who sets what
 

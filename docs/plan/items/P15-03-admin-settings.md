@@ -1,6 +1,6 @@
 # P15-03. Admin settings from the browser
 
-Status: doing (core)
+Status: provisional, on the owner gate (the defaults for a person's own settings are assumed, decision 0712) and on the mockups for the screens (decision 0715)
 Lane: core + interface
 Depends on: P15-01
 Owner gate: The defaults for a person's own settings are assumed.
@@ -27,3 +27,7 @@ Branch `core/p15-03-admin-settings`, cut from `reboot`. Built beside P15-02 (peo
 - **Screens**, provisional on the Admin draft's Settings tab: Admin â†’ Settings (install settings and person defaults, searchable by section, each marked "after a restart" where it is) and A person â†’ Settings (their `tenant-admin` settings, the router's policy among them, drawn from the registry by scope and naming no key). New files beside `AdminApp.tsx`, which gains only the paths and links.
 - **Proof.** Go tests: the file keeps unknown fields and keys; the overlay, `DefaultFor` and a new person's defaults; the routes: an admin sets the test tenant's `router.ladder` and `router.decision_model` and the person's next turn on the real handler is routed by Auto; a person's own setting and a fixed rule refused with nothing written in the person's log; each change in both logs with old and new; install values read at start and on each change; a `restart` change waits. `verify` green.
 - **Provisional:** the person defaults' semantics (owner gate), and the screens on the mockup.
+
+## Result
+
+Built as planned on November 28, 2026; see `docs/architecture/admin-settings.md`, decisions 0710 to 0715 and the journal `docs/journal/2026-11-28-core-019.md`. Install values and person defaults are kept in `keystone.json` (`settings`, `person_defaults`) and reach the code through one overlay on the registry, which `tenantsettings` falls back to. The registry's `restart` field marks the 172 install settings read once at start, held by a test. `GET` and `PUT /api/v1/admin/people/{id}/settings` and `/api/v1/admin/install/settings` go through `adminview`; each change of a person's setting is in their log and the admin log with its old and new value, an install change in the admin log. The proof runs on the real handler: the admin sets the test tenant's `router.ladder` and `router.decision_model` and the person's next turn is routed by Auto; a person's own setting and a fixed rule are refused with nothing written; a new person, and anyone who has not chosen, starts with a person default. The screens (Admin → Settings, People, a person's Settings) are drawn from the registry by scope and wait for the integrator's `web/dist` rebuild to be seen.
