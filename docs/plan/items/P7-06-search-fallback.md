@@ -1,6 +1,6 @@
 # P7-06. Search providers and the fallback
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P2-03, P2-04
 Owner gate: None.
@@ -23,3 +23,7 @@ Branch `agents/p7-06-search-fallback`, cut from `reboot`. All new code is in new
 - **Settings**: the eleven `web.` settings in `settings/agents.json`.
 - **Surface for P7-08**: `web.Own(store)` and `web.OpenInstall(install)`, each with List (entry, state, what is left, searches and cost this month, whether a key is set, never a key), Add, Update, SetKey, Remove and Order. No routes here: the screens and their routes are P7-08.
 - **Proof** (`go test ./internal/tools/web`, stand-ins on this machine only, a stand-in Tavily on `httptest`): every line of the spec's proof but the other providers and the screens, the move (a search still answers through Tavily after it), and a `no keys in output` surface for both vaults (`tools/verify/searchproviders.go`). Left: P7-07's adapters and live check, P7-08's screens and routes, a command-line way to add an install provider (with P7-08 or P15-02).
+
+## Result
+
+Built as planned, November 27, 2026, on `agents/p7-06-search-fallback`; see `docs/architecture/web-search.md` ("Search providers and the fallback"), decisions 0680 to 0686 and the journal `docs/journal/2026-11-27-agents-015.md`. Every line of the spec's proof but the other providers, the screens and the live check passes on stand-ins on this machine (`go test ./internal/tools/web`, `go test ./internal/tenant`, and a `search providers` surface in `no keys in output`). Two choices the spec left open: the moved Tavily entry keeps `provider.tavily` as its key's name (0681), and a person's own providers come before the install's whatever the strategy (0682). Left for P7-07: Brave, Exa, Serper and SearXNG adapters and the live check with the owner's keys; for P7-08: the routes and screens over `web.Own` and `web.OpenInstall`, and the step row over `web.Answered`.

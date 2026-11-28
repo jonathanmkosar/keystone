@@ -17,6 +17,8 @@ data/
 
 The data folder is the `data.dir` setting. A relative folder is read from the repo root. `keystone.json` is written to a temporary file and renamed into place, so a crash never leaves half a registry. Fields this part does not know are kept when it saves.
 
+`data/admin/` is the install's own folder, beside `tenants/`, for what belongs to no one person: the install's search providers in `search.db` and the install vault `secrets.bin` (P7-06, [web-search.md](web-search.md)), and the admin accounts' `admin.db` (P15-01). `Install.AdminFolder()` gives its path and makes nothing; a part makes the folder when it first writes there. `Install.InstallVault()` gives the install vault, opened with the install's keeper.
+
 ## Tenant ids
 
 An id is sixteen random hex characters. A handle is opened by id, and only for an id in the registry. Anything else, such as `..` or a path, is refused before any folder is touched.
