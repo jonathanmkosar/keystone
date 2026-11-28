@@ -1,6 +1,6 @@
 # P14-05. The admin's router policy
 
-Status: doing (chats)
+Status: provisional
 Lane: chats + interface
 Depends on: P14-04
 Owner gate: The owner's answers on admin and views (A1 to A5), for the screen only.
@@ -24,3 +24,7 @@ Branch `chats/p14-05-router-policy`, cut from `reboot` at `165ada6` (P14-04 merg
 8. **Proof.** `go test ./internal/turn` (`policy_test.go`): a person who may not pick a model is refused with 403 `model_not_allowed` and nothing is queued, the allowed one works, `chats.default_model` outside the list is ignored, a queued turn naming a model refused at the turn's start; a person who may not leave Auto is refused with 403 `auto_required`, a new chat and an old one off Auto are on Auto, the switch reports false; a stronger model still works with an allowed list that leaves out the ladder; no ladder means no refusal. The settings with the spec's type, default and scope. A test of `tools/tenant setting set` storing the policy as the admin. The screen half seen in a browser at desktop and phone widths.
 
 Left to others: the admin's settings screen (P15-03, generic and scope-driven), unattended work on Auto (P14-06), Auto in usage (P14-07).
+
+## Result
+
+Provisional on November 28, 2026, on the owner's answers on admin and views (A1 to A5), for the screen only (journal `docs/journal/2026-11-28-chats-014.md`). The server side is done: `router.may_switch_off` and `router.allowed_models` complete the six `tenant-admin` router settings; a message naming a model while Auto is required is refused, 403 `auto_required`, and one naming a model the person may not pick by hand, 403 `model_not_allowed`, when sent and again when its turn leaves the queue; a chat made while Auto is required starts on it and any chat off Auto is put on it by its next turn; `chats.default_model` and the chat's last model outside the list are passed over; Try a stronger model stays on the ladder. The admin sets the policy with `go run ./tools/tenant setting set` until P15-03. Proven by `internal/turn/policy_test.go` and `tools/tenant/setting_policy_test.go`. The screens (greyed models with the reason, the model rows hidden while Auto is required, on a computer and the phone's model sheet, and a refused message's words) were seen in a browser and wait on A1 to A5 and the chat mockups. Decisions 0720 to 0725. Surface for other lanes: `Runner.PolicyFor`, `turn.Policy` (`Allows`, `AutoRequired`, `Refusal`), `turn.ParseAllowed`, `turn.KeyMaySwitchOff`, `turn.KeyAllowedModels`, `turn.CodeModelNotAllowed`, `turn.CodeAutoRequired`.
