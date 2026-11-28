@@ -36,7 +36,15 @@ func testOptions(endpoint string) Options {
 		SearchEndpoint: endpoint, SearchDepth: "basic", SearchResults: 5, SearchMaxResults: 10, SnippetChars: 1400,
 		SearchTimeout: 2 * time.Second, SearchMaxBytes: 512000,
 		FetchTimeout: 2 * time.Second, FetchMaxBytes: 1 << 20, FetchMaxChars: 12000, FetchRedirects: 3,
+		Rotation: testRotation,
 	}
+}
+
+// testRotation is the fallback's settings as shipped.
+var testRotation = Rotation{
+	Strategy: StrategyFreeFirst, MaxAttempts: 3, QuotaReserve: 0, CoolingFor: time.Minute, CoolingMax: 10 * time.Minute,
+	FailAfter: 3, FailCooldown: 15 * time.Minute, TestFirst: 30 * time.Minute, TestMax: 24 * time.Hour, TestTick: 5 * time.Minute,
+	UnknownWeight: 0.5,
 }
 
 type rig struct {
@@ -67,9 +75,6 @@ func newRig(t *testing.T, o Options, key string, f fetcher) *rig {
 		if err := s.Secrets().Set(KeyName, key); err != nil {
 			t.Fatal(err)
 		}
-	}
-	if o.Searcher == nil {
-		o.Searcher = Tavily{Endpoint: o.SearchEndpoint, Depth: o.SearchDepth, Timeout: o.SearchTimeout, MaxBytes: o.SearchMaxBytes}
 	}
 	if f.allow == nil {
 		f = fetcher{timeout: o.FetchTimeout, maxBytes: o.FetchMaxBytes, maxChars: o.FetchMaxChars, redirects: o.FetchRedirects, allow: public}
@@ -605,13 +610,20 @@ func TestReadOptionsReadsTheShippedSettingsShape(t *testing.T) {
 		"agents.web_search_results": "5", "agents.web_search_max_results": "10", "agents.web_search_snippet_chars": "1400",
 		"agents.web_search_timeout": "15s", "agents.web_search_max_bytes": "512000", "agents.web_fetch_timeout": "20s",
 		"agents.web_fetch_max_bytes": "2000000", "agents.web_fetch_max_chars": "12000", "agents.web_fetch_max_redirects": "5",
+		"web.strategy": "free_first", "web.max_attempts": "3", "web.quota_reserve": "0", "web.cooling_for": "60s",
+		"web.cooling_max": "10m", "web.fail_after": "3", "web.fail_cooldown": "15m", "web.test_first": "30m",
+		"web.test_max": "24h", "web.test_tick": "5m", "web.unknown_weight": "0.5",
 	}
 	get := func(k string) (string, bool) { v, ok := shipped[k]; return v, ok }
 	o, err := ReadOptions(get)
 	if err != nil || o.SearchResults != 5 || o.SearchTimeout != 15*time.Second || o.FetchMaxBytes != 2000000 {
 		t.Fatalf("ReadOptions gave %+v, %v", o, err)
 	}
-	for key, bad := range map[string]string{"agents.web_search_depth": "deep", "agents.web_search_results": "11", "agents.web_search_endpoint": "ftp://x", "agents.web_fetch_timeout": "0s"} {
+	if o.Rotation != testRotation {
+		t.Errorf("ReadOptions read the fallback's settings as %+v, want %+v", o.Rotation, testRotation)
+	}
+	for key, bad := range map[string]string{"agents.web_search_depth": "deep", "agents.web_search_results": "11", "agents.web_search_endpoint": "ftp://x", "agents.web_fetch_timeout": "0s",
+		"web.strategy": "round_robin", "web.max_attempts": "0", "web.unknown_weight": "1.5", "web.test_max": "10m", "web.cooling_for": "0s"} {
 		was := shipped[key]
 		shipped[key] = bad
 		if _, err := ReadOptions(get); err == nil {

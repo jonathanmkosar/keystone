@@ -20,6 +20,9 @@ func Tools(c Config) (*tools.Registry, error) {
 	}
 	// Web search and fetch (P7-03): both only read, and both bring outside
 	// content into a turn.
+	// A search tries the person's own providers, then the install's, kept
+	// in the data folder's admin/ (P7-06).
+	c.Web.Install = c.Install
 	if err := web.Add(r, c.Web); err != nil {
 		return nil, err
 	}
