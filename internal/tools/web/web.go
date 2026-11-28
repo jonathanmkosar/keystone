@@ -79,6 +79,9 @@ type Options struct {
 
 	// Rotation is the fallback's settings (P7-06): the web. settings.
 	Rotation Rotation
+	// Endpoints are the default search addresses of Brave, Exa and Serper
+	// (P7-07): web.brave_endpoint, web.exa_endpoint, web.serper_endpoint.
+	Endpoints Endpoints
 	// Install is the data folder, whose data/admin/ holds the install's
 	// search providers. Nil means a person's own providers only, as a
 	// check that makes its own registry has. It is not a setting: the
@@ -141,6 +144,9 @@ func ReadOptions(get func(key string) (string, bool)) (Options, error) {
 	if o.Rotation, err = readRotation(get); err != nil {
 		return Options{}, err
 	}
+	if o.Endpoints, err = readEndpoints(get); err != nil {
+		return Options{}, err
+	}
 	return o, o.check()
 }
 
@@ -165,6 +171,9 @@ func (o Options) check() error {
 		return errors.New("agents.web_fetch_max_chars must be 1 or more")
 	case o.FetchRedirects < 0:
 		return errors.New("agents.web_fetch_max_redirects cannot be negative")
+	}
+	if err := o.Endpoints.check(); err != nil {
+		return err
 	}
 	return o.Rotation.check()
 }

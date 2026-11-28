@@ -460,6 +460,36 @@
       "description": "With the weighted strategy, a search provider whose quota left is not known counts as this share of a full quota, from 0 to 1."
     },
     {
+      "key": "web.brave_endpoint",
+      "title": "Brave search address",
+      "summary": "Where a Brave search provider with no endpoint of its own searches.",
+      "type": "string",
+      "default": "https://api.search.brave.com/res/v1/web/search",
+      "restart": true,
+      "scope": "install",
+      "description": "The full search address of Brave's Web Search API, used by every Brave search provider that gives no endpoint of its own. One that gives an endpoint searches at it with /res/v1/web/search."
+    },
+    {
+      "key": "web.exa_endpoint",
+      "title": "Exa search address",
+      "summary": "Where an Exa search provider with no endpoint of its own searches.",
+      "type": "string",
+      "default": "https://api.exa.ai/search",
+      "restart": true,
+      "scope": "install",
+      "description": "The full search address of Exa's search API, used by every Exa search provider that gives no endpoint of its own. One that gives an endpoint searches at it with /search."
+    },
+    {
+      "key": "web.serper_endpoint",
+      "title": "Serper search address",
+      "summary": "Where a Serper search provider with no endpoint of its own searches.",
+      "type": "string",
+      "default": "https://google.serper.dev/search",
+      "restart": true,
+      "scope": "install",
+      "description": "The full search address of Serper's Google search API, used by every Serper search provider that gives no endpoint of its own. One that gives an endpoint searches at it with /search."
+    },
+    {
       "key": "agents.browser_use",
       "title": "Browser use",
       "summary": "Let the agent use a browser of its own, with none of your sign-ins.",

@@ -71,6 +71,10 @@ type Provider struct {
 	CostPerSearch float64 `json:"cost_per_search,omitempty"`
 	// Enabled says whether the provider is used at all.
 	Enabled bool `json:"enabled"`
+	// Trusted is the admin's word that a SearXNG's endpoint may be called
+	// though it is not on this machine or the home network (P7-07). Only an
+	// install entry, which only the admin sets, may have it.
+	Trusted bool `json:"trusted,omitempty"`
 }
 
 // Kind is what an adapter registers for its kind of provider.
@@ -225,6 +229,8 @@ func (p Provider) Check() error {
 		return fmt.Errorf("resets is a day of the month, 1 to 31, or %q", ResetsRolling)
 	case p.CostPerSearch < 0 || p.CostPerSearch > 100:
 		return errors.New("the cost of a search is from 0 to 100 US dollars")
+	case p.Trusted && p.Kind != KindSearXNG:
+		return errors.New("only a SearXNG provider is marked trusted")
 	}
 	if p.Endpoint != "" {
 		u, err := url.Parse(p.Endpoint)
