@@ -280,6 +280,15 @@ func (r *Runner) Start(ctx context.Context, s *tenant.Store, chatID, startedRequ
 			return drop(err)
 		}
 	}
+	// P14-06: a research task is a background task, so its own chat starts
+	// on Auto, its turns and its parts naming no model, when Auto is offered.
+	if t := r.bound(); t != nil {
+		if on, err := t.StartOnAuto(ctx, s, work.ID, ""); err != nil {
+			return drop(err)
+		} else if on {
+			model = ""
+		}
+	}
 	id, err := newID()
 	if err != nil {
 		return drop(err)

@@ -241,7 +241,11 @@ func (r *Runner) start(ctx context.Context, s *tenant.Store, chatID, callID stri
 			return drop(err)
 		}
 		model := strings.TrimSpace(a.Model)
-		if model == "" {
+		on, err := r.onAuto(ctx, s, work.ID, model) // P14-06: no model named, Auto (auto.go)
+		if err != nil {
+			return drop(err)
+		}
+		if model == "" && !on {
 			model = chatModel
 		}
 		requestID := audit.NewRequestID()
