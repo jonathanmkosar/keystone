@@ -7,6 +7,7 @@
       "summary": "The longest title a chat may have.",
       "type": "int",
       "default": "150",
+      "restart": true,
       "scope": "install",
       "description": "The most characters a chat's title may have."
     },
@@ -34,6 +35,7 @@
       "summary": "The most matching messages one search over chats ranks.",
       "type": "int",
       "default": "20000",
+      "restart": true,
       "scope": "install",
       "description": "The most matching messages one search over chats ranks. When more match, the newest that many are ranked, and a search for any of several words leaves out a word that more messages than this hold while another of its words is in fewer. Zero ranks every match."
     },
@@ -187,6 +189,7 @@
       "summary": "The most messages that may wait behind the one being answered.",
       "type": "int",
       "default": "5",
+      "restart": true,
       "scope": "install",
       "description": "The most turns that may wait in one chat behind the one that is running."
     },
@@ -196,6 +199,7 @@
       "summary": "The most model calls one reply may take.",
       "type": "int",
       "default": "8",
+      "restart": true,
       "scope": "install",
       "description": "The most model calls one turn may make, counting each call that follows a tool."
     },
@@ -223,6 +227,7 @@
       "summary": "How often an open reply stream looks for new events.",
       "type": "duration",
       "default": "1s",
+      "restart": true,
       "scope": "install",
       "description": "How often an open turn stream looks for new events when nothing has woken it."
     },
@@ -232,6 +237,7 @@
       "summary": "The most stored events a reply stream reads at a time.",
       "type": "int",
       "default": "200",
+      "restart": true,
       "scope": "install",
       "description": "The most stored events a turn stream reads from the database at a time."
     },
@@ -241,6 +247,7 @@
       "summary": "How long Stop waits for a reply to end.",
       "type": "duration",
       "default": "2s",
+      "restart": true,
       "scope": "install",
       "description": "How long the stop route waits for a turn to end before it answers."
     },
@@ -268,6 +275,7 @@
       "summary": "What the model that writes a chat's title is told.",
       "type": "string",
       "default": "Write a title of at most six words for the chat that begins below. Answer with the title alone, with no quotation marks and no full stop.",
+      "restart": true,
       "scope": "install",
       "description": "The instruction given to the model that writes a chat's title."
     },
@@ -277,6 +285,7 @@
       "summary": "The most the model may write for a title.",
       "type": "int",
       "default": "40",
+      "restart": true,
       "scope": "install",
       "description": "The most tokens the model may write for a chat's title."
     },
@@ -286,6 +295,7 @@
       "summary": "How much of the first message and reply the title model sees.",
       "type": "int",
       "default": "2000",
+      "restart": true,
       "scope": "install",
       "description": "How many characters of the first message, and of the first reply, the title model is shown."
     },
@@ -295,6 +305,7 @@
       "summary": "How long the title model may take.",
       "type": "duration",
       "default": "20s",
+      "restart": true,
       "scope": "install",
       "description": "How long the title model may take before the title is made from the first message."
     },
@@ -304,6 +315,7 @@
       "summary": "How many words of the first message make a title with no model.",
       "type": "int",
       "default": "6",
+      "restart": true,
       "scope": "install",
       "description": "How many words of the first message make a title when no model writes one."
     },
@@ -313,6 +325,7 @@
       "summary": "The context window the test person's recorded replies assume.",
       "type": "int",
       "default": "200000",
+      "restart": true,
       "scope": "install",
       "description": "The context window, in tokens, the test tenant's recorded turns are checked against."
     },
@@ -322,6 +335,7 @@
       "summary": "The output limit the test person's recorded replies assume.",
       "type": "int",
       "default": "8192",
+      "restart": true,
       "scope": "install",
       "description": "The output limit, in tokens, of the test tenant's recorded turns."
     },

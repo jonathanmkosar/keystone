@@ -7,6 +7,7 @@
       "summary": "The version the Anthropic adapter says it speaks.",
       "type": "string",
       "default": "2023-06-01",
+      "restart": true,
       "scope": "install",
       "description": "The value the Anthropic adapter sends in the anthropic-version header. Gateways that speak the Messages API, such as Ollama and LiteLLM, expect this one."
     },
@@ -16,6 +17,7 @@
       "summary": "How many times a failed Anthropic call is sent again.",
       "type": "int",
       "default": "2",
+      "restart": true,
       "scope": "install",
       "description": "How many times the Anthropic adapter sends a call again when it failed before any of the reply arrived and the failure may pass: a rate limit, a busy provider, or an endpoint that could not be reached. Zero means never."
     },
@@ -25,6 +27,7 @@
       "summary": "How long the Anthropic adapter waits before its first retry.",
       "type": "duration",
       "default": "500ms",
+      "restart": true,
       "scope": "install",
       "description": "How long the Anthropic adapter waits before its first retry. Each later wait is twice the one before."
     },
@@ -34,6 +37,7 @@
       "summary": "The longest the Anthropic adapter waits before a retry.",
       "type": "duration",
       "default": "20s",
+      "restart": true,
       "scope": "install",
       "description": "The longest the Anthropic adapter waits before a retry. When the provider asks for a longer wait, the call fails at once so another model can be tried."
     },
@@ -43,6 +47,7 @@
       "summary": "How long an Anthropic endpoint may take to begin its answer.",
       "type": "duration",
       "default": "5m",
+      "restart": true,
       "scope": "install",
       "description": "How long an endpoint that speaks the Anthropic Messages API may take to begin its answer. A local model that has to be loaded first needs the time. Zero means no limit."
     },
@@ -52,6 +57,7 @@
       "summary": "How long an Anthropic reply may go quiet before it is given up.",
       "type": "duration",
       "default": "5m",
+      "restart": true,
       "scope": "install",
       "description": "How long a reply from the Anthropic adapter's endpoint may send nothing before the call is given up. Zero means no limit."
     },
@@ -61,6 +67,7 @@
       "summary": "Marks calls so the provider can cache what repeats.",
       "type": "bool",
       "default": "true",
+      "restart": true,
       "scope": "install",
       "description": "Whether the Anthropic adapter marks the end of the system blocks and of the last message so the provider can cache what comes before."
     },
@@ -70,6 +77,7 @@
       "summary": "The models asked to think within a fixed budget.",
       "type": "string",
       "default": "claude-3-*,claude-sonnet-4-2*,claude-opus-4-2*,claude-opus-4-1*,claude-sonnet-4-5*,claude-opus-4-5*,claude-haiku-4-5*",
+      "restart": true,
       "scope": "install",
       "description": "The provider model names, separated by commas, that are asked for thinking as a token budget. A name ending in * matches by its start. Every other model is asked for adaptive thinking, where the model decides how much to think."
     },
@@ -79,6 +87,7 @@
       "summary": "The models sent a request's effort as the API's own effort setting.",
       "type": "string",
       "default": "claude-opus-4-5*,claude-opus-4-6*,claude-sonnet-4-6*,claude-opus-4-7*,claude-opus-4-8*,claude-opus-5*,claude-sonnet-5*,claude-haiku-5*,claude-fable-5*,claude-mythos-5*",
+      "restart": true,
       "scope": "install",
       "description": "The provider model names, separated by commas, that are sent a request's effort as output_config.effort. A name ending in * matches by its start. Another model with the thinking capability is asked to think within the budget the effort stands for instead, and a model with neither is sent nothing about effort."
     },
@@ -88,6 +97,7 @@
       "summary": "The thinking budget low effort stands for in the Anthropic adapter.",
       "type": "int",
       "default": "2048",
+      "restart": true,
       "scope": "install",
       "description": "The thinking tokens a request at low effort may use, for a model with the thinking capability. A model that takes a thinking budget is sent it, kept under the output limit; under 1024 no thinking is asked for. Another model is asked for adaptive thinking."
     },
@@ -97,6 +107,7 @@
       "summary": "The thinking budget medium effort stands for in the Anthropic adapter.",
       "type": "int",
       "default": "8192",
+      "restart": true,
       "scope": "install",
       "description": "The thinking tokens a request at medium effort may use, for a model with the thinking capability. A model that takes a thinking budget is sent it, kept under the output limit."
     },
@@ -106,6 +117,7 @@
       "summary": "The thinking budget high and higher effort stand for in the Anthropic adapter.",
       "type": "int",
       "default": "24576",
+      "restart": true,
       "scope": "install",
       "description": "The thinking tokens a request at high effort may use, for a model with the thinking capability. Requests at xhigh and max effort use it too. A model that takes a thinking budget is sent it, kept under the output limit."
     },
@@ -115,6 +127,7 @@
       "summary": "How many characters the fake model sends at a time.",
       "type": "int",
       "default": "12",
+      "restart": true,
       "scope": "install",
       "description": "How many characters the fake provider sends in each piece of a streamed reply. Zero sends each block in one piece."
     },
@@ -124,6 +137,7 @@
       "summary": "How long the fake model waits between pieces of a reply.",
       "type": "duration",
       "default": "20ms",
+      "restart": true,
       "scope": "install",
       "description": "How long the fake provider waits before each piece of a streamed reply, so a chat in the test tenant streams at a speed a person can watch. Tests use no wait."
     },
@@ -133,6 +147,7 @@
       "summary": "How many numbers each vector from the fake model holds.",
       "type": "int",
       "default": "1024",
+      "restart": true,
       "scope": "install",
       "description": "How many numbers each vector the fake provider makes holds, when a registry entry on the fake adapter is an embedding model, from 1 to 65536. Zero makes the fake make no vectors."
     },
@@ -142,6 +157,7 @@
       "summary": "The most models one person may set up.",
       "type": "int",
       "default": "50",
+      "restart": true,
       "scope": "install",
       "description": "The most models one person's registry may hold. Adding one more is refused."
     },
@@ -151,6 +167,7 @@
       "summary": "How many characters count as one token in an estimate.",
       "type": "float",
       "default": "3",
+      "restart": true,
       "scope": "install",
       "description": "How many characters of text count as one token when Keystone estimates a call's size because the provider offers no count. Lower counts more tokens, which is the safe side."
     },
@@ -160,6 +177,7 @@
       "summary": "The safety margin added to an estimated size.",
       "type": "int",
       "default": "15",
+      "restart": true,
       "scope": "install",
       "description": "The safety margin added to an estimated token count, as a percentage of it. A provider's own count gets no margin."
     },
@@ -169,6 +187,7 @@
       "summary": "Extra tokens counted for every message in an estimate.",
       "type": "int",
       "default": "4",
+      "restart": true,
       "scope": "install",
       "description": "Tokens counted for each message in an estimate, for its role and framing, on top of its content."
     },
@@ -178,6 +197,7 @@
       "summary": "Extra tokens counted for every tool in an estimate.",
       "type": "int",
       "default": "12",
+      "restart": true,
       "scope": "install",
       "description": "Tokens counted for each tool offered in an estimate, on top of its name, description and schema."
     },
@@ -187,6 +207,7 @@
       "summary": "Tokens counted for every image in an estimate.",
       "type": "int",
       "default": "1600",
+      "restart": true,
       "scope": "install",
       "description": "Tokens counted for each image in an estimate, whatever its size."
     },
@@ -196,6 +217,7 @@
       "summary": "Tokens counted for a file whose size cannot be seen.",
       "type": "int",
       "default": "4000",
+      "restart": true,
       "scope": "install",
       "description": "Tokens counted in an estimate for a file that is named by reference, whose size the estimate cannot see."
     },
@@ -205,6 +227,7 @@
       "summary": "How many times a failed Responses call is sent again.",
       "type": "int",
       "default": "2",
+      "restart": true,
       "scope": "install",
       "description": "How many times the Responses adapter sends a call again when it failed before any of the reply arrived and the failure is one that may pass. Zero sends each call once."
     },
@@ -214,6 +237,7 @@
       "summary": "How long the Responses adapter waits before its first retry.",
       "type": "duration",
       "default": "500ms",
+      "restart": true,
       "scope": "install",
       "description": "How long the Responses adapter waits before its first retry. The wait doubles with each retry."
     },
@@ -223,6 +247,7 @@
       "summary": "The longest the Responses adapter waits before a retry.",
       "type": "duration",
       "default": "8s",
+      "restart": true,
       "scope": "install",
       "description": "The longest the Responses adapter waits before a retry. When the provider asks for a longer wait, the call fails at once so another model can be tried."
     },
@@ -232,6 +257,7 @@
       "summary": "How long the Responses adapter waits for a reply to begin.",
       "type": "duration",
       "default": "60s",
+      "restart": true,
       "scope": "install",
       "description": "How long the Responses adapter waits for a reply to begin before it gives up on the call."
     },
@@ -241,6 +267,7 @@
       "summary": "How long a Responses reply may go quiet before it is given up.",
       "type": "duration",
       "default": "120s",
+      "restart": true,
       "scope": "install",
       "description": "How long a streamed reply through the Responses adapter may send nothing before it is given up on."
     },
@@ -250,6 +277,7 @@
       "summary": "The thinking budget at which medium effort is asked for.",
       "type": "int",
       "default": "4096",
+      "restart": true,
       "scope": "install",
       "description": "The thinking budget, in tokens, from which the Responses adapter asks for medium reasoning effort. A smaller budget asks for low."
     },
@@ -259,6 +287,7 @@
       "summary": "The thinking budget at which high effort is asked for.",
       "type": "int",
       "default": "16384",
+      "restart": true,
       "scope": "install",
       "description": "The thinking budget, in tokens, from which the Responses adapter asks for high reasoning effort."
     },
@@ -268,6 +297,7 @@
       "summary": "How long the Chat Completions adapter waits to connect.",
       "type": "duration",
       "default": "10s",
+      "restart": true,
       "scope": "install",
       "description": "How long the Chat Completions adapter waits to connect to an endpoint, and again to finish the TLS handshake."
     },
@@ -277,6 +307,7 @@
       "summary": "How long a Chat Completions endpoint may take to begin its answer.",
       "type": "duration",
       "default": "2m",
+      "restart": true,
       "scope": "install",
       "description": "How long the Chat Completions adapter waits for an endpoint to start its answer. A local model that is still loading needs the time."
     },
@@ -286,6 +317,7 @@
       "summary": "How long a Chat Completions reply may go quiet before it ends.",
       "type": "duration",
       "default": "2m",
+      "restart": true,
       "scope": "install",
       "description": "How long the Chat Completions adapter waits between two pieces of a streamed reply before it ends the call."
     },
@@ -295,6 +327,7 @@
       "summary": "How many times one Chat Completions call is sent at most.",
       "type": "int",
       "default": "3",
+      "restart": true,
       "scope": "install",
       "description": "How many times the Chat Completions adapter sends one call at most, when the endpoint is busy or cannot be reached. One means no retry."
     },
@@ -304,6 +337,7 @@
       "summary": "How long the Chat Completions adapter waits before it retries.",
       "type": "duration",
       "default": "500ms",
+      "restart": true,
       "scope": "install",
       "description": "How long the Chat Completions adapter waits before it sends a call again. The wait doubles with each attempt."
     },
@@ -313,6 +347,7 @@
       "summary": "Sends a request's effort to Chat Completions models that can think.",
       "type": "bool",
       "default": "false",
+      "restart": true,
       "scope": "install",
       "description": "Whether the Chat Completions adapter sends a request's effort as reasoning_effort, for an entry with the thinking capability. Off, nothing about effort is sent, because an endpoint that does not know the field may refuse the call."
     },
@@ -367,6 +402,7 @@
       "summary": "The longest one decision call may take before it is given up.",
       "type": "duration",
       "default": "5s",
+      "restart": true,
       "scope": "install",
       "description": "The longest the systemone adapter waits for one decision call, from connecting to the whole answer. A call is sent once: a late decision is given up, and its caller decides without it."
     },
@@ -376,6 +412,7 @@
       "summary": "The largest decision request sent, in bytes; larger ones are refused.",
       "type": "int",
       "default": "65536",
+      "restart": true,
       "scope": "install",
       "description": "The largest request body the systemone adapter sends for one decision call, in bytes. A larger request is refused before anything is sent. Ollama itself takes at most 64 KiB of text and questions."
     },
@@ -385,6 +422,7 @@
       "summary": "The most questions one decision call may ask.",
       "type": "int",
       "default": "64",
+      "restart": true,
       "scope": "install",
       "description": "The most questions the systemone adapter sends in one decision call. A request with more is refused before anything is sent. Ollama itself takes at most 64."
     },
@@ -504,6 +542,7 @@
       "summary": "The longest the Chat Completions adapter waits between attempts.",
       "type": "duration",
       "default": "8s",
+      "restart": true,
       "scope": "install",
       "description": "The longest the Chat Completions adapter waits between two attempts, whatever the endpoint asks for."
     }

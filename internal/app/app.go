@@ -340,6 +340,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	// The admin account's routes (P15-01), behind the admin door. They are
 	// given the one view of people, and never the install (decision 0644).
 	all = append(all, adminapi.Routes(adminapi.Options{View: adminview.New(c.Install), Open: c.openAdmin, Accounts: c.Admin, SecureCookie: c.SecureCookie, Log: log})...)
+	// Settings from the browser (P15-03): a person's tenant-admin settings and the install's values.
+	all = append(all, adminapi.SettingsRoutes(adminapi.Options{View: adminview.New(c.Install), Log: log})...)
 	// A person's own view of what admin accounts read of theirs (P15-01).
 	all = append(all, api.AdminEntriesRoute(c.PageLimit, log))
 	return all

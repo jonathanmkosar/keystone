@@ -8,6 +8,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ApiError } from "./api";
 import { adminSignIn, adminSignOut, adminWho, type AdminSession } from "./adminCalls";
+// Settings from the browser (P15-03): the install's settings and a person's tenant-admin settings.
+import { AdminSettingsPage, isAdminSettingsPath } from "./AdminSettings";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -52,7 +54,7 @@ export function AdminApp() {
     try {
       const session = await adminWho();
       setState({ kind: "signed-in", session });
-      go("/admin");
+      if (!isAdminSettingsPath(window.location.pathname)) go("/admin");
     } catch (e) {
       if (e instanceof ApiError && e.kind === "signed-out") {
         setState({ kind: "signed-out" });
@@ -100,6 +102,8 @@ export function AdminApp() {
   }
 
   const { account, session } = state.session;
+  // The settings screens (P15-03) are drawn for their own paths.
+  if (isAdminSettingsPath(window.location.pathname)) return <AdminSettingsPage path={window.location.pathname} onSignedOut={() => void check()} />;
   async function leave() {
     try {
       await adminSignOut();
@@ -118,7 +122,9 @@ export function AdminApp() {
       <p className="quiet">
         This session ends at {when(session.expires)}, or sooner if it is left unused until {when(session.idle_until)}.
       </p>
-      <p className="quiet">The admin screens for people, the install and settings are not built yet.</p>
+      <p className="quiet">
+        <a href="/admin/settings">Settings</a> for the whole install, and <a href="/admin/people">People</a>, with each person's settings.
+      </p>
       <button type="button" className="button" onClick={() => void leave()}>
         Sign out
       </button>

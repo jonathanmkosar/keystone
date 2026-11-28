@@ -20,6 +20,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/app"
+	"github.com/jonathanmkosar/keystone/internal/installsettings"
 	"github.com/jonathanmkosar/keystone/internal/secrets"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/settings"
@@ -204,6 +205,13 @@ func runServe(args []string, out, errw io.Writer) int {
 	if err != nil {
 		return fail(err)
 	}
+	// The install's own server.address, set by the admin (P15-03), when
+	// --address was not given: openAPI has read keystone.json by now.
+	if !flagGiven(fl, "address") {
+		if *address, err = installedSetting("server.address"); err != nil {
+			return fail(err)
+		}
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 	if err := serve(ctx, *address, handler(api), out); err != nil {
@@ -230,6 +238,10 @@ func openAPIWith(dataDir string, k secrets.Keeper, keeper string, log io.Writer)
 	}
 	in.NewInstallKeeper(keeper)
 	if err := encryptAtStart(in, dataDir, log); err != nil { // P15-06: atrest.go
+		return nil, err
+	}
+	// The install's own setting values in keystone.json, before any setting is read (P15-03).
+	if err := installsettings.Load(in); err != nil {
 		return nil, err
 	}
 	c, err := app.Defaults()

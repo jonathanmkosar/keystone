@@ -1,0 +1,66 @@
+/* The admin's settings screens (P15-03). Every colour is a token. They
+   follow the Admin draft (design/screens/Admin.html): a header with the
+   sections as tabs, and cards of rows as on a person's General screen. */
+
+.as-page {
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--ink);
+}
+
+.as-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 16px 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.as-title {
+  margin: 0;
+  font: 600 28px/34px var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+.as-note {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+
+.as-main {
+  padding-top: 24px;
+}
+
+.as-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.as-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sunk);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.as-wait {
+  background: var(--soft);
+  color: var(--softink);
+}
+
+.as-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+  font-size: 14px;
+}

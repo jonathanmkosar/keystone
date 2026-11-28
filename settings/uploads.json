@@ -7,6 +7,7 @@
       "summary": "The largest file one upload may be.",
       "type": "int",
       "default": "5242880",
+      "restart": true,
       "scope": "install",
       "description": "The largest file one upload may be, in bytes. A larger one is refused. Providers have limits of their own: the Anthropic Messages API takes an image of up to about 5 MB."
     },
@@ -16,6 +17,7 @@
       "summary": "The kinds of image a person may upload.",
       "type": "string",
       "default": "image/png,image/jpeg,image/gif,image/webp",
+      "restart": true,
       "scope": "install",
       "description": "The kinds of image a person may upload, as media types separated by commas. An image is known by its bytes, not its name, and goes only to a model whose registry entry says it can see images."
     },
@@ -25,6 +27,7 @@
       "summary": "The kinds of text file a person may upload.",
       "type": "string",
       "default": ".txt,.md,.markdown,.csv,.tsv,.json,.html,.htm,.xml,.yaml,.yml,.toml,.ini,.log,.go,.py,.js,.ts,.tsx,.jsx,.css,.java,.c,.h,.cpp,.cs,.rs,.rb,.sh,.ps1,.sql",
+      "restart": true,
       "scope": "install",
       "description": "The endings of the text files a person may upload, separated by commas. A text file must be UTF-8. Its text is read, and goes into a chat's calls as an attachment, to any model."
     },
@@ -34,6 +37,7 @@
       "summary": "The kinds of document a person may upload.",
       "type": "string",
       "default": "application/pdf",
+      "restart": true,
       "scope": "install",
       "description": "The kinds of document a person may upload, as media types separated by commas, known by their bytes. Keystone reads no text from them yet: a document is sent whole, as a file, only to a model whose registry entry says it takes files."
     },
