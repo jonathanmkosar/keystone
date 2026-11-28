@@ -121,7 +121,7 @@ func (g *rig) extras(ctx context.Context, who *person, c chatPlan, w written) er
 		}
 		if added {
 			t.uploads++
-			t.fileBytes += int64(len(data))
+			t.fileBytes += onDisk(who, len(data))
 		}
 	}
 	if p.ArtifactEvery > 0 && c.index%p.ArtifactEvery == p.ArtifactEvery-1 {
@@ -137,7 +137,7 @@ func (g *rig) extras(ctx context.Context, who *person, c chatPlan, w written) er
 		}
 		t.artifacts++
 		t.artifactVersions += 2
-		t.artifactBytes += int64(len(one) + len(two))
+		t.artifactBytes += onDisk(who, len(one)) + onDisk(who, len(two))
 	}
 	return nil
 }

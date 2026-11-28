@@ -135,7 +135,7 @@ func Add(ctx context.Context, s *tenant.Store, o Options, chatID, name string, d
 	}
 	// A chat that held the same file may have been deleted, and the file
 	// with it, between the write above and the rows: it is written again.
-	if _, statErr := s.Files().Stat(id); errors.Is(statErr, fs.ErrNotExist) {
+	if _, statErr := s.FilesFolder().Stat(id); errors.Is(statErr, fs.ErrNotExist) {
 		if err := keepFile(s, id, data); err != nil {
 			return Upload{}, false, err
 		}
@@ -148,7 +148,7 @@ func Add(ctx context.Context, s *tenant.Store, o Options, chatID, name string, d
 // there already. It is written under another name first and then renamed,
 // so a reader never finds half a file.
 func keepFile(s *tenant.Store, id string, data []byte) error {
-	if _, err := s.Files().Stat(id); err == nil {
+	if _, err := s.FilesFolder().Stat(id); err == nil {
 		return nil
 	}
 	var b [8]byte
@@ -156,11 +156,11 @@ func keepFile(s *tenant.Store, id string, data []byte) error {
 		return err
 	}
 	part := id + "." + hex.EncodeToString(b[:]) + ".part"
-	if err := s.Files().WriteFile(part, data, 0o600); err != nil {
+	if err := s.FilesFolder().WriteFile(part, data, 0o600); err != nil {
 		return err
 	}
-	if err := s.Files().Rename(part, id); err != nil {
-		s.Files().Remove(part)
+	if err := s.FilesFolder().Rename(part, id); err != nil {
+		s.FilesFolder().Remove(part)
 		return err
 	}
 	return nil
@@ -173,7 +173,7 @@ func dropUnheld(s *tenant.Store, id string) {
 	var n int
 	const held = "SELECT (SELECT count(*) FROM chat_files WHERE name = ?) + (SELECT count(*) FROM project_files WHERE hash = ?)"
 	if err := s.DB().QueryRow(held, id, id).Scan(&n); err == nil && n == 0 {
-		s.Files().Remove(id)
+		s.FilesFolder().Remove(id)
 	}
 }
 
@@ -257,7 +257,7 @@ func Read(s *tenant.Store, id string) ([]byte, error) {
 	if !IsID(id) {
 		return nil, fmt.Errorf("upload %q: %w", id, ErrNotFound)
 	}
-	data, err := s.Files().ReadFile(id)
+	data, err := s.FilesFolder().ReadFile(id)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, fmt.Errorf("the file of upload %s: %w", id, ErrNotFound)
 	}
@@ -289,7 +289,7 @@ func Remove(ctx context.Context, s *tenant.Store, chatID, id string) error {
 			return err
 		}
 		if held == 0 {
-			if err := s.Files().Remove(id); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			if err := s.FilesFolder().Remove(id); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return err
 			}
 		}

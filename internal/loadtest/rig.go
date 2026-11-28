@@ -130,6 +130,12 @@ func openRig(p Profile, parent string, scripts []fake.Script) (g *rig, err error
 	if g.reg, err = settings.Registry(); err != nil {
 		return nil, err
 	}
+	// Encryption at rest as the server has it (P15-06): on, as it ships,
+	// every person the rig makes is sealed, and the load runs through the
+	// VFS and the sealed folders.
+	if s, ok := settings.Lookup(g.reg, "encryption.at_rest"); ok && s.Default == "true" {
+		g.in.EncryptAtRest(tenant.AtRest{On: true})
+	}
 	g.pl = newPlanner(p, g.now)
 	if g.cfg, err = app.Defaults(); err != nil {
 		return nil, err

@@ -50,7 +50,7 @@ func (Folder) Keep(s *tenant.Store, hash string, data []byte) error {
 	if !IsFileID(hash) {
 		return invalid("%q is not a file's name", hash)
 	}
-	if _, err := s.Files().Stat(hash); err == nil {
+	if _, err := s.FilesFolder().Stat(hash); err == nil {
 		return nil
 	}
 	var b [8]byte
@@ -58,11 +58,11 @@ func (Folder) Keep(s *tenant.Store, hash string, data []byte) error {
 		return err
 	}
 	part := hash + "." + hex.EncodeToString(b[:]) + ".part"
-	if err := s.Files().WriteFile(part, data, 0o600); err != nil {
+	if err := s.FilesFolder().WriteFile(part, data, 0o600); err != nil {
 		return err
 	}
-	if err := s.Files().Rename(part, hash); err != nil {
-		s.Files().Remove(part)
+	if err := s.FilesFolder().Rename(part, hash); err != nil {
+		s.FilesFolder().Remove(part)
 		return err
 	}
 	return nil
@@ -73,7 +73,7 @@ func (Folder) Has(s *tenant.Store, hash string) bool {
 	if !IsFileID(hash) {
 		return false
 	}
-	_, err := s.Files().Stat(hash)
+	_, err := s.FilesFolder().Stat(hash)
 	return err == nil
 }
 
@@ -89,7 +89,7 @@ func (Folder) Release(ctx context.Context, s *tenant.Store, hash string) error {
 	if err != nil || n > 0 {
 		return err
 	}
-	if err := s.Files().Remove(hash); err != nil && !errors.Is(err, fs.ErrNotExist) {
+	if err := s.FilesFolder().Remove(hash); err != nil && !errors.Is(err, fs.ErrNotExist) {
 		return err
 	}
 	return nil

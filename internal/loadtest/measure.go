@@ -285,7 +285,7 @@ func (g *rig) projectChat(who *person, l *load) (chatID string, up uploads.AddRe
 		}
 	}
 	g.mu.Lock()
-	g.extraFileBytes += int64(len(file) + len(notes))
+	g.extraFileBytes += onDisk(who, len(file)) + onDisk(who, len(notes))
 	g.mu.Unlock()
 	return
 }

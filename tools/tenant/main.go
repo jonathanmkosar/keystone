@@ -90,6 +90,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+usageUsage)
 		fmt.Fprintln(os.Stderr, "       "+settingUsage)
 		fmt.Fprintln(os.Stderr, "       "+backupUsage)
+		fmt.Fprintln(os.Stderr, "       "+encryptionUsage)
 		fmt.Fprintln(os.Stderr, "       "+connectorUsage)
 		fmt.Fprintln(os.Stderr, "       "+importUsage)
 		fmt.Fprintln(os.Stderr, "       "+adminUsage)
@@ -152,6 +153,8 @@ func main() {
 		backupMain(dir, *keeper, args[1:])
 	case "restore":
 		restoreMain(dir, *keeper, args[1:])
+	case "encryption":
+		encryptionMain(in, args[1:]) // P15-06: encryption.go
 	case "connector":
 		connectorMain(dir, *keeper, args[1:]) // P7-04: connector.go
 	case "import":

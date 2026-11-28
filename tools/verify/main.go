@@ -147,6 +147,7 @@ var checks = []check{
 	{"browser use", checkBrowserUse},
 	{"location", checkLocation},
 	{"admin isolation", checkAdminIsolation}, // P15-01: adminisolation.go
+	{"encryption at rest", checkEncryption},  // P15-06: encryption.go
 }
 
 func main() {

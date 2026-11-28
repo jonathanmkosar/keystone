@@ -271,13 +271,13 @@ func Delete(s *tenant.Store, chatID string) error {
 			return noChat(chatID, sql.ErrNoRows)
 		}
 		for _, name := range names {
-			if err := s.Files().Remove(name); err != nil && !errors.Is(err, fs.ErrNotExist) {
+			if err := s.FilesFolder().Remove(name); err != nil && !errors.Is(err, fs.ErrNotExist) {
 				return err
 			}
 		}
 		// A chat's artifacts are kept in a folder named by its id in the
 		// artifacts folder (P9-03, artifacts.md); the folder goes with it.
-		if err := s.Artifacts().RemoveAll(chatID); err != nil {
+		if err := s.ArtifactsFolder().RemoveAll(chatID); err != nil {
 			return err
 		}
 		return nil
