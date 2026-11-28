@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/jonathanmkosar/keystone/internal/secrets"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 )
@@ -45,7 +46,7 @@ func testServer(t *testing.T) (string, string, *bytes.Buffer) {
 	s.Close()
 
 	log := &bytes.Buffer{}
-	api, err := openAPI(data, "file", log)
+	api, err := openAPIWith(data, secrets.NewMemoryKeeper(), "file", log)
 	if err != nil {
 		t.Fatal(err)
 	}

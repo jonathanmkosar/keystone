@@ -41,6 +41,24 @@ A lane adds a table by adding a file. A shipped file is never edited.
 
 `Install.Backup` writes one tenant to one file sealed under a passphrase, and `Install.Restore` brings it into a data folder, on this machine or another, with its keys under that install's keeper. A restore refuses a tenant that is already there unless told to replace it, checks the whole file before it writes anything, builds the tenant in a folder beside the others and renames it into place. `openStore` opens that folder as a store before it is in the registry. The code is in `internal/tenant/backup.go`, and the file's format in `internal/backup`. See [backup.md](backup.md).
 
+## Encryption at rest
+
+Since P15-06 a tenant's folder can be sealed: `seal.json` says so, the database is opened through `internal/atrest`'s VFS with a rollback journal in place of the write-ahead log, and `Store.FilesFolder()` and `Store.ArtifactsFolder()` seal and name the files the lanes keep. `Install.EncryptAtRest` takes the `encryption.*` settings from the server, `Install.Create` seals a new tenant, `Install.SealAll` seals the plain ones at the server's start, and `Open` finishes or undoes a sealing a stop cut short (`Install.recover`) before it opens any tenant. A folder whose database and `seal.json` disagree is refused. `Store.Sealed` says which a store is. See [encryption.md](encryption.md).
+
+```
+data/
+  backups/before-encryption/   one backup per person, made just before they were sealed, and its .key
+  tenants/<tenant-id>/
+    seal.json                  the folder is sealed (no key in it)
+    keystone.db                sealed page by page
+    keystone.db-journal        its rollback journal, sealed
+    secrets.bin                as before
+    files/<keyed name>         sealed
+    artifacts/<keyed name>/…   sealed
+  tenants/.<tenant-id>.sealing/  only while a person is being sealed
+  tenants/.<tenant-id>.plain/    only between the trade of places and the end of it
+```
+
 ## The admin mark
 
 Since P15-01 (provisional on the owner's answer A1), each entry in `keystone.json` holds `admin`, `true` or `false` ([admin.md](admin.md), decisions [0640](decisions/0640-an-admin-is-a-person-with-a-mark-set-from-the-command-line.md) and [0641](decisions/0641-the-mark-is-read-from-disk-at-each-admin-call.md)).

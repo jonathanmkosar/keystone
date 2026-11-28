@@ -273,7 +273,7 @@ func Create(ctx context.Context, s *tenant.Store, o Options, chatID string, d Dr
 		return writeVersion(tx, s, chatID, id, 1, title, d.Content, OriginModel, 0, sensitive, requestID, at)
 	})
 	if err != nil {
-		s.Artifacts().RemoveAll(path.Join(chatID, id))
+		s.ArtifactsFolder().RemoveAll(path.Join(chatID, id))
 		return Artifact{}, Version{}, err
 	}
 	return getBoth(ctx, s, id, 1)
@@ -285,7 +285,7 @@ func Create(ctx context.Context, s *tenant.Store, o Options, chatID string, d Dr
 // and then renamed, so a reader never finds half a version.
 func writeVersion(tx *sql.Tx, s *tenant.Store, chatID, id string, version int, title, content, origin string, restoredFrom int, sensitive bool, requestID, at string) error {
 	dir := path.Join(chatID, id)
-	if err := s.Artifacts().MkdirAll(dir, 0o700); err != nil {
+	if err := s.ArtifactsFolder().MkdirAll(dir, 0o700); err != nil {
 		return err
 	}
 	var b [8]byte
@@ -294,17 +294,17 @@ func writeVersion(tx *sql.Tx, s *tenant.Store, chatID, id string, version int, t
 	}
 	name := fileOf(chatID, id, version)
 	part := name + "." + hex.EncodeToString(b[:]) + ".part"
-	if err := s.Artifacts().WriteFile(part, []byte(content), 0o600); err != nil {
+	if err := s.ArtifactsFolder().WriteFile(part, []byte(content), 0o600); err != nil {
 		return err
 	}
-	if err := s.Artifacts().Rename(part, name); err != nil {
-		s.Artifacts().Remove(part)
+	if err := s.ArtifactsFolder().Rename(part, name); err != nil {
+		s.ArtifactsFolder().Remove(part)
 		return err
 	}
 	_, err := tx.Exec(`INSERT INTO artifact_versions(artifact_id, version, title, size, sha256, origin, restored_from, sensitive, request_id, created_at)
 		VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, id, version, title, len(content), digest(content), origin, restoredFrom, sensitive, requestID, at)
 	if err != nil {
-		s.Artifacts().Remove(name)
+		s.ArtifactsFolder().Remove(name)
 	}
 	return err
 }
@@ -428,7 +428,7 @@ func addVersion(ctx context.Context, s *tenant.Store, o Options, a Artifact, tit
 	// A file no row names any longer is removed after the rows; one that
 	// cannot be is harmless, and goes with the chat.
 	for _, v := range dropped {
-		s.Artifacts().Remove(fileOf(a.ChatID, a.ID, v))
+		s.ArtifactsFolder().Remove(fileOf(a.ChatID, a.ID, v))
 	}
 	return getBoth(ctx, s, a.ID, version)
 }
@@ -588,7 +588,7 @@ func Content(ctx context.Context, s *tenant.Store, id string, version int) (Vers
 	if err != nil {
 		return Version{}, "", err
 	}
-	raw, err := s.Artifacts().ReadFile(fileOf(a.ChatID, id, version))
+	raw, err := s.ArtifactsFolder().ReadFile(fileOf(a.ChatID, id, version))
 	if errors.Is(err, fs.ErrNotExist) {
 		return Version{}, "", fmt.Errorf("the content of artifact %s version %d: %w", id, version, ErrNotFound)
 	}

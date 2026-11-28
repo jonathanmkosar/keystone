@@ -15,6 +15,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/jonathanmkosar/keystone/internal/atrest"
 	"github.com/jonathanmkosar/keystone/internal/backup"
 	"github.com/jonathanmkosar/keystone/internal/secrets"
 )
@@ -124,6 +125,14 @@ func (in *Install) Backup(id string, w io.Writer, passphrase string, o BackupOpt
 		return BackupInfo{}, err
 	}
 	defer os.RemoveAll(work)
+	// A sealed tenant's snapshot is sealed too, through the VFS, under the
+	// same keys: the backup carries it as it is (P15-06, decision 0664).
+	if s.keys != nil {
+		if err := atrest.Use(work, s.keys); err != nil {
+			return BackupInfo{}, err
+		}
+		defer atrest.Forget(work)
+	}
 	snapshot := filepath.Join(work, "keystone.db")
 	if _, err := s.DB().Exec("VACUUM INTO ?", snapshot); err != nil {
 		return BackupInfo{}, fmt.Errorf("tenant %s: the database could not be copied: %w", id, err)
@@ -443,6 +452,13 @@ func (in *Install) Restore(r io.ReadSeeker, passphrase string, o RestoreOptions)
 	if err := extract(r, c, stage, sealed); err != nil {
 		return Restored{}, err
 	}
+	// A sealed backup's folder opens with the keys from its own secrets
+	// file, now under this install's keeper (P15-06, decision 0664).
+	forget, err := in.unlockStage(stage, t.ID)
+	if err != nil {
+		return Restored{}, err
+	}
+	defer forget()
 	if err := in.prepare(stage, c, o.Ready); err != nil {
 		return Restored{}, err
 	}
@@ -450,6 +466,7 @@ func (in *Install) Restore(r io.ReadSeeker, passphrase string, o RestoreOptions)
 	if err != nil {
 		return Restored{}, err
 	}
+	in.forgetKeys(t.ID) // the data key may be the backup's, not the replaced tenant's
 	placed = true
 	res.BackupInfo = c.info
 	return res, nil

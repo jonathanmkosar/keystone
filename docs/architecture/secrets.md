@@ -80,6 +80,10 @@ Since P13-04 a backup carries a tenant's secrets to another machine ([backup.md]
 
 A backup re-wraps the data key from the install's keeper to the backup's; a restore re-wraps it from the backup's keeper to the new install's. No unwrapped key leaves this package.
 
+## Keys for data at rest
+
+Since P15-06, `Vault.Subkey(purpose)` gives a 32-byte key derived from the data key with HKDF-SHA-256 for one named purpose, bound to the tenant id; a tenant with no data key gets one, and an empty secrets file, as the first `Set` does. Encryption at rest asks for the purpose "keystone at rest v1" and makes the keys for the person's database and files from it ([encryption.md](encryption.md), decision [0660](decisions/0660-the-database-is-sealed-by-a-vfs-under-the-same-driver.md)). The data key itself still never leaves this package. For a sealed person, `secrets.bin` is the one file that holds what opens everything else: a folder whose secrets file is gone does not open.
+
 ## Not built yet
 
 - The keychain and Secret Service keepers have been compiled and their shared code tested, but they have not been run on a Mac or a Linux desktop. They are provisional until they are.

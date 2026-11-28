@@ -23,6 +23,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
+	"github.com/jonathanmkosar/keystone/internal/atrest"
 	"github.com/jonathanmkosar/keystone/internal/secrets"
 )
 
@@ -61,6 +62,11 @@ type Install struct {
 	// newKeeper names the keeper a new install uses. See NewInstallKeeper.
 	newKeeper string
 	vaults    map[string]*secrets.Vault
+	// atRest says how people's data is kept on disk, and keys holds each
+	// sealed tenant's keys once unwrapped (P15-06). See atrest.go.
+	atRest AtRest
+	keyMu  sync.Mutex
+	keys   map[string]*atrest.Keys
 }
 
 // Open opens the data folder at dir, creating it and an empty registry when
@@ -108,6 +114,14 @@ func OpenWithKeeper(dir string, k secrets.Keeper) (*Install, error) {
 		}
 	}
 	for _, t := range in.tenants {
+		// A sealing a stop cut short is finished or undone first, and a
+		// sealed folder's keys are given to the VFS (P15-06, atrest.go).
+		if err := in.recover(t.ID); err != nil {
+			return nil, err
+		}
+		if err := in.unlock(t.ID); err != nil {
+			return nil, err
+		}
 		s, err := in.open(t.ID)
 		if err != nil {
 			return nil, err
@@ -126,9 +140,9 @@ func (in *Install) Tenants() []Tenant {
 	return append([]Tenant(nil), in.tenants...)
 }
 
-// Create adds a tenant: its folder, its database with every migration
-// applied, and its entry in the registry.
-func (in *Install) Create(name string) (Tenant, error) {
+// createPlain adds a tenant: its folder, its database with every migration
+// applied, and its entry in the registry. Create, in atrest.go, seals it.
+func (in *Install) createPlain(name string) (Tenant, error) {
 	name = strings.TrimSpace(name)
 	if name == "" || len(name) > maxNameLength {
 		return Tenant{}, fmt.Errorf("a tenant's name is 1 to %d characters", maxNameLength)
@@ -181,6 +195,9 @@ func (in *Install) Create(name string) (Tenant, error) {
 
 // Store opens the handle for one tenant. The id must be in the registry.
 func (in *Install) Store(id string) (*Store, error) {
+	if err := in.unlock(id); err != nil { // P15-06: before in.mu, which the keeper takes
+		return nil, err
+	}
 	in.mu.Lock()
 	defer in.mu.Unlock()
 	return in.open(id)
@@ -207,11 +224,11 @@ func (in *Install) open(id string) (*Store, error) {
 // database brought up to date and checked to be this tenant's, and its
 // folders. A restore opens a tenant this way before it is put in place.
 func openStore(folder, id string, vault *secrets.Vault) (*Store, error) {
-	db, err := openDB(filepath.Join(folder, "keystone.db"))
+	db, keys, err := openFolderDB(folder, id) // P15-06: sealed or plain, atrest.go
 	if err != nil {
 		return nil, err
 	}
-	s := &Store{id: id, db: db, secrets: vault}
+	s := &Store{id: id, db: db, secrets: vault, keys: keys}
 	fail := func(err error) (*Store, error) {
 		s.Close()
 		return nil, err
@@ -295,6 +312,7 @@ type Store struct {
 	files     *os.Root
 	artifacts *os.Root
 	secrets   *secrets.Vault
+	keys      *atrest.Keys // nil for a plain tenant (P15-06)
 }
 
 // TenantID returns the id of the tenant this handle belongs to.

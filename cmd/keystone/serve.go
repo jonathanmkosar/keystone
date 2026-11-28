@@ -20,6 +20,7 @@ import (
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
 	"github.com/jonathanmkosar/keystone/internal/app"
+	"github.com/jonathanmkosar/keystone/internal/secrets"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 	"github.com/jonathanmkosar/keystone/settings"
 	"github.com/jonathanmkosar/keystone/web"
@@ -216,11 +217,21 @@ func runServe(args []string, out, errw io.Writer) int {
 // package reads no setting, so the server tells it where an install with
 // no master key yet keeps one. The server's own log goes to log.
 func openAPI(dataDir, keeper string, log io.Writer) (http.Handler, error) {
-	in, err := tenant.Open(dataDir)
+	return openAPIWith(dataDir, nil, keeper, log)
+}
+
+// openAPIWith is openAPI with k as the keeper of the install master key
+// when it is not nil. Tests pass one held in memory, so that sealing a
+// person at start (P15-06) never touches this machine's key store.
+func openAPIWith(dataDir string, k secrets.Keeper, keeper string, log io.Writer) (http.Handler, error) {
+	in, err := tenant.OpenWithKeeper(dataDir, k)
 	if err != nil {
 		return nil, err
 	}
 	in.NewInstallKeeper(keeper)
+	if err := encryptAtStart(in, dataDir, log); err != nil { // P15-06: atrest.go
+		return nil, err
+	}
 	c, err := app.Defaults()
 	if err != nil {
 		return nil, err

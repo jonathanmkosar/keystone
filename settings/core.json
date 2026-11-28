@@ -173,6 +173,33 @@
       "description": "The fewest characters a backup's passphrase may have."
     },
     {
+      "key": "encryption.at_rest",
+      "title": "Encryption at rest",
+      "summary": "Keeps every person's data encrypted on disk with their own key.",
+      "type": "bool",
+      "default": "true",
+      "scope": "install",
+      "description": "Whether each person's database, uploads, files and artifacts are encrypted on disk with their own data key, under the install master key the operating system holds (P15-06, decisions 0660 to 0664). When on, every new person is made encrypted, and the server encrypts every person who is not yet, one at a time, each after a backup, when it starts. Switching it off stops that and nothing more: a person already encrypted stays encrypted and opens as before."
+    },
+    {
+      "key": "encryption.lock_wait",
+      "title": "Encrypted database wait",
+      "summary": "How long a second Keystone process waits for a person's encrypted database.",
+      "type": "duration",
+      "default": "30s",
+      "scope": "install",
+      "description": "How long opening a person's encrypted database waits while another Keystone process, the server or a command, has it open, before it is refused. Only one process at a time opens an encrypted database (decision 0660)."
+    },
+    {
+      "key": "encryption.backup_folder",
+      "title": "Backups before encryption",
+      "summary": "Where the backup made before each person is encrypted goes.",
+      "type": "string",
+      "default": "backups/before-encryption",
+      "scope": "install",
+      "description": "The folder the server writes a backup of each person to just before it encrypts them for the first time. A relative folder is inside the data folder. Each backup's passphrase is kept beside it, wrapped by the install master key; go run ./tools/tenant encryption passphrase <file> prints it, for tenant restore. Delete these backups once the encrypted install has worked for a while: they hold the person's data, sealed."
+    },
+    {
       "key": "usage.report_period",
       "title": "Usage report period",
       "summary": "The period the usage report opens on.",
