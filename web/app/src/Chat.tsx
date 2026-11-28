@@ -109,6 +109,7 @@ type Loaded =
   | { state: "failed" };
 
 function modelLine(model: ModelChoice): string {
+  if (model.auto) return "Auto"; // the router picks each message's model (P14-04)
   if (!model.model) return "";
   return model.model.test ? `${model.model.label || model.model.name} · recorded test replies` : model.model.label || model.model.name;
 }

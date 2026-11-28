@@ -6,7 +6,8 @@
 // read by api.ts. Decision 0151 says why this is a small store of its own.
 
 import { useSyncExternalStore } from "react";
-import { ApiError, followTurn, openChat, sendMessage, stopTurn, type Block, type Message, type StreamReader, type TurnEvent } from "./api";
+import { ApiError, followTurn, openChat, sendMessage, stopTurn, strongerTurn, type Block, type Message, type StreamReader, type TurnEvent, type TurnRoute } from "./api";
+import { strongerProblem } from "./autoWords";
 
 /** A block of the reply that is still being written. */
 export type DraftBlock =
@@ -44,6 +45,8 @@ export type Live = {
   problem: string;
   /** The turn ended and the screen has taken its messages. Only a failure is kept this long. */
   settled: boolean;
+  /** How the turn was routed, when the chat is on Auto (P14-04). */
+  route?: TurnRoute;
 };
 
 const active: LiveState[] = ["sending", "waiting", "streaming", "reconnecting"];
@@ -184,6 +187,9 @@ function apply(entry: Entry, event: TurnEvent) {
       return;
     case "usage":
       return;
+    case "route": // P14-04: the reply's footnote while it arrives
+      change(entry, { route: event.data });
+      return;
     case "title":
       for (const l of titleListeners) l(event.data.chat_id, event.data.title);
       return;
@@ -220,6 +226,7 @@ const retryWaits = [400, 1000, 2000, 4000, 8000, 8000];
 
 function sendProblem(e: unknown): string {
   if (!(e instanceof ApiError)) return "The message could not be sent.";
+  if (e.code === "no_stronger" || e.code === "not_auto") return strongerProblem(e.code, e.said ?? ""); // P14-04
   if (e.code === "queue_full") return "This chat already has messages waiting for a reply. Wait for one to finish, then send again.";
   if (e.code === "not_built") return "The server cannot answer yet: this part of it is not built.";
   if (e.kind === "missing") return "This chat is no longer in your record. It may have been deleted.";
@@ -347,6 +354,13 @@ function begin(chatId: string, live: Partial<Live>): Entry {
 export function send(chatId: string, text: string, model?: string, blocks?: () => Promise<Block[]>, location?: { latitude: number; longitude: number }): void {
   const entry = begin(chatId, { said: text, located: location !== undefined });
   void run(entry, async (reader) => sendMessage(chatId, text, reader, model, blocks && (await blocks()), location), true);
+}
+
+/** Try a stronger model (P14-04): writes a turn on Auto again one step up, and follows it as a send. */
+export function stronger(chatId: string, turnId: string): void {
+  if (isActive(entries.get(chatId)?.live)) return;
+  const entry = begin(chatId, {});
+  void run(entry, (reader) => strongerTurn(chatId, turnId, reader), true);
 }
 
 /** Joins a turn that is already queued or running, from its first event. */

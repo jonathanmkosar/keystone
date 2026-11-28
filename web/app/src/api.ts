@@ -8,6 +8,7 @@
 // token is ever held here.
 
 import { readEvents } from "./sse";
+import { autoPick } from "./autoWords";
 
 const paths = {
   people: "/api/v1/signin/people",
@@ -209,6 +210,50 @@ export type Message = {
   stop_reason?: string;
   /** The approximate location a person's message was sent with, and the line its model calls carried (P10-06). */
   location?: SentLocation;
+  /** How a reply's turn on Auto was routed, for its footnote (P14-04). */
+  route?: TurnRoute;
+};
+
+/** How one turn on Auto was routed (P14-04): the route event's data, and the route of a turn and its replies. */
+export type TurnRoute = {
+  auto: boolean;
+  model: string;
+  label?: string;
+  step?: number;
+  steps?: number;
+  effort?: string;
+  /** One line written by Keystone, never by a model. */
+  reason?: string;
+  /** local_unavailable when local steps were passed over. */
+  notice?: string;
+  switched?: boolean;
+  verdict_id?: string;
+  stronger_of?: string;
+};
+
+/** One step of the person's ladder, smallest first (P14-04). */
+export type LadderStep = { name: string; label: string; class: string; step: number };
+
+/** The router's record of how one turn on Auto was routed, for the inspector (P14-04). */
+export type Verdict = {
+  id: string;
+  decision_model?: string;
+  shown: { tokens: number; images: boolean; files: boolean; tools: number; previous_step?: string; turns: number };
+  step_answered?: string;
+  probability?: number;
+  effort_answered?: string;
+  step: string;
+  effort: string;
+  moved_up: boolean;
+  timed_out: boolean;
+  rules_only: boolean;
+  rules_only_why?: string;
+  latency_ms: number;
+  local_unavailable: boolean;
+  stronger_asked: boolean;
+  reason: string;
+  notice?: string;
+  created: string;
 };
 
 /** A location kept with a person's message (P10-06): rounded, with its decimals and the line the model was given. */
@@ -229,6 +274,18 @@ export type ModelChoice = {
   /** Why there is no model, for a person. */
   reason?: string;
   models: ModelInfo[];
+  /** The chat is on Auto and the person has a ladder: the router picks each message's model (P14-04). */
+  auto?: boolean;
+  /** The step the chat's last turn on Auto used. */
+  last_step?: string;
+  /** The person's ladder, smallest first. Empty: Auto is not offered. */
+  ladder?: LadderStep[];
+  /** The person may take the chat off Auto (always, until P14-05). */
+  may_switch_off?: boolean;
+  /** The models the person may pick by hand (all, until P14-05). */
+  allowed?: string[];
+  /** The chat holds content from a sensitive space: only local and trusted models may answer it. */
+  held?: boolean;
 };
 
 export type TurnError = { code: string; message: string; retryable: boolean };
@@ -242,6 +299,8 @@ export type Turn = {
   reply_message_id?: number;
   error?: TurnError;
   last_event_id: number;
+  /** How a turn on Auto was routed (P14-04). */
+  route?: TurnRoute;
 };
 
 /** One chat as the screen opens it: its current branch, its model, and its turns that have not ended. */
@@ -311,9 +370,11 @@ export type TurnEvent =
   | { name: "tool_result"; data: { id: string; is_error: boolean; content: Block[] } }
   | { name: "usage"; data: { step: number; model: string; stop_reason: string } }
   | { name: "title"; data: { chat_id: string; title: string } }
-  | { name: "error"; data: TurnError };
+  | { name: "error"; data: TurnError }
+  // How a turn on Auto was routed (P14-04).
+  | { name: "route"; data: TurnRoute };
 
-const turnEventNames = new Set(["turn", "end", "message", "start", "thinking", "text", "tool_call", "tool_result", "usage", "title", "error"]);
+const turnEventNames = new Set(["turn", "end", "message", "start", "thinking", "text", "tool_call", "tool_result", "usage", "title", "error", "route"]);
 
 export type StreamReader = {
   /** Ends the reading. It does not stop the turn: only stopTurn does. */
@@ -377,7 +438,14 @@ async function readTurn(method: "GET" | "POST", path: string, body: unknown, las
 
 /** Sends a message to a chat and reads the reply's stream. `model` names the model to answer; absent means the chat's own. `blocks`, when given, is the message in place of `text` (P9-02). `location`, when given, is the rounded position that goes with this message alone (P10-06); without it the body is as before. See readTurn for what it returns. */
 export function sendMessage(chatId: string, text: string, reader: StreamReader, model?: string, blocks?: Block[], location?: { latitude: number; longitude: number }): Promise<boolean> {
-  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...(model ? { model } : {}), ...(location ? { location } : {}) }, "", reader);
+  // A pick of Auto puts the chat on Auto (P14-04, autoWords.ts).
+  const pick = model === autoPick ? { auto: true } : model ? { model } : {};
+  return readTurn("POST", turnsPath(chatId), { ...(blocks ? { blocks } : { text }), ...pick, ...(location ? { location } : {}) }, "", reader);
+}
+
+/** Try a stronger model (P14-04): the turn on Auto is written again one step up, on a new branch, and read as a send is. */
+export function strongerTurn(chatId: string, turnId: string, reader: StreamReader): Promise<boolean> {
+  return readTurn("POST", `${turnPath(chatId, turnId)}/stronger`, undefined, "", reader);
 }
 
 /**
@@ -582,6 +650,13 @@ export async function chatModel(chatId: string): Promise<ModelChoice> {
     source: data.source,
     reason: typeof data.reason === "string" ? data.reason : undefined,
     models: data.models,
+    // What Auto adds (P14-04).
+    auto: data.auto === true,
+    last_step: typeof data.last_step === "string" ? data.last_step : undefined,
+    ladder: Array.isArray(data.ladder) ? (data.ladder as LadderStep[]) : [],
+    may_switch_off: data.may_switch_off !== false,
+    allowed: Array.isArray(data.allowed) ? (data.allowed as string[]) : undefined,
+    held: data.held === true,
   };
 }
 
@@ -962,6 +1037,8 @@ export type Inspection = {
   uploads?: unknown[];
   /** The location the turn's message was sent with, and the line its calls carried (P10-06); LocationControl.tsx reads it. */
   location?: SentLocation;
+  /** The router's record of how the turn on Auto was routed (P14-04); AutoParts.tsx reads it. */
+  verdict?: Verdict;
 };
 
 /** What went into each model call of one turn. */
@@ -978,6 +1055,7 @@ export async function inspectTurn(chatId: string, turnId: string): Promise<Inspe
     skips: Array.isArray(data.skips) ? (data.skips as Skip[]) : [],
     uploads: Array.isArray(data.uploads) ? data.uploads : undefined,
     location: typeof data.location === "object" && data.location !== null && typeof (data.location as SentLocation).line === "string" ? (data.location as SentLocation) : undefined,
+    verdict: typeof data.verdict === "object" && data.verdict !== null && typeof (data.verdict as Verdict).step === "string" ? (data.verdict as Verdict) : undefined, // P14-04
   };
 }
 
