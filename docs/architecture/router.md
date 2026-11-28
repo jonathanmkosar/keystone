@@ -6,7 +6,7 @@ The router (P14-03) chooses the model and the effort for one message of a chat o
 
 The router only ever narrows or orders what `routing.Plan` allows. It never adds a model to a route the plan would withhold.
 
-The package reads nothing itself: no store, no setting, and no clock it was not given. The turn passes it the settings, the facts of the call and a function that makes the decision call. It holds no state between calls. Wiring it into the turn is P14-04.
+The package reads nothing itself: no store and no setting. The turn passes it the settings, the facts of the call (the time among them) and a function that makes the decision call; the clock is read only to time the verdict, and for `Facts.Now` when the turn leaves it zero. It holds no state between calls. Wiring it into the turn is P14-04.
 
 ## Every message afresh
 
@@ -135,7 +135,15 @@ In `settings/models.json`. Names, types, defaults and scopes are the spec's.
 | `router.max_effort` | string | high | install | The most effort the router asks for: low to max. |
 | `router.local_down_for` | duration | 2m | install | How long local steps are skipped after a local endpoint failed with `unavailable`. |
 
-`router.auto_default`, `router.may_switch_off` and `router.allowed_models`, the rest of the admin's policy, are read by the turn and the chat routes, not by the router, and come with P14-04 and P14-05.
+`router.auto_default`, `router.may_switch_off` and `router.allowed_models`, the rest of the admin's policy, are read by the turn and the chat routes, not by the router, and come with P14-04 and P14-05 (decision [0672](decisions/0672-the-router-adds-the-settings-it-reads-and-leaves-the-rest-of-the-policy.md)).
+
+## Decisions
+
+- [0670](decisions/0670-the-router-asks-the-plan-for-each-step-and-reads-nothing-itself.md): each step is asked of `routing.Plan` on its own, and the router reads nothing itself.
+- [0671](decisions/0671-a-late-verdict-is-rules-only-and-only-unavailable-means-the-local-machine-is-down.md): a late verdict is the rules alone; only `unavailable` means the local machine is down.
+- [0672](decisions/0672-the-router-adds-the-settings-it-reads-and-leaves-the-rest-of-the-policy.md): the router adds the settings it reads.
+- [0673](decisions/0673-the-verdict-chooses-among-candidates-and-moving-up-is-the-next-candidate.md): the verdict chooses among the candidates, and moving up is the next candidate.
+- [0674](decisions/0674-the-routers-window-check-mirrors-the-budgets.md): the window check mirrors the budget's.
 
 ## Fixed rule 3
 

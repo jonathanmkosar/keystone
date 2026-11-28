@@ -11,9 +11,10 @@
 // nothing from an earlier message holds a chat on a step. The turn holds
 // the choice for that message's whole turn, tool steps included.
 //
-// The router reads nothing itself: no store, no setting, no clock it was
-// not given. The turn passes the settings, the facts and a function that
-// makes the decision call. It holds no state between calls.
+// The router reads nothing itself: no store and no setting. The turn
+// passes the settings, the facts (the time among them) and a function that
+// makes the decision call; the clock is read only to time the verdict. It
+// holds no state between calls.
 //
 // This package is a guard for fixed rule 3. Each step is asked of
 // routing.Plan on its own, so the router only ever narrows or orders what

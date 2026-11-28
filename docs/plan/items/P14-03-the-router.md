@@ -1,6 +1,6 @@
 # P14-03. The router
 
-Status: doing (models)
+Status: done
 Lane: models
 Depends on: P14-01, P14-02
 Owner gate: None.
@@ -32,3 +32,7 @@ What will be built:
 4. **Docs**: `docs/architecture/router.md` with its `componentDocs` line and overview row, `routing.md`, `PLAN.md`'s routing line, decisions from 0670, journal `models-011`.
 
 Left to others: wiring it into the turn, `router_verdicts`, the `route` event and the `stronger` route (P14-04); the admin's other three settings and refusals (P14-05); the live check (P14-08).
+
+## Result
+
+Done on November 27, 2026 (journal `docs/journal/2026-11-27-models-011.md`). `internal/router` holds the ladder (`ParseLadder`, size limits), the four rules (`Candidates`, each step asked of `routing.Plan` on its own), the verdict (`Route`: `decision.Choose`, the turn's `Verdict` under `router.verdict_timeout`, the confidence step, the effort cap, the rules-only paths), the reason line, `Stronger`, the refusals and the record; nine settings in `settings/models.json`. A guard of fixed rule 3, and a case in the `sensitive content` check: a held chat never gets a hosted step, whatever the verdict says. `docs/architecture/router.md`, decisions 0670 to 0674. Nothing calls it until P14-04; its surface is in `router.md`, "For the turn".
