@@ -147,6 +147,17 @@ func Known(ctx context.Context, s *tenant.Store) []tools.Info {
 
 // line is the one line a tool is offered with before it is loaded.
 func (p *Pool) line(c Connector, t Tool) string {
+	// A connector whose results are outside content is a stranger's words,
+	// and so are its tools' descriptions and titles. A call offered them
+	// would have read outside content with no tool run, so nothing would
+	// mark the chat, and a tool set to always would run on what they say.
+	// Such a tool is offered by its name alone: its words reach the model
+	// only through load_tools, whose result marks the chat (P13-01, decision
+	// 0760). Gmail's and Calendar's tools are Keystone's own words, and a
+	// connector the person marked as not outside keeps its line.
+	if c.Outside && c.Transport != TransportGoogle {
+		return "A tool of the " + c.DisplayName() + " connector: load_tools gives what it does. [" + c.DisplayName() + "; load_tools first]"
+	}
 	text := t.Description
 	if i := strings.IndexAny(text, "\n"); i >= 0 {
 		text = text[:i]

@@ -148,6 +148,7 @@ var checks = []check{
 	{"location", checkLocation},
 	{"admin isolation", checkAdminIsolation}, // P15-01: adminisolation.go
 	{"encryption at rest", checkEncryption},  // P15-06: encryption.go
+	{"tricked-agent drill", checkTrickDrill}, // P13-01: trickdrill.go
 }
 
 func main() {
