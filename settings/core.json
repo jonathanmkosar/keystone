@@ -11,13 +11,22 @@
       "description": "The address and port Keystone listens on. The default is reachable from this machine only."
     },
     {
-      "key": "admin.step_up_for",
-      "title": "Admin step-up length",
-      "summary": "How long the admin area stays open after the password is asked again.",
+      "key": "admin.session_for",
+      "title": "Admin session length",
+      "summary": "How long an admin stays signed in.",
       "type": "duration",
-      "default": "15m",
+      "default": "8h",
       "scope": "install",
-      "description": "How long the admin area stays open on one session after an admin enters their password or uses a passkey again, never past the session's own end. After it, every admin route asks again (P15-01, decision 0643)."
+      "description": "How long an admin account's session lasts after it signs in at /admin/sign-in. After it, the admin signs in again (P15-01, decision 0652)."
+    },
+    {
+      "key": "admin.idle_for",
+      "title": "Admin idle limit",
+      "summary": "How long an admin session may go unused before it ends.",
+      "type": "duration",
+      "default": "30m",
+      "scope": "install",
+      "description": "How long an admin account's session may go without a call before it ends, however long it had left (P15-01, decision 0652)."
     },
     {
       "key": "server.secure_cookie",

@@ -63,19 +63,12 @@ type SessionInfo struct {
 	Method  string    `json:"method"`
 	Created time.Time `json:"created"`
 	Expires time.Time `json:"expires"`
-	// AdminUntil is when this session's admin step-up ends, and is left
-	// out when it has none (P15-01).
-	AdminUntil time.Time `json:"admin_until,omitzero"`
 }
 
 // SessionReply answers the session routes.
 type SessionReply struct {
 	Person  Person      `json:"person"`
 	Session SessionInfo `json:"session"`
-	// Admin says the person carries the admin mark, so the interface can
-	// show the admin area to them alone (P15-01). The admin routes check
-	// the mark themselves.
-	Admin bool `json:"admin"`
 }
 
 // SignedOutReply answers DELETE /api/v1/session.
@@ -112,16 +105,7 @@ func ShellRoutes(s Shell) []Route {
 		return ""
 	}
 	info := func(sess signin.Session) SessionInfo {
-		return SessionInfo{ID: sess.ID, Method: sess.Method, Created: sess.Created, Expires: sess.Expires, AdminUntil: sess.AdminUntil}
-	}
-	// marked reads the admin mark from keystone.json now. A registry that
-	// cannot be read says no.
-	marked := func(id string) bool {
-		ok, err := s.Install.IsAdmin(id)
-		if err != nil {
-			logf("the admin mark of tenant %s could not be read: %v", id, err)
-		}
-		return ok && err == nil
+		return SessionInfo{ID: sess.ID, Method: sess.Method, Created: sess.Created, Expires: sess.Expires}
 	}
 
 	people := func(w http.ResponseWriter, r *http.Request) {
@@ -191,12 +175,12 @@ func ShellRoutes(s Shell) []Route {
 				return
 			}
 			SetSessionCookie(w, r, token, sess.Expires, s.SecureCookie)
-			WriteJSON(w, http.StatusOK, SessionReply{Person: Person{ID: sess.TenantID, Name: name(sess.TenantID)}, Session: info(sess), Admin: marked(sess.TenantID)})
+			WriteJSON(w, http.StatusOK, SessionReply{Person: Person{ID: sess.TenantID, Name: name(sess.TenantID)}, Session: info(sess)})
 		}
 	}
 
 	whoAmI := func(w http.ResponseWriter, r *http.Request, c Call) {
-		WriteJSON(w, http.StatusOK, SessionReply{Person: Person{ID: c.Session.TenantID, Name: name(c.Session.TenantID)}, Session: info(c.Session), Admin: marked(c.Session.TenantID)})
+		WriteJSON(w, http.StatusOK, SessionReply{Person: Person{ID: c.Session.TenantID, Name: name(c.Session.TenantID)}, Session: info(c.Session)})
 	}
 
 	signOut := func(w http.ResponseWriter, r *http.Request, c Call) {
@@ -309,7 +293,7 @@ func ShellRoutes(s Shell) []Route {
 		},
 		{
 			Method: "GET", Path: Prefix + "session", Handle: whoAmI,
-			Summary: "Who is signed in, and until when; whether they carry the admin mark, and until when their admin step-up lasts.",
+			Summary: "Who is signed in, and until when.",
 			Reply:   SessionReply{},
 		},
 		{

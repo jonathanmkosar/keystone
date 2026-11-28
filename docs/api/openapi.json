@@ -22,6 +22,11 @@
       }
     },
     "securitySchemes": {
+      "admin": {
+        "in": "cookie",
+        "name": "keystone_admin",
+        "type": "apiKey"
+      },
       "session": {
         "in": "cookie",
         "name": "keystone_session",
@@ -30,12 +35,311 @@
     }
   },
   "info": {
-    "description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is behind the admin door: it answers 403 not_admin to a person without the admin mark, and 401 step_up to a session without a fresh step-up, unless it is also marked x-keystone-step-up. Every answer carries an X-Request-Id header.",
+    "description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is an admin account's: it carries the admin session in the keystone_admin cookie, a person's session is refused there (403 not_admin), and an admin's session is refused on every other route (403 admin_account). Every answer carries an X-Request-Id header.",
     "title": "Keystone",
     "version": "1"
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/admin/passkeys": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "passkeys": {
+                      "items": {
+                        "properties": {
+                          "created": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "last_used": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "created"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "passkeys"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "The signed-in admin account's own passkeys.",
+        "x-keystone-admin": true
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "authenticatorData": {
+                    "type": "string"
+                  },
+                  "clientDataJSON": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "publicKey": {
+                    "type": "string"
+                  },
+                  "rawId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "rawId",
+                  "clientDataJSON",
+                  "authenticatorData",
+                  "publicKey"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "created": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "last_used": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "created"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Add the passkey a browser made in answer to the prompt.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/passkeys/prompt": {
+      "post": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "algorithms": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    },
+                    "allowCredentials": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "challenge": {
+                      "type": "string"
+                    },
+                    "rpId": {
+                      "type": "string"
+                    },
+                    "timeout": {
+                      "type": "integer"
+                    },
+                    "user": {
+                      "properties": {
+                        "displayName": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "displayName"
+                      ],
+                      "type": "object"
+                    },
+                    "userVerification": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "challenge",
+                    "rpId",
+                    "allowCredentials",
+                    "userVerification",
+                    "timeout"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "A passkey prompt for adding a passkey to the signed-in admin account, for navigator.credentials.create. 400 passkeys_off while passkeys are switched off.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/passkeys/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "removed": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "removed"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Remove one of the signed-in admin account's passkeys.",
+        "x-keystone-admin": true
+      }
+    },
     "/api/v1/admin/people": {
       "get": {
         "responses": {
@@ -51,9 +355,6 @@
                             "format": "date-time",
                             "type": "string"
                           },
-                          "admin": {
-                            "type": "boolean"
-                          },
                           "id": {
                             "type": "string"
                           },
@@ -68,7 +369,6 @@
                         "required": [
                           "id",
                           "name",
-                          "admin",
                           "added"
                         ],
                         "type": "object"
@@ -96,11 +396,16 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Every person on the install: id, name, admin mark, when added and last sign-in. Never a chat, a title or an error's words. Each other person's audit log records the read.",
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Every person on the install: id, name, when added and last sign-in. Never a chat, a title, a file or an error's words. Each person's own audit log records the read.",
         "x-keystone-admin": true
       }
     },
-    "/api/v1/admin/step-up": {
+    "/api/v1/admin/session": {
       "delete": {
         "responses": {
           "200": {
@@ -108,12 +413,12 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "ended": {
+                    "signed_out": {
                       "type": "boolean"
                     }
                   },
                   "required": [
-                    "ended"
+                    "signed_out"
                   ],
                   "type": "object"
                 }
@@ -132,7 +437,94 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Close the admin area on this session before its time.",
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Sign the admin account out: end this session and forget its cookie.",
+        "x-keystone-admin": true
+      },
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "account": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "session": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "idle_until": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "method": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "method",
+                        "created",
+                        "expires",
+                        "idle_until"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "account",
+                    "session"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Which admin account is signed in, and until when.",
         "x-keystone-admin": true
       },
       "post": {
@@ -141,6 +533,9 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "account": {
+                    "type": "string"
+                  },
                   "passkey": {
                     "properties": {
                       "id": {
@@ -200,13 +595,55 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "admin_until": {
-                      "format": "date-time",
-                      "type": "string"
+                    "account": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ],
+                      "type": "object"
+                    },
+                    "session": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "expires": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "idle_until": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "method": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "method",
+                        "created",
+                        "expires",
+                        "idle_until"
+                      ],
+                      "type": "object"
                     }
                   },
                   "required": [
-                    "admin_until"
+                    "account",
+                    "session"
                   ],
                   "type": "object"
                 }
@@ -225,12 +662,13 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Open the admin area on this session: the password, or a passkey's answer, again. It stays open for the admin.step_up_for setting. A wrong one is 403 refused and counts towards the sign-in's wait.",
+        "security": [],
+        "summary": "Sign in to an admin account, with its id or name and its password, or a passkey's answer. The session token comes back in the keystone_admin cookie, sent with admin routes alone, and never in the body. A wrong one is 401 refused and counts towards the wait, as a person's does.",
         "x-keystone-admin": true,
-        "x-keystone-step-up": true
+        "x-keystone-door": true
       }
     },
-    "/api/v1/admin/step-up/passkey": {
+    "/api/v1/admin/session/passkey": {
       "post": {
         "responses": {
           "200": {
@@ -238,6 +676,12 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "algorithms": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    },
                     "allowCredentials": {
                       "items": {
                         "properties": {
@@ -264,6 +708,25 @@
                     },
                     "timeout": {
                       "type": "integer"
+                    },
+                    "user": {
+                      "properties": {
+                        "displayName": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "displayName"
+                      ],
+                      "type": "object"
                     },
                     "userVerification": {
                       "type": "string"
@@ -293,9 +756,10 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "A passkey prompt for a step-up, for navigator.credentials.get. 400 passkeys_off while passkeys are switched off.",
+        "security": [],
+        "summary": "A passkey prompt for signing in to an admin account, for navigator.credentials.get. 400 passkeys_off while passkeys are switched off.",
         "x-keystone-admin": true,
-        "x-keystone-step-up": true
+        "x-keystone-door": true
       }
     },
     "/api/v1/agents": {
@@ -1289,6 +1753,144 @@
           }
         },
         "summary": "The signed-in person's audit log, oldest first, a page at a time."
+      }
+    },
+    "/api/v1/audit/admin": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Return the entries written after the entry with this id.",
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The most entries to return. Never more than the server.page_limit setting.",
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "entries": {
+                      "items": {
+                        "properties": {
+                          "action": {
+                            "type": "string"
+                          },
+                          "actor": {
+                            "type": "string"
+                          },
+                          "at": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "cost_micros": {
+                            "type": "integer"
+                          },
+                          "duration_ms": {
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "integer"
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "outcome": {
+                            "type": "string"
+                          },
+                          "received": {
+                            "type": "string"
+                          },
+                          "request_id": {
+                            "type": "string"
+                          },
+                          "sent": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "integer"
+                          },
+                          "usage": {
+                            "properties": {
+                              "cache_read_tokens": {
+                                "type": "integer"
+                              },
+                              "cache_write_tokens": {
+                                "type": "integer"
+                              },
+                              "estimated": {
+                                "type": "boolean"
+                              },
+                              "input_tokens": {
+                                "type": "integer"
+                              },
+                              "output_tokens": {
+                                "type": "integer"
+                              },
+                              "thinking_tokens": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "input_tokens",
+                              "output_tokens"
+                            ],
+                            "type": "object"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "at",
+                          "kind",
+                          "request_id",
+                          "actor",
+                          "action",
+                          "outcome",
+                          "usage",
+                          "cost_micros",
+                          "duration_ms"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "next_after": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "entries",
+                    "next_after"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "The entries of the signed-in person's own audit log that admin accounts' calls left: who read or changed what of theirs, through which route, and when. Oldest first, a page at a time."
       }
     },
     "/api/v1/browser/shots/{shot}": {
@@ -21606,9 +22208,6 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "admin": {
-                      "type": "boolean"
-                    },
                     "person": {
                       "properties": {
                         "id": {
@@ -21626,10 +22225,6 @@
                     },
                     "session": {
                       "properties": {
-                        "admin_until": {
-                          "format": "date-time",
-                          "type": "string"
-                        },
                         "created": {
                           "format": "date-time",
                           "type": "string"
@@ -21656,8 +22251,7 @@
                   },
                   "required": [
                     "person",
-                    "session",
-                    "admin"
+                    "session"
                   ],
                   "type": "object"
                 }
@@ -21676,7 +22270,7 @@
             "description": "The call was refused or failed."
           }
         },
-        "summary": "Who is signed in, and until when; whether they carry the admin mark, and until when their admin step-up lasts."
+        "summary": "Who is signed in, and until when."
       },
       "post": {
         "requestBody": {
@@ -21707,9 +22301,6 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "admin": {
-                      "type": "boolean"
-                    },
                     "person": {
                       "properties": {
                         "id": {
@@ -21727,10 +22318,6 @@
                     },
                     "session": {
                       "properties": {
-                        "admin_until": {
-                          "format": "date-time",
-                          "type": "string"
-                        },
                         "created": {
                           "format": "date-time",
                           "type": "string"
@@ -21757,8 +22344,7 @@
                   },
                   "required": [
                     "person",
-                    "session",
-                    "admin"
+                    "session"
                   ],
                   "type": "object"
                 }

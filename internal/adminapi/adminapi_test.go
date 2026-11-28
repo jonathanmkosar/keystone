@@ -8,7 +8,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"net/http"
@@ -17,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/adminview"
 	"github.com/jonathanmkosar/keystone/internal/api"
 	"github.com/jonathanmkosar/keystone/internal/audit"
@@ -27,15 +27,18 @@ import (
 // Every name and password here is invented.
 const (
 	passwordAdmin = "test admin's own phrase"
+	passwordOne   = "test person one's phrase"
 	passwordTwo   = "test person two's phrase"
 )
 
 type rig struct {
-	t            *testing.T
-	in           *tenant.Install
-	h            http.Handler
-	o            signin.Options
-	admin, other string
+	t        *testing.T
+	in       *tenant.Install
+	h        http.Handler
+	o        adminaccount.Options
+	routes   []api.Route
+	admin    adminaccount.Account
+	one, two string
 }
 
 func newRig(t *testing.T, passkeys bool) *rig {
@@ -44,48 +47,57 @@ func newRig(t *testing.T, passkeys bool) *rig {
 	if err != nil {
 		t.Fatal(err)
 	}
-	g := &rig{t: t, in: in, o: signin.Options{
+	g := &rig{t: t, in: in, o: adminaccount.Options{SessionFor: time.Hour, IdleFor: 10 * time.Minute, SignIn: signin.Options{
 		PasswordIterations: 50, PasswordMinLength: 12, SessionLifetime: time.Hour, FailuresBeforeWait: 3, FailureWait: time.Minute,
 		Passkeys: passkeys, PasskeyRPID: "localhost", PasskeyOrigin: "http://localhost:7900", PasskeyChallengeLifetime: time.Minute,
-	}}
+	}}}
 	for _, p := range []struct {
 		id       *string
 		name, pw string
-	}{{&g.admin, "Test Admin", passwordAdmin}, {&g.other, "Test Person Two", passwordTwo}} {
+	}{{&g.one, "Test Person One", passwordOne}, {&g.two, "Test Person Two", passwordTwo}} {
 		made, err := in.Create(p.name)
 		if err != nil {
 			t.Fatal(err)
 		}
 		*p.id = made.ID
-		g.with(made.ID, func(s *tenant.Store) {
-			if err := signin.SetPassword(s, p.pw, g.o); err != nil {
-				t.Fatal(err)
-			}
-		})
+		s, err := in.Store(made.ID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := signin.SetPassword(s, p.pw, g.o.SignIn); err != nil {
+			t.Fatal(err)
+		}
+		s.Close()
 	}
-	if _, err := in.SetAdmin(g.admin, true); err != nil {
+	db := g.db()
+	if g.admin, err = db.AddAccount("Test Admin"); err != nil {
 		t.Fatal(err)
 	}
-	var routes []api.Route
-	routes = append(api.ShellRoutes(api.Shell{Install: in, SignIn: g.o, PageLimit: 50, Version: "test", Routes: func() []api.Route { return routes }}),
-		Routes(Options{View: adminview.New(in), SignIn: g.o, StepUpFor: 15 * time.Minute})...)
-	if g.h, err = api.Handler(api.Options{Install: in, MaxBodyBytes: 1 << 16, Heartbeat: time.Second}, routes); err != nil {
+	if err := db.SetPassword(g.admin.ID, passwordAdmin, g.o.SignIn); err != nil {
+		t.Fatal(err)
+	}
+	db.Close()
+	open := func() (*adminaccount.Store, error) { return adminaccount.Open(in.Dir()) }
+	g.routes = append(api.ShellRoutes(api.Shell{Install: in, SignIn: g.o.SignIn, PageLimit: 50, Version: "test", Routes: func() []api.Route { return g.routes }}),
+		Routes(Options{View: adminview.New(in), Open: open, Accounts: g.o})...)
+	g.routes = append(g.routes, api.AdminEntriesRoute(50, nil))
+	if g.h, err = api.Handler(api.Options{Install: in, MaxBodyBytes: 1 << 16, Heartbeat: time.Second, Admin: g.o}, g.routes); err != nil {
 		t.Fatal(err)
 	}
 	return g
 }
 
-func (g *rig) with(id string, f func(*tenant.Store)) {
+func (g *rig) db() *adminaccount.Store {
 	g.t.Helper()
-	s, err := g.in.Store(id)
+	db, err := adminaccount.Open(g.in.Dir())
 	if err != nil {
 		g.t.Fatal(err)
 	}
-	defer s.Close()
-	f(s)
+	return db
 }
 
-func (g *rig) do(method, path, token string, body any) *httptest.ResponseRecorder {
+// do makes one call. person and admin are the two cookies, either empty.
+func (g *rig) do(method, path, person, admin string, body any) *httptest.ResponseRecorder {
 	g.t.Helper()
 	var r *http.Request
 	if body != nil {
@@ -95,36 +107,65 @@ func (g *rig) do(method, path, token string, body any) *httptest.ResponseRecorde
 	} else {
 		r = httptest.NewRequest(method, path, nil)
 	}
-	if token != "" {
-		r.AddCookie(&http.Cookie{Name: api.CookieName, Value: token})
+	if person != "" {
+		r.AddCookie(&http.Cookie{Name: api.CookieName, Value: person})
+	}
+	if admin != "" {
+		r.AddCookie(&http.Cookie{Name: api.AdminCookieName, Value: admin})
 	}
 	rec := httptest.NewRecorder()
 	g.h.ServeHTTP(rec, r)
 	return rec
 }
 
-func (g *rig) signIn(id, password string) string {
+// adminSignIn signs in at the admin's door and returns the token from the
+// admin cookie, or "".
+func (g *rig) adminSignIn(body SignInBody) (string, *httptest.ResponseRecorder) {
 	g.t.Helper()
-	rec := g.do("POST", api.Prefix+"session", "", api.SignInBody{Tenant: id, Password: password})
+	rec := g.do("POST", api.AdminPrefix+"session", "", "", body)
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == api.AdminCookieName && rec.Code == http.StatusOK {
+			return c.Value, rec
+		}
+	}
+	return "", rec
+}
+
+func (g *rig) personSignIn(id, password string) string {
+	g.t.Helper()
+	rec := g.do("POST", api.Prefix+"session", "", "", api.SignInBody{Tenant: id, Password: password})
 	for _, c := range rec.Result().Cookies() {
 		if c.Name == api.CookieName && rec.Code == http.StatusOK {
 			return c.Value
 		}
 	}
-	g.t.Fatalf("sign-in answered %d", rec.Code)
+	g.t.Fatalf("a person's sign-in answered %d", rec.Code)
 	return ""
 }
 
-func (g *rig) log(id string) []audit.Entry {
+func (g *rig) adminLog(requestID string) []audit.Entry {
 	g.t.Helper()
-	var out []audit.Entry
-	g.with(id, func(s *tenant.Store) {
-		var err error
-		if out, err = audit.List(context.Background(), s, audit.Filter{}); err != nil {
-			g.t.Fatal(err)
-		}
-	})
-	return out
+	db := g.db()
+	defer db.Close()
+	got, err := db.Log(context.Background(), audit.Filter{RequestID: requestID})
+	if err != nil {
+		g.t.Fatal(err)
+	}
+	return got
+}
+
+func (g *rig) personLog(id, requestID string) []audit.Entry {
+	g.t.Helper()
+	s, err := g.in.Store(id)
+	if err != nil {
+		g.t.Fatal(err)
+	}
+	defer s.Close()
+	got, err := audit.List(context.Background(), s, audit.Filter{RequestID: requestID})
+	if err != nil {
+		g.t.Fatal(err)
+	}
+	return got
 }
 
 func code(t *testing.T, rec *httptest.ResponseRecorder) string {
@@ -134,111 +175,150 @@ func code(t *testing.T, rec *httptest.ResponseRecorder) string {
 	return e.Code
 }
 
-func TestStepUpThenPeople(t *testing.T) {
+func TestAdminSignIn(t *testing.T) {
 	g := newRig(t, false)
-	token := g.signIn(g.admin, passwordAdmin)
-	g.signIn(g.other, passwordTwo)
-
-	if rec := g.do("GET", api.AdminPrefix+"people", token, nil); rec.Code != http.StatusUnauthorized || code(t, rec) != "step_up" {
-		t.Fatalf("people before a step-up: %d %s", rec.Code, rec.Body.String())
-	}
-	for what, body := range map[string]any{
-		"nothing":  StepUpBody{},
-		"both":     StepUpBody{Password: passwordAdmin, Passkey: &PasskeyCredential{}},
-		"not JSON": "a string",
-	} {
-		if rec := g.do("POST", api.AdminPrefix+"step-up", token, body); rec.Code != http.StatusBadRequest {
-			t.Errorf("a step-up with %s: %d %s", what, rec.Code, rec.Body.String())
+	for _, by := range []string{g.admin.ID, "test admin"} {
+		token, rec := g.adminSignIn(SignInBody{Account: by, Password: passwordAdmin})
+		if !adminaccount.IsToken(token) {
+			t.Fatalf("signing in by %q answered %d %s", by, rec.Code, rec.Body)
+		}
+		var reply SessionReply
+		if json.Unmarshal(rec.Body.Bytes(), &reply) != nil || reply.Account.ID != g.admin.ID || reply.Account.Name != "Test Admin" || reply.Session.Expires.IsZero() || reply.Session.IdleUntil.IsZero() {
+			t.Errorf("the sign-in answer is %s", rec.Body)
+		}
+		if strings.Contains(rec.Body.String(), token) {
+			t.Error("the body holds the token")
+		}
+		c := rec.Result().Cookies()[0]
+		if c.Path != api.AdminPrefix || !c.HttpOnly || c.SameSite != http.SameSiteStrictMode {
+			t.Errorf("the admin cookie is %+v", c)
+		}
+		if log := g.adminLog(rec.Header().Get("X-Request-Id")); len(log) != 1 || log[0].Actor != adminaccount.ActorPrefix+g.admin.ID || log[0].Outcome != audit.OutcomeOK {
+			t.Errorf("the sign-in is in the admin log as %+v", log)
 		}
 	}
-	rec := g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Password: passwordTwo})
-	if rec.Code != http.StatusForbidden || code(t, rec) != "refused" {
-		t.Errorf("a step-up with another person's password: %d %s", rec.Code, rec.Body.String())
-	}
-	if strings.Contains(rec.Body.String(), passwordTwo) {
-		t.Error("the answer holds the password")
-	}
-	if rec := g.do("POST", api.AdminPrefix+"step-up/passkey", token, nil); rec.Code != http.StatusBadRequest || code(t, rec) != "passkeys_off" {
-		t.Errorf("a passkey prompt with passkeys off: %d %s", rec.Code, rec.Body.String())
-	}
 
-	rec = g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Password: passwordAdmin})
-	var up StepUpReply
-	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &up) != nil {
-		t.Fatalf("the step-up: %d %s", rec.Code, rec.Body.String())
+	// Refused: a wrong password, a person's password, an unknown account,
+	// both a password and a passkey, and passkeys while they are off. Each
+	// is in the admin log, with no password in it.
+	for what, c := range map[string]struct {
+		body        SignInBody
+		status      int
+		code, actor string
+	}{
+		"a wrong password":     {SignInBody{Account: g.admin.ID, Password: "not the phrase at all"}, http.StatusUnauthorized, "refused", adminaccount.ActorPrefix + g.admin.ID},
+		"a person's password":  {SignInBody{Account: g.admin.ID, Password: passwordOne}, http.StatusUnauthorized, "refused", adminaccount.ActorPrefix + g.admin.ID},
+		"an unknown account":   {SignInBody{Account: "Nobody", Password: passwordAdmin}, http.StatusUnauthorized, "refused", adminaccount.ActorUnknown},
+		"a person's id":        {SignInBody{Account: g.one, Password: passwordOne}, http.StatusUnauthorized, "refused", adminaccount.ActorUnknown},
+		"a password and a key": {SignInBody{Account: g.admin.ID, Password: passwordAdmin, Passkey: &PasskeyCredential{}}, http.StatusBadRequest, "bad_request", adminaccount.ActorUnknown},
+	} {
+		token, rec := g.adminSignIn(c.body)
+		if token != "" || rec.Code != c.status || code(t, rec) != c.code {
+			t.Errorf("%s answered %d %s", what, rec.Code, rec.Body)
+		}
+		log := g.adminLog(rec.Header().Get("X-Request-Id"))
+		if len(log) != 1 || log[0].Actor != c.actor || log[0].Outcome != audit.OutcomeRefused {
+			t.Errorf("%s is in the admin log as %+v", what, log)
+		}
+		if len(log) == 1 && c.body.Password != "" && strings.Contains(log[0].Sent+log[0].Received+log[0].Action, c.body.Password) {
+			t.Errorf("%s left the password in the admin log", what)
+		}
 	}
-	if d := time.Until(up.AdminUntil); d <= 14*time.Minute || d > 15*time.Minute {
-		t.Errorf("the step-up lasts %s, want 15m", d)
+	// An admin account cannot sign in at a person's door.
+	if rec := g.do("POST", api.Prefix+"session", "", "", api.SignInBody{Tenant: g.admin.ID, Password: passwordAdmin}); rec.Code != http.StatusUnauthorized {
+		t.Errorf("an admin account at a person's door answered %d", rec.Code)
 	}
+	// Wrong passwords wait, as a person's do.
+	g.adminSignIn(SignInBody{Account: g.admin.ID, Password: "not the phrase at all"})
+	g.adminSignIn(SignInBody{Account: g.admin.ID, Password: "not the phrase at all"})
+	if _, rec := g.adminSignIn(SignInBody{Account: g.admin.ID, Password: passwordAdmin}); rec.Code != http.StatusTooManyRequests || rec.Header().Get("Retry-After") == "" {
+		t.Errorf("the right password during the wait answered %d", rec.Code)
+	}
+	if rec := g.do("POST", api.AdminPrefix+"session/passkey", "", "", nil); rec.Code != http.StatusBadRequest || code(t, rec) != "passkeys_off" {
+		t.Errorf("a passkey prompt with passkeys off: %d %s", rec.Code, rec.Body)
+	}
+}
 
-	before := len(g.log(g.other))
-	rec = g.do("GET", api.AdminPrefix+"people", token, nil)
+func TestTheSessionAndSignOut(t *testing.T) {
+	g := newRig(t, false)
+	token, _ := g.adminSignIn(SignInBody{Account: g.admin.ID, Password: passwordAdmin})
+	rec := g.do("GET", api.AdminPrefix+"session", "", token, nil)
+	var reply SessionReply
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &reply) != nil || reply.Account.ID != g.admin.ID {
+		t.Fatalf("who am I: %d %s", rec.Code, rec.Body)
+	}
+	rec = g.do("DELETE", api.AdminPrefix+"session", "", token, nil)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("sign-out: %d %s", rec.Code, rec.Body)
+	}
+	if c := rec.Result().Cookies(); len(c) != 1 || c[0].Name != api.AdminCookieName || c[0].MaxAge >= 0 {
+		t.Errorf("sign-out did not clear the admin cookie: %+v", c)
+	}
+	if rec := g.do("GET", api.AdminPrefix+"session", "", token, nil); rec.Code != http.StatusUnauthorized {
+		t.Errorf("a signed-out session answered %d", rec.Code)
+	}
+}
+
+func TestPeopleIsInBothLogsAndThePersonSeesIt(t *testing.T) {
+	g := newRig(t, false)
+	token, _ := g.adminSignIn(SignInBody{Account: g.admin.ID, Password: passwordAdmin})
+	person := g.personSignIn(g.two, passwordTwo)
+
+	rec := g.do("GET", api.AdminPrefix+"people", "", token, nil)
 	var reply PeopleReply
 	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &reply) != nil || len(reply.People) != 2 {
-		t.Fatalf("people: %d %s", rec.Code, rec.Body.String())
+		t.Fatalf("people: %d %s", rec.Code, rec.Body)
 	}
-	if p := reply.People[1]; p.ID != g.other || p.Admin || p.LastSignIn.IsZero() || p.Name != "Test Person Two" {
-		t.Errorf("the other person is %+v", p)
+	if p := reply.People[1]; p.ID != g.two || p.Name != "Test Person Two" || p.LastSignIn.IsZero() {
+		t.Errorf("the second person is %+v", p)
 	}
 	id := rec.Header().Get("X-Request-Id")
-	// Both logs: the admin's, as admin, and the other person's, as admin:<id>.
-	var mine int
-	for _, e := range g.log(g.admin) {
-		if e.RequestID == id {
-			mine++
-			if e.Actor != api.ActorAdmin || e.Action != "GET "+api.AdminPrefix+"people" {
-				t.Errorf("the admin's entry is %+v", e)
-			}
-		}
+	if log := g.adminLog(id); len(log) != 2 || log[0].Actor != adminaccount.ActorPrefix+g.admin.ID || log[1].Outcome != audit.OutcomeOK {
+		t.Errorf("people is in the admin log as %+v", log)
 	}
-	theirs := g.log(g.other)[before:]
-	if mine != 2 || len(theirs) != 2 {
-		t.Fatalf("the call left %d entries in the admin's log and %d in the other person's", mine, len(theirs))
-	}
-	for _, e := range theirs {
-		if e.RequestID != id || e.Actor != adminview.ActorPrefix+g.admin {
-			t.Errorf("the other person's entry is %+v", e)
+	for _, p := range []string{g.one, g.two} {
+		if log := g.personLog(p, id); len(log) != 2 || log[0].Actor != adminview.ActorPrefix+g.admin.ID || log[1].Outcome != audit.OutcomeOK {
+			t.Errorf("people is in a person's log as %+v", log)
 		}
 	}
 
-	// Closed by hand, the admin area asks again.
-	if rec := g.do("DELETE", api.AdminPrefix+"step-up", token, nil); rec.Code != http.StatusOK {
-		t.Fatalf("closing the admin area: %d %s", rec.Code, rec.Body.String())
+	// The person sees it in their own Settings.
+	rec = g.do("GET", api.Prefix+"audit/admin", person, "", nil)
+	var seen api.AuditReply
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &seen) != nil {
+		t.Fatalf("the person's admin entries: %d %s", rec.Code, rec.Body)
 	}
-	if rec := g.do("GET", api.AdminPrefix+"people", token, nil); rec.Code != http.StatusUnauthorized || code(t, rec) != "step_up" {
-		t.Errorf("people after closing the admin area: %d %s", rec.Code, rec.Body.String())
+	found := 0
+	for _, e := range seen.Entries {
+		if e.RequestID == id && strings.Contains(e.Sent, `"by":"Test Admin"`) {
+			found++
+		}
 	}
-
-	// The other person is refused every admin route.
-	other := g.signIn(g.other, passwordTwo)
-	for _, rt := range Routes(Options{}) {
-		var body any
-		if rt.Method == "POST" {
-			body = StepUpBody{Password: passwordTwo}
-		}
-		if rec := g.do(rt.Method, rt.Path, other, body); rec.Code != http.StatusForbidden || code(t, rec) != "not_admin" {
-			t.Errorf("%s %s for a person without the mark: %d %s", rt.Method, rt.Path, rec.Code, rec.Body.String())
-		}
+	if found != 2 {
+		t.Errorf("the person sees %d entries of the admin's read, want 2: %s", found, rec.Body)
 	}
 }
 
-func TestWrongStepUpsWait(t *testing.T) {
+func TestEveryAdminRouteIsRefusedToAPerson(t *testing.T) {
 	g := newRig(t, false)
-	token := g.signIn(g.admin, passwordAdmin)
-	for i := 0; i < g.o.FailuresBeforeWait; i++ {
-		g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Password: "not the phrase at all"})
-	}
-	rec := g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Password: passwordAdmin})
-	if rec.Code != http.StatusTooManyRequests || code(t, rec) != "wait" || rec.Header().Get("Retry-After") == "" {
-		t.Errorf("a step-up during the wait: %d %s", rec.Code, rec.Body.String())
+	person := g.personSignIn(g.one, passwordOne)
+	for _, rt := range g.routes {
+		if !rt.Admin || rt.Door {
+			continue
+		}
+		path := strings.ReplaceAll(rt.Path, "{id}", "x")
+		if rec := g.do(rt.Method, path, person, "", map[string]string{}); rec.Code != http.StatusForbidden || code(t, rec) != "not_admin" {
+			t.Errorf("%s %s with a person's session answered %d %s", rt.Method, rt.Path, rec.Code, rec.Body)
+		}
 	}
 }
 
-// device is a passkey made for the test, ES256, which builds the bytes a
-// browser sends from the WebAuthn rules, as signin's own tests do.
+// device stands in for a phone that holds a passkey, with an ES256 key, as
+// internal/signin's tests do.
 type device struct {
-	id  []byte
-	key *ecdsa.PrivateKey
+	id, spki []byte
+	key      *ecdsa.PrivateKey
+	count    uint32
 }
 
 func newDevice(t *testing.T) *device {
@@ -247,88 +327,86 @@ func newDevice(t *testing.T) *device {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d := &device{id: make([]byte, 20), key: key}
-	rand.Read(d.id)
-	return d
+	spki, _ := x509.MarshalPKIXPublicKey(&key.PublicKey)
+	id := make([]byte, 20)
+	rand.Read(id)
+	return &device{id: id, spki: spki, key: key}
+}
+
+func (d *device) clientData(typ, challenge string) []byte {
+	raw, _ := json.Marshal(map[string]any{"type": typ, "challenge": challenge, "origin": "http://localhost:7900", "crossOrigin": false})
+	return raw
 }
 
 func (d *device) authData(attested bool) []byte {
 	site := sha256.Sum256([]byte("localhost"))
 	out := append([]byte{}, site[:]...)
-	flags := byte(0x01 | 0x04)
+	flags := byte(0x05)
 	if attested {
 		flags |= 0x40
 	}
-	out = append(out, flags)
-	out = binary.BigEndian.AppendUint32(out, 0)
+	out = binary.BigEndian.AppendUint32(append(out, flags), d.count)
 	if attested {
-		out = append(out, make([]byte, 16)...)
-		out = binary.BigEndian.AppendUint16(out, uint16(len(d.id)))
-		out = append(out, d.id...)
-		out = append(out, 0xa0)
+		out = binary.BigEndian.AppendUint16(append(out, make([]byte, 16)...), uint16(len(d.id)))
+		out = append(append(out, d.id...), 0xa0)
 	}
 	return out
 }
 
-func clientData(typ string, challenge []byte) []byte {
-	raw, _ := json.Marshal(map[string]any{"type": typ, "challenge": base64.RawURLEncoding.EncodeToString(challenge), "origin": "http://localhost:7900", "crossOrigin": false})
-	return raw
-}
-
-func TestPasskeyStepUp(t *testing.T) {
+func TestAdminPasskeys(t *testing.T) {
 	g := newRig(t, true)
+	token, _ := g.adminSignIn(SignInBody{Account: g.admin.ID, Password: passwordAdmin})
 	d := newDevice(t)
-	g.with(g.admin, func(s *tenant.Store) {
-		p, err := signin.BeginAddPasskey(s, g.o)
-		if err != nil {
-			t.Fatal(err)
-		}
-		spki, _ := x509.MarshalPKIXPublicKey(&d.key.PublicKey)
-		if _, err := signin.AddPasskey(s, "Test laptop", signin.PasskeyCreation{
-			CredentialID: d.id, ClientDataJSON: clientData("webauthn.create", p.Challenge), AuthenticatorData: d.authData(true), PublicKey: spki,
-		}, g.o); err != nil {
-			t.Fatal(err)
-		}
-	})
-	token := g.signIn(g.admin, passwordAdmin)
 
-	rec := g.do("POST", api.AdminPrefix+"step-up/passkey", token, nil)
-	var prompt PasskeyPromptReply
-	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &prompt) != nil {
-		t.Fatalf("the passkey prompt: %d %s", rec.Code, rec.Body.String())
+	// Add one.
+	rec := g.do("POST", api.AdminPrefix+"passkeys/prompt", "", token, nil)
+	var p PasskeyPromptReply
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &p) != nil || p.User == nil || p.UserVerification != "required" {
+		t.Fatalf("the add prompt: %d %s", rec.Code, rec.Body)
 	}
-	if prompt.RPID != "localhost" || prompt.UserVerification != "required" || len(prompt.AllowCredentials) != 1 ||
-		prompt.AllowCredentials[0].ID != base64.RawURLEncoding.EncodeToString(d.id) || prompt.Timeout <= 0 {
-		t.Errorf("the prompt is %+v", prompt)
+	if user, _ := unb64(p.User.ID); string(user) != g.admin.ID {
+		t.Errorf("the prompt's user is %q", user)
 	}
-	challenge, err := base64.RawURLEncoding.DecodeString(prompt.Challenge)
-	if err != nil {
-		t.Fatal(err)
+	rec = g.do("POST", api.AdminPrefix+"passkeys", "", token, AddPasskeyBody{
+		Name: "Phone", RawID: b64(d.id), ClientDataJSON: b64(d.clientData("webauthn.create", p.Challenge)),
+		AuthenticatorData: b64(d.authData(true)), PublicKey: b64(d.spki),
+	})
+	var pk Passkey
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &pk) != nil || pk.Name != "Phone" {
+		t.Fatalf("adding the passkey: %d %s", rec.Code, rec.Body)
 	}
-	cd, ad := clientData("webauthn.get", challenge), d.authData(false)
+
+	// Sign in with it.
+	rec = g.do("POST", api.AdminPrefix+"session/passkey", "", "", nil)
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &p) != nil || len(p.AllowCredentials) != 0 {
+		t.Fatalf("the sign-in prompt: %d %s", rec.Code, rec.Body)
+	}
+	d.count++
+	cd, ad := d.clientData("webauthn.get", p.Challenge), d.authData(false)
 	hash := sha256.Sum256(cd)
 	digest := sha256.Sum256(append(append([]byte{}, ad...), hash[:]...))
-	sig, err := ecdsa.SignASN1(rand.Reader, d.key, digest[:])
-	if err != nil {
-		t.Fatal(err)
-	}
-	b := base64.RawURLEncoding.EncodeToString
-	answer := &PasskeyCredential{ID: b(d.id), RawID: b(d.id), Type: "public-key", Response: PasskeyAssertion{
-		ClientDataJSON: b(cd), AuthenticatorData: b(ad), Signature: b(sig), UserHandle: b([]byte(g.admin)),
+	sig, _ := ecdsa.SignASN1(rand.Reader, d.key, digest[:])
+	answer := &PasskeyCredential{ID: b64(d.id), RawID: b64(d.id), Type: "public-key", Response: PasskeyAssertion{
+		ClientDataJSON: b64(cd), AuthenticatorData: b64(ad), Signature: b64(sig), UserHandle: b64([]byte(g.admin.ID)),
 	}}
-	if rec := g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Passkey: answer}); rec.Code != http.StatusOK {
-		t.Fatalf("the passkey step-up: %d %s", rec.Code, rec.Body.String())
+	byKey, rec := g.adminSignIn(SignInBody{Passkey: answer})
+	if !adminaccount.IsToken(byKey) {
+		t.Fatalf("passkey sign-in: %d %s", rec.Code, rec.Body)
 	}
-	if rec := g.do("GET", api.AdminPrefix+"people", token, nil); rec.Code != http.StatusOK {
-		t.Errorf("people after a passkey step-up: %d", rec.Code)
+	if again, rec := g.adminSignIn(SignInBody{Passkey: answer}); again != "" || rec.Code != http.StatusUnauthorized {
+		t.Errorf("the same answer twice: %d", rec.Code)
 	}
-	// The same answer again is refused.
-	if rec := g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Passkey: answer}); rec.Code != http.StatusForbidden {
-		t.Errorf("a passkey answer used twice: %d", rec.Code)
+
+	// List and remove.
+	rec = g.do("GET", api.AdminPrefix+"passkeys", "", byKey, nil)
+	var list PasskeysReply
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &list) != nil || len(list.Passkeys) != 1 || list.Passkeys[0].LastUsed.IsZero() {
+		t.Fatalf("the passkeys: %d %s", rec.Code, rec.Body)
 	}
-	bad := *answer
-	bad.Response.Signature = "not base64url!"
-	if rec := g.do("POST", api.AdminPrefix+"step-up", token, StepUpBody{Passkey: &bad}); rec.Code != http.StatusBadRequest {
-		t.Errorf("a passkey answer that is not base64url: %d", rec.Code)
+	if rec := g.do("DELETE", api.AdminPrefix+"passkeys/"+pk.ID, "", byKey, nil); rec.Code != http.StatusOK {
+		t.Errorf("removing it: %d %s", rec.Code, rec.Body)
+	}
+	if rec := g.do("DELETE", api.AdminPrefix+"passkeys/"+pk.ID, "", byKey, nil); rec.Code != http.StatusNotFound {
+		t.Errorf("removing it twice: %d", rec.Code)
 	}
 }

@@ -50,12 +50,6 @@
 // import brings one person's chats and routines from New Keystone into one
 // tenant, and import-copy makes the whole copy it reads. See importcmd.go
 // and docs/runbooks/import-new-keystone.md.
-//
-//	go run ./tools/tenant admin <tenant-id> on|off [--yes]
-//
-// admin gives a tenant the admin mark, or takes it away. It is the only way
-// to: no route can. Taking it from the last admin needs --yes. See admin.go
-// and docs/architecture/admin.md.
 package main
 
 import (
@@ -92,7 +86,6 @@ func main() {
 		fmt.Fprintln(os.Stderr, "       "+backupUsage)
 		fmt.Fprintln(os.Stderr, "       "+connectorUsage)
 		fmt.Fprintln(os.Stderr, "       "+importUsage)
-		fmt.Fprintln(os.Stderr, "       "+adminUsage)
 		os.Exit(2)
 	}
 	dir, err := dataDir(*data)
@@ -119,9 +112,9 @@ func main() {
 		fmt.Printf("Added tenant %s (%s)\n", t.ID, t.Name)
 	case "list":
 		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-		fmt.Fprintln(w, "ID\tNAME\tCREATED\tADMIN")
+		fmt.Fprintln(w, "ID\tNAME\tCREATED")
 		for _, t := range in.Tenants() {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", t.ID, t.Name, t.Created.Format("2006-01-02 15:04"), map[bool]string{true: "yes", false: "no"}[t.Admin])
+			fmt.Fprintf(w, "%s\t%s\t%s\n", t.ID, t.Name, t.Created.Format("2006-01-02 15:04"))
 		}
 		w.Flush()
 		fmt.Printf("\n%d tenants\n", len(in.Tenants()))
@@ -158,8 +151,6 @@ func main() {
 		importMain(in, args[1:]) // P12-03: importcmd.go
 	case "import-copy":
 		importCopyMain(args[1:])
-	case "admin":
-		adminMain(in, args[1:]) // P15-01: admin.go
 	default:
 		fmt.Fprintf(os.Stderr, "tenant: %q is not a command\n", args[0])
 		os.Exit(2)
