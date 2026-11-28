@@ -64,6 +64,7 @@ func runUsage(in *tenant.Install, args []string, now time.Time, out io.Writer) e
 		return err
 	}
 	printReport(out, rep)
+	printAuto(out, rep.Auto)
 	return nil
 }
 

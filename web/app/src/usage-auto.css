@@ -1,0 +1,36 @@
+/* The Auto card of Settings → Usage (P14-07). Every colour is a token; the
+   card is the spend card's (usage.css). Provisional on the settings
+   mockups. */
+
+.use-auto-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.use-auto-line {
+  display: grid;
+  grid-template-columns: minmax(80px, 160px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.use-auto-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.use-auto-amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .use-auto-line {
+    grid-template-columns: minmax(64px, 110px) minmax(0, 1fr) auto;
+  }
+}

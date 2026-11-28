@@ -65,6 +65,35 @@ export type UsageReport = {
   rows: number;
   cap: UsageCap;
   memory_reserve: UsageReserve;
+  /** The period's use of Auto (P14-07). Absent from a server built before it. */
+  auto?: UsageAuto;
+};
+
+/** The ladder's top step as it is set now, and the replies on Auto priced at it (P14-07). */
+export type UsageTopStep = {
+  name?: string;
+  label?: string;
+  class?: string;
+  cost_micros: number;
+  /** Why there is no top step to price at, in words. */
+  problem?: string;
+};
+
+/** The period's use of Auto (P14-07), from the usage records and the router's verdicts. */
+export type UsageAuto = {
+  /** Turns routed on Auto whose first verdict is in the period, rewrites included. */
+  turns: number;
+  /** Of those, the ones a stronger model was asked for. */
+  stronger_asked: number;
+  /** Of those, the ones that were a stronger model's rewrite. */
+  rewrites: number;
+  replies: UsageSum;
+  decisions: UsageSum;
+  /** The replies and the decisions. */
+  cost_micros: number;
+  top_step: UsageTopStep;
+  /** The top step's cost less cost_micros; below zero when Auto cost more. */
+  saved_micros: number;
 };
 
 /** What a report is asked for: a named period, a month, or a range of days. Nothing means the person's default. */
