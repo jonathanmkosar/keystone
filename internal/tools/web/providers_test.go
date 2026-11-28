@@ -1008,7 +1008,7 @@ func TestAnEntryIsChecked(t *testing.T) {
 	}
 	for what, edit := range map[string]func(*Provider){
 		"a name with a capital":        func(p *Provider) { p.Name = "Alpha" },
-		"a kind not in this build":     func(p *Provider) { p.Kind = KindBrave },
+		"a SearXNG given a key":        func(p *Provider) { p.Kind, p.Endpoint = KindSearXNG, "http://localhost:8888" },
 		"no kind at all":               func(p *Provider) { p.Kind = "bing" },
 		"a day of the month past 31":   func(p *Provider) { p.Resets = "32" },
 		"more free than monthly quota": func(p *Provider) { p.MonthlyQuota, p.FreeQuota = 10, 20 },

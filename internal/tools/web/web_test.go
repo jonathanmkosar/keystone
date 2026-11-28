@@ -613,6 +613,7 @@ func TestReadOptionsReadsTheShippedSettingsShape(t *testing.T) {
 		"web.strategy": "free_first", "web.max_attempts": "3", "web.quota_reserve": "0", "web.cooling_for": "60s",
 		"web.cooling_max": "10m", "web.fail_after": "3", "web.fail_cooldown": "15m", "web.test_first": "30m",
 		"web.test_max": "24h", "web.test_tick": "5m", "web.unknown_weight": "0.5",
+		"web.brave_endpoint": "https://api.search.brave.com/res/v1/web/search", "web.exa_endpoint": "https://api.exa.ai/search", "web.serper_endpoint": "https://google.serper.dev/search",
 	}
 	get := func(k string) (string, bool) { v, ok := shipped[k]; return v, ok }
 	o, err := ReadOptions(get)

@@ -37,19 +37,20 @@ A provider is one service with one key; two keys for one service are two provide
 | Field | Meaning |
 | --- | --- |
 | `name` | 1 to 40 lower-case letters, digits, dashes and underscores, unique among the person's own and the install's. |
-| `kind` | `tavily` today; `brave`, `exa`, `serper` and `searxng` with P7-07. A kind is usable once its adapter is registered. |
+| `kind` | `tavily`, `brave`, `exa`, `serper` or `searxng` (the last four since P7-07, below). A kind is usable once its adapter is registered. |
 | `endpoint` | The base address; empty is the kind's default. Tavily's default is `agents.web_search_endpoint`; with an endpoint, it searches at `/search` and checks at `/usage`. |
 | `key` | The secret's name, never its value: `search.<name>`, or `provider.tavily` for the moved entry. |
 | `monthly_quota`, `free_quota` | Searches a month, and how many cost nothing. Zero is not known, or none. |
 | `resets` | The day of the month the quota starts again, `rolling` for 30 days from first use, or empty (Keystone counts by the calendar month, in UTC). |
 | `cost_per_search` | US dollars, for a search beyond the free quota. |
 | `enabled` | Whether it is used at all. |
+| `trusted` | A SearXNG's endpoint may be called though it is not on this machine or the home network. Only an install entry, set by the admin, may carry it (P7-07). |
 
 - **A person's own** are in their database (the tenant migration `20261128T010000_search_providers.sql`: `search_providers`, `search_states`, `search_counts`, `search_meta`), with keys in their vault.
 - **The install's** are in the same four tables in `data/admin/search.db`, opened for each piece of work and made when the first is added, with keys in the install vault, `data/admin/secrets.bin`, sealed under the install master key and bound to the id `install` (decision [0680](decisions/0680-install-search-providers-have-their-own-database-and-vault-in-data-admin.md); `internal/secrets/install.go`, `internal/tenant/admin_folder.go`). Only the admin sets them, and nothing returns their keys.
 - **The move.** A person's `provider.tavily` becomes their first own provider, `tavily`, keeping `provider.tavily` as its key's name, once: in the sweep's first pass at start, or at their next search (decision [0681](decisions/0681-the-moved-tavily-provider-keeps-provider-tavily-as-its-key.md)). The owner's Tavily key goes on working with no step from him, and so does storing it the old way.
 
-### Adapters, for P7-07
+### Adapters
 
 A kind is added by one file that calls `register(Kind{...})` from `init`: its name and title, whether it takes a key (`NoKey`), whether it has a quota at all (`Unmetered`, for SearXNG), `New(entry, options) Adapter`, and an optional `CheckEntry` for what only that kind requires (SearXNG's local address, decision 0051). An adapter has one method:
 
@@ -104,6 +105,36 @@ The first test is `web.test_first` after it went out (`web.fail_cooldown` for fa
 ### For the screens, P7-08
 
 `web.Own(store, install)` is a person's providers and `web.OpenInstall(install)` the install's; both are a `*web.Providers` with `List` (a `View` each: the entry, its group, state, why, until when, whether a key is set, what is left and where that comes from, and searches and cost this month; never a key), `Add` (sets the key's name to `search.<name>` and stores the key), `Update`, `SetKey`, `Remove` (removes a `search.<name>` key with it, and keeps the counts) and `Order`. A person's new name may not be the install's, and the install's may not be any person's. No route serves them yet: the routes and screens are P7-08's, after P15-02, and a step row reads `web.Answered`.
+
+### Brave, Exa, Serper and SearXNG (P7-07)
+
+Four more kinds, each one file of this package that registers itself, with a sender they share (`send.go`) and nothing else changed in the fallback, the states or the strategies. Each was built from the provider's documentation as it read on November 28, 2026; what was read, with its addresses, is in the decision records.
+
+| Kind | File | Request | Results | Key | Decision |
+| --- | --- | --- | --- | --- | --- |
+| `brave` | `brave.go` | `GET web.brave_endpoint?q=…&count=…` (at most 20) | `web.results`: `title`, `url`, `description`, markup taken out | `X-Subscription-Token` | [0750](decisions/0750-braves-search-and-what-its-answers-mean.md) |
+| `exa` | `exa.go` | `POST web.exa_endpoint`, `{"query","numResults","contents":{"highlights":{"maxCharacters"}}}` | `results`: `title`, `url`, the highlights (else the summary, else the text) | `x-api-key` | [0751](decisions/0751-exas-search-and-what-its-answers-mean.md) |
+| `serper` | `serper.go` | `POST web.serper_endpoint`, `{"q","num"}`, `num` 10 or 20 | `organic`: `title`, `link`, `snippet` | `X-API-KEY` | [0752](decisions/0752-serpers-search-from-what-is-public.md) |
+| `searxng` | `searxng.go` | `GET <endpoint>/search?q=…&format=json` | `results`: `title`, `url`, `content` | none | [0753](decisions/0753-searxng-is-local-or-trusted-by-the-admin.md) |
+
+An entry with its own endpoint searches at it with the kind's path: `/res/v1/web/search` for Brave, `/search` for the others. With none, Brave, Exa and Serper search at their `web.` setting ([0755](decisions/0755-each-kinds-default-address-is-a-setting.md)); a SearXNG must name its own.
+
+**Refusals and limits.** Each answer each provider documents is read into the state the spec gives:
+
+| | Refused | Out of quota | Cooling | Malformed (the search stops) | Unavailable (failing after `web.fail_after`) |
+| --- | --- | --- | --- | --- | --- |
+| Brave | 401, 403, 422 whose code is `SUBSCRIPTION_TOKEN_INVALID` | 402; 429 with nothing left in the month's window, until its reset | 429 otherwise, for the spent window's reset, else `Retry-After` | other 400 and 422 | anything else |
+| Exa | 401, 402 tagged `X402_…`, 403 (a feature or team blocked) | 402 (credits, a budget) | 429, for `Retry-After` | 400; 403 tagged `PROHIBITED_CONTENT` or `CONTENT_FILTER_ERROR` | anything else |
+| Serper | 401, 403 | 402; 400 whose message names credits | 429, for `Retry-After` | other 400, 422 | anything else |
+| SearXNG | never: it has no key | never: it has no quota | 429 (its limiter), for `web.cooling_for` | 400 | 403 (JSON not switched on), no results with engines unresponsive, anything else |
+
+A timeout, a failure to connect, a redirect, an answer larger than `agents.web_search_max_bytes` or not JSON is unavailable for all four. A SearXNG is never `refused`: it has no key, and `refused` lasts until the key changes.
+
+**What is left.** Brave's every answer carries `X-RateLimit-Remaining` and `X-RateLimit-Reset`, one value for each window; the month is the longest window in `X-RateLimit-Policy` when it is a day or more, else the last window (`HeaderQuota`). It is read into what is left, less the searches since, as P7-06 reads it. Exa, Serper and SearXNG report nothing: Keystone's own count against the entry's `monthly_quota`, or unknown. None of the four has a check that costs nothing, so their soft tests are one real search let through first, alone.
+
+**SearXNG's address.** A SearXNG entry needs an endpoint on this machine or the home network, by decision 0051's address rule (`models.OnHomeNetwork`, `internal/models/home.go`): `localhost`, a name with no dot, `.local`, `.lan`, `.home.arpa`, `.internal`, `.localhost`, or a loopback, private, link-local or `100.64.0.0/10` address. Or the entry is marked `trusted`, which only an install entry may be, so only the admin trusts an address; a person's own SearXNG marked trusted is refused at Add and Update, and only a SearXNG may be marked. The mark is a column (the tenant migration `20261128T160000_search_provider_trusted.sql`, and the same column added to `data/admin/search.db` when it is opened, `store_trusted.go`). A SearXNG on this machine or the home network is called without the environment's proxy, as a local model is. It is unmetered, so `weighted` uses it after the others; its searches still leave the house, so web tools stay off in a held chat ([0753](decisions/0753-searxng-is-local-or-trusted-by-the-admin.md)).
+
+**The key** goes only in its provider's header: never in the address, an error, a log line or a view. No redirect is followed, since Go carries a header such as `X-API-KEY` to the host a redirect names. An error answer's body is read, at most 16 KiB, only to compare the provider's own code with known words; no failure's text holds anything from it ([0754](decisions/0754-a-search-key-travels-only-in-its-providers-header.md)).
 
 ## The key
 
@@ -213,6 +244,14 @@ The fallback's (P7-06), install scope too:
 | `web.test_tick` | 5m | How often the sweep runs the free checks that are due. |
 | `web.unknown_weight` | 0.5 | What an unknown quota counts as in `weighted`. |
 
+The default search addresses (P7-07), install scope too; an entry with an endpoint of its own searches there instead:
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `web.brave_endpoint` | `https://api.search.brave.com/res/v1/web/search` | Where a Brave provider with no endpoint searches. |
+| `web.exa_endpoint` | `https://api.exa.ai/search` | Where an Exa provider with no endpoint searches. |
+| `web.serper_endpoint` | `https://google.serper.dev/search` | Where a Serper provider with no endpoint searches. |
+
 `agents.tool_result_max_chars` (20000) still cuts any result, and `agents.tool_timeout` (60s) still bounds any tool ([tool-loop.md](tool-loop.md)).
 
 ## Checked by
@@ -226,12 +265,14 @@ The fallback's (P7-06), install scope too:
   - A fetched page is marked as outside content, numbered, read after a redirect, cleaned of scripts, styles, navigation and comments, cut with a line that says so, and a fake source in its text adds nothing. An image and a missing page are refused.
   - Both tools only read, and are off in a chat held for sensitive content.
   - Search providers and the fallback (`providers_test.go`, P7-06), each provider a stand-in shaped as Tavily on `httptest`, with a clock of the test's own: a provider out of quota is passed over and the next answers, and the next search goes straight there; the order of `order`, `free_first` (free quota first, then the paid one, with the cost counted) and `weighted` (by the share of quota left, unknown as half, no quota last), and the weighted draw's shares over a thousand draws; a rate limit cools a provider for the wait it gave, for `web.cooling_for` with none, and a wait past `web.cooling_max` is out; three failures make a provider failing and a success starts the count again; a refused key is never searched or checked again, through five sweeps two days apart, until it is changed; back at a known reset (December 1) and not a second before; back after a free check with quota left, with none left the wait doubling, and what is left read from the check; one real search let through first, alone, the waits 30m, 1h, 2h, 2h (the cap), and back when it answers; never two tests at once, by search or by sweep; Tavily's usage check and Brave's headers read into what is left, less the searches since, and Keystone's own count against the monthly quota and the reserve; a person's own provider before the install's free one, and the install's when the person's is out, with the install's key; names one space across both; no key in a result, a view, the audit log, the person's folder or `data/admin/`; every search's providers in its audit entry, and every provider's line when none answered; a malformed request does not move on; at most `web.max_attempts` tried; off in a held chat whichever provider; `provider.tavily` moved to the first own provider at a search and by the sweep, a search still answered through Tavily with the person's key after the move, and the move made once; an entry's checks; the state rules (doubling to the cap, failing's first test, a rolling quota, a 31st in February).
+  - Brave, Exa, Serper and SearXNG (`kinds_test.go`, P7-07), each a stand-in on `httptest` answering in the shape its documentation gives: each one's request (method, path, key header and nowhere else, body or query, Brave's count capped at 20, Serper's `num` 10 or 20, SearXNG below an endpoint with a path); two results kept and three dropped, Brave's markup and entities taken out, results cut at the count; an answer too large or not JSON, a timeout and a closed port unavailable with the service's name; 29 refusals and limits through a real search, each leaving the provider refused, out (until Brave's reset), cooling (for the wait given, or `web.cooling_for`), failing after three, or stopping the search as malformed, with the next provider answering and the record naming why; Brave's headers with the policy in either order, without one, and with only a second's window; a fallback from a spent Exa to Brave to a SearXNG on this machine; no key in a result, a view or the audit log when a stand-in repeats it; no redirect followed by any of the four; SearXNG's local, public and trusted addresses, the mark refused on a person's own and on a Brave, kept on the install's; a P7-06 `search.db` gaining the column; the default endpoints from the settings, and none set.
   - `go test ./internal/tenant`: the install vault is bound to the install, so a person's `secrets.bin` in `data/admin/` is refused, and the install's in a person's folder.
 - `go test ./internal/tools`: the mark, `IsOutside` and `ReadOutside`.
 - `verify`:
   - `calls recorded` runs the test tenant's recorded web search (`fixtures/test-tenant/turns/web-search.json`) on the real server, with `agents.web_search_endpoint` pointed at a stand-in on this machine and an invented key in the test tenant's vault. The call must be in the audit log before and after, the stand-in must have had one search with the key, the result and the chat record must hold outside content, and every [n] in the answer must name a source the stand-in returned. The code is in `tools/verify/websearch.go`.
   - `no keys in output` has a web search surface: the stored value is the person's search key, and a stand-in repeats it in a 401, a 429, a 502 and in every field of a result. It must appear in no result, in the audit log or in the data folder.
   - `no keys in output` has a search providers surface (P7-06): the stored value is the key of a person's own provider and of an install provider, in the install vault, and the stand-in's five answers are each asked of a fresh provider of each, so a refused or cooling one never hides the next. It must appear in no result, view, error, audit entry or file, `data/admin/` included.
+  - `no keys in output` has a Brave, Exa and Serper surface (P7-07, `tools/verify/searchkinds.go`): the stored value is the key of a person's own and an install provider of each kind, and a stand-in answers in each kind's shape with a result, a refusal, a limit, a failure and a result that repeats the key in every field, each asked of a fresh provider, and must have been sent the key in that kind's header each time.
   - `offline`: `internal/tools/web` is on the list of folders that may use the network.
 - In a browser, on November 25, 2026, against a server built from this branch on port 7951 with a data folder inside the worktree and web search pointed at a stand-in on this machine, signed in as the test tenant: the recorded web search drew "Searched the web for “harbour museum opening hours”" with "2 results", and the two citations as chips linking to the stand-in's two addresses, with their titles; the row opened to show the marked result; the same after a reload; in dark and light and at phone width. With the key removed, the same question drew the row with "not set up", the sentence in its open body, and the reply's [1] and [2] as plain text.
 
@@ -239,12 +280,12 @@ The fallback's (P7-06), install scope too:
 
 - Nothing has called the real Tavily. The request is New Keystone's, which did; the first real search is the owner's. Nor has anything called Tavily's real usage check or seen its real 432 and 433: they follow its documentation (decision 0685).
 - The install's providers can be set from code only until P7-08 brings their routes and screens (after P15-02); a refused install key is told to the admin in the server's log, and on the admin's screen with P7-08.
+- **Brave, Exa, Serper and SearXNG (P7-07)**: nothing has called the real services. Each follows its documentation as read on November 28, 2026; Serper's least, since its reference is behind a sign-in (decision 0752), and Brave's codes for a spent quota and a rate limit are not documented, so its headers decide (decision 0750). The live check with the owner's keys and his SearXNG's address is P7-07's owner gate.
 - The citation chip and the rows have no mockup: provisional with the agent mockups (P1-05).
 - Whether each web search should ask before it is sent, as New Keystone could, is the owner's question. The tools are read-only and run without asking; once the approval policy (P7-02) lands, a person can set `web_search` to ask.
 
 ## Not here yet
 
-- Brave, Exa, Serper and SearXNG: P7-07, one adapter file each, and the live check with the owner's keys.
 - The screens, their routes, and the step row that names the provider: P7-08.
 - Reading PDFs, and pages built by script.
 - A count of searches for each turn, as New Keystone had. The turn's step limit bounds it today.

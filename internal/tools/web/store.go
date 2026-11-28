@@ -109,7 +109,7 @@ func (p place) list(ctx context.Context) ([]Provider, error) {
 		if db == nil {
 			return nil
 		}
-		rows, err := db.QueryContext(ctx, `SELECT name, kind, endpoint, key_name, monthly_quota, free_quota, resets, cost_micros, enabled
+		rows, err := db.QueryContext(ctx, `SELECT name, kind, endpoint, key_name, monthly_quota, free_quota, resets, cost_micros, enabled, trusted
 			FROM search_providers ORDER BY position, name`)
 		if err != nil {
 			return err
@@ -118,7 +118,7 @@ func (p place) list(ctx context.Context) ([]Provider, error) {
 		for rows.Next() {
 			var pr Provider
 			var cost int64
-			if err := rows.Scan(&pr.Name, &pr.Kind, &pr.Endpoint, &pr.Key, &pr.MonthlyQuota, &pr.FreeQuota, &pr.Resets, &cost, &pr.Enabled); err != nil {
+			if err := rows.Scan(&pr.Name, &pr.Kind, &pr.Endpoint, &pr.Key, &pr.MonthlyQuota, &pr.FreeQuota, &pr.Resets, &cost, &pr.Enabled, &pr.Trusted); err != nil {
 				return err
 			}
 			pr.CostPerSearch = float64(cost) / 1e6
@@ -344,6 +344,9 @@ func (ps *Providers) Add(ctx context.Context, pr Provider, key string) error {
 	if err := pr.Check(); err != nil {
 		return err
 	}
+	if err := ps.checkTrusted(pr); err != nil {
+		return err
+	}
 	if ps.others != nil {
 		taken, err := ps.others(ctx)
 		if err != nil {
@@ -370,9 +373,9 @@ func (ps *Providers) Add(ctx context.Context, pr Provider, key string) error {
 		if n > 0 {
 			return fmt.Errorf("there is already a search provider named %s", pr.Name)
 		}
-		_, err := db.ExecContext(ctx, `INSERT INTO search_providers(name, position, kind, endpoint, key_name, monthly_quota, free_quota, resets, cost_micros, enabled, added_at)
-			VALUES(?, (SELECT coalesce(max(position), -1) + 1 FROM search_providers), ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-			pr.Name, pr.Kind, pr.Endpoint, pr.Key, pr.MonthlyQuota, pr.FreeQuota, pr.Resets, costMicros(pr.CostPerSearch), pr.Enabled, ps.now().UTC().Format(timeLayout))
+		_, err := db.ExecContext(ctx, `INSERT INTO search_providers(name, position, kind, endpoint, key_name, monthly_quota, free_quota, resets, cost_micros, enabled, added_at, trusted)
+			VALUES(?, (SELECT coalesce(max(position), -1) + 1 FROM search_providers), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			pr.Name, pr.Kind, pr.Endpoint, pr.Key, pr.MonthlyQuota, pr.FreeQuota, pr.Resets, costMicros(pr.CostPerSearch), pr.Enabled, ps.now().UTC().Format(timeLayout), pr.Trusted)
 		return err
 	})
 }
@@ -394,8 +397,11 @@ func (ps *Providers) Update(ctx context.Context, pr Provider) error {
 		if err := pr.Check(); err != nil {
 			return err
 		}
-		_, err = db.ExecContext(ctx, `UPDATE search_providers SET endpoint = ?, monthly_quota = ?, free_quota = ?, resets = ?, cost_micros = ?, enabled = ? WHERE name = ?`,
-			pr.Endpoint, pr.MonthlyQuota, pr.FreeQuota, pr.Resets, costMicros(pr.CostPerSearch), pr.Enabled, pr.Name)
+		if err := ps.checkTrusted(pr); err != nil {
+			return err
+		}
+		_, err = db.ExecContext(ctx, `UPDATE search_providers SET endpoint = ?, monthly_quota = ?, free_quota = ?, resets = ?, cost_micros = ?, enabled = ?, trusted = ? WHERE name = ?`,
+			pr.Endpoint, pr.MonthlyQuota, pr.FreeQuota, pr.Resets, costMicros(pr.CostPerSearch), pr.Enabled, pr.Trusted, pr.Name)
 		return err
 	})
 }
@@ -561,6 +567,10 @@ func openInstallDB(path string) (*sql.DB, error) {
 	}
 	db.SetMaxOpenConns(1)
 	if _, err := db.Exec(installSchema); err != nil {
+		db.Close()
+		return nil, fmt.Errorf("data/admin/%s: %w", installFile, err)
+	}
+	if err := installTrusted(db); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("data/admin/%s: %w", installFile, err)
 	}
