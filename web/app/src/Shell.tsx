@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation, useMatch } from "react-router";
-import type { Chat, Person } from "./api";
+import { listSettings, type Chat, type Person } from "./api";
+import { waymarksLink } from "./waymarksLink";
 import { titleOf, useChats } from "./chats";
 import { ChatLinks, ChatMenu } from "./ChatLinks";
 import { useNarrow } from "./PhoneSheet";
@@ -69,6 +70,19 @@ export function Shell({
   const [open, setOpen] = useState(true);
   const [drawer, setDrawer] = useState(false);
   const narrow = useNarrow(); // a phone: the chat's actions are behind one ... button (decision 0590)
+  const [waymarks, setWaymarks] = useState("");
+
+  // Where the Waymarks link opens, read once when the frame is drawn.
+  useEffect(() => {
+    let live = true;
+    listSettings().then(
+      (r) => live && setWaymarks(waymarksLink(r.settings)),
+      () => {}, // no settings, no link
+    );
+    return () => {
+      live = false;
+    };
+  }, []);
 
   // A narrow screen shows the sidebar as a drawer, and moving to another
   // screen closes it.
@@ -115,6 +129,13 @@ export function Shell({
               {p.label}
             </NavLink>
           ))}
+          {/* Waymarks' own page, in a new tab, while it is the person's knowledge store (the owner, November 27, 2026). */}
+          {waymarks && (
+            <a href={waymarks} className="nav" target="_blank" rel="noopener noreferrer" title="Open Waymarks in a new tab">
+              <Icon name="open" />
+              Waymarks
+            </a>
+          )}
         </div>
         {starred.length > 0 && (
           <div className="nav-group">

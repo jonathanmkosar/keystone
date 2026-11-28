@@ -21,6 +21,15 @@
       "description": "Where your Waymarks instance is, such as http://127.0.0.1:7878. Its tokens are kept with your secrets and never here."
     },
     {
+      "key": "knowledge.waymarks_web_address",
+      "title": "Waymarks web address",
+      "summary": "Where the sidebar's Waymarks link opens.",
+      "type": "string",
+      "default": "",
+      "scope": "tenant",
+      "description": "The address your browser opens Waymarks at, from the sidebar's Waymarks link, such as https://waymarks.example.com. Empty uses the Waymarks address, which only works on the machine Keystone runs on when that is 127.0.0.1. Only an http or https address is linked. The link opens Waymarks' own page in a new tab: you sign in to Waymarks there, and it remembers you for as long as its own sign-in lasts."
+    },
+    {
       "key": "knowledge.waymarks_timeout",
       "title": "Waymarks time limit",
       "summary": "How long Keystone waits for an answer from Waymarks.",

@@ -17,6 +17,7 @@ The adapter is written against Waymarks' own source, read on the owner's machine
 | Setting | Default | What it is |
 | --- | --- | --- |
 | `knowledge.waymarks_address` | empty | Where the instance is, such as `http://127.0.0.1:7878`. `http` or `https`, a host, and maybe a path the instance is served under. A name, a password, a `?` or a `#` in it is refused. |
+| `knowledge.waymarks_web_address` | empty | Where the sidebar's Waymarks link opens Waymarks' own page in the browser, such as `https://waymarks.example.com`. Empty uses `knowledge.waymarks_address`. Only the interface reads it (`web/app/src/waymarksLink.ts`), and only an http or https address with no name or password is linked. The person signs in to Waymarks on its own page; Keystone hands it no sign-in. |
 | `knowledge.waymarks_timeout` | `5s` | How long one request may take, from `100ms` to `2m`. |
 | `knowledge.waymarks_search_max_results` | 20 | The limit of a search that names none, from 1 to 100. Waymarks allows 100 at most. |
 | `knowledge.waymarks_vectors_needed_max` | 100 | The limit of a list of pages needing a vector that names none, from 1 to 1000. For the whole install. |
