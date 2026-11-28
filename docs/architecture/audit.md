@@ -13,7 +13,7 @@ This part enforces the fourth fixed rule: every model call and every tool call i
 | `id`, `at` | Set by the log when the entry is written. A caller cannot choose them, so an entry cannot be placed in the past. |
 | `kind` | `api`, `model` or `tool`. |
 | `request_id` | Ties together everything one API call set off: the call itself and each model call and tool call made for it. |
-| `actor` | Who made the call: a short name such as `person` or `admin`, or the job or schedule that ran it. Since P15-01, `admin` is a call to an admin route by a person with the admin mark, in their own log, and `admin:<tenant id>` is an admin's read of this person through `adminview`, in this person's log ([admin.md](admin.md)). |
+| `actor` | Who made the call: a short name such as `person` or `admin`, or the job or schedule that ran it. Since P15-01, `admin:<account id>` is an admin account's read or change of this person through `adminview`, in this person's log, written before it is made; the person sees these through `GET /api/v1/audit/admin` (`ListByAdmin`). The admin's own calls are in the admin audit log in `data/admin/admin.db`, not in any person's ([admin.md](admin.md)). |
 | `action` | What was called: the method and path of an API call, the registry name of a model, the name of a tool. |
 | `outcome` | `started`, `ok`, `refused` or `error`. |
 | `status` | The HTTP status of an API call. |

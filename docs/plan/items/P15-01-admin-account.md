@@ -1,6 +1,6 @@
 # P15-01. The admin account
 
-Status: doing (core): the first pass is reworked into a separate admin account, on `core/p15-01-admin-account`
+Status: done
 Lane: core
 Depends on: P2-02, P2-04, P2-05
 Owner gate: None: A1 and A2 are answered.
@@ -26,4 +26,6 @@ The first pass, on branch `core/p15-01-admin-mark` (merged), built an admin mark
 
 ## Result
 
-Built as planned, November 27, 2026; see `docs/architecture/admin.md`, decisions 0640 to 0646 and the journal `docs/journal/2026-11-27-core-015.md`. One change from the plan: a second migration lets a passkey prompt have the purpose `step-up` (the challenges table's CHECK named only `add` and `sign-in`). Provisional on the owner's answers A1 and A2: if either changes, the mark, the step-up and what `adminview` returns are what is revisited; the door, the audit entries and the check keep their shape.
+First pass (November 27, 2026; decisions 0640 to 0646, journal `core-015`): an admin mark on a person and a step-up, on the assumed A1 and A2. Replaced the same day, when the owner answered.
+
+Second pass, built as planned on November 27, 2026; see `docs/architecture/admin.md`, decisions 0650 to 0655 and the journal `docs/journal/2026-11-27-core-016.md`. An admin is a separate account in `data/admin/admin.db` (`internal/adminaccount`), made by `go run ./tools/admin`, signing in at `/admin/sign-in` with a `ksa_` token in its own cookie for `admin.session_for` and no longer than `admin.idle_for` unused. The shell tells the two tokens apart by their form: a person's is refused on every admin route (403 `not_admin`, in their own log) and an admin's on every person's route (403 `admin_account`, in the admin log). Every admin call is in the admin audit log, every read of a person also in theirs with the admin's name, and the person sees it in Settings → Admin access (`GET /api/v1/audit/admin`). The mark, `tools/tenant admin` and the step-up are removed, with a forward migration. The `admin isolation` check holds the new shape in both directions. Two choices beyond the plan: sign-in takes the account's name or id, and the admin's passkeys have routes of their own (list, prompt, add, remove), behind `signin.passkeys`. The two screens have no mockup and are provisional; the admin screens for people, the install and settings are P15-02 to P15-04.
