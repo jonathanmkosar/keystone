@@ -31,6 +31,7 @@ Work claimed and not yet merged into `reboot`. `go run ./tools/doctor` shows the
 
 | Question or input | Recommended | Assumed meanwhile | Provisional because of it |
 | --- | --- | --- | --- |
+| Keys for Brave, Exa and Serper, and the address of a SearXNG, for the search providers' live check | Give them before P7-07's live check | | P7-07's live check only |
 | A1. Is an admin a person with a mark, or a separate account? | Decided by the owner on November 27, 2026: a separate account that shows only admin controls | | P15-01, to be reworked |
 | A2. What may an admin see of another person? | Decided by the owner on November 27, 2026: numbers and settings only, never their data or logs; each person's data is encrypted at rest with server-held keys (P15-06) | | Nothing |
 | A3. Does a view that is off only hide, or turn the feature off? | Off: its routes and tools are refused | The recommendation | P15-04 |
