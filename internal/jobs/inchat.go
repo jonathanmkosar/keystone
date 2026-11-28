@@ -67,7 +67,12 @@ func (r *Runner) StartIn(ctx context.Context, s *tenant.Store, chatID, startedRe
 	if err != nil {
 		return Task{}, err
 	}
-	if model == "" {
+	// P14-06: a run whose schedule names no model starts on Auto (auto.go).
+	on, err := r.onAuto(ctx, s, chatID, model)
+	if err != nil {
+		return Task{}, err
+	}
+	if model == "" && !on {
 		if t := r.bound(); t != nil {
 			model = t.ChatModel(ctx, s, chatID)
 		}

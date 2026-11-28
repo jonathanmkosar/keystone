@@ -188,4 +188,5 @@ In `verify` since P14-04, the same check sends a message on Auto through the rea
 
 - **The admin's policy** beyond the ladder, the decision model, the step notes and `router.auto_default` (P14-05).
 - **Unattended work** on Auto (P14-06) and **Auto in usage** (P14-07).
+  - Built in P14-06 ([unattended-auto.md](unattended-auto.md)): sub-agents, background tasks, scheduled runs and research tasks start on Auto unless the call that started them names a model, through `turn.Runner.StartOnAuto`; each of their turns is routed by the turn as above. Nothing in this package changed.
 - **The live check** with the owner's decision model and chat model on his local machine, and his hosted models (P14-08).

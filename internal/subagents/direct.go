@@ -118,6 +118,10 @@ func (r *Runner) StartParts(ctx context.Context, s *tenant.Store, chatID, turnID
 				return drop(err)
 			}
 		}
+		// P14-06: a caller that names no model puts the part on Auto (auto.go).
+		if _, err := r.onAuto(ctx, s, work.ID, model); err != nil {
+			return drop(err)
+		}
 		id, err := newID()
 		if err != nil {
 			return drop(err)

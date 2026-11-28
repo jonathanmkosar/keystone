@@ -191,3 +191,5 @@ A run is a background task, so `agents.task_budget_usd` is each run's budget, an
 - **A step-by-step run panel** as in the mockup: the run's chat has its steps, and the inspector its tokens.
 - **Retrying a run that failed** for a provider's failure. A person can run it now.
 - A chat made for a run, and the server stopped before the run noted it, is made again at the next start; the first stays, empty.
+- **Runs on Auto** (P14-06).
+  - Built in P14-06 ([unattended-auto.md](unattended-auto.md)): a schedule with no `model` has each run's chat on Auto when `router.auto_default` is on and the person has a ladder, so the run's turns are routed afresh, with a verdict under the run's task's request id; a schedule that names a model keeps it. Nothing in this package changed: `jobs.Runner.StartIn` decides.
