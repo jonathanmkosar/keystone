@@ -389,6 +389,89 @@
       "description": "The most questions the systemone adapter sends in one decision call. A request with more is refused before anything is sent. Ollama itself takes at most 64."
     },
     {
+      "key": "router.ladder",
+      "title": "Auto's ladder",
+      "summary": "The models Auto may choose for this person, smallest first.",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "Registry names, separated by commas, smallest first, of the models a chat on Auto may be answered by. A name may carry a size limit, as small-hosted<=100000: that step is passed over when a call's estimated size in tokens is over the limit. A name that is not a usable model in the person's registry is passed over. Empty means Auto is not offered and every chat uses the model picked."
+    },
+    {
+      "key": "router.decision_model",
+      "title": "Auto's decision model",
+      "summary": "The model that gives Auto's verdict on each message.",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "The registry name of the decision model that chooses a step of the ladder and an effort for each message on Auto. It must have the decision capability. A held chat's verdict goes to it only when it is local or trusted. Empty means the rules alone decide: the lowest step that may take the call, at the default effort."
+    },
+    {
+      "key": "router.step_notes",
+      "title": "Auto's step notes",
+      "summary": "Optional words describing each step to the decision model.",
+      "type": "string",
+      "default": "",
+      "scope": "tenant-admin",
+      "description": "Descriptions of steps of the ladder for the decision model, as name=words, separated by semicolons. A step with no note is described by its label and its place on the ladder."
+    },
+    {
+      "key": "router.min_confidence",
+      "title": "Auto's confidence level",
+      "summary": "A verdict less sure than this moves up one step.",
+      "type": "float",
+      "default": "0.6",
+      "scope": "install",
+      "description": "The probability, from 0 to 1, under which the step a verdict chose moves one step up the ladder, to the next step that may take the call."
+    },
+    {
+      "key": "router.verdict_timeout",
+      "title": "Auto's verdict timeout",
+      "summary": "The longest Auto waits for a verdict before the rules decide.",
+      "type": "duration",
+      "default": "2s",
+      "scope": "install",
+      "description": "The longest the router waits for the decision model's verdict on one message. With no answer by then, the rules alone decide: the lowest step that may take the call, at the default effort."
+    },
+    {
+      "key": "router.verdict_max_chars",
+      "title": "Message shown to the verdict",
+      "summary": "How many characters of the newest message the verdict sees.",
+      "type": "int",
+      "default": "8000",
+      "scope": "install",
+      "description": "How many characters of the newest message the decision model is shown, with the call's facts. It is never shown the rest of the chat."
+    },
+    {
+      "key": "router.default_effort",
+      "title": "Auto's default effort",
+      "summary": "The effort used when the rules alone decide.",
+      "type": "string",
+      "default": "medium",
+      "options": ["low", "medium", "high"],
+      "scope": "install",
+      "description": "The effort a message on Auto is sent with when the rules alone decide, as when there is no verdict in time."
+    },
+    {
+      "key": "router.max_effort",
+      "title": "Auto's highest effort",
+      "summary": "The most effort Auto ever asks of a model.",
+      "type": "string",
+      "default": "high",
+      "options": ["low", "medium", "high", "xhigh", "max"],
+      "scope": "install",
+      "description": "The most effort the router asks for, whatever the verdict or the default says. A higher effort is lowered to this one."
+    },
+    {
+      "key": "router.local_down_for",
+      "title": "Local machine passed over for",
+      "summary": "How long Auto passes over local models after one stops answering.",
+      "type": "duration",
+      "default": "2m",
+      "scope": "install",
+      "description": "How long after a call to a local endpoint, the decision call included, failed as unavailable that Auto passes over local steps and says so on the reply. A held chat with only local steps then fails and says to try again when the machine is back."
+    },
+    {
       "key": "usage.monthly_cap_usd",
       "title": "Monthly cap",
       "summary": "The most one person may spend in a month on paid models.",

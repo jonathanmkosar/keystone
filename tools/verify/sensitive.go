@@ -177,6 +177,8 @@ func checkSensitive(root string) error {
 		return err
 	}
 	problems = append(problems, more...)
+	// The router (P14-03), in router.go.
+	problems = append(problems, routerProblems()...)
 	if len(problems) > 0 {
 		return errors.New(strings.Join(problems, "\n"))
 	}
