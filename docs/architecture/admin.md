@@ -1,111 +1,138 @@
-# The admin mark and step-up
+# The admin account
 
-Folders: `internal/adminview`, `internal/adminapi`, with `internal/tenant/admin.go`, `internal/signin/stepup.go`, the admin door in `internal/api/api.go`, `tools/tenant/admin.go` and `tools/verify/adminisolation.go`
+Folders: `internal/adminaccount`, `internal/adminview`, `internal/adminapi`, `tools/admin`, with the admin door in `internal/api/admin.go`, a person's view of it in `internal/api/adminentries.go` and `internal/audit/byadmin.go`, and the check in `tools/verify/adminisolation.go`. Screens: `web/app/src/AdminApp.tsx` (`/admin/sign-in`, `/admin`) and `AdminAccessSettings.tsx` (Settings → Admin access).
 
-P15-01. The design is `docs/plan/SPEC-router-and-admin.md`, Part 2, "The admin mark" and "Reading another person". **Provisional** on the owner's answers A1 (an admin is a person with a mark, set from the command line only, with a step-up before the admin area) and A2 (an admin sees another person's numbers and settings, never their chats, titles, messages, files, memory, traces or error words). Both are the spec's assumed answers.
+P15-01. The design is `docs/plan/SPEC-router-and-admin.md`, Part 2, "The admin account" and "What an admin never sees", on the owner's answers of November 27, 2026: **A1**, an admin is a separate account, and signing in as one shows only admin controls; **A2**, an admin sees another person's numbers and settings, never their data or their logs.
+
+The first pass made an admin a person with a mark in `keystone.json` and a step-up (decisions 0640 to 0643, journal `core-015`). This pass replaced it: decisions [0650](decisions/0650-an-admin-is-a-separate-account-in-its-own-database.md) to [0655](decisions/0655-admin-isolation-holds-the-separate-account.md).
 
 ## What an admin is
 
-A person with a mark. Each tenant's entry in `keystone.json` holds `admin`, `true` or `false`. An admin signs in as themselves, with their own password or passkey, and keeps their own chats and settings like anyone else (decision [0640](decisions/0640-an-admin-is-a-person-with-a-mark-set-from-the-command-line.md)).
+A separate account, kept apart from people in its own database, `data/admin/admin.db`. An admin account has no tenant and no tenant database: no chats, no files, no models, nothing of a person's to show. The owner has two sign-ins, his own person and his admin account, and can be signed in as both in one browser.
 
-    go run ./tools/tenant admin <tenant-id> on
-    go run ./tools/tenant admin <tenant-id> off [--yes]
+`internal/adminaccount` owns the database, with migrations of its own (`internal/adminaccount/migrations/`):
 
-The command line is the only way to change the mark. It calls `tenant.Install.SetAdmin`, which nothing else calls; no route can. Taking the mark from the install's last admin is refused with a warning unless `--yes` is given. `go run ./tools/tenant list` shows the mark in an `ADMIN` column.
-
-**The mark is read from disk at each admin call** (decision [0641](decisions/0641-the-mark-is-read-from-disk-at-each-admin-call.md)). `Install.IsAdmin(id)` and `Install.Marks()` read `keystone.json` now, so a mark set or taken away from the command line counts in a running server at the next call, with no restart. Every save of the registry takes the marks from the file first, so a server that read the file before a change cannot write the old mark back. `Install.Tenants()` still returns the list the server read at its start, and its `Admin` field may be old: nothing decides anything by it.
-
-A backup carries no mark, and a restore grants none: a restored tenant keeps the mark the install already had for that id, and a new one has none.
-
-## The step-up
-
-The admin area asks for the password or a passkey again, on the session the admin already has, and stays open for `admin.step_up_for` (decision [0643](decisions/0643-step-up-proves-the-password-again-on-the-same-session.md)).
-
-- `signin_sessions` gains `admin_until`, empty until a step-up, and never past the session's own end. `signin.Session.AdminUntil` carries it, read with the session on every call; `Session.SteppedUp(t)` is the test.
-- `signin.StepUp(store, sessionID, password, options, lasts)` checks the password through the same function as sign-in, so a wrong one counts towards the same wait and a wait refuses it unread.
-- `signin.BeginPasskeyStepUp` and `signin.PasskeyStepUp` do the same with a passkey. Their prompts have the purpose `step-up`, so a sign-in answer cannot step up and a step-up answer cannot sign in. The migration `20261127T160100_step_up_challenges.sql` widens the challenges table for it. Passkeys stay behind `signin.passkeys`, off as shipped.
-- `signin.EndStepUp` closes the admin area early. Signing out, or a new password, ends the session and its step-up with it.
-
-## The admin door
-
-Every admin route is under `/api/v1/admin/` and marked `Admin` in its row, and `api.Check` refuses a route whose mark and path disagree (decision [0642](decisions/0642-the-admin-door-is-a-mark-on-a-route-checked-by-the-shell.md)). The shell checks every request to a path under the prefix, a route or not, inside `audit.Wrap` and before the route runs:
-
-| The caller | Answer |
+| Table | What it holds |
 | --- | --- |
-| No session | 401 `no_session`, as everywhere |
-| A person without the mark | 403 `not_admin` |
-| An admin without a fresh step-up, on any route but the step-up's | 401 `step_up` |
-| An admin with a fresh step-up | the route runs, with `api.Call.Admin` true |
+| `accounts` | id (16 hex), name (unique in any case), when added, last sign-in |
+| `passwords` | one per account: the hash, its salt and iterations, the count of wrong tries and the last one |
+| `sessions` | the SHA-256 of each session's token, the method, when made, when it expires, when last used |
+| `passkeys` | an account's passkeys: credential id, public key, use count, name |
+| `challenges` | passkey prompts waiting for their answer; a prompt to add names its account |
+| `admin_audit_log` | every admin call and every admin sign-in, in the shape of a person's audit log; append-only by triggers |
 
-A route marked `StepUp` needs the mark and not a fresh step-up. There are two, `POST /api/v1/admin/step-up` and `POST /api/v1/admin/step-up/passkey`, and `stepUpRoutes` in `tools/verify/adminisolation.go` repeats the list, as `routes.go` repeats the doors.
+It is opened per use (`adminaccount.Open(dataDir)`) and closed after, as a person's database is, so the command line and a running server share it. It is not encrypted at rest: it holds no person's data (P15-06 seals people's).
 
-A client must not treat every 401 as a session that ended: `step_up` asks for the password again and keeps the session.
+## Making an account
 
-## Audit, in both logs
+    go run ./tools/admin add "Admin Name"
+    go run ./tools/admin password <account-id>      (one line on standard input)
+    go run ./tools/admin list
+    go run ./tools/admin remove <account-id> [--yes]
 
-- **The admin's own log.** Every call to an admin path by a person with the mark is recorded by `audit.Wrap` with the actor `admin`, before it runs and when it ends, a refused one included. A refused call by a person without the mark is recorded in their own log with the actor `person`.
-- **The other person's log.** Every read of another person through `adminview` is written in that person's log first, with the actor `admin:<the admin's tenant id>`, the admin call's request id and route, the outcome `started`, and what is about to be read in `sent` (`{"read":["last_sign_in"]}`); then a second entry with `ok` or `error`. If the first entry cannot be written, nothing of theirs is read and the call fails with 500. A change (P15-03) records the old and the new value in the same field (`adminview.Touch`).
+The command line is the only way to make or remove an account (decision 0650). `password` ends every session the account had. `remove` ends them at once, keeps the account's entries in the admin audit log, and refuses the last account without `--yes`. The `admin isolation` check fails if any code but `internal/adminaccount` and `tools/admin` calls `AddAccount` or `RemoveAccount`.
 
-The two logs share the request id, so a person reading their own log sees which admin looked, when and through which route.
+## Signing in
 
-## Reading another person
+At `/admin/sign-in`, with the account's name or id and its password, or a passkey (behind `signin.passkeys`, off as shipped). The rules are a person's, through `internal/signin`'s own code (`signin/shared.go`): the same hashing, the same count of wrong tries and wait, the same passkey checks. An account that is not there takes as long to refuse as a wrong password. A person's door does not open an admin account, and the admin's door does not open a person.
 
-`internal/adminview` is the only code the admin routes use to read another tenant (decision [0644](decisions/0644-adminview-is-the-only-way-to-another-person-and-writes-their-log-first.md)). `internal/app` makes one `adminview.View` over the install and hands it to `internal/adminapi`, which is never given the install and does not import `internal/tenant`.
+- **The token** is `ksa_` and 32 random bytes as hex, kept only as a hash, and given in the cookie `keystone_admin`, path `/api/v1/admin/`, `HttpOnly`, `SameSite=Strict`, never in a body.
+- **A session lasts `admin.session_for`** and ends after **`admin.idle_for`** without a call (decision [0652](decisions/0652-admin-sessions-last-admin-session-for-and-end-after-admin-idle-for.md)). Every call moves its last use.
+- **Every sign-in, good or refused, is in the admin audit log**, with the actor `admin:<account id>`, or `admin` when the account is not known. A sign-in that cannot be recorded does not stand.
 
-Every function of the view takes an `adminview.Asker` (the admin's tenant id, the request id and the route) and refuses unless `IsAdmin` says that id carries the mark now, the request id is there and the route is an admin route. It returns numbers and settings only:
+## The door
 
-- `People`: each person's id, name, mark, when they were added and their last sign-in, oldest first. The admin's own row is read from their own store with no second entry.
+The API shell tells the two kinds of token apart by their text, before anything is read (decision [0651](decisions/0651-the-door-tells-an-admins-token-from-a-persons-by-its-form.md)):
 
-**Last sign-in** is kept in each person's `tenant_meta` as `last_sign_in`, written whenever `signin` opens a session (decision [0646](decisions/0646-the-first-admin-read-is-the-people-list-with-last-sign-in.md)). A person who has not signed in since this item shows their newest open session instead, or nothing.
+| The call | Answer |
+| --- | --- |
+| An admin's token on an admin route | the route runs, with `api.Call.Admin` and `Call.AdminSession`, and no `Call.Store`; in the admin audit log before and after |
+| An admin's token on a person's route (in either cookie) | 403 `admin_account`, in the admin audit log |
+| A person's token on an admin route, or any admin path | 403 `not_admin`, in the person's own audit log |
+| A person's token in the admin cookie | 401 `no_session`, written nowhere |
+| No session, or an ended one | 401 `no_session`, written nowhere |
+
+Every route under `/api/v1/admin/` is marked `Admin` and no other route is (`api.Check`); the admin's two sign-in routes are doors as well, listed in `adminDoorRoutes` and in `doorRoutes` in `tools/verify`.
+
+## What an admin never sees
+
+`internal/adminview` is the only code the admin routes use to read a person (decision [0644](decisions/0644-adminview-is-the-only-way-to-another-person-and-writes-their-log-first.md)). `internal/app` makes one `adminview.View` over the install and hands it to `internal/adminapi`, which is never given the install and does not import `internal/tenant`.
+
+Every function of the view takes an `adminview.Asker` (the admin account's id, the request id and the route) and refuses unless the account is in the admin database now, the request id is there and the route is an admin route. It returns numbers and settings only:
+
+- `People`: each person's id, name, when added and last sign-in, oldest first.
+
+**Both logs.** Every read or change of a person is written in that person's own audit log before it is made, with the actor `admin:<account id>`, the admin call's request id and route, the outcome `started`, and in `sent` the account's name and what is about to be read (`{"by":"Admin Name","read":["last_sign_in"]}`); then a second entry with `ok` or `error`. If the first cannot be written, nothing of theirs is read. A change (P15-03) records the old and the new value in the same field (`adminview.Touch`). The admin's own log has the call already, written by the door with the same request id.
+
+**The person sees it.** `GET /api/v1/audit/admin` lists the entries admin accounts left in the signed-in person's own log (`audit.ListByAdmin`), and Settings → Admin access folds each call's two entries into one row: who, what was read, when, through which route, and whether it went through (decision [0654](decisions/0654-a-person-sees-the-admin-entries-of-their-own-log.md)).
+
+**The admin cannot read the person's log**: no admin route lists one, and the check fails if `adminview` or `adminapi` calls `audit.List` or `audit.ListByAdmin`. The server's own log carries no person's content, as before; an admin call's line ends `admin=<account id>`.
+
+**Last sign-in** is kept in each person's `tenant_meta` as `last_sign_in`, written whenever `signin` opens a session (decision [0646](decisions/0646-the-first-admin-read-is-the-people-list-with-last-sign-in.md)).
 
 ## Routes
 
 | Route | Door | What it does |
 | --- | --- | --- |
-| `POST /api/v1/admin/step-up` | mark | Opens the admin area with `{"password": ...}` or `{"passkey": <PublicKeyCredential.toJSON()>}`. Answers `{"admin_until": ...}`. A wrong one is 403 `refused`, a wait 429 `wait` with `Retry-After`, passkeys off 400 `passkeys_off`, both or neither 400 `bad_request`. |
-| `POST /api/v1/admin/step-up/passkey` | mark | A passkey prompt for the step-up, in the shape `PublicKeyCredential.parseRequestOptionsFromJSON()` reads, with `userVerification: required`. 400 `passkeys_off` while passkeys are off. |
-| `DELETE /api/v1/admin/step-up` | mark and step-up | Closes the admin area on this session. |
-| `GET /api/v1/admin/people` | mark and step-up | Every person: id, name, admin, added, last sign-in. Each other person's log records the read. P15-02 adds the numbers to the same rows. |
+| `POST /api/v1/admin/session` | none (a door) | Sign in: `{"account": name or id, "password": ...}` or `{"passkey": <PublicKeyCredential.toJSON()>}`. Answers the account and the session (`expires`, `idle_until`) and sets the admin cookie. 401 `refused`, 429 `wait` with `Retry-After`, 400 `passkeys_off`, 400 `bad_request` for both or a malformed answer. |
+| `POST /api/v1/admin/session/passkey` | none (a door) | A passkey prompt for signing in, naming no account. 400 `passkeys_off`. |
+| `GET /api/v1/admin/session` | admin | Which account is signed in, and until when. |
+| `DELETE /api/v1/admin/session` | admin | Sign out and forget the cookie. |
+| `GET /api/v1/admin/people` | admin | Every person: id, name, added, last sign-in. Each person's log records the read. P15-02 adds the numbers to the same rows. |
+| `GET /api/v1/admin/passkeys` | admin | The account's own passkeys. |
+| `POST /api/v1/admin/passkeys/prompt` | admin | A prompt to add a passkey, with the user and the algorithms for `parseCreationOptionsFromJSON()`. 400 `passkeys_off`. |
+| `POST /api/v1/admin/passkeys` | admin | Add the passkey the browser made: `name`, `rawId`, `clientDataJSON`, `authenticatorData`, `publicKey`, each base64url. |
+| `DELETE /api/v1/admin/passkeys/{id}` | admin | Remove one of the account's passkeys. |
+| `GET /api/v1/audit/admin` | person | The admin entries of the person's own audit log, with `after` and `limit`. |
 
-`GET /api/v1/session` and the sign-in answer gain `admin`, whether the person carries the mark, and `session.admin_until` when a step-up is open, so the interface can show the admin area to admins alone. The admin routes check the mark themselves.
+The shapes are in `docs/api/openapi.json`, where each admin route is marked `x-keystone-admin` and carries the `admin` cookie scheme.
 
-The shapes are in `docs/api/openapi.json`, where each admin route is marked `x-keystone-admin` and each step-up route `x-keystone-step-up`. No screen is built: the admin screens are P15-02 to P15-04.
+## Screens
+
+- `/admin/sign-in`: the account's name and password. `/admin`: who is signed in, when the session ends, and sign out. The admin screens for people, the install and settings are P15-02 to P15-04. A path under `/admin` is drawn by `AdminApp` in place of the person's app (`main.tsx`), so the admin page never asks who the person is.
+- Settings → Admin access, for a person. There is no mockup for either, so both are provisional.
 
 ## Settings
 
 | Key | Type | Default | Scope | Meaning |
 | --- | --- | --- | --- | --- |
-| `admin.step_up_for` | duration | 15m | install | How long the admin area stays open after a step-up, never past the session's end. |
+| `admin.session_for` | duration | 8h | install | How long an admin session lasts. |
+| `admin.idle_for` | duration | 30m | install | How long an admin session may go unused before it ends. |
 
-`admin.setup_code_for` and the five `views.` settings in the spec's table belong to P15-02 and P15-04.
+The password and passkey settings are the `signin.` ones. `admin.setup_code_for` and the five `views.` settings in the spec's table belong to P15-02 and P15-04. The first pass's `admin.step_up_for` is gone.
+
+## Removed from the first pass
+
+The mark (`tenant.Tenant.Admin`, `Install.SetAdmin`, `IsAdmin`, `Marks`), `tools/tenant admin`, the step-up (`signin.StepUp`, `BeginPasskeyStepUp`, `PasskeyStepUp`, `EndStepUp`, `Session.AdminUntil`, the three step-up routes, `api.Route.StepUp`, 401 `step_up`), `admin.step_up_for`, and `admin` and `session.admin_until` in a person's session answer. The step-up's two migrations stay as they ran; `20261127T170000_admin_step_up_removed.sql` drops `admin_until` and the `step-up` prompt purpose. An old `keystone.json` with the mark loads, and the next save drops it (decision [0653](decisions/0653-the-mark-and-the-step-up-are-taken-back-by-a-forward-migration.md)).
 
 ## The admin isolation check
 
-`tools/verify/adminisolation.go`, the standing check `admin isolation` (decision [0645](decisions/0645-admin-isolation-starts-with-the-imports-and-the-door.md)). Its first part, built here:
+`tools/verify/adminisolation.go`, the standing check `admin isolation` (decision [0655](decisions/0655-admin-isolation-holds-the-separate-account.md)):
 
-- **The imports.** `go list -deps` of `internal/adminview` and of `internal/adminapi` reaches none of the packages that hold a person's content: the spec's chat, turn, context, knowledge, uploads, artifacts, projects, recap, inspector and share, and the others that hold a person's words (`adminMayNotReach` in the file). A failure names the chain of imports, such as `internal/adminview -> internal/usagereport -> internal/knowledge/memory`.
-- **The install stays out of the routes.** `internal/adminapi` does not import `internal/tenant`.
-- **One writer of the mark.** No Go file outside `internal/tenant` and `tools/tenant` calls `SetAdmin` (tests, and the check's own walk, left out).
-- **The door, walked**, on a throwaway folder with the real handler and the shipped settings: every admin route, and a path under the prefix that is no route, refuses a person without the mark (403 `not_admin`) and an admin without a step-up (401 `step_up`, the step-up routes left out), each refusal in the caller's log with the right actor and in no other log; a wrong password at the step-up is refused and recorded; after a good one the people route answers and is in both logs, the other person's with the actor `admin:<id>`; a closed step-up is refused again; and a mark taken away by a second process refuses a fresh step-up at once. The step-up routes in the code must be the listed ones.
+- **The imports.** `go list -deps` of `internal/adminview`, `internal/adminapi` and `internal/adminaccount` reaches none of the packages that hold a person's content (`adminMayNotReach`), naming the chain of imports on a failure. `internal/adminapi` does not import `internal/tenant`.
+- **No log reads.** `adminview` and `adminapi` never call `audit.List` or `audit.ListByAdmin`.
+- **One maker of accounts.** Only `internal/adminaccount` and `tools/admin` call `AddAccount` and `RemoveAccount`.
+- **No mark.** `tenant.Tenant` has no field, or JSON name, with "admin" in it.
+- **No chat, file or model route.** No admin route's path has a part named chats, messages, turns, files, uploads, artifacts, models, memory, projects, share, shared, inspector, recap, research, subagents, visuals, browser or connectors.
+- **The walk**, on a throwaway folder with two people and an admin account, with the real handler: each door opens its own kind of account alone; a person's token is refused on every admin route (403 `not_admin`, in their own log alone; 401 in the admin cookie, written nowhere); the admin's token is refused on every person's route in either cookie (403 `admin_account`, in the admin log alone); every admin route the admin calls is in the admin log, before and after, and any entry it left in a person's log is the admin's own pair for the same route; the people read is in both people's logs with the admin's name, and the person sees it; a person's own call is in no admin reply; a signed-out session, and a session whose account another process removed, are refused at once; and no admin token is in a reply's body or the server's log.
 
-P15-05 adds the second part: marker words in a second person's chats, titles, files, memory and traces, looked for in every admin route's reply.
-
-The `tenant isolation`, `calls recorded` and `no keys in output` walks reach the admin routes with no new code: they call them as a person without the mark, and each answers 403 and is recorded. The isolation drill calls them as its second person, who has no mark, and is refused the same way.
+P15-05 adds the drill: marker words in a second person's chats, titles, files, memory and traces, looked for in every admin reply and in the server's log.
 
 ## Checked by
 
-- `go test ./internal/tenant`: the mark is set and read; a mark set or taken away by a second process counts at once and is not undone by the first process's save; a backup carries no mark, a restore onto another install grants none, and one over a marked tenant keeps it.
-- `go test ./internal/signin`: a step-up lasts its time and no longer than the session; another tenant's password, a session that is not there and tenant one's session on tenant two's store are refused; wrong step-ups count towards the sign-in's wait; a passkey step-up works once and the two prompts' purposes cannot answer each other; the last sign-in is kept across a sign-out.
-- `go test ./internal/api`: the door, with routes of the test's own: refusals, codes and actors, the step-up route's exception, the session reply, and the mark taken away; `api.Check` holds the prefix and the mark together.
-- `go test ./internal/adminview`: the people list and its two entries in the other person's log and none in the admin's; the view refuses a person without the mark, a bad asker and a mark taken away, and writes nothing then.
-- `go test ./internal/adminapi`: the step-up by password and by passkey, its refusals and its wait, the people route in both logs, closing the admin area, and every admin route refused to a person without the mark.
-- `go test ./tools/tenant`: the command, and the last admin kept without `--yes`.
+- `go test ./internal/adminaccount`: accounts and their names; password sign-in by name or id; wrong passwords wait; the token's form; `admin.session_for` and `admin.idle_for`; sign-out, a new password and a removed account (from a second process) end sessions; the admin audit log is scrubbed and append-only; passkeys added and used by their own account alone, once per prompt, off as shipped.
+- `go test ./internal/api`: the door with routes of the test's own: an admin route runs for an admin alone, with no store, in the admin log alone; a person's token refused on every admin path; an admin's token refused on every person's route in either cookie; both cookies in one browser; a session that is not there; `api.Check`; the cookie; a person's admin entries.
+- `go test ./internal/adminview`: the people list, its two entries in each person's log with the name, and nothing else in a person's row; refusals for a person's id, a bad asker and a removed account, writing nothing.
+- `go test ./internal/adminapi`: sign-in, its refusals and its wait, each in the admin log without the password; the session and sign-out; people in both logs and seen by the person; every admin route refused to a person; passkeys added, used and removed.
+- `go test ./internal/tenant`: an old `keystone.json` with the mark loads and the next save drops it; the step-up's column and prompt purpose are gone.
+- `go test ./tools/admin`: the command, and the last account kept without `--yes`.
 - The `admin isolation` check in `verify`.
 
 ## Not here yet
 
-- The people and install numbers, adding a person with a setup code, and `/setup`: P15-02. The packages that already sum a person's numbers (`usagereport`, `operations`, `jobs`, `schedules`) reach forbidden packages through their own imports, so `adminview` cannot call them; P15-02 reads those numbers through narrow functions or splits the packages.
-- Settings from the browser, install settings stored in `keystone.json`, and a change's old and new value in both logs: P15-03.
+- The people and install numbers, adding a person with a setup code, `/setup`, disabling a person, and moving install-wide Operations to the admin account: P15-02. The packages that already sum a person's numbers (`usagereport`, `operations`, `jobs`, `schedules`) reach forbidden packages through their own imports, so `adminview` cannot call them; P15-02 reads those numbers through narrow functions or splits the packages.
+- Settings from the browser, install settings in `keystone.json`, and a change's old and new value in both logs: P15-03.
 - Views and view sets: P15-04.
 - The marker-word drill: P15-05.
-- The admin screens: the interface halves of P15-02 to P15-04.
+- The admin screens beyond sign-in: the interface halves of P15-02 to P15-04.
+- Passkeys in a real browser: proven against the test authenticator only, as a person's are.

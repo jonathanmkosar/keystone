@@ -28,6 +28,7 @@ import { ThemeSwitch } from "./ThemeSwitch";
 import type { ThemeChoice } from "./theme";
 import { UsageSettings } from "./UsageSettings";
 import { ShareSettings } from "./ShareSettings";
+import { AdminAccessSettings } from "./AdminAccessSettings";
 
 // The settings screens (P11-01). docs/architecture/settings-screens.md
 // describes them. Every server call they make is in api.ts.
@@ -43,6 +44,7 @@ const screens: { to: string; label: string }[] = [
   { to: "usage", label: "Usage" },
   { to: "operations", label: "Operations" }, // the page at /operations (P11-03)
   { to: "sharing", label: "Shared links" },
+  { to: "admin-access", label: "Admin access" }, // what admin accounts read of yours (P15-01)
 ];
 
 type Props = {
@@ -80,6 +82,7 @@ export function Settings(props: Props) {
         <Route path="approvals" element={<ApprovalSettings onSignedOut={props.onSignedOut} />} />
         <Route path="usage" element={<UsageSettings onSignedOut={props.onSignedOut} />} />
         <Route path="sharing" element={<ShareSettings onSignedOut={props.onSignedOut} />} />
+        <Route path="admin-access" element={<AdminAccessSettings onSignedOut={props.onSignedOut} />} />
         <Route path="spend" element={<Navigate to="/settings/usage" replace />} />
         <Route path="operations" element={<Navigate to="/operations" replace />} />
         <Route path="*" element={<Navigate to="/settings/profile" replace />} />

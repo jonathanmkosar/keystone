@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/jonathanmkosar/keystone/internal/adapters"
+	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/adminapi"
 	"github.com/jonathanmkosar/keystone/internal/adminview"
 	"github.com/jonathanmkosar/keystone/internal/api"
@@ -60,7 +61,9 @@ type Config struct {
 	MaxBodyBytes int64         // server.max_body_bytes
 	Heartbeat    time.Duration // server.stream_heartbeat
 	PageLimit    int           // server.page_limit
-	StepUpFor    time.Duration // admin.step_up_for (P15-01)
+	// Admin is what admin accounts sign in and keep sessions with: the
+	// signin. settings, admin.session_for and admin.idle_for (P15-01).
+	Admin adminaccount.Options
 
 	// Turns are the settings chats and turns run with, in
 	// settings/chats.json.
@@ -226,13 +229,14 @@ func ReadConfig(get func(key string) (string, bool)) (Config, error) {
 	read("server.max_body_bytes", func(v string) (e error) { c.MaxBodyBytes, e = strconv.ParseInt(v, 10, 64); return })
 	read("server.stream_heartbeat", func(v string) (e error) { c.Heartbeat, e = time.ParseDuration(v); return })
 	read("server.page_limit", func(v string) (e error) { c.PageLimit, e = strconv.Atoi(v); return })
-	read("admin.step_up_for", func(v string) (e error) { c.StepUpFor, e = time.ParseDuration(v); return })
 	if err != nil {
 		return Config{}, err
 	}
+	// The admin accounts' settings (P15-01), in settings/core.json.
+	if c.Admin, err = adminaccount.ReadOptions(get); err != nil {
+		return Config{}, err
+	}
 	switch {
-	case c.StepUpFor <= 0:
-		return Config{}, errors.New("admin.step_up_for must be longer than nothing")
 	case c.MaxBodyBytes < 1:
 		return Config{}, errors.New("server.max_body_bytes must be 1 or more")
 	case c.Heartbeat <= 0:
@@ -332,9 +336,11 @@ func routes(c Config, log *api.Log) []api.Route {
 	all = append(all, research.Routes(c.research)...)
 	// Browser use (P10-03): a screenshot the agent's browser took.
 	all = append(all, browser.Routes()...)
-	// The admin routes (P15-01), behind the admin door. They are given the
-	// one view of other people, and never the install (decision 0644).
-	all = append(all, adminapi.Routes(adminapi.Options{View: adminview.New(c.Install), SignIn: c.SignIn, StepUpFor: c.StepUpFor, Log: log})...)
+	// The admin account's routes (P15-01), behind the admin door. They are
+	// given the one view of people, and never the install (decision 0644).
+	all = append(all, adminapi.Routes(adminapi.Options{View: adminview.New(c.Install), Open: c.openAdmin, Accounts: c.Admin, SecureCookie: c.SecureCookie, Log: log})...)
+	// A person's own view of what admin accounts read of theirs (P15-01).
+	all = append(all, api.AdminEntriesRoute(c.PageLimit, log))
 	return all
 }
 
@@ -388,6 +394,7 @@ func Handler(c Config) (http.Handler, error) {
 		Log:          log,
 		MaxBodyBytes: c.MaxBodyBytes,
 		Heartbeat:    c.Heartbeat,
+		Admin:        c.Admin, // P15-01: the admin sessions' limits
 	}, routes(c, log))
 }
 

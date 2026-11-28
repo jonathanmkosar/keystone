@@ -114,9 +114,6 @@ func (in *Install) Backup(id string, w io.Writer, passphrase string, o BackupOpt
 			info.Tenant = t
 		}
 	}
-	// The admin mark is the install's, not the person's: a backup carries
-	// none, and a restore keeps the mark the install has (decision 0641).
-	info.Tenant.Admin = false
 
 	// The database, as one snapshot, in a folder of its own inside the
 	// data folder, where the database already is.
@@ -646,9 +643,6 @@ func (in *Install) place(stage string, t Tenant, replace bool) (Restored, error)
 		return Restored{}, fmt.Errorf("tenant %s: the restored folder could not be put in place: %w", t.ID, err)
 	}
 	before := slices.Clone(in.tenants)
-	// save takes every admin mark from the file on disk, so the mark a
-	// backup says it had is never the one written (decision 0641).
-	t.Admin = false
 	if i := slices.IndexFunc(in.tenants, func(have Tenant) bool { return have.ID == t.ID }); i >= 0 {
 		in.tenants[i] = t
 		res.Replaced = true

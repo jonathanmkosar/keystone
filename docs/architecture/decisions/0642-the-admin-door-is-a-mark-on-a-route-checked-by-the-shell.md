@@ -2,6 +2,8 @@
 
 November 27, 2026 · decided in P15-01 · provisional on the owner's answer A1
 
+**Changed** on November 27, 2026 by decision [0651](0651-the-door-tells-an-admins-token-from-a-persons-by-its-form.md): the route mark and the shell's door stay; the step-up and the mark are gone, and the two kinds of token are told apart by their form.
+
 ## The question
 
 Admin routes must refuse a person without the mark and an admin without a fresh step-up, every one of them, including routes later items add in a hurry. Where does that check live, and how is a refusal recorded?

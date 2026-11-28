@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/audit"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
@@ -37,12 +38,6 @@ const (
 	cookiePath = "/api/"
 	// ActorPerson is the actor of a call made with a person's session.
 	ActorPerson = "person"
-	// AdminPrefix is where every admin route lives (P15-01, decision 0642).
-	// A route under it is marked Admin, and only such a route.
-	AdminPrefix = Prefix + "admin/"
-	// ActorAdmin is the actor of a call to an admin route made by a person
-	// who carries the admin mark.
-	ActorAdmin = "admin"
 )
 
 // Call is one signed-in call. It is everything a route's handler knows
@@ -57,10 +52,14 @@ type Call struct {
 	// Model calls and tool calls made for it take it from the request's
 	// context with audit.RequestID.
 	RequestID string
-	// Admin is true for a call to an admin route that came through the
-	// admin door: its person carries the mark and, unless the route is a
-	// StepUp route, has a fresh step-up. It is false on every other route.
-	Admin bool
+
+	// Admin is the admin database, and AdminSession the admin account's
+	// session, on a route marked Admin (P15-01, decision 0651). Store is
+	// nil there: an admin account has no tenant. On a person's route both
+	// are empty. The shell opened Admin and closes it when the handler
+	// returns.
+	Admin        *adminaccount.Store
+	AdminSession adminaccount.Session
 }
 
 // Param is one query parameter, for the OpenAPI document.
@@ -98,15 +97,12 @@ type Route struct {
 	Door bool
 	Open func(w http.ResponseWriter, r *http.Request)
 
-	// Admin marks a route behind the admin door (P15-01, decision 0642).
-	// Every route under AdminPrefix is one, and no other route is. The
-	// shell refuses it to a person without the admin mark (403 not_admin)
-	// and to a session without a fresh step-up (401 step_up).
+	// Admin marks an admin account's route (P15-01, decision 0651). Every
+	// route under AdminPrefix is one, and no other route is. It is served
+	// to an admin's session alone, and refused to a person's; a person's
+	// route is refused to an admin's. An admin route may be a door: the
+	// admin's sign-in.
 	Admin bool
-	// StepUp marks an admin route that is part of the step-up itself: it
-	// needs the mark and not a fresh step-up. The list is short and is
-	// repeated in tools/verify, as the doors are.
-	StepUp bool
 
 	// MaxBodyBytes is the most this route's body may hold, for a route that
 	// takes more than Options.MaxBodyBytes, as an upload does (P9-02). Zero,
@@ -138,6 +134,9 @@ type Options struct {
 	// Heartbeat is how often an open stream sends a line to show it is
 	// still there.
 	Heartbeat time.Duration
+	// Admin is what admin sessions are checked with: admin.session_for and
+	// admin.idle_for (P15-01). The admin database is in the data folder.
+	Admin adminaccount.Options
 }
 
 var (
@@ -167,19 +166,10 @@ func Check(routes []Route) error {
 			return fmt.Errorf("api: %s needs a session, so it has Handle and no Open", name)
 		case IsAdminPath(rt.Path) != rt.Admin:
 			return fmt.Errorf("api: %s: a route is marked Admin when, and only when, its path starts with %s", name, AdminPrefix)
-		case rt.Admin && rt.Door:
-			return fmt.Errorf("api: %s: an admin route cannot be a door", name)
-		case rt.StepUp && !rt.Admin:
-			return fmt.Errorf("api: %s: only an admin route can be a step-up route", name)
 		}
 		seen[name] = true
 	}
 	return nil
-}
-
-// IsAdminPath reports whether a request path is behind the admin door.
-func IsAdminPath(path string) bool {
-	return path == strings.TrimSuffix(AdminPrefix, "/") || strings.HasPrefix(path, AdminPrefix)
 }
 
 // held is what the shell keeps for one request: the store its session
@@ -188,9 +178,10 @@ type held struct {
 	store     *tenant.Store
 	session   signin.Session
 	heartbeat time.Duration
-	// admin is set for a call to an admin path whose person carries the
-	// mark, read from keystone.json for this call.
-	admin bool
+	// admin and adminSession are an admin call's (P15-01): the admin
+	// database, opened by the admin door, and the session it found.
+	admin        *adminaccount.Store
+	adminSession adminaccount.Session
 }
 
 type heldKey struct{}
@@ -221,14 +212,13 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 	if err := Check(routes); err != nil {
 		return nil, err
 	}
+	if err := checkAdminOptions(o, routes); err != nil { // P15-01: admin.go
+		return nil, err
+	}
 
 	door, inside := http.NewServeMux(), http.NewServeMux()
 	bodyLimits := map[string]int64{} // P9-02: the routes that take a larger body, by pattern
-	stepUp := map[string]bool{}      // P15-01: the admin routes that grant the step-up, by pattern
 	for _, rt := range routes {
-		if rt.StepUp {
-			stepUp[rt.Method+" "+rt.Path] = true
-		}
 		pattern := rt.Method + " " + rt.Path
 		if rt.MaxBodyBytes > o.MaxBodyBytes {
 			bodyLimits[pattern] = rt.MaxBodyBytes
@@ -240,12 +230,16 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 		handle, admin := rt.Handle, rt.Admin
 		inside.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
 			h := heldOf(r.Context())
+			if admin {
+				serveAdminRoute(w, r, h, handle) // P15-01: admin.go
+				return
+			}
 			if h == nil || h.store == nil {
 				// Not reachable: audit.Wrap has refused the call by now.
 				Error(w, r, http.StatusUnauthorized, "no_session", "sign in first")
 				return
 			}
-			handle(w, r, Call{Store: h.store, Session: h.session, RequestID: audit.RequestID(r.Context()), Admin: admin && h.admin})
+			handle(w, r, Call{Store: h.store, Session: h.session, RequestID: audit.RequestID(r.Context())})
 		})
 	}
 	inside.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -263,20 +257,12 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 			return audit.Caller{}, err
 		}
 		h.store, h.session = store, session
-		if IsAdminPath(r.URL.Path) {
-			// The mark is read from keystone.json now (decision 0641). A
-			// registry that cannot be read opens nothing.
-			marked, err := o.Install.IsAdmin(store.TenantID())
-			if err != nil {
-				o.Log.Printf("%s the admin mark of tenant %s could not be read: %v", audit.RequestID(r.Context()), store.TenantID(), err)
-			}
-			if h.admin = marked && err == nil; h.admin {
-				return audit.Caller{Store: store, Actor: ActorAdmin}, nil
-			}
-		}
 		return audit.Caller{Store: store, Actor: ActorPerson}, nil
 	}
-	recorded := audit.Wrap(who, adminDoor(inside, stepUp))
+	recorded := audit.Wrap(who, personDoor(inside))
+	// The admin side (P15-01, decision 0651): a request whose token has the
+	// admin form, recorded in the admin audit log. See admin.go.
+	adminSide := adminDoor(o, inside)
 	crossOrigin := http.NewCrossOriginProtection()
 	logTo := o.Log
 
@@ -308,12 +294,13 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 					logTo.Printf("%s closing the store of tenant %s: %v", id, who, err)
 				}
 			}
+			adminWho := closeAdmin(h, logTo, id) // P15-01: admin.go
 			status := rec.status
 			if status == 0 {
 				status = http.StatusOK
 			}
 			// The path and never the query string, a header or the body.
-			logTo.Printf("%s %s %s %d %dms tenant=%s", id, r.Method, r.URL.Path, status, time.Since(start).Milliseconds(), who)
+			logTo.Printf("%s %s %s %d %dms tenant=%s%s", id, r.Method, r.URL.Path, status, time.Since(start).Milliseconds(), who, adminWho)
 		}()
 
 		if r.Body != nil {
@@ -327,32 +314,14 @@ func Handler(o Options, routes []Route) (http.Handler, error) {
 			door.ServeHTTP(rec, r)
 			return
 		}
+		// The two kinds of token are told apart by their form, before
+		// anything is read (P15-01, decision 0651).
+		if _, ok := adminToken(r); ok {
+			adminSide.ServeHTTP(rec, r)
+			return
+		}
 		recorded.ServeHTTP(rec, r)
 	}), nil
-}
-
-// adminDoor is the admin door (P15-01, decision 0642). It sits inside
-// audit.Wrap, so a call it refuses is recorded like any other, and in front
-// of every route. A request to a path under AdminPrefix, a route or not, is
-// refused unless its person carries the admin mark, and then unless its
-// session has a fresh step-up; a step-up route needs the mark alone.
-func adminDoor(inside *http.ServeMux, stepUp map[string]bool) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !IsAdminPath(r.URL.Path) {
-			inside.ServeHTTP(w, r)
-			return
-		}
-		h := heldOf(r.Context())
-		if h == nil || !h.admin {
-			Error(w, r, http.StatusForbidden, "not_admin", "this is the admin area, and only an admin may open it")
-			return
-		}
-		if _, pattern := inside.Handler(r); !stepUp[pattern] && !h.session.SteppedUp(time.Now()) {
-			Error(w, r, http.StatusUnauthorized, "step_up", "enter your password again to open the admin area")
-			return
-		}
-		inside.ServeHTTP(w, r)
-	})
 }
 
 // bodyLimit is the most a request's body may hold: the limit of the route

@@ -59,16 +59,10 @@ data/
   tenants/.<tenant-id>.plain/    only between the trade of places and the end of it
 ```
 
-## The admin mark
+## No admin mark
 
-Since P15-01 (provisional on the owner's answer A1), each entry in `keystone.json` holds `admin`, `true` or `false` ([admin.md](admin.md), decisions [0640](decisions/0640-an-admin-is-a-person-with-a-mark-set-from-the-command-line.md) and [0641](decisions/0641-the-mark-is-read-from-disk-at-each-admin-call.md)).
-
-- `SetAdmin(id, on)` is the only code that changes it, and `go run ./tools/tenant admin` the only code that calls it. The `admin isolation` check holds that.
-- `IsAdmin(id)` and `Marks()` read the file on disk each time, so a running server sees a change the command line made at once.
-- Every save takes the marks from the file first (`save` reads them, then `write` writes), so a server that read the file before a change never writes the old mark back.
-- `Tenants()` is still the list as it was read at start, and its `Admin` field may be old.
-- A backup's manifest carries `admin` false, and a restore keeps the install's own mark for that id, none for a new one.
+The first pass of P15-01 kept an admin mark on each tenant in `keystone.json`. Since the owner answered A1, an admin is a separate account in `data/admin/admin.db` ([admin.md](admin.md), decision [0650](decisions/0650-an-admin-is-a-separate-account-in-its-own-database.md)), and the mark is gone: `Tenant` has no `Admin` field, and `SetAdmin`, `IsAdmin` and `Marks` are removed. A `keystone.json` that still holds `"admin"` on a tenant loads, and the next save drops it (decision [0653](decisions/0653-the-mark-and-the-step-up-are-taken-back-by-a-forward-migration.md)). `Install.Dir()` returns the data folder, where the admin database lives beside `tenants/`.
 
 ## The command
 
-`go run ./tools/tenant add "Name"` adds a tenant and prints its id. `go run ./tools/tenant list` lists them, with the admin mark since P15-01. `go run ./tools/tenant admin <tenant-id> on|off [--yes]` gives or takes the mark. See [tools.md](tools.md).
+`go run ./tools/tenant add "Name"` adds a tenant and prints its id. `go run ./tools/tenant list` lists them. Admin accounts are made with `go run ./tools/admin`. See [tools.md](tools.md).

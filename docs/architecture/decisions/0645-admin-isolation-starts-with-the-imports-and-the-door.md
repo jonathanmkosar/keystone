@@ -2,6 +2,8 @@
 
 November 27, 2026 · decided in P15-01
 
+**Changed** on November 27, 2026 by decision [0655](0655-admin-isolation-holds-the-separate-account.md), for the separate admin account.
+
 ## The question
 
 The spec asks for a standing check, `admin isolation`, in two parts: that `internal/adminview` imports none of the packages that hold a person's content, and a drill of marker words (P15-05). What does the first part hold, and what else is cheap to hold while it is there?

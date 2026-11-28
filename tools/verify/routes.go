@@ -39,6 +39,10 @@ var doorRoutes = map[string]string{
 	// sign-in. Each finds its one tenant from the link's token alone.
 	"GET /api/v1/shared/{token}":                "a share link shows its one chat, read-only, to someone who has not signed in",
 	"GET /api/v1/shared/{token}/images/{image}": "an image of a message a share link shows, when its person lets images show",
+	// The admin account (P15-01): its sign-in, which opens no tenant. Each
+	// is also listed in adminisolation.go.
+	"POST /api/v1/admin/session":         "signing in to an admin account is how its session begins",
+	"POST /api/v1/admin/session/passkey": "the passkey prompt an admin signs in with",
 }
 
 // Invented passwords, used in throwaway folders only.

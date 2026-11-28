@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,9 +11,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
+	"regexp"
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/adminapi"
 	"github.com/jonathanmkosar/keystone/internal/adminview"
 	"github.com/jonathanmkosar/keystone/internal/api"
@@ -22,30 +27,33 @@ import (
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 )
 
-// The admin mark and step-up (P15-01): the admin view and the admin routes.
+// The admin account (P15-01): the admin database, the admin view, the
+// admin's routes and the command that makes the accounts.
 func init() {
 	componentDocs["internal/adminview"] = "docs/architecture/admin.md"
 	componentDocs["internal/adminapi"] = "docs/architecture/admin.md"
+	componentDocs["internal/adminaccount"] = "docs/architecture/admin.md"
+	componentDocs["tools/admin"] = "docs/architecture/admin.md"
 	networkAllowed["internal/adminapi"] = "the admin routes' handlers, served by the server; it opens no connection"
 }
 
-// stepUpRoutes is every admin route that needs the admin mark and not a
-// fresh step-up, and why. A route marked StepUp in the code and not listed
-// here fails the admin isolation check, so the admin door cannot be widened
-// in one place only (decision 0642).
-var stepUpRoutes = map[string]string{
-	"POST /api/v1/admin/step-up":         "proving the password again is how the step-up begins",
-	"POST /api/v1/admin/step-up/passkey": "the passkey prompt the step-up is answered with",
+// adminDoorRoutes is every admin route served before an admin has signed
+// in, and why. Each is also a door route in routes.go. A route marked Admin
+// and Door in the code and not listed here fails the admin isolation check
+// (decision 0655).
+var adminDoorRoutes = map[string]string{
+	"POST /api/v1/admin/session":         "signing in to an admin account is how its session begins",
+	"POST /api/v1/admin/session/passkey": "the passkey prompt an admin signs in with",
 }
 
 const keystoneModule = "github.com/jonathanmkosar/keystone/"
 
 // adminMayNotReach are the packages that hold a person's content: chats,
-// titles, messages, files, memory, traces and error words. The admin view
-// and the admin routes reach none of them, directly or through another
-// (decision 0645). The first eleven are the spec's list; the rest hold a
-// person's words too. A path ending in "/" stands for a folder and all
-// below it.
+// titles, messages, files, artifacts, memory, traces and error words. The
+// admin view, the admin routes and the admin database reach none of them,
+// directly or through another (decisions 0645 and 0655). The first eleven
+// are the spec's list; the rest hold a person's words too. A path ending in
+// "/" stands for a folder and all below it.
 var adminMayNotReach = []string{
 	"internal/chat",
 	"internal/turn",
@@ -78,6 +86,14 @@ var adminMayNotReach = []string{
 	"internal/tools/",
 }
 
+// adminPackages are the packages the import rules hold.
+var adminPackages = []string{"internal/adminview", "internal/adminapi", "internal/adminaccount"}
+
+// adminRouteWords are path parts no admin route may have: an admin account
+// has no chat, file or model route (the spec's proof).
+var adminRouteWords = []string{"chats", "messages", "turns", "files", "uploads", "artifacts", "models", "memory", "projects",
+	"share", "shared", "inspector", "recap", "research", "subagents", "visuals", "browser", "connectors"}
+
 // forbidden reports whether an import path is one adminMayNotReach names.
 func forbidden(path string) bool {
 	rel, ok := strings.CutPrefix(path, keystoneModule)
@@ -97,16 +113,20 @@ func forbidden(path string) bool {
 }
 
 // checkAdminIsolation is the standing check "admin isolation" (P15-01). An
-// admin never reads another person's chats, titles, files, memory, traces
-// or error words, and the shape of the code is what holds it: the admin
-// view and the admin routes cannot reach the packages that keep them, the
-// routes are not given the install, only the command line can set the
-// mark, and the door refuses every admin route to a person without the mark
-// and to an admin without a fresh step-up. P15-05 adds the drill: marker
-// words in a second person's content, looked for in every admin reply.
+// admin is a separate account that sees numbers and settings, never a
+// person's data or logs. The shape of the code holds it: the admin side
+// cannot reach the packages that keep a person's content or read a
+// person's log, the admin routes are not given the install, accounts are
+// made from the command line alone, the person's registry has no admin
+// mark, and no admin route is a chat, file or model route. The door holds
+// the rest, walked with the real handler: a person's token is refused on
+// every admin route and an admin's on every person's route, and every admin
+// call is in the admin audit log, and in each person's log it read.
+// P15-05 adds the drill: marker words in a second person's content, looked
+// for in every admin reply and in the server's log.
 func checkAdminIsolation(root string) error {
 	var problems []string
-	for _, p := range []func(string) ([]string, error){adminImports, adminWriters, adminDoorWalk} {
+	for _, p := range []func(string) ([]string, error){adminImports, adminNoLogReads, adminWriters, adminNoMark, adminDoorWalk} {
 		got, err := p(root)
 		if err != nil {
 			return fmt.Errorf("the admin isolation check could not run: %w", err)
@@ -119,11 +139,11 @@ func checkAdminIsolation(root string) error {
 	return nil
 }
 
-// adminImports holds the imports: adminview and adminapi reach no package
-// that holds content, and adminapi does not import the tenant registry.
+// adminImports holds the imports: the admin packages reach no package that
+// holds content, and adminapi does not import the tenant registry.
 func adminImports(root string) ([]string, error) {
 	var problems []string
-	for _, pkg := range []string{"internal/adminview", "internal/adminapi"} {
+	for _, pkg := range adminPackages {
 		out, err := project.Run(root, "go", "list", "-deps", "-f", "{{.ImportPath}} {{join .Imports \" \"}}", "./"+pkg)
 		if err != nil {
 			return nil, fmt.Errorf("go list %s: %v\n%s", pkg, err, out)
@@ -133,6 +153,9 @@ func adminImports(root string) ([]string, error) {
 			if fields := strings.Fields(line); len(fields) > 0 {
 				imports[fields[0]] = fields[1:]
 			}
+		}
+		if _, ok := imports[keystoneModule+pkg]; !ok {
+			return nil, fmt.Errorf("go list %s did not list the package itself", pkg)
 		}
 		var reached []string
 		for path := range imports {
@@ -182,11 +205,10 @@ func chain(imports map[string][]string, from, to string) string {
 	return strings.TrimPrefix(to, keystoneModule)
 }
 
-// adminWriters holds the one writer of the mark: no Go file outside
-// internal/tenant and tools/tenant calls SetAdmin, tests left out.
-func adminWriters(root string) ([]string, error) {
-	var problems []string
-	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
+// goFiles calls f with every Go file under root that is not a test, by its
+// path from root with forward slashes, and its text.
+func goFiles(root string, f func(rel, text string)) error {
+	return filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -200,27 +222,174 @@ func adminWriters(root string) ([]string, error) {
 			return nil
 		}
 		rel, _ := filepath.Rel(root, p)
-		rel = filepath.ToSlash(rel)
-		if strings.HasPrefix(rel, "internal/tenant/") || strings.HasPrefix(rel, "tools/tenant/") || rel == "tools/verify/adminisolation.go" {
-			return nil
-		}
 		raw, err := os.ReadFile(p)
 		if err != nil {
 			return err
 		}
-		if strings.Contains(string(raw), ".SetAdmin(") {
-			problems = append(problems, rel+" calls SetAdmin: only the command line (tools/tenant) gives or takes the admin mark (decision 0640)")
-		}
+		f(filepath.ToSlash(rel), string(raw))
 		return nil
 	})
+}
+
+// adminNoLogReads holds that the admin cannot read a person's log: the
+// admin view and the admin routes never list a tenant's audit log.
+func adminNoLogReads(root string) ([]string, error) {
+	var problems []string
+	err := goFiles(root, func(rel, text string) {
+		if !strings.HasPrefix(rel, "internal/adminview/") && !strings.HasPrefix(rel, "internal/adminapi/") {
+			return
+		}
+		for _, call := range []string{"audit.List(", "audit.ListByAdmin("} {
+			if strings.Contains(text, call) {
+				problems = append(problems, rel+" calls "+strings.TrimSuffix(call, "(")+": an admin never reads a person's audit log (decision 0655)")
+			}
+		}
+	})
 	return problems, err
+}
+
+// adminWriters holds that accounts are made and removed from the command
+// line alone: no Go file outside internal/adminaccount and tools/admin
+// calls AddAccount or RemoveAccount, tests and this check left out.
+func adminWriters(root string) ([]string, error) {
+	var problems []string
+	err := goFiles(root, func(rel, text string) {
+		if strings.HasPrefix(rel, "internal/adminaccount/") || strings.HasPrefix(rel, "tools/admin/") || rel == "tools/verify/adminisolation.go" {
+			return
+		}
+		for _, call := range []string{".AddAccount(", ".RemoveAccount("} {
+			if strings.Contains(text, call) {
+				problems = append(problems, rel+" calls "+strings.Trim(call, ".(")+": only the command line (tools/admin) makes or removes an admin account (decision 0650)")
+			}
+		}
+	})
+	return problems, err
+}
+
+// adminNoMark holds that the person's registry has no admin mark: the first
+// pass's mark on tenant.Tenant is gone, and does not come back (decision
+// 0653).
+func adminNoMark(string) ([]string, error) {
+	var problems []string
+	t := reflect.TypeOf(tenant.Tenant{})
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		name, _, _ := strings.Cut(f.Tag.Get("json"), ",")
+		if strings.Contains(strings.ToLower(f.Name), "admin") || strings.Contains(strings.ToLower(name), "admin") {
+			problems = append(problems, "tenant.Tenant has the field "+f.Name+": an admin is a separate account, and a person carries no admin mark (decision 0653)")
+		}
+	}
+	return problems, nil
 }
 
 // Invented passwords, used in a throwaway folder only.
 const (
 	adminWalkPassword  = "walk admin's own phrase"
 	personWalkPassword = "walk person's own phrase"
+	otherWalkPassword  = "walk other person's phrase"
 )
+
+var adminTokenShape = regexp.MustCompile(`ksa_[a-f0-9]{64}`)
+
+// adminWalk is the walk's state: the handler, the people, the admin.
+type adminWalk struct {
+	w        *walker
+	dir      string
+	in       *tenant.Install
+	one, two string // the two people's tenant ids
+	account  string // the admin account's id
+	bodies   bytes.Buffer
+	problems []string
+}
+
+func (a *adminWalk) fail(format string, args ...any) {
+	a.problems = append(a.problems, fmt.Sprintf(format, args...))
+}
+
+// call makes one call with either cookie, or both, and keeps the body to
+// look for tokens in later.
+func (a *adminWalk) call(method, path, personCookie, adminCookie, body string) *httptest.ResponseRecorder {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	r := httptest.NewRequest(method, path, strings.NewReader(body))
+	r.Header.Set("Content-Type", "application/json")
+	if personCookie != "" {
+		r.AddCookie(&http.Cookie{Name: api.CookieName, Value: personCookie})
+	}
+	if adminCookie != "" {
+		r.AddCookie(&http.Cookie{Name: api.AdminCookieName, Value: adminCookie})
+	}
+	rec := httptest.NewRecorder()
+	a.w.h.ServeHTTP(rec, r.WithContext(ctx))
+	a.bodies.Write(rec.Body.Bytes())
+	return rec
+}
+
+// adminSignIn signs the admin in at its door and returns the token from the
+// admin cookie, checking the cookie on the way.
+func (a *adminWalk) adminSignIn(account, password string) (string, *httptest.ResponseRecorder) {
+	body, _ := json.Marshal(adminapi.SignInBody{Account: account, Password: password})
+	rec := a.call("POST", api.AdminPrefix+"session", "", "", string(body))
+	for _, c := range rec.Result().Cookies() {
+		if c.Name == api.AdminCookieName && rec.Code == http.StatusOK {
+			if c.Path != api.AdminPrefix || !c.HttpOnly || c.SameSite != http.SameSiteStrictMode {
+				a.fail("the admin cookie is sent beyond the admin routes, or can be read by the page, or crosses sites: %+v", c)
+			}
+			if !adminTokenShape.MatchString(c.Value) || len(c.Value) != len("ksa_")+64 {
+				a.fail("the admin's session token is not ksa_ and 32 random bytes as hex")
+			}
+			return c.Value, rec
+		}
+	}
+	return "", rec
+}
+
+func (a *adminWalk) adminLog(requestID string) ([]audit.Entry, error) {
+	db, err := adminaccount.Open(a.dir)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+	return db.Log(context.Background(), audit.Filter{RequestID: requestID})
+}
+
+func (a *adminWalk) adminLogLen() (int, error) {
+	got, err := a.adminLog("")
+	return len(got), err
+}
+
+func (a *adminWalk) personLog(id, requestID string) ([]audit.Entry, error) {
+	s, err := a.in.Store(id)
+	if err != nil {
+		return nil, err
+	}
+	defer s.Close()
+	return audit.List(context.Background(), s, audit.Filter{RequestID: requestID})
+}
+
+// logLens returns how many entries each person's log and the admin log hold.
+func (a *adminWalk) logLens() ([3]int, error) {
+	var n [3]int
+	for i, id := range []string{a.one, a.two} {
+		got, err := a.personLog(id, "")
+		if err != nil {
+			return n, err
+		}
+		n[i] = len(got)
+	}
+	var err error
+	n[2], err = a.adminLogLen()
+	return n, err
+}
+
+func errorCode(rec *httptest.ResponseRecorder) string {
+	var e api.ErrorBody
+	json.Unmarshal(rec.Body.Bytes(), &e)
+	return e.Code
+}
+
+// pathOf gives a route's path with something in each {name}.
+func pathOf(rt api.Route) string { return routePart.ReplaceAllString(rt.Path, "x") }
 
 // adminDoorWalk walks the door with the real handler on a throwaway folder.
 func adminDoorWalk(string) ([]string, error) {
@@ -237,198 +406,310 @@ func adminDoorWalk(string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	made := map[string]string{}
-	for name, password := range map[string]string{"Walk Admin": adminWalkPassword, "Walk Person": personWalkPassword} {
-		t, err := in.Create(name)
+	a := &adminWalk{dir: dir, in: in}
+	for _, p := range []struct {
+		id       *string
+		name, pw string
+	}{{&a.one, "Walk Person One", personWalkPassword}, {&a.two, "Walk Person Two", otherWalkPassword}} {
+		t, err := in.Create(p.name)
 		if err != nil {
 			return nil, err
 		}
-		made[name] = t.ID
+		*p.id = t.ID
 		s, err := in.Store(t.ID)
 		if err != nil {
 			return nil, err
 		}
-		err = signin.SetPassword(s, password, o)
+		err = signin.SetPassword(s, p.pw, o)
 		s.Close()
 		if err != nil {
 			return nil, err
 		}
 	}
-	admin, person := made["Walk Admin"], made["Walk Person"]
-	if _, err := in.SetAdmin(admin, true); err != nil {
-		return nil, err
-	}
-	w, err := newWalker(in)
+	// The admin account, made as the command line makes it.
+	db, err := adminaccount.Open(dir)
 	if err != nil {
 		return nil, err
 	}
-	var problems []string
+	acc, err := db.AddAccount("Walk Admin")
+	if err == nil {
+		err = db.SetPassword(acc.ID, adminWalkPassword, o)
+	}
+	db.Close()
+	if err != nil {
+		return nil, err
+	}
+	a.account = acc.ID
+	if a.w, err = newWalker(in); err != nil {
+		return nil, err
+	}
 
-	// The step-up routes in the code are the listed ones, and every admin
-	// route is under the prefix.
-	var adminRoutes []api.Route
-	listed := map[string]bool{}
-	for _, rt := range w.routes {
-		if !rt.Admin {
-			continue
+	// The routes: the admin's doors are the listed ones, and no admin route
+	// is a chat, file or model route.
+	var adminRoutes, personRoutes []api.Route
+	doors := map[string]bool{}
+	for _, rt := range a.w.routes {
+		switch {
+		case rt.Admin && rt.Door:
+			doors[routeName(rt)] = true
+			if _, ok := adminDoorRoutes[routeName(rt)]; !ok {
+				a.fail("%s is an admin route served before sign-in and is not on the list in tools/verify/adminisolation.go", routeName(rt))
+			}
+		case rt.Admin:
+			adminRoutes = append(adminRoutes, rt)
+		case !rt.Door:
+			personRoutes = append(personRoutes, rt)
 		}
-		adminRoutes = append(adminRoutes, rt)
-		if rt.StepUp {
-			listed[routeName(rt)] = true
-			if _, ok := stepUpRoutes[routeName(rt)]; !ok {
-				problems = append(problems, routeName(rt)+" opens without a fresh step-up and is not on the list in tools/verify/adminisolation.go")
+		if rt.Admin {
+			for _, part := range strings.Split(strings.TrimPrefix(rt.Path, api.AdminPrefix), "/") {
+				for _, word := range adminRouteWords {
+					if part == word {
+						a.fail("%s is an admin route to %s: an admin account has no chat, file or model route", routeName(rt), word)
+					}
+				}
 			}
 		}
 	}
-	for name := range stepUpRoutes {
-		if !listed[name] {
-			return nil, fmt.Errorf("%s is listed as a step-up route in tools/verify/adminisolation.go and is not one: take it off the list", name)
+	for name := range adminDoorRoutes {
+		if !doors[name] {
+			return nil, fmt.Errorf("%s is listed as an admin door in tools/verify/adminisolation.go and is not one: take it off the list", name)
 		}
 	}
-	if len(adminRoutes) == 0 {
-		return nil, errors.New("the API has no admin route, so the walk proved nothing")
+	if len(adminRoutes) == 0 || len(personRoutes) == 0 {
+		return nil, errors.New("the API has no admin route or no person's route, so the walk proved nothing")
 	}
 
-	logLen := func(id string) (int, error) {
-		s, err := in.Store(id)
-		if err != nil {
-			return 0, err
-		}
-		defer s.Close()
-		got, err := audit.List(context.Background(), s, audit.Filter{})
-		return len(got), err
+	// Sign in: the person at their door, the admin at its own. Each door
+	// opens its own kind of account alone.
+	person, rec := a.w.signIn(a.one, personWalkPassword)
+	if person == "" {
+		return nil, fmt.Errorf("the walk's person cannot sign in: status %d", rec.Code)
 	}
-	entriesOf := func(id, requestID string) ([]audit.Entry, error) {
-		s, err := in.Store(id)
+	if token, rec := a.w.signIn(a.account, adminWalkPassword); token != "" || rec.Code != http.StatusUnauthorized {
+		a.fail("an admin account signed in at a person's door (status %d)", rec.Code)
+	}
+	if token, rec := a.adminSignIn(a.one, personWalkPassword); token != "" || rec.Code != http.StatusUnauthorized {
+		a.fail("a person signed in at the admin's door (status %d)", rec.Code)
+	}
+	token, rec := a.adminSignIn(a.account, "not the admin's phrase at all")
+	if token != "" || rec.Code != http.StatusUnauthorized || errorCode(rec) != "refused" {
+		a.fail("a wrong admin password answered %d %s", rec.Code, errorCode(rec))
+	}
+	if got, err := a.adminLog(rec.Header().Get("X-Request-Id")); err != nil {
+		return nil, err
+	} else if len(got) != 1 || got[0].Outcome != audit.OutcomeRefused || got[0].Actor != adminaccount.ActorPrefix+a.account {
+		a.fail("a refused admin sign-in is not in the admin log as refused")
+	}
+	admin, rec := a.adminSignIn("Walk Admin", adminWalkPassword)
+	if admin == "" {
+		return nil, fmt.Errorf("the walk's admin cannot sign in: status %d", rec.Code)
+	}
+	if bytes.Contains(rec.Body.Bytes(), []byte(admin)) {
+		a.fail("the admin's sign-in answer holds the session token in its body")
+	}
+	// A call of the person's own, to look for in the admin's replies later.
+	own := a.call("GET", api.Prefix+"session", person, "", "").Header().Get("X-Request-Id")
+
+	// 1. A person's token on every admin route, and on an admin path that
+	// is no route: refused, in their own log alone.
+	adminPaths := []struct{ method, path, name string }{{"GET", api.AdminPrefix + "no/such/route", "an admin path that is no route"}}
+	for _, rt := range adminRoutes {
+		adminPaths = append(adminPaths, struct{ method, path, name string }{rt.Method, pathOf(rt), routeName(rt)})
+	}
+	for _, p := range adminPaths {
+		before, err := a.logLens()
 		if err != nil {
 			return nil, err
 		}
-		defer s.Close()
-		return audit.List(context.Background(), s, audit.Filter{RequestID: requestID})
-	}
-	codeOf := func(rec *httptest.ResponseRecorder) string {
-		var e api.ErrorBody
-		json.Unmarshal(rec.Body.Bytes(), &e)
-		return e.Code
-	}
-	// refusedEverywhere calls every admin route, and a path under the prefix
-	// that is no route, and wants each refused with status and code, in the
-	// caller's own log as actor and in the other's not at all.
-	type walkCase struct {
-		what, token, caller, other, actor, code string
-		status                                  int
-		skipStepUp                              bool
-	}
-	refusedEverywhere := func(c walkCase) error {
-		paths := []struct{ method, path, name string }{{"GET", api.AdminPrefix + "no/such/route", "a path under the prefix that is no route"}}
-		for _, rt := range adminRoutes {
-			if c.skipStepUp && rt.StepUp {
-				continue
-			}
-			paths = append(paths, struct{ method, path, name string }{rt.Method, routePart.ReplaceAllString(rt.Path, "x"), routeName(rt)})
+		rec := a.call(p.method, p.path, person, "", "{}")
+		if rec.Code != http.StatusForbidden || errorCode(rec) != "not_admin" {
+			a.fail("%s answered a person's session with %d %s, want 403 not_admin", p.name, rec.Code, errorCode(rec))
 		}
-		for _, p := range paths {
-			otherBefore, err := logLen(c.other)
-			if err != nil {
-				return err
-			}
-			rec := w.request(p.method, p.path, c.token, `{"password":"`+adminWalkPassword+`"}`, nil)
-			if rec.Code != c.status || codeOf(rec) != c.code {
-				problems = append(problems, fmt.Sprintf("%s answered %s with %d %s, want %d %s", p.name, c.what, rec.Code, codeOf(rec), c.status, c.code))
-			}
-			got, err := entriesOf(c.caller, rec.Header().Get("X-Request-Id"))
-			if err != nil {
-				return err
-			}
-			if len(got) != 2 || got[0].Actor != c.actor || got[1].Status != rec.Code {
-				problems = append(problems, fmt.Sprintf("%s, refused to %s, is in the caller's log as %d entries (want 2, actor %s)", p.name, c.what, len(got), c.actor))
-			}
-			if n, err := logLen(c.other); err != nil {
-				return err
-			} else if n != otherBefore {
-				problems = append(problems, fmt.Sprintf("%s, refused to %s, wrote in the other person's log", p.name, c.what))
-			}
+		got, err := a.personLog(a.one, rec.Header().Get("X-Request-Id"))
+		if err != nil {
+			return nil, err
 		}
-		return nil
+		if len(got) != 2 || got[0].Actor != api.ActorPerson || got[1].Status != rec.Code {
+			a.fail("%s, refused to a person, is in their log as %d entries (want 2, actor person)", p.name, len(got))
+		}
+		// In the admin cookie it is no admin's token: refused, unwritten.
+		rec = a.call(p.method, p.path, "", person, "{}")
+		if rec.Code != http.StatusUnauthorized {
+			a.fail("%s answered a person's token in the admin cookie with %d, want 401", p.name, rec.Code)
+		}
+		after, err := a.logLens()
+		if err != nil {
+			return nil, err
+		}
+		if after[0] != before[0]+2 || after[1] != before[1] || after[2] != before[2] {
+			a.fail("%s, called with a person's token, wrote to a log other than theirs (%v before, %v after)", p.name, before, after)
+		}
 	}
 
-	personToken, rec := w.signIn(person, personWalkPassword)
-	if personToken == "" {
-		return nil, fmt.Errorf("the walk's person cannot sign in: status %d", rec.Code)
+	// 2. The admin's token on every person's route, and on a path that is
+	// no route, in either cookie: refused, in the admin log alone.
+	personPaths := []struct{ method, path, name string }{{"GET", api.Prefix + "no/such/route", "a path that is no route"}}
+	for _, rt := range personRoutes {
+		personPaths = append(personPaths, struct{ method, path, name string }{rt.Method, pathOf(rt), routeName(rt)})
 	}
-	adminToken, rec := w.signIn(admin, adminWalkPassword)
-	if adminToken == "" {
-		return nil, fmt.Errorf("the walk's admin cannot sign in: status %d", rec.Code)
+	for _, p := range personPaths {
+		for where, cookies := range map[string][2]string{"the person's cookie": {admin, ""}, "the admin cookie": {"", admin}} {
+			before, err := a.logLens()
+			if err != nil {
+				return nil, err
+			}
+			rec := a.call(p.method, p.path, cookies[0], cookies[1], "{}")
+			if rec.Code != http.StatusForbidden || errorCode(rec) != "admin_account" {
+				a.fail("%s answered the admin's token in %s with %d %s, want 403 admin_account", p.name, where, rec.Code, errorCode(rec))
+			}
+			got, err := a.adminLog(rec.Header().Get("X-Request-Id"))
+			if err != nil {
+				return nil, err
+			}
+			if len(got) != 2 || got[0].Actor != adminaccount.ActorPrefix+a.account || got[1].Outcome != audit.OutcomeRefused {
+				a.fail("%s, refused to the admin, is in the admin log as %d entries (want 2, refused)", p.name, len(got))
+			}
+			after, err := a.logLens()
+			if err != nil {
+				return nil, err
+			}
+			if after[0] != before[0] || after[1] != before[1] {
+				a.fail("%s, called with the admin's token, wrote in a person's log", p.name)
+			}
+		}
 	}
 
-	// 1. A person without the mark, on every admin route, the step-up's too.
-	if err := refusedEverywhere(walkCase{what: "a person without the mark", token: personToken, caller: person, other: admin,
-		actor: api.ActorPerson, code: "not_admin", status: http.StatusForbidden}); err != nil {
-		return nil, err
+	// 3. The admin on every admin route: never refused for who it is, every
+	// call in the admin log, and any entry it left in a person's log the
+	// admin's own, before and after.
+	var signOut api.Route
+	for _, rt := range adminRoutes {
+		if routeName(rt) == "DELETE "+api.AdminPrefix+"session" {
+			signOut = rt
+			continue
+		}
+		rec := a.call(rt.Method, pathOf(rt), "", admin, "{}")
+		if rec.Code == http.StatusUnauthorized || rec.Code == http.StatusForbidden {
+			a.fail("%s refused the admin's own session: %d %s", routeName(rt), rec.Code, errorCode(rec))
+		}
+		if err := a.wantBothLogs(routeName(rt), rt.Method+" "+pathOf(rt), rec); err != nil {
+			return nil, err
+		}
 	}
-	// 2. An admin without a step-up, on every admin route but the step-up's.
-	if err := refusedEverywhere(walkCase{what: "an admin without a step-up", token: adminToken, caller: admin, other: person,
-		actor: api.ActorAdmin, code: "step_up", status: http.StatusUnauthorized, skipStepUp: true}); err != nil {
-		return nil, err
+	if signOut.Path == "" {
+		a.fail("there is no route that signs an admin out")
 	}
-	// 3. A wrong password at the step-up is refused, and recorded.
-	rec = w.request("POST", api.AdminPrefix+"step-up", adminToken, `{"password":"`+personWalkPassword+`"}`, nil)
-	if rec.Code != http.StatusForbidden || codeOf(rec) != "refused" {
-		problems = append(problems, fmt.Sprintf("a step-up with the other person's password answered %d %s", rec.Code, codeOf(rec)))
-	}
-	if got, err := entriesOf(admin, rec.Header().Get("X-Request-Id")); err != nil {
-		return nil, err
-	} else if len(got) != 2 || got[1].Outcome != audit.OutcomeRefused {
-		problems = append(problems, "a refused step-up is not in the admin's log as refused")
-	}
-	// 4. A good step-up opens the people route, which is in both logs.
-	rec = w.request("POST", api.AdminPrefix+"step-up", adminToken, `{"password":"`+adminWalkPassword+`"}`, nil)
-	if rec.Code != http.StatusOK {
-		return nil, fmt.Errorf("the walk's admin cannot step up: status %d %s", rec.Code, codeOf(rec))
-	}
-	rec = w.request("GET", api.AdminPrefix+"people", adminToken, "", nil)
+
+	// 4. People: in the admin log and in each person's, and the person sees
+	// it in their own Settings.
+	rec = a.call("GET", api.AdminPrefix+"people", "", admin, "")
 	var people adminapi.PeopleReply
 	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &people) != nil || len(people.People) != 2 {
-		problems = append(problems, fmt.Sprintf("after a step-up the people route answered %d", rec.Code))
+		a.fail("the people route answered the admin %d", rec.Code)
 	}
+	read := rec.Header().Get("X-Request-Id")
+	for _, id := range []string{a.one, a.two} {
+		got, err := a.personLog(id, read)
+		if err != nil {
+			return nil, err
+		}
+		if len(got) != 2 || got[0].Actor != adminview.ActorPrefix+a.account || got[1].Outcome != audit.OutcomeOK || !strings.Contains(got[0].Sent, `"by":"Walk Admin"`) {
+			a.fail("the admin's read of people is in a person's log as %d entries, want 2 with the actor %s and the admin's name", len(got), adminview.ActorPrefix+a.account)
+		}
+	}
+	seen := a.call("GET", api.Prefix+"audit/admin", person, "", "")
+	var mine api.AuditReply
+	found := 0
+	if json.Unmarshal(seen.Body.Bytes(), &mine) == nil {
+		for _, e := range mine.Entries {
+			if e.RequestID == read {
+				found++
+			}
+		}
+	}
+	if seen.Code != http.StatusOK || found != 2 {
+		a.fail("the person does not see the admin's read in their own Settings: %d, %d entries", seen.Code, found)
+	}
+	// The admin read nothing of the person's own log: their own call is in
+	// no admin reply.
+	if own == "" || bytes.Contains(a.bodies.Bytes(), []byte(own)) {
+		a.fail("an admin route's reply holds the request id of a person's own call: the admin read their log")
+	}
+
+	// 5. Signed out, and then removed from the command line: every admin
+	// route refused at once.
+	rec = a.call("DELETE", api.AdminPrefix+"session", "", admin, "")
+	if rec.Code != http.StatusOK {
+		return nil, fmt.Errorf("the walk's admin cannot sign out: status %d", rec.Code)
+	}
+	if err := a.wantBothLogs(routeName(signOut), "DELETE "+api.AdminPrefix+"session", rec); err != nil {
+		return nil, err
+	}
+	a.refusedEverywhere(adminPaths, admin, "a signed-out admin session")
+	again, _ := a.adminSignIn(a.account, adminWalkPassword)
+	if again == "" {
+		return nil, errors.New("the walk's admin cannot sign in again")
+	}
+	command, err := adminaccount.Open(dir)
+	if err != nil {
+		return nil, err
+	}
+	err = command.RemoveAccount(a.account)
+	command.Close()
+	if err != nil {
+		return nil, err
+	}
+	a.refusedEverywhere(adminPaths, again, "a session of an account removed from the command line")
+
+	// 6. No admin token anywhere but its cookie: no reply body and no line
+	// of the server's log holds one.
+	if adminTokenShape.Match(a.bodies.Bytes()) {
+		a.fail("an admin session token is in a reply's body")
+	}
+	if adminTokenShape.Match(a.w.log.Bytes()) {
+		a.fail("an admin session token is in the server's log")
+	}
+	return a.problems, nil
+}
+
+// wantBothLogs holds one admin call: two entries in the admin log, the
+// admin's, before and after; and in each person's log nothing, or the
+// admin's own pair for the same route.
+func (a *adminWalk) wantBothLogs(name, action string, rec *httptest.ResponseRecorder) error {
 	id := rec.Header().Get("X-Request-Id")
-	mine, err := entriesOf(admin, id)
+	got, err := a.adminLog(id)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	theirs, err := entriesOf(person, id)
+	if len(got) != 2 || got[0].Actor != adminaccount.ActorPrefix+a.account || got[0].Outcome != audit.OutcomeStarted || got[1].Status != rec.Code || got[0].Action != action {
+		a.fail("%s, called by the admin, is in the admin log as %d entries (want 2: started, then status %d)", name, len(got), rec.Code)
+	}
+	for _, p := range []string{a.one, a.two} {
+		theirs, err := a.personLog(p, id)
+		if err != nil {
+			return err
+		}
+		if len(theirs) != 0 && (len(theirs) != 2 || theirs[0].Actor != adminview.ActorPrefix+a.account || theirs[0].Outcome != audit.OutcomeStarted || theirs[0].Action != action) {
+			a.fail("%s, called by the admin, left %d entries in a person's log that are not the admin's pair", name, len(theirs))
+		}
+	}
+	return nil
+}
+
+// refusedEverywhere wants every admin path refused to token with 401 and
+// written in no log.
+func (a *adminWalk) refusedEverywhere(paths []struct{ method, path, name string }, token, what string) {
+	before, err := a.logLens()
 	if err != nil {
-		return nil, err
+		a.fail("the logs could not be read: %v", err)
+		return
 	}
-	if len(mine) != 2 || mine[0].Actor != api.ActorAdmin {
-		problems = append(problems, fmt.Sprintf("the admin's read of people is in the admin's log as %d entries", len(mine)))
+	for _, p := range paths {
+		if rec := a.call(p.method, p.path, "", token, "{}"); rec.Code != http.StatusUnauthorized {
+			a.fail("%s answered %s with %d, want 401", p.name, what, rec.Code)
+		}
 	}
-	if len(theirs) != 2 || theirs[0].Actor != adminview.ActorPrefix+admin || theirs[1].Outcome != audit.OutcomeOK {
-		problems = append(problems, fmt.Sprintf("the admin's read of people is in the other person's log as %d entries, want 2 with the actor %s", len(theirs), adminview.ActorPrefix+admin))
+	if after, err := a.logLens(); err != nil || after != before {
+		a.fail("calls with %s wrote to a log (%v before, %v after)", what, before, after)
 	}
-	// 5. Closed, the step-up opens nothing again.
-	if rec := w.request("DELETE", api.AdminPrefix+"step-up", adminToken, "", nil); rec.Code != http.StatusOK {
-		return nil, fmt.Errorf("the walk's admin cannot close the admin area: status %d", rec.Code)
-	}
-	if err := refusedEverywhere(walkCase{what: "an admin whose step-up was closed", token: adminToken, caller: admin, other: person,
-		actor: api.ActorAdmin, code: "step_up", status: http.StatusUnauthorized, skipStepUp: true}); err != nil {
-		return nil, err
-	}
-	// 6. The mark taken away by another process, as the command line does,
-	// after a fresh step-up: refused at once, with no restart.
-	if rec := w.request("POST", api.AdminPrefix+"step-up", adminToken, `{"password":"`+adminWalkPassword+`"}`, nil); rec.Code != http.StatusOK {
-		return nil, fmt.Errorf("the walk's admin cannot step up again: status %d", rec.Code)
-	}
-	command, err := tenant.Open(dir)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := command.SetAdmin(admin, false); err != nil {
-		return nil, err
-	}
-	if err := refusedEverywhere(walkCase{what: "a former admin with a fresh step-up", token: adminToken, caller: admin, other: person,
-		actor: api.ActorPerson, code: "not_admin", status: http.StatusForbidden}); err != nil {
-		return nil, err
-	}
-	return problems, nil
 }

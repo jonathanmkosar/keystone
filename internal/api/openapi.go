@@ -60,11 +60,11 @@ func Document(routes []Route, version string) ([]byte, error) {
 			op["security"] = []object{}
 			op["x-keystone-door"] = true
 		}
-		if rt.Admin {
+		if rt.Admin { // P15-01: an admin account's route, with the admin cookie
 			op["x-keystone-admin"] = true
-		}
-		if rt.StepUp {
-			op["x-keystone-step-up"] = true
+			if !rt.Door {
+				op["security"] = []object{{"admin": []string{}}}
+			}
 		}
 		item, _ := paths[rt.Path].(object)
 		if item == nil {
@@ -78,12 +78,12 @@ func Document(routes []Route, version string) ([]byte, error) {
 		"info": object{
 			"title":       "Keystone",
 			"version":     version,
-			"description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is behind the admin door: it answers 403 not_admin to a person without the admin mark, and 401 step_up to a session without a fresh step-up, unless it is also marked x-keystone-step-up. Every answer carries an X-Request-Id header.",
+			"description": "Every client of Keystone uses this API. A call carries its session in the keystone_session cookie, and the session alone says whose data the call reaches. A route marked x-keystone-door is served before sign-in. A route marked x-keystone-admin is an admin account's: it carries the admin session in the keystone_admin cookie, a person's session is refused there (403 not_admin), and an admin's session is refused on every other route (403 admin_account). Every answer carries an X-Request-Id header.",
 		},
 		"paths":    paths,
 		"security": []object{{"session": []string{}}},
 		"components": object{
-			"securitySchemes": object{"session": object{"type": "apiKey", "in": "cookie", "name": CookieName}},
+			"securitySchemes": object{"session": object{"type": "apiKey", "in": "cookie", "name": CookieName}, "admin": object{"type": "apiKey", "in": "cookie", "name": AdminCookieName}},
 			"schemas":         object{"Error": schemaOf(reflect.TypeOf(ErrorBody{}), 0)},
 		},
 	}

@@ -67,9 +67,12 @@ Since P10-04 there are four: the two share doors, `GET /api/v1/shared/{token}` a
 
 ## The admin door
 
-Since P15-01 (provisional on the owner's answer A1), a route under `/api/v1/admin/` (`api.AdminPrefix`) is marked `Admin`, and `api.Check` refuses a route whose mark and path disagree, a door that is an admin route and a `StepUp` route that is not one. Between `audit.Wrap` and the routes, the shell refuses every request to a path under the prefix, a route or not, with 403 `not_admin` when its person does not carry the admin mark, read from `keystone.json` for that call, and with 401 `step_up` when their session has no fresh step-up, unless the route is marked `StepUp`. Such a call is recorded with the actor `admin` when the person carries the mark, and `person` when not. A handler of an admin route gets `Call.Admin` true. The routes and the rest are in [admin.md](admin.md); decision [0642](decisions/0642-the-admin-door-is-a-mark-on-a-route-checked-by-the-shell.md) says why.
+Since P15-01 an admin is a separate account with its own database and its own session token, `ksa_` and 64 hex, carried in its own cookie, `keystone_admin`, path `/api/v1/admin/` (`api.AdminCookieName`, `api.SetAdminCookie`). A route under `/api/v1/admin/` (`api.AdminPrefix`) is marked `Admin`, and `api.Check` refuses a route whose mark and path disagree; an admin route may be a door (the admin's sign-in). After the doors, the shell tells the two kinds of token apart by their text, before anything is read, in `internal/api/admin.go`:
 
-`GET /api/v1/session` and the sign-in answer gain `admin` and `session.admin_until`.
+- A token of the admin form (from the admin cookie on an admin path; elsewhere from the person's cookie, or the admin cookie when the person's is empty) goes to the admin side: the session is checked in the admin database, the call is written in the admin audit log before and after with the actor `admin:<account id>`, and an admin route runs with `Call.Admin` (the admin database) and `Call.AdminSession`, and no `Call.Store`. A person's route is refused there, 403 `admin_account`.
+- Everything else stays on the person's side, inside `audit.Wrap`, which refuses every path under the prefix, 403 `not_admin`, recorded in the person's own log.
+
+`api.Options.Admin` carries `admin.session_for` and `admin.idle_for`; `Handler` refuses admin routes without them. The server's log line of an admin call ends `admin=<account id>`. The routes and the rest are in [admin.md](admin.md); decisions [0650](decisions/0650-an-admin-is-a-separate-account-in-its-own-database.md) and [0651](decisions/0651-the-door-tells-an-admins-token-from-a-persons-by-its-form.md) say why. `GET /api/v1/audit/admin` (`api.AdminEntriesRoute`) is a person's route: the entries admin accounts' calls left in their own log (decision [0654](decisions/0654-a-person-sees-the-admin-entries-of-their-own-log.md)).
 
 ## Errors
 
@@ -85,8 +88,8 @@ Every answer that is not a success has this body, `api.ErrorBody`:
 | `refused` | 401 | Sign-in was refused. It never says why. |
 | `wait` | 429 | Too many wrong passwords in a row. `Retry-After` says how long. |
 | `cross_origin` | 403 | A page on another site tried a write. |
-| `not_admin` | 403 | An admin route, and the person does not carry the admin mark (P15-01). |
-| `step_up` | 401 | An admin route, and the session has no fresh step-up. The session itself is still good (P15-01). |
+| `not_admin` | 403 | An admin account's route, called with a person's session (P15-01). |
+| `admin_account` | 403 | A person's route, called with an admin account's session (P15-01). |
 | `bad_request` | 400 | The body or a parameter is not what the route takes. |
 | `too_large` | 413 | The body is over `server.max_body_bytes`. |
 | `no_route` | 404 | There is no such route. Only a signed-in caller is told so. |

@@ -40,11 +40,6 @@ type Tenant struct {
 	ID      string    `json:"id"`
 	Name    string    `json:"name"`
 	Created time.Time `json:"created"`
-	// Admin is the admin mark (P15-01, decision 0640). Only SetAdmin
-	// changes it, and only the command line calls SetAdmin. In a list from
-	// Tenants it is as the server last read it, and may be old: code that
-	// decides anything by it calls IsAdmin or Marks, which read the file.
-	Admin bool `json:"admin"`
 }
 
 // Install is one data folder.
@@ -252,23 +247,7 @@ func openStore(folder, id string, vault *secrets.Vault) (*Store, error) {
 	return s, nil
 }
 
-// save writes the registry. The admin marks are taken from the file on disk
-// first (decision 0641): only SetAdmin changes a mark, from the command
-// line, and a server that read the file before that change must not write
-// the old mark back. A tenant the file does not list has no mark.
 func (in *Install) save() error {
-	marks, err := in.diskMarks()
-	if err != nil {
-		return err
-	}
-	for i := range in.tenants {
-		in.tenants[i].Admin = marks[in.tenants[i].ID]
-	}
-	return in.write()
-}
-
-// write writes the registry as it is in memory.
-func (in *Install) write() error {
 	out := map[string]json.RawMessage{}
 	for k, v := range in.other {
 		out[k] = v

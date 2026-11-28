@@ -2,6 +2,8 @@
 
 November 27, 2026 · decided in P15-01 · provisional on the owner's answer A1
 
+**Superseded** on November 27, 2026 by decision [0650](0650-an-admin-is-a-separate-account-in-its-own-database.md): an admin account has a short session of its own (decision [0652](0652-admin-sessions-last-admin-session-for-and-end-after-admin-idle-for.md)), and the step-up is removed (decision [0653](0653-the-mark-and-the-step-up-are-taken-back-by-a-forward-migration.md)). Kept for the record.
+
 ## The question
 
 The spec asks the admin area to ask for the password or a passkey again, and to stay open for `admin.step_up_for`. Where is that kept, how does it share the protection sign-in already has, and how does a wrong password answer?

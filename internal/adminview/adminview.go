@@ -1,19 +1,21 @@
-// Package adminview is the only code the admin routes use to read another
-// person (P15-01, decision 0644). It returns numbers and settings, and
-// nothing else: never a chat, a title, a message, a file, memory, a trace
-// or an error's words.
+// Package adminview is the only code the admin routes use to read a person
+// (P15-01, decision 0644). It returns numbers and settings, and nothing
+// else: never a chat, a title, a message, a file, an artifact, memory, a
+// trace, an error's words or an audit log entry.
 //
 // It holds the install, and the admin routes' package is given a *View and
-// never the install, so an admin route has no other way to another tenant.
-// The admin isolation check in verify holds its imports: it reaches none of
-// the packages that keep a person's content, directly or through another.
+// never the install, so an admin route has no other way to a tenant. The
+// admin isolation check in verify holds its imports: it reaches none of the
+// packages that keep a person's content, directly or through another, and
+// it never lists an audit log.
 //
-// Every read of another person is written in that person's own audit log
-// before it is made, with the actor admin:<the admin's tenant id>, the admin
-// call's request id and its route, and what is about to be read; and again
-// when it ends. If the first entry cannot be written, nothing of theirs is
-// read. The admin's own facts are read from their own store, whose log
-// already holds the call.
+// An admin is a separate account in data/admin/admin.db (decision 0650).
+// Every read asks that the account is there now. Every read or change of a
+// person is written in that person's own audit log before it is made, with
+// the actor admin:<the account's id>, the admin call's request id and its
+// route, the account's name and what is about to be read; and again when it
+// ends. If the first entry cannot be written, nothing of theirs is read.
+// The admin's own log has the call already: the API shell wrote it.
 package adminview
 
 import (
@@ -25,25 +27,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jonathanmkosar/keystone/internal/adminaccount"
 	"github.com/jonathanmkosar/keystone/internal/audit"
 	"github.com/jonathanmkosar/keystone/internal/signin"
 	"github.com/jonathanmkosar/keystone/internal/tenant"
 )
 
-// ActorPrefix starts the actor of the entries an admin's reads leave in
-// another person's audit log. The admin's tenant id follows it.
-const ActorPrefix = "admin:"
+// ActorPrefix starts the actor of the entries an admin's reads leave in a
+// person's audit log. The admin account's id follows it.
+const ActorPrefix = adminaccount.ActorPrefix
 
-// ErrNotAdmin is a read asked for by someone who does not carry the admin
-// mark now.
-var ErrNotAdmin = errors.New("adminview: only an admin may read another person")
+// ErrNotAdmin is a read asked for by something that is not an admin account
+// now.
+var ErrNotAdmin = errors.New("adminview: only an admin account may read a person")
 
-var (
-	idShape     = regexp.MustCompile(`^[a-f0-9]{16}$`)
-	actionShape = regexp.MustCompile(`^(GET|POST|PUT|PATCH|DELETE) /api/v1/admin/`)
-)
+var actionShape = regexp.MustCompile(`^(GET|POST|PUT|PATCH|DELETE) /api/v1/admin/`)
 
-// View reads other people for the admin routes.
+// View reads people for the admin routes.
 type View struct {
 	in *tenant.Install
 }
@@ -54,40 +54,49 @@ func New(in *tenant.Install) *View { return &View{in: in} }
 
 // Asker is the admin call a read is made for.
 type Asker struct {
-	// AdminID is the tenant id of the admin making the call.
+	// AdminID is the id of the admin account making the call.
 	AdminID string
-	// RequestID is the admin call's request id. The entries in the other
-	// person's log carry it, so the two logs can be read side by side.
+	// RequestID is the admin call's request id. The entries in the
+	// person's log carry it, as the admin audit log does, so the two can
+	// be read side by side.
 	RequestID string
-	// Action is the admin route's method and path, as the admin's own log
+	// Action is the admin route's method and path, as the admin audit log
 	// records it.
 	Action string
 }
 
-func (v *View) check(a Asker) error {
+// check refuses a read for anything but an admin account that is in the
+// admin database now, on an admin route, with a request id. It returns the
+// account.
+func (v *View) check(a Asker) (adminaccount.Account, error) {
 	switch {
 	case v == nil || v.in == nil:
-		return errors.New("adminview: the view has no install")
-	case !idShape.MatchString(a.AdminID):
-		return fmt.Errorf("adminview: %q is not a tenant id", a.AdminID)
+		return adminaccount.Account{}, errors.New("adminview: the view has no install")
+	case !adminaccount.IsID(a.AdminID):
+		return adminaccount.Account{}, fmt.Errorf("adminview: %q is not an admin account's id", a.AdminID)
 	case strings.TrimSpace(a.RequestID) == "":
-		return errors.New("adminview: a read needs the admin call's request id")
+		return adminaccount.Account{}, errors.New("adminview: a read needs the admin call's request id")
 	case !actionShape.MatchString(a.Action):
-		return fmt.Errorf("adminview: %q is not an admin route", a.Action)
+		return adminaccount.Account{}, fmt.Errorf("adminview: %q is not an admin route", a.Action)
 	}
-	marked, err := v.in.IsAdmin(a.AdminID)
+	db, err := adminaccount.Open(v.in.Dir())
 	if err != nil {
-		return err
+		return adminaccount.Account{}, err
 	}
-	if !marked {
-		return ErrNotAdmin
+	defer db.Close()
+	acc, err := db.Account(a.AdminID)
+	if errors.Is(err, adminaccount.ErrNoAccount) {
+		return adminaccount.Account{}, ErrNotAdmin
 	}
-	return nil
+	return acc, err
 }
 
-// Touch is what one read or change of another person is, as their audit
-// log records it in the entry's sent field.
+// Touch is what one read or change of a person is, as their audit log
+// records it in the entry's sent field.
 type Touch struct {
+	// By is the admin account's name when the read was made, so the person
+	// can tell who it was.
+	By string `json:"by"`
 	// Read names the facts read, such as last_sign_in.
 	Read []string `json:"read,omitempty"`
 	// Key, Old and New record a change of a setting (P15-03).
@@ -96,8 +105,8 @@ type Touch struct {
 	New string `json:"new,omitempty"`
 }
 
-// with runs f on another person's store, between an entry in their log
-// written before and one written after. f must read only what touch says.
+// with runs f on a person's store, between an entry in their log written
+// before and one written after. f must read only what touch says.
 func (v *View) with(ctx context.Context, a Asker, id string, touch Touch, f func(*tenant.Store) error) error {
 	s, err := v.in.Store(id)
 	if err != nil {
@@ -125,24 +134,12 @@ func (v *View) with(ctx context.Context, a Asker, id string, touch Touch, f func
 	return ferr
 }
 
-// own runs f on the admin's own store, with no second entry.
-func (v *View) own(id string, f func(*tenant.Store) error) error {
-	s, err := v.in.Store(id)
-	if err != nil {
-		return err
-	}
-	defer s.Close()
-	return f(s)
-}
-
 // Person is one person on the install, as the admin sees them: numbers and
 // settings, never content. P15-02 adds the numbers (spend, room, jobs,
 // schedules, model health, watch levels) as more fields.
 type Person struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	// Admin says the person carries the admin mark.
-	Admin bool `json:"admin"`
 	// Added is when the person was added to the install.
 	Added time.Time `json:"added"`
 	// LastSignIn is when they last signed in, and is left out when that is
@@ -151,28 +148,19 @@ type Person struct {
 }
 
 // People returns every person the server serves, oldest first, with their
-// mark as keystone.json holds it now and their last sign-in. Each other
-// person's log gets the read.
+// last sign-in. Each person's log gets the read.
 func (v *View) People(ctx context.Context, a Asker) ([]Person, error) {
-	if err := v.check(a); err != nil {
-		return nil, err
-	}
-	marks, err := v.in.Marks()
+	acc, err := v.check(a)
 	if err != nil {
 		return nil, err
 	}
 	out := []Person{}
 	for _, t := range v.in.Tenants() {
-		p := Person{ID: t.ID, Name: t.Name, Admin: marks[t.ID], Added: t.Created}
-		read := func(s *tenant.Store) (err error) {
+		p := Person{ID: t.ID, Name: t.Name, Added: t.Created}
+		err := v.with(ctx, a, t.ID, Touch{By: acc.Name, Read: []string{"last_sign_in"}}, func(s *tenant.Store) (err error) {
 			p.LastSignIn, err = signin.LastSignIn(s)
 			return err
-		}
-		if t.ID == a.AdminID {
-			err = v.own(t.ID, read)
-		} else {
-			err = v.with(ctx, a, t.ID, Touch{Read: []string{"last_sign_in"}}, read)
-		}
+		})
 		if err != nil {
 			return nil, err
 		}

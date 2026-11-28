@@ -2,6 +2,8 @@
 
 November 27, 2026 · decided in P15-01 · provisional on the owner's answer A1
 
+**Superseded** on November 27, 2026 by decision [0650](0650-an-admin-is-a-separate-account-in-its-own-database.md): the owner answered A1, an admin is a separate account in its own database, not a person with a mark. Kept for the record.
+
 ## The question
 
 Keystone has no admin. The admin and views brief asks for one who can see the whole install and set what is theirs to set. Is an admin a second kind of account with its own sign-in, or a person who is marked as one? And how does the first one come to be?

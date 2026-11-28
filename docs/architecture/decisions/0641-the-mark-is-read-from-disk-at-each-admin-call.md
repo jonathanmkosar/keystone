@@ -2,6 +2,8 @@
 
 November 27, 2026 · decided in P15-01 · provisional on the owner's answer A1
 
+**Superseded** on November 27, 2026 by decision [0653](0653-the-mark-and-the-step-up-are-taken-back-by-a-forward-migration.md): there is no mark any more. Kept for the record.
+
 ## The question
 
 The server reads `keystone.json` once, when it starts (`api.md`, "Not here yet"). The mark is changed by the command line, in another process. A mark taken away must not go on opening the admin area until the next restart, and a server that saves the registry for another reason must not write an old mark back. And a backup is one tenant in one file: should the mark travel with it?
