@@ -90,6 +90,7 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
     }
     const into = open();
     if (m.turn_id) into.turnId = m.turn_id; // for Inspect (P5-04)
+    if (m.route) into.route = m.route; // the footnote of a reply on Auto (P14-04)
     if (m.stop_reason === "step_limit") {
       // Keystone's note at the turn's step limit, not the model's words.
       into.parts.push({ kind: "limit", text: textOf(m.blocks) });
@@ -123,6 +124,7 @@ export function layout(record: Message[], live: Live | undefined): Item[] {
     else if (b.text) into.parts.push({ kind: "text", text: b.text });
   }
   into.streaming = active;
+  if (live.route && !into.route) into.route = live.route; // P14-04
   if (live.state === "waiting") into.parts.push({ kind: "note", text: "Waiting for the reply before this one to finish." });
   if (live.state === "reconnecting") into.parts.push({ kind: "note", text: "The connection dropped. Connecting again." });
   if (live.state === "stopped" && drafted.length > 0) into.parts.push(endings.stopped);

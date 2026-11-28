@@ -1,6 +1,6 @@
 # P14-04. Auto in the turn
 
-Status: todo
+Status: provisional
 Lane: chats + interface
 Depends on: P14-03, P4-03
 Owner gate: Approval of the chat mockups (P1-04), for the screen only.
@@ -9,3 +9,24 @@ Scope: The chat's `auto`, the router before every message, the choice held for t
 Proof: Recorded turns of the test tenant reach every step. A held chat on Auto reaches no hosted model (added to the `sensitive content` check). A hard message followed by an easy one goes back down, and a turn's tool steps stay on one model. With the local machine not answering, the reply carries the notice, and a held chat fails with `local_unavailable`.
 
 See `docs/plan/SPEC-router-and-admin.md`, Part 1, "Auto in the turn", for the design this item delivers; `docs/plan/PLAN.md` for the intent; and `docs/plan/PARALLEL.md` for lanes and gates.
+
+## Plan
+
+Branch `chats/p14-04-auto-in-the-turn`, cut from `reboot` at `83e9d77`. The spec as revised on November 27, 2026: every message routed afresh before its call, the choice held for that message's whole turn, no floor.
+
+What will be built, contract first (`docs/api/openapi.json` regenerated before the code that serves it):
+
+1. **Contract.** `ModelChoice` gains `auto`, `last_step`, `ladder` (name, label, class, step), `may_switch_off`, `allowed` and `held`. `SendBody` gains `auto` (true puts the chat on Auto; a named `model` takes it off). `Turn` and `Message` gain `route` (auto, model, step, steps, effort, reason, notice, switched, verdict id). A `route` stream event, the first after the turn leaves the queue, sent again with the notice when the local machine fails under the first step. `POST /api/v1/chats/{id}/turns/{turn}/stronger`, which streams like a send. The inspector's reply gains the verdict.
+2. **Store.** One tenant migration after `20261128T010000`: `chats.auto` (existing chats 0, keeping their model), the route columns on `turns` (`auto`, `ladder_step`, `ladder_steps`, `effort`, `route_reason`, `route_notice`, `verdict_id`, `stronger_of`), and `router_verdicts` as the spec lists it, with the reason and the notice.
+3. **Setting.** `router.auto_default` (bool, true, tenant-admin) in `settings/models.json`, read when `POST /chats` makes a chat. `router.may_switch_off` and `router.allowed_models` stay with P14-05: until then `may_switch_off` is true and `allowed` is every model.
+4. **The turn** (`internal/turn/auto.go`, new): a chat on Auto with a ladder is routed by `router.Route` before its first call, from the message's text, the branch's estimated tokens, images, files, tools offered, the previous message's step, the number of turns, the held mark and the runner's `LocalFailedAt` for the tenant. The verdict is a recorded call (`adapters.OpenDecider`, `decision.Run`). The step's model is the ask's model for `routing.Plan` as before, and the effort goes on every request of the turn (`seam.Request.Effort`), tool steps and a turn resumed after an approval included: the route is read back from the turn's row, never routed twice. When the chosen local step fails with `unavailable` before anything is passed on, the runner notes the time and routes the message again: the notice, or `local_unavailable` for a held chat. A chain that moves past a local model that did not answer notes the time as well. An empty ladder keeps the chat on the model picked, as today.
+5. **The test tenant** gets four recorded models beside its one, in no registry: `recorded-small` (local), `recorded-middle` (trusted), `recorded-large` (hosted) and `recorded-decisions` (local, decision), and `fixtures/test-tenant/turns/router.json` with recorded verdicts. Its ladder ships empty, so nothing it does today changes; setting `router.ladder` and `router.decision_model` for it shows Auto in the browser with no key.
+6. **Try a stronger model**: a retry of the turn's reply on a new branch, one step above the step that answered (`router.Stronger`), marking `stronger_asked` on the verdict; refused with `no_stronger` on the top step and `not_auto` for a turn that was not on Auto.
+7. **Screens**, provisional on the chat mockups (P1-04): Auto first in the picker (the menu on a computer and the model sheet on a phone, which share one body), the chip saying Auto; the footnote under each reply on Auto (model, effort, reason, the notice); the verdict in the inspector; Try a stronger model in the reply's actions. `held` comes from the model route and the browser's own record of held chats (decision 0241) is dropped.
+8. **Proof.** `go test ./internal/turn`: the test tenant's recorded turns reach each of its three steps; a hard message followed by an easy one goes back down; every tool step of one turn is on one model with one effort; a held chat on Auto with a verdict naming the hosted step reaches no hosted model; with the local machine not answering the reply carries the notice and a held chat fails with `local_unavailable`; stronger, and its refusals; a named model takes the chat off Auto. In `verify`, the `sensitive content` check gains a held chat on Auto through the real server, with a verdict naming the hosted step (`tools/verify/autoturn.go`).
+
+Left to others: the admin's refusals and the picker's greyed models (P14-05), unattended work on Auto (P14-06), Auto in usage (P14-07), the live check (P14-08).
+
+## Result
+
+Provisional on November 27, 2026, on the chat mockups (P1-04) for the screens only (journal `docs/journal/2026-11-27-chats-013.md`). The server side is done: `chats.auto` and `router.auto_default`; every message of a chat on Auto routed afresh by `router.Route` before its first call, the choice and its effort held for the whole turn, tool steps and a resumed turn included; `router_verdicts`; the `route` event; `ModelChoice`'s new fields; `POST /chats/{id}/turns/{turn}/stronger`; and a local step that does not answer routed again once, with the notice or, for a held chat, `local_unavailable`. The test tenant has a recorded ladder that ships switched off. Proven by `internal/turn/auto_test.go` and a case in the `sensitive content` check (`tools/verify/autoturn.go`). The screens (Auto in the picker and the phone's model sheet, the footnote, the verdict in the inspector, Try a stronger model) were seen in a browser at desktop and 375px widths and wait on P1-04. Decisions 0690 to 0696. Surface for P14-05 to P14-07: `SendBody.Auto`, `turn.ChatAuto`, `turn.SetChatAuto`, `turn.Verdicts`, `ModelChoice.may_switch_off` and `allowed` (placeholders until P14-05).

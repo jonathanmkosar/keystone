@@ -80,6 +80,8 @@ In `fixtures/test-tenant/`. `fixture.go` compiles the folder into the binary, so
 
 `turns/research.json` (P8-04) holds four, for a research task started with the Research control, whatever the question: the plan (two parts), each part (a `web_search`, then its findings), and the report. They answer by words of the shipped prompts and of the plan's own parts, not by the question. One part's findings and the report each cite a source that was never read, so the check on citations has something to take out. The test tenant has no search key, so on the shipped server nothing is read and the report cites no source; the `research mode` check stores an invented key and points the search at a stand-in on this machine. See [research-mode.md](research-mode.md).
 
+`turns/router.json` (P14-04) holds the recorded verdicts for Auto, decision scripts for the test tenant's recorded ladder (`recorded-small` local, `recorded-middle` trusted, `recorded-large` hosted, and `recorded-decisions`, all in code beside `recorded-turns`): "Which day is market day?" to the small step, "Plan a two-day walk along the coast." to the middle, "Prove that the tide tables repeat." to the large, "Compare the three ferry companies." unsure and moved up, the task of several steps to the middle, "A held question for the large step." naming the hosted step for the held chat, and anything else to the small step. The ladder ships empty; set `router.ladder` to `recorded-small, recorded-middle, recorded-large` and `router.decision_model` to `recorded-decisions` for the test tenant to see Auto (decision [0695](decisions/0695-the-test-tenant-has-a-recorded-ladder-that-ships-switched-off.md), [turns.md](turns.md), "Auto").
+
 ### A chat file
 
 ```json

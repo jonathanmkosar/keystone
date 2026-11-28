@@ -6,7 +6,7 @@ The router (P14-03) chooses the model and the effort for one message of a chat o
 
 The router only ever narrows or orders what `routing.Plan` allows. It never adds a model to a route the plan would withhold.
 
-The package reads nothing itself: no store and no setting. The turn passes it the settings, the facts of the call (the time among them) and a function that makes the decision call; the clock is read only to time the verdict, and for `Facts.Now` when the turn leaves it zero. It holds no state between calls. Wiring it into the turn is P14-04.
+The package reads nothing itself: no store and no setting. The turn passes it the settings, the facts of the call (the time among them) and a function that makes the decision call; the clock is read only to time the verdict, and for `Facts.Now` when the turn leaves it zero. It holds no state between calls. The turn calls it since P14-04 ("For the turn", below).
 
 ## Every message afresh
 
@@ -119,6 +119,18 @@ When the step is not the one the previous message used, the line ends `; switche
 - `Stronger(input, answered, effort)` is "Try a stronger model": the first candidate above the step that answered, at that effort, capped. It is refused with `no_stronger` on the top candidate, or when the step that answered is no longer on the ladder.
 - A `*Refusal`'s code is the turn's code; `sensitive` is the one the turn has always used.
 
+### How the turn wires it (P14-04)
+
+`internal/turn/auto.go` is the wiring above, as built ([turns.md](turns.md), "Auto"):
+
+- `openTurn` takes the place of the turn's `open`. A chat on Auto (`chats.auto`) with a ladder is routed by `Route` before its first call; a chat off Auto, or with an empty ladder, opens the model picked as before. A message sent with `auto` puts the chat on Auto, one that names a model takes it off (decision [0690](decisions/0690-a-chats-auto-is-kept-on-the-chat-and-changed-by-the-message-that-picks.md)).
+- `Facts` are read before the call is built, from the branch and the turn's own message (decision [0691](decisions/0691-the-routers-facts-are-read-before-the-call-is-built.md)); a need no step of the ladder can meet is left out (decision [0692](decisions/0692-a-need-no-step-can-meet-is-not-a-need.md)). `Usable` is the person's usable models whose adapter the build has, decision models included; the test tenant's are its recorded ones (decision [0695](decisions/0695-the-test-tenant-has-a-recorded-ladder-that-ships-switched-off.md)).
+- `Verdict` is `adapters.OpenDecider` and `decision.Run`, with the monthly cap as its gate for a decision model that is not local; the test tenant's verdicts are its recorded ones, through `decision.Run` all the same.
+- The chosen step's model is opened as the ask's model (`routedChat`, so `routing.Plan`, the privacy filter and the fallback chain), and `Result.Effort` goes on every request of the turn (`seam.Request.Effort`), tool steps and a turn resumed after an approval included: that one reads its route back from its row and is not routed again.
+- `LocalFailedAt` is kept by the runner for each tenant, in memory. When the first call of a turn on Auto fails with `unavailable` on a local model before anything is passed on, the message is routed again once with it set (decision [0693](decisions/0693-a-local-step-that-does-not-answer-is-routed-again-once-before-anything-is-passed-on.md)).
+- `Result.Record` is written as a row of `router_verdicts` with the reason and the notice, and the turn's row keeps `auto`, the step, the effort, the reason, the notice and the verdict's id. `Stronger` serves `POST /api/v1/chats/{id}/turns/{turn}/stronger` (decision [0694](decisions/0694-a-stronger-model-writes-the-whole-turn-again-from-the-persons-message.md)).
+- A `*Refusal` ends the turn with its code and message: `local_unavailable` (retryable), `sensitive`, `no_model`.
+
 ## Settings
 
 In `settings/models.json`. Names, types, defaults and scopes are the spec's.
@@ -135,7 +147,11 @@ In `settings/models.json`. Names, types, defaults and scopes are the spec's.
 | `router.max_effort` | string | high | install | The most effort the router asks for: low to max. |
 | `router.local_down_for` | duration | 2m | install | How long local steps are skipped after a local endpoint failed with `unavailable`. |
 
-`router.auto_default`, `router.may_switch_off` and `router.allowed_models`, the rest of the admin's policy, are read by the turn and the chat routes, not by the router, and come with P14-04 and P14-05 (decision [0672](decisions/0672-the-router-adds-the-settings-it-reads-and-leaves-the-rest-of-the-policy.md)).
+`router.auto_default`, `router.may_switch_off` and `router.allowed_models`, the rest of the admin's policy, are read by the turn and the chat routes, not by the router, and come with P14-04 and P14-05 (decision [0672](decisions/0672-the-router-adds-the-settings-it-reads-and-leaves-the-rest-of-the-policy.md)). P14-04 added the one it reads:
+
+| Key | Type | Default | Scope | Meaning |
+| --- | --- | --- | --- | --- |
+| `router.auto_default` | bool | true | tenant-admin | A chat made from now on starts on Auto. No effect while the ladder is empty. |
 
 ## Decisions
 
@@ -166,9 +182,10 @@ The router is a guard of fixed rule 3, listed in `fixedRuleGuards` in `tools/ver
 
 In `verify`: the `sensitive content` check routes a held chat with a verdict naming each hosted step, a held chat with a hosted decision model, a held chat with hosted steps only, and a held chat whose local machine is down, and proves none reaches a hosted step; and a chat that is not held follows the verdict (`tools/verify/router.go`). The `fixed rules` check lists `internal/router` as a guard of rule 3.
 
+In `verify` since P14-04, the same check sends a message on Auto through the real server in a held chat of the test tenant, with a recorded verdict naming its hosted step, and proves no call of the turn went to it and the verdict was offered no hosted step; the same message in a chat that is not held reaches the hosted step (`tools/verify/autoturn.go`). `go test ./internal/turn` holds the rest of P14-04's proof (`auto_test.go`).
+
 ## Not here yet
 
-- **The turn.** Nothing calls `Route` until P14-04: the chat's `auto`, the route event, `router_verdicts` and the `stronger` route.
-- **The admin's policy** beyond the ladder, the decision model and the step notes (P14-05).
+- **The admin's policy** beyond the ladder, the decision model, the step notes and `router.auto_default` (P14-05).
 - **Unattended work** on Auto (P14-06) and **Auto in usage** (P14-07).
 - **The live check** with the owner's decision model and chat model on his local machine, and his hosted models (P14-08).

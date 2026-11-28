@@ -61,6 +61,7 @@ func (r *Runner) build(ctx context.Context, s *tenant.Store, t row, step int, m 
 	if err != nil {
 		return seam.Request{}, err
 	}
+	req.Effort = t.route.effort() // P14-04: the router's effort, on every call of a turn on Auto (auto.go)
 	if err := saveContext(s, t.ID, step, rec); err != nil {
 		r.logf("turns: %s turn %s: storing what call %d was built from: %v", t.requestID, t.ID, step, err)
 	}

@@ -6,7 +6,8 @@
 import { Fragment, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useNarrow } from "./PhoneSheet";
 import { useParams } from "react-router";
-import type { Block } from "./api";
+import type { Block, TurnRoute } from "./api";
+import { RouteFootnote, StrongerButton } from "./AutoParts";
 import { useWaitingFor } from "./Approval";
 import { ArtifactCard, isArtifactCard } from "./ArtifactCard";
 import { ReplyNotices, SaidMedia } from "./Attachments";
@@ -44,7 +45,7 @@ export type Item =
   | { kind: "user"; key: string; text: string; files: string[]; id?: number; blocks?: Block[]; located?: boolean; place?: string }
   // turnId is the turn that wrote the reply, for Inspect, and pinId the
   // message of it a pin goes on: its last with text (P5-04).
-  | { kind: "reply"; key: string; parts: Part[]; streaming: boolean; turnId?: string; pinId?: number };
+  | { kind: "reply"; key: string; parts: Part[]; streaming: boolean; turnId?: string; pinId?: number; route?: TurnRoute };
 
 function seconds(n: number): string {
   const whole = Math.max(1, Math.round(n));
@@ -242,11 +243,14 @@ function Reply({ item }: { item: Extract<Item, { kind: "reply" }> }) {
           a running step is the last thing, the mark is on that step's line
           instead, so the working and its words are one line. */}
       {item.streaming && !inline && <ReplySpinner words={empty ? "Thinking" : undefined} />}
+      {/* On Auto: the model, the effort, the reason and any notice (P14-04, AutoParts.tsx). */}
+      <RouteFootnote route={item.route} />
       {!item.streaming && (text !== "" || item.turnId) && (
         <div className="reply-actions">
           {text !== "" && <CopyButton text={text} />}
           {chatId !== "" && item.pinId !== undefined && <PinButton chatId={chatId} messageId={item.pinId} />}
           {chatId !== "" && item.turnId && <InspectButton chatId={chatId} turnId={item.turnId} />}
+          {chatId !== "" && item.turnId && <StrongerButton chatId={chatId} turnId={item.turnId} route={item.route} />}
         </div>
       )}
     </div>

@@ -122,6 +122,10 @@ func (r *Runner) create(w http.ResponseWriter, req *http.Request, c api.Call) {
 		r.answer(w, req, c, err)
 		return
 	}
+	if err := r.autoForNew(req.Context(), c.Store, made.ID); err != nil { // P14-04: router.auto_default (auto.go)
+		r.answer(w, req, c, err)
+		return
+	}
 	reply, err := r.whole(req.Context(), c.Store, made)
 	if err != nil {
 		r.answer(w, req, c, err)
@@ -277,6 +281,8 @@ func checkSend(s *tenant.Store, chatID string, body *SendBody) error {
 		return invalid("a retry sends no message: leave out text and blocks")
 	case body.RetryOf == 0 && body.Text == "" && len(body.Blocks) == 0:
 		return invalid("the message is empty")
+	case body.Auto && strings.TrimSpace(body.Model) != "": // P14-04
+		return invalid("give auto or model, not both")
 	}
 	for _, b := range body.Blocks {
 		if b.Type != seam.BlockText && b.Type != seam.BlockImage && b.Type != seam.BlockFile {

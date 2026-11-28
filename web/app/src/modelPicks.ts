@@ -14,14 +14,17 @@
 // model route is read again after that turn ends. From then on the server's
 // answer is what the picker shows. Decision 0240.
 //
-// It also holds the chats this page has learned are held to local or trusted
-// models. The model route does not say so. A turn sent to a model that may
-// not read sensitive content, in a chat that was sent some, fails with the
-// code `sensitive`, and the picker marks the chat when it sees that. A chat
-// stays held for good, so the mark is kept in the browser's local storage.
+// Auto (P14-04) is a pick like a model: its name is autoPick, which no
+// registry name can be, and it goes with the next message as `auto`. A model
+// picked in a chat on Auto takes the chat off Auto.
+//
+// Whether a chat is held to local or trusted models comes from the model
+// route (`held`) since P14-04; the browser's own record of held chats,
+// learned from a refused turn, is gone (decision 0696).
 
 import { useSyncExternalStore } from "react";
 import type { ModelChoice, ModelInfo } from "./api";
+import { autoPick } from "./autoWords";
 
 export type Pick = {
   /** The registry name of the model picked. */
@@ -78,6 +81,22 @@ export function shownModel(choice: ModelChoice | undefined, pick: Pick | undefin
   return choice?.model;
 }
 
+/** Whether Auto is what will answer: Auto picked, or no pick in a chat on Auto (P14-04). */
+export function showsAuto(choice: ModelChoice | undefined, pick: Pick | undefined): boolean {
+  if (pick) return pick.name === autoPick && (choice?.ladder?.length ?? 0) > 0;
+  return choice?.auto === true;
+}
+
+/** A pick the chat may make: Auto while there is a ladder, or one of its models. */
+function mayPick(choice: ModelChoice, name: string): boolean {
+  return name === autoPick ? (choice.ladder?.length ?? 0) > 0 : choice.models.some((m) => m.name === name);
+}
+
+/** A pick that is already the server's choice: Auto on a chat on Auto, or the chat's model off Auto. */
+function isServers(choice: ModelChoice | undefined, name: string): boolean {
+  return name === autoPick ? choice?.auto === true : choice?.auto !== true && name === choice?.model?.name;
+}
+
 /**
  * Keeps an answer of the model route. A pick the answer makes needless goes:
  * one the chat may no longer name, one that is already the server's choice,
@@ -85,16 +104,16 @@ export function shownModel(choice: ModelChoice | undefined, pick: Pick | undefin
  */
 export function rememberChoice(key: string, choice: ModelChoice, idle: boolean) {
   let pick = entries.get(key)?.pick;
-  if (pick && (!choice.models.some((m) => m.name === pick!.name) || pick.name === choice.model?.name || (pick.sent && idle))) {
+  if (pick && (!mayPick(choice, pick.name) || isServers(choice, pick.name) || (pick.sent && idle))) {
     pick = undefined;
   }
   put(key, { choice, pick });
 }
 
-/** The person picked a model. Picking the server's own choice takes the pick back. */
+/** The person picked a model, or Auto. Picking the server's own choice takes the pick back. */
 export function pickModel(key: string, name: string) {
   const entry = entries.get(key) ?? {};
-  put(key, { ...entry, pick: name === entry.choice?.model?.name ? undefined : { name, sent: false } });
+  put(key, { ...entry, pick: isServers(entry.choice, name) ? undefined : { name, sent: false } });
 }
 
 /** The model to name in the message being sent, if the person picked one, which is then marked as sent. */
@@ -124,38 +143,6 @@ export function useShownChoice(chatId: string, fallback: ModelChoice | undefined
   const choice = entry?.choice ?? fallback;
   if (!choice) return undefined;
   const model = shownModel(choice, entry?.pick);
-  return model === choice.model ? choice : { ...choice, model };
-}
-
-// Chats held to local or trusted models, as this browser learned them.
-
-const heldKey = "keystone.chats.held";
-
-function readHeld(): Set<string> {
-  try {
-    const raw = window.localStorage.getItem(heldKey);
-    const ids: unknown = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(ids) ? ids.filter((id): id is string => typeof id === "string") : []);
-  } catch {
-    return new Set();
-  }
-}
-
-const held = readHeld();
-
-/** True once this browser has seen a turn of the chat refused because it holds sensitive content. */
-export function useHeld(chatId: string): boolean {
-  return useSyncExternalStore(subscribe, () => held.has(chatId));
-}
-
-/** Marks a chat as held to local or trusted models, for good. */
-export function markHeld(chatId: string) {
-  if (held.has(chatId)) return;
-  held.add(chatId);
-  try {
-    window.localStorage.setItem(heldKey, JSON.stringify([...held]));
-  } catch {
-    // Without storage the mark lasts until the page is reloaded.
-  }
-  tell();
+  const auto = showsAuto(choice, entry?.pick);
+  return model === choice.model && auto === (choice.auto === true) ? choice : { ...choice, model, auto };
 }

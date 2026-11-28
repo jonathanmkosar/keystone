@@ -1,0 +1,110 @@
+{
+  "test_data": true,
+  "scripts": [
+    {
+      "name": "auto: an easy message stays on the small step",
+      "when": { "decision": true, "user_text_contains": "which day is market day" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-small", "probabilities": { "recorded-small": 0.92, "recorded-middle": 0.06, "recorded-large": 0.02 } },
+              { "question": "effort", "choice": "low", "probabilities": { "low": 0.84, "medium": 0.14, "high": 0.02 } }
+            ],
+            "usage": { "input_tokens": 230, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: a plan goes to the middle step",
+      "when": { "decision": true, "user_text_contains": "plan a two-day walk along the coast" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-middle", "probabilities": { "recorded-small": 0.12, "recorded-middle": 0.81, "recorded-large": 0.07 } },
+              { "question": "effort", "choice": "medium", "probabilities": { "low": 0.1, "medium": 0.72, "high": 0.18 } }
+            ],
+            "usage": { "input_tokens": 236, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: a hard message goes to the large step",
+      "when": { "decision": true, "user_text_contains": "prove that the tide tables repeat" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-large", "probabilities": { "recorded-small": 0.03, "recorded-middle": 0.09, "recorded-large": 0.88 } },
+              { "question": "effort", "choice": "high", "probabilities": { "low": 0.02, "medium": 0.2, "high": 0.78 } }
+            ],
+            "usage": { "input_tokens": 234, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: an unsure verdict moves up a step",
+      "when": { "decision": true, "user_text_contains": "compare the three ferry companies" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-middle", "probabilities": { "recorded-small": 0.25, "recorded-middle": 0.45, "recorded-large": 0.3 } },
+              { "question": "effort", "choice": "medium", "probabilities": { "low": 0.2, "medium": 0.6, "high": 0.2 } }
+            ],
+            "usage": { "input_tokens": 238, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: a verdict naming the hosted step, in a held chat",
+      "when": { "decision": true, "user_text_contains": "a held question for the large step" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-large", "probabilities": { "recorded-small": 0.02, "recorded-middle": 0.03, "recorded-large": 0.95 } },
+              { "question": "effort", "choice": "high", "probabilities": { "low": 0.02, "medium": 0.08, "high": 0.9 } }
+            ],
+            "usage": { "input_tokens": 240, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: a task of several steps goes to the middle step",
+      "when": { "decision": true, "user_text_contains": "what have i asked you about the lighthouse, and what is the date today" },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-middle", "probabilities": { "recorded-small": 0.15, "recorded-middle": 0.77, "recorded-large": 0.08 } },
+              { "question": "effort", "choice": "medium", "probabilities": { "low": 0.12, "medium": 0.7, "high": 0.18 } }
+            ],
+            "usage": { "input_tokens": 244, "output_tokens": 2 }
+          }
+        }
+      ]
+    },
+    {
+      "name": "auto: anything else stays on the small step",
+      "when": { "decision": true },
+      "steps": [
+        {
+          "decision": {
+            "answers": [
+              { "question": "step", "choice": "recorded-small", "probabilities": { "recorded-small": 0.9, "recorded-middle": 0.07, "recorded-large": 0.03 } },
+              { "question": "effort", "choice": "low", "probabilities": { "low": 0.8, "medium": 0.17, "high": 0.03 } }
+            ],
+            "usage": { "input_tokens": 220, "output_tokens": 2 }
+          }
+        }
+      ]
+    }
+  ]
+}

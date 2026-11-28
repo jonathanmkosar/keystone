@@ -2322,6 +2322,48 @@
                           "role": {
                             "type": "string"
                           },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
+                          },
                           "siblings": {
                             "items": {
                               "type": "integer"
@@ -2376,6 +2418,50 @@
                     },
                     "model": {
                       "properties": {
+                        "allowed": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "ladder": {
+                          "items": {
+                            "properties": {
+                              "class": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "step"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "last_step": {
+                          "type": "string"
+                        },
+                        "may_switch_off": {
+                          "type": "boolean"
+                        },
                         "model": {
                           "properties": {
                             "capabilities": {
@@ -2464,7 +2550,12 @@
                       },
                       "required": [
                         "source",
-                        "models"
+                        "models",
+                        "auto",
+                        "ladder",
+                        "may_switch_off",
+                        "allowed",
+                        "held"
                       ],
                       "type": "object"
                     },
@@ -2515,6 +2606,48 @@
                           },
                           "reply_message_id": {
                             "type": "integer"
+                          },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
                           },
                           "started": {
                             "format": "date-time",
@@ -2929,6 +3062,48 @@
                           "role": {
                             "type": "string"
                           },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
+                          },
                           "siblings": {
                             "items": {
                               "type": "integer"
@@ -2983,6 +3158,50 @@
                     },
                     "model": {
                       "properties": {
+                        "allowed": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "ladder": {
+                          "items": {
+                            "properties": {
+                              "class": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "step"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "last_step": {
+                          "type": "string"
+                        },
+                        "may_switch_off": {
+                          "type": "boolean"
+                        },
                         "model": {
                           "properties": {
                             "capabilities": {
@@ -3071,7 +3290,12 @@
                       },
                       "required": [
                         "source",
-                        "models"
+                        "models",
+                        "auto",
+                        "ladder",
+                        "may_switch_off",
+                        "allowed",
+                        "held"
                       ],
                       "type": "object"
                     },
@@ -3122,6 +3346,48 @@
                           },
                           "reply_message_id": {
                             "type": "integer"
+                          },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
                           },
                           "started": {
                             "format": "date-time",
@@ -3902,6 +4168,48 @@
                           "role": {
                             "type": "string"
                           },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
+                          },
                           "siblings": {
                             "items": {
                               "type": "integer"
@@ -3956,6 +4264,50 @@
                     },
                     "model": {
                       "properties": {
+                        "allowed": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "ladder": {
+                          "items": {
+                            "properties": {
+                              "class": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "step"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "last_step": {
+                          "type": "string"
+                        },
+                        "may_switch_off": {
+                          "type": "boolean"
+                        },
                         "model": {
                           "properties": {
                             "capabilities": {
@@ -4044,7 +4396,12 @@
                       },
                       "required": [
                         "source",
-                        "models"
+                        "models",
+                        "auto",
+                        "ladder",
+                        "may_switch_off",
+                        "allowed",
+                        "held"
                       ],
                       "type": "object"
                     },
@@ -4095,6 +4452,48 @@
                           },
                           "reply_message_id": {
                             "type": "integer"
+                          },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
                           },
                           "started": {
                             "format": "date-time",
@@ -5309,6 +5708,48 @@
                               "role": {
                                 "type": "string"
                               },
+                              "route": {
+                                "properties": {
+                                  "auto": {
+                                    "type": "boolean"
+                                  },
+                                  "effort": {
+                                    "type": "string"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "model": {
+                                    "type": "string"
+                                  },
+                                  "notice": {
+                                    "type": "string"
+                                  },
+                                  "reason": {
+                                    "type": "string"
+                                  },
+                                  "step": {
+                                    "type": "integer"
+                                  },
+                                  "steps": {
+                                    "type": "integer"
+                                  },
+                                  "stronger_of": {
+                                    "type": "string"
+                                  },
+                                  "switched": {
+                                    "type": "boolean"
+                                  },
+                                  "verdict_id": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "auto",
+                                  "model"
+                                ],
+                                "type": "object"
+                              },
                               "siblings": {
                                 "items": {
                                   "type": "integer"
@@ -5363,6 +5804,50 @@
                         },
                         "model": {
                           "properties": {
+                            "allowed": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "held": {
+                              "type": "boolean"
+                            },
+                            "ladder": {
+                              "items": {
+                                "properties": {
+                                  "class": {
+                                    "type": "string"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "step": {
+                                    "type": "integer"
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "label",
+                                  "class",
+                                  "step"
+                                ],
+                                "type": "object"
+                              },
+                              "type": "array"
+                            },
+                            "last_step": {
+                              "type": "string"
+                            },
+                            "may_switch_off": {
+                              "type": "boolean"
+                            },
                             "model": {
                               "properties": {
                                 "capabilities": {
@@ -5451,7 +5936,12 @@
                           },
                           "required": [
                             "source",
-                            "models"
+                            "models",
+                            "auto",
+                            "ladder",
+                            "may_switch_off",
+                            "allowed",
+                            "held"
                           ],
                           "type": "object"
                         },
@@ -5502,6 +5992,48 @@
                               },
                               "reply_message_id": {
                                 "type": "integer"
+                              },
+                              "route": {
+                                "properties": {
+                                  "auto": {
+                                    "type": "boolean"
+                                  },
+                                  "effort": {
+                                    "type": "string"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  },
+                                  "model": {
+                                    "type": "string"
+                                  },
+                                  "notice": {
+                                    "type": "string"
+                                  },
+                                  "reason": {
+                                    "type": "string"
+                                  },
+                                  "step": {
+                                    "type": "integer"
+                                  },
+                                  "steps": {
+                                    "type": "integer"
+                                  },
+                                  "stronger_of": {
+                                    "type": "string"
+                                  },
+                                  "switched": {
+                                    "type": "boolean"
+                                  },
+                                  "verdict_id": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "auto",
+                                  "model"
+                                ],
+                                "type": "object"
                               },
                               "started": {
                                 "format": "date-time",
@@ -5942,6 +6474,50 @@
               "application/json": {
                 "schema": {
                   "properties": {
+                    "allowed": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "auto": {
+                      "type": "boolean"
+                    },
+                    "held": {
+                      "type": "boolean"
+                    },
+                    "ladder": {
+                      "items": {
+                        "properties": {
+                          "class": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "step": {
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "label",
+                          "class",
+                          "step"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "last_step": {
+                      "type": "string"
+                    },
+                    "may_switch_off": {
+                      "type": "boolean"
+                    },
                     "model": {
                       "properties": {
                         "capabilities": {
@@ -6030,7 +6606,12 @@
                   },
                   "required": [
                     "source",
-                    "models"
+                    "models",
+                    "auto",
+                    "ladder",
+                    "may_switch_off",
+                    "allowed",
+                    "held"
                   ],
                   "type": "object"
                 }
@@ -8082,6 +8663,48 @@
                           "role": {
                             "type": "string"
                           },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
+                          },
                           "siblings": {
                             "items": {
                               "type": "integer"
@@ -8136,6 +8759,50 @@
                     },
                     "model": {
                       "properties": {
+                        "allowed": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "ladder": {
+                          "items": {
+                            "properties": {
+                              "class": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "step"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "last_step": {
+                          "type": "string"
+                        },
+                        "may_switch_off": {
+                          "type": "boolean"
+                        },
                         "model": {
                           "properties": {
                             "capabilities": {
@@ -8224,7 +8891,12 @@
                       },
                       "required": [
                         "source",
-                        "models"
+                        "models",
+                        "auto",
+                        "ladder",
+                        "may_switch_off",
+                        "allowed",
+                        "held"
                       ],
                       "type": "object"
                     },
@@ -8275,6 +8947,48 @@
                           },
                           "reply_message_id": {
                             "type": "integer"
+                          },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
                           },
                           "started": {
                             "format": "date-time",
@@ -10470,6 +11184,9 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "auto": {
+                    "type": "boolean"
+                  },
                   "blocks": {
                     "items": {
                       "properties": {
@@ -10702,6 +11419,48 @@
                         "reply_message_id": {
                           "type": "integer"
                         },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
                         "started": {
                           "format": "date-time",
                           "type": "string"
@@ -10756,6 +11515,52 @@
                     },
                     "description": "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.",
                     "event": "turn"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "stronger_of": {
+                          "type": "string"
+                        },
+                        "switched": {
+                          "type": "boolean"
+                        },
+                        "verdict_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "auto",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "How a turn on Auto was routed: the model, the step, the effort, the reason and any notice. It is sent when the turn leaves the queue, before the turn event that names its model, and again with the notice when the local machine did not answer the first step and the message was routed again. A turn on the model picked sends none (P14-04).",
+                    "event": "route"
                   },
                   {
                     "data": {
@@ -10946,6 +11751,48 @@
                         },
                         "role": {
                           "type": "string"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
                         },
                         "siblings": {
                           "items": {
@@ -11401,6 +12248,48 @@
                         "reply_message_id": {
                           "type": "integer"
                         },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
                         "started": {
                           "format": "date-time",
                           "type": "string"
@@ -11603,6 +12492,48 @@
                     },
                     "reply_message_id": {
                       "type": "integer"
+                    },
+                    "route": {
+                      "properties": {
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "stronger_of": {
+                          "type": "string"
+                        },
+                        "switched": {
+                          "type": "boolean"
+                        },
+                        "verdict_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "auto",
+                        "model"
+                      ],
+                      "type": "object"
                     },
                     "started": {
                       "format": "date-time",
@@ -12073,6 +13004,48 @@
                         "reply_message_id": {
                           "type": "integer"
                         },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
                         "started": {
                           "format": "date-time",
                           "type": "string"
@@ -12127,6 +13100,52 @@
                     },
                     "description": "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.",
                     "event": "turn"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "stronger_of": {
+                          "type": "string"
+                        },
+                        "switched": {
+                          "type": "boolean"
+                        },
+                        "verdict_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "auto",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "How a turn on Auto was routed: the model, the step, the effort, the reason and any notice. It is sent when the turn leaves the queue, before the turn event that names its model, and again with the notice when the local machine did not answer the first step and the message was routed again. A turn on the model picked sends none (P14-04).",
+                    "event": "route"
                   },
                   {
                     "data": {
@@ -12317,6 +13336,48 @@
                         },
                         "role": {
                           "type": "string"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
                         },
                         "siblings": {
                           "items": {
@@ -12771,6 +13832,48 @@
                         },
                         "reply_message_id": {
                           "type": "integer"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
                         },
                         "started": {
                           "format": "date-time",
@@ -13560,6 +14663,48 @@
                         "reply_message_id": {
                           "type": "integer"
                         },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
                         "started": {
                           "format": "date-time",
                           "type": "string"
@@ -13686,6 +14831,115 @@
                         "type": "object"
                       },
                       "type": "array"
+                    },
+                    "verdict": {
+                      "properties": {
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "decision_model": {
+                          "type": "string"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "effort_answered": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "latency_ms": {
+                          "type": "integer"
+                        },
+                        "local_unavailable": {
+                          "type": "boolean"
+                        },
+                        "moved_up": {
+                          "type": "boolean"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "probability": {
+                          "type": "number"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "request_id": {
+                          "type": "string"
+                        },
+                        "rules_only": {
+                          "type": "boolean"
+                        },
+                        "rules_only_why": {
+                          "type": "string"
+                        },
+                        "shown": {
+                          "properties": {
+                            "files": {
+                              "type": "boolean"
+                            },
+                            "images": {
+                              "type": "boolean"
+                            },
+                            "previous_step": {
+                              "type": "string"
+                            },
+                            "tokens": {
+                              "type": "integer"
+                            },
+                            "tools": {
+                              "type": "integer"
+                            },
+                            "turns": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "tokens",
+                            "images",
+                            "files",
+                            "tools",
+                            "turns"
+                          ],
+                          "type": "object"
+                        },
+                        "step": {
+                          "type": "string"
+                        },
+                        "step_answered": {
+                          "type": "string"
+                        },
+                        "stronger_asked": {
+                          "type": "boolean"
+                        },
+                        "timed_out": {
+                          "type": "boolean"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "turn_id",
+                        "request_id",
+                        "shown",
+                        "step",
+                        "effort",
+                        "moved_up",
+                        "timed_out",
+                        "rules_only",
+                        "latency_ms",
+                        "local_unavailable",
+                        "stronger_asked",
+                        "reason",
+                        "created"
+                      ],
+                      "type": "object"
                     }
                   },
                   "required": [
@@ -13787,6 +15041,48 @@
                     "reply_message_id": {
                       "type": "integer"
                     },
+                    "route": {
+                      "properties": {
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "stronger_of": {
+                          "type": "string"
+                        },
+                        "switched": {
+                          "type": "boolean"
+                        },
+                        "verdict_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "auto",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
                     "started": {
                       "format": "date-time",
                       "type": "string"
@@ -13855,6 +15151,1085 @@
           }
         },
         "summary": "Stop a turn. The model call is cancelled and what had streamed is kept. It takes no body. Stopping a turn that has ended changes nothing."
+      }
+    },
+    "/api/v1/chats/{id}/turns/{turn}/stronger": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "turn",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                },
+                "x-keystone-events": [
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.",
+                    "event": "turn"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "effort": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "notice": {
+                          "type": "string"
+                        },
+                        "reason": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "steps": {
+                          "type": "integer"
+                        },
+                        "stronger_of": {
+                          "type": "string"
+                        },
+                        "switched": {
+                          "type": "boolean"
+                        },
+                        "verdict_id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "auto",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "How a turn on Auto was routed: the model, the step, the effort, the reason and any notice. It is sent when the turn leaves the queue, before the turn event that names its model, and again with the notice when the local machine did not answer the first step and the message was routed again. A turn on the model picked sends none (P14-04).",
+                    "event": "route"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "blocks": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "integer"
+                        },
+                        "location": {
+                          "properties": {
+                            "decimals": {
+                              "type": "integer"
+                            },
+                            "latitude": {
+                              "type": "number"
+                            },
+                            "line": {
+                              "type": "string"
+                            },
+                            "longitude": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "latitude",
+                            "longitude",
+                            "decimals",
+                            "line"
+                          ],
+                          "type": "object"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "parent_id": {
+                          "type": "integer"
+                        },
+                        "role": {
+                          "type": "string"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
+                        "siblings": {
+                          "items": {
+                            "type": "integer"
+                          },
+                          "type": "array"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "role",
+                        "blocks",
+                        "created",
+                        "siblings"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A message was written to the chat record: the person's own at the start, each assistant message when it is whole, each set of tool results. It replaces whatever the screen built from the deltas.",
+                    "event": "message"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A model call opens.",
+                    "event": "start"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a thinking block.",
+                    "event": "thinking"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "index": {
+                          "type": "integer"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "text"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "More of a text block.",
+                    "event": "text"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "index": {
+                          "type": "integer"
+                        },
+                        "input": {},
+                        "name": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "index",
+                        "id",
+                        "name",
+                        "input"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The model asks for a tool. Sent once, when the call is whole.",
+                    "event": "tool_call"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "content": {
+                          "items": {
+                            "properties": {
+                              "content": {
+                                "items": {
+                                  "properties": {
+                                    "content": {
+                                      "items": {
+                                        "properties": {
+                                          "content": {
+                                            "items": {
+                                              "properties": {
+                                                "content": {},
+                                                "data": {},
+                                                "id": {},
+                                                "input": {},
+                                                "is_error": {},
+                                                "media_type": {},
+                                                "name": {},
+                                                "ref": {},
+                                                "signature": {},
+                                                "text": {},
+                                                "type": {}
+                                              },
+                                              "required": [
+                                                "type"
+                                              ],
+                                              "type": "object"
+                                            },
+                                            "type": "array"
+                                          },
+                                          "data": {
+                                            "contentEncoding": "base64",
+                                            "type": "string"
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "input": {},
+                                          "is_error": {
+                                            "type": "boolean"
+                                          },
+                                          "media_type": {
+                                            "type": "string"
+                                          },
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "ref": {
+                                            "type": "string"
+                                          },
+                                          "signature": {
+                                            "type": "string"
+                                          },
+                                          "text": {
+                                            "type": "string"
+                                          },
+                                          "type": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "type"
+                                        ],
+                                        "type": "object"
+                                      },
+                                      "type": "array"
+                                    },
+                                    "data": {
+                                      "contentEncoding": "base64",
+                                      "type": "string"
+                                    },
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "input": {},
+                                    "is_error": {
+                                      "type": "boolean"
+                                    },
+                                    "media_type": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "ref": {
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "type": "string"
+                                    },
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "type": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "type": "object"
+                                },
+                                "type": "array"
+                              },
+                              "data": {
+                                "contentEncoding": "base64",
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "input": {},
+                              "is_error": {
+                                "type": "boolean"
+                              },
+                              "media_type": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "ref": {
+                                "type": "string"
+                              },
+                              "signature": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "is_error": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "is_error",
+                        "content"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "What a tool gave back.",
+                    "event": "tool_result"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "step": {
+                          "type": "integer"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "step",
+                        "model",
+                        "stop_reason",
+                        "usage",
+                        "cost_micros"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The token count and cost of one model call, when it ends.",
+                    "event": "usage"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "chat_id",
+                        "title"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The chat was given its automatic title.",
+                    "event": "title"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "retryable": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message",
+                        "retryable"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "The turn failed. An end event with the status failed follows.",
+                    "event": "error"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "cost_micros": {
+                          "type": "integer"
+                        },
+                        "created": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "ended": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "error": {
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "retryable": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message",
+                            "retryable"
+                          ],
+                          "type": "object"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "last_event_id": {
+                          "type": "integer"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "reply_message_id": {
+                          "type": "integer"
+                        },
+                        "route": {
+                          "properties": {
+                            "auto": {
+                              "type": "boolean"
+                            },
+                            "effort": {
+                              "type": "string"
+                            },
+                            "label": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "notice": {
+                              "type": "string"
+                            },
+                            "reason": {
+                              "type": "string"
+                            },
+                            "step": {
+                              "type": "integer"
+                            },
+                            "steps": {
+                              "type": "integer"
+                            },
+                            "stronger_of": {
+                              "type": "string"
+                            },
+                            "switched": {
+                              "type": "boolean"
+                            },
+                            "verdict_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "auto",
+                            "model"
+                          ],
+                          "type": "object"
+                        },
+                        "started": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "stop_reason": {
+                          "type": "string"
+                        },
+                        "usage": {
+                          "properties": {
+                            "cache_read_tokens": {
+                              "type": "integer"
+                            },
+                            "cache_write_tokens": {
+                              "type": "integer"
+                            },
+                            "estimated": {
+                              "type": "boolean"
+                            },
+                            "input_tokens": {
+                              "type": "integer"
+                            },
+                            "output_tokens": {
+                              "type": "integer"
+                            },
+                            "thinking_tokens": {
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "input_tokens",
+                            "output_tokens"
+                          ],
+                          "type": "object"
+                        },
+                        "user_message_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "chat_id",
+                        "status",
+                        "usage",
+                        "cost_micros",
+                        "created",
+                        "last_event_id"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "Always the last event: the turn as it ended, with the status done, stopped or failed. The stream closes after it.",
+                    "event": "end"
+                  },
+                  {
+                    "data": {
+                      "properties": {
+                        "asked": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "call_id": {
+                          "type": "string"
+                        },
+                        "chat_id": {
+                          "type": "string"
+                        },
+                        "decided": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "input": {},
+                        "reason": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "tool": {
+                          "type": "string"
+                        },
+                        "turn_id": {
+                          "type": "string"
+                        },
+                        "why": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "turn_id",
+                        "chat_id",
+                        "call_id",
+                        "tool",
+                        "summary",
+                        "input",
+                        "reason",
+                        "why",
+                        "status",
+                        "asked"
+                      ],
+                      "type": "object"
+                    },
+                    "description": "A tool call needs the person's answer before it runs (status pending), or was answered (approved, declined, expired or stopped). It replaces an earlier approval event with the same id. Answer it with POST .../approvals/{approval}/approve or /decline.",
+                    "event": "approval"
+                  }
+                ]
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "summary": "Try a stronger model: write a turn on Auto again, on a new branch beside its reply, one step of the ladder above the step that answered, at the same effort, and stream it as a send does. It takes no body. The verdict of the turn is marked stronger_asked, and the chat's next message is routed afresh. Refused with 409 not_auto for a turn that was not on Auto or has not ended, and no_stronger when no step above the one that answered may take the message."
       }
     },
     "/api/v1/chats/{id}/uploads": {
@@ -19115,6 +21490,48 @@
                           "role": {
                             "type": "string"
                           },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
+                          },
                           "siblings": {
                             "items": {
                               "type": "integer"
@@ -19169,6 +21586,50 @@
                     },
                     "model": {
                       "properties": {
+                        "allowed": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "auto": {
+                          "type": "boolean"
+                        },
+                        "held": {
+                          "type": "boolean"
+                        },
+                        "ladder": {
+                          "items": {
+                            "properties": {
+                              "class": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "label",
+                              "class",
+                              "step"
+                            ],
+                            "type": "object"
+                          },
+                          "type": "array"
+                        },
+                        "last_step": {
+                          "type": "string"
+                        },
+                        "may_switch_off": {
+                          "type": "boolean"
+                        },
                         "model": {
                           "properties": {
                             "capabilities": {
@@ -19257,7 +21718,12 @@
                       },
                       "required": [
                         "source",
-                        "models"
+                        "models",
+                        "auto",
+                        "ladder",
+                        "may_switch_off",
+                        "allowed",
+                        "held"
                       ],
                       "type": "object"
                     },
@@ -19308,6 +21774,48 @@
                           },
                           "reply_message_id": {
                             "type": "integer"
+                          },
+                          "route": {
+                            "properties": {
+                              "auto": {
+                                "type": "boolean"
+                              },
+                              "effort": {
+                                "type": "string"
+                              },
+                              "label": {
+                                "type": "string"
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "notice": {
+                                "type": "string"
+                              },
+                              "reason": {
+                                "type": "string"
+                              },
+                              "step": {
+                                "type": "integer"
+                              },
+                              "steps": {
+                                "type": "integer"
+                              },
+                              "stronger_of": {
+                                "type": "string"
+                              },
+                              "switched": {
+                                "type": "boolean"
+                              },
+                              "verdict_id": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "auto",
+                              "model"
+                            ],
+                            "type": "object"
                           },
                           "started": {
                             "format": "date-time",

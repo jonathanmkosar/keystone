@@ -1,18 +1,23 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { Link } from "react-router";
-import { ApiError, chatModel, getTurn, listModels, listSettings, type ModelChoice, type ModelInfo, type RegisteredModel } from "./api";
+import { ApiError, chatModel, listModels, listSettings, type LadderStep, type ModelChoice, type ModelInfo, type RegisteredModel } from "./api";
+import { autoFoot, autoLabel, autoLine, autoPick, ladderNames } from "./autoWords";
 import { useChats } from "./chats";
 import { footnote, shortModelName } from "./composerSheet";
 import { Icon } from "./Icon";
 import { Sheet, useNarrow } from "./PhoneSheet";
-import { markHeld, mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, useHeld, usePickEntry } from "./modelPicks";
+import { mayReadSensitive, newChatKey, pickModel, rememberChoice, shownModel, showsAuto, usePickEntry } from "./modelPicks";
 import { isActive, useLive } from "./turns";
 import "./model-picker.css";
+import "./auto.css";
 
 // The setting that names a person's model for a new chat. The new chat
 // screen has no chat, so no model route: it works out the server's choice
 // from the registry and this setting, in the server's order.
 const defaultModelKey = "chats.default_model";
+// The ladder and whether a new chat starts on Auto (P14-04), for the same.
+const ladderKey = "router.ladder";
+const autoDefaultKey = "router.auto_default";
 
 type Row = {
   model: ModelInfo;
@@ -30,15 +35,22 @@ const heldWhy = "Not for this chat: it holds content from a sensitive space, whi
  * chats.default_model when it names a model a chat can use, or else the
  * first such model by name. The registry is listed by name.
  */
-function newChatChoice(registry: RegisteredModel[], defaultName: string): ModelChoice {
+function newChatChoice(registry: RegisteredModel[], defaultName: string, ladderSetting = "", autoDefault = false): ModelChoice {
   const models: ModelInfo[] = registry
     // Embedding and decision models answer no chat (decision 0630).
     .filter((r) => !r.problem && !(r.entry.capabilities ?? []).some((c) => c === "embedding" || c === "decision"))
     .map((r) => ({ name: r.entry.name, label: r.entry.label, class: r.entry.class, test: r.entry.adapter === "fake" }));
+  // The ladder as the server reads it: its names that are usable models, smallest first (P14-04).
+  const ladder: LadderStep[] = [];
+  ladderNames(ladderSetting).forEach((name, i) => {
+    const m = models.find((x) => x.name === name);
+    if (m) ladder.push({ name, label: m.label || name, class: m.class, step: i + 1 });
+  });
+  const auto = autoDefault && ladder.length > 0;
   const byDefault = models.find((m) => m.name === defaultName);
-  if (byDefault) return { model: byDefault, source: "default", models };
-  if (models.length > 0) return { model: models[0], source: "first", models };
-  return { source: "none", models };
+  if (byDefault) return { model: byDefault, source: "default", models, ladder, auto };
+  if (models.length > 0) return { model: models[0], source: "first", models, ladder, auto };
+  return { source: "none", models, ladder, auto };
 }
 
 function labelOf(m: ModelInfo): string {
@@ -75,7 +87,6 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
 
   const { lost } = useChats();
   const entry = usePickEntry(key);
-  const held = useHeld(chatId);
   const live = useLive(isNew ? undefined : chatId);
   const active = isActive(live);
   const narrow = useNarrow(); // a phone: the chip beside the composer's + shows the model's short name (decision 0590)
@@ -97,8 +108,8 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
         if (isNew) {
           const [models, settings] = await Promise.all([listModels(), listSettings()]);
           setRegistry(new Map(models.models.filter((r) => !r.problem).map((r) => [r.entry.name, r])));
-          const fallback = settings.settings.find((s) => s.key === defaultModelKey)?.value ?? "";
-          rememberChoice(key, newChatChoice(models.models, fallback), idle);
+          const value = (k: string) => settings.settings.find((s) => s.key === k)?.value ?? "";
+          rememberChoice(key, newChatChoice(models.models, value(defaultModelKey), value(ladderKey), value(autoDefaultKey) === "true"), idle);
         } else {
           const [choice, models] = await Promise.all([chatModel(chatId), listModels().catch(() => undefined)]);
           if (models) setRegistry(new Map(models.models.filter((r) => !r.problem).map((r) => [r.entry.name, r])));
@@ -117,19 +128,6 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   useEffect(() => {
     if (!active) void refresh(true);
   }, [active, refresh]);
-
-  // A turn that failed because the chat holds sensitive content says the
-  // chat is held. The model route does not, so the turn is read for its code.
-  const failedTurn = live?.state === "failed" ? live.turnId : "";
-  useEffect(() => {
-    if (isNew || held || failedTurn === "") return;
-    getTurn(chatId, failedTurn).then(
-      (t) => {
-        if (t.error?.code === "sensitive") markHeld(chatId);
-      },
-      () => {},
-    );
-  }, [isNew, held, chatId, failedTurn]);
 
   // A click outside, or Escape, closes the menu. On a phone the menu is a
   // sheet drawn into the body, which closes itself on a tap outside and on
@@ -164,6 +162,11 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   if (!choice || choice.models.length === 0) return null;
   const pick = entry?.pick;
   const shown = shownModel(choice, pick);
+  // The chat holds sensitive content: the model route says so (P14-04, decision 0696).
+  const held = choice.held === true;
+  // Auto is offered while the person has a ladder, and is what answers when picked or when the chat is on it (P14-04).
+  const ladder = choice.ladder ?? [];
+  const auto = showsAuto(choice, pick);
 
   const rows: Row[] = choice.models.map((m) => {
     const reg = registry?.get(m.name);
@@ -171,10 +174,13 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
     let blocked = "";
     if (keyMissing) blocked = keyMissingWhy;
     else if (held && !mayReadSensitive(m)) blocked = heldWhy;
-    return { model: m, current: m.name === shown?.name, keyMissing, blocked };
+    return { model: m, current: !auto && m.name === shown?.name, keyMissing, blocked };
   });
   const shownRow = rows.find((r) => r.current);
-  const foot = footOf(choice, pick !== undefined && !pick.sent, pick?.sent === true, isNew);
+  const pending = pick !== undefined && !pick.sent;
+  const foot =
+    autoFoot({ auto: choice.auto === true, pickedAuto: pick?.name === autoPick, pickedModel: pick !== undefined && pick.name !== autoPick, pending, isNew, lastStep: ladder.find((s) => s.name === choice.last_step)?.label }) ||
+    footOf(choice, pending, pick?.sent === true, isNew);
 
   function toggle() {
     if (!open) void refresh(!active);
@@ -184,6 +190,12 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   function choose(row: Row) {
     if (row.blocked) return;
     pickModel(key, row.model.name);
+    setOpen(false);
+    trigger.current?.focus();
+  }
+
+  function chooseAuto() {
+    pickModel(key, autoPick);
     setOpen(false);
     trigger.current?.focus();
   }
@@ -204,9 +216,10 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
     }
   }
 
-  const label = shown ? labelOf(shown) : "Pick a model";
-  const warn = shownRow?.blocked ?? "";
-  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} phone={narrow} />;
+  const label = auto ? autoLabel : shown ? labelOf(shown) : "Pick a model";
+  const warn = auto ? "" : (shownRow?.blocked ?? "");
+  const autoRow = ladder.length > 0 ? { current: auto, steps: ladder.length, choose: chooseAuto } : undefined;
+  const menuBody = <MenuBody isNew={isNew} rows={rows} held={held} foot={foot} choose={choose} close={() => setOpen(false)} phone={narrow} auto={autoRow} />;
 
   return (
     <div className="model-picker" ref={wrap}>
@@ -240,10 +253,25 @@ export function ModelPicker(props: { chatId: string; initial?: ModelChoice } | {
   );
 }
 
-function MenuBody({ isNew, rows, held, foot, choose, close, phone }: { isNew: boolean; rows: Row[]; held: boolean; foot: string; choose: (r: Row) => void; close: () => void; phone: boolean }) {
+type AutoRow = { current: boolean; steps: number; choose: () => void };
+
+function MenuBody({ isNew, rows, held, foot, choose, close, phone, auto }: { isNew: boolean; rows: Row[]; held: boolean; foot: string; choose: (r: Row) => void; close: () => void; phone: boolean; auto?: AutoRow }) {
   return (
     <>
           <p className="model-menu-head">{isNew ? "Model for the new chat" : "Model for this chat"}</p>
+          {/* Auto first, while the person has a ladder (P14-04), on a computer and on a phone's sheet alike. */}
+          {auto && (
+            <button type="button" role="menuitemradio" aria-checked={auto.current} className={auto.current ? "model-item is-auto is-current" : "model-item is-auto"} onClick={auto.choose}>
+              <span className="model-item-check">{auto.current && <Icon name="check" size={16} />}</span>
+              <span className="model-item-text">
+                <span className="model-item-label">{autoLabel}</span>
+                <span className="model-item-why">{autoLine(auto.steps)}</span>
+              </span>
+              <span className="model-tags">
+                <span className="model-tag is-auto">auto</span>
+              </span>
+            </button>
+          )}
           {rows.map((r) => (
             <button
               key={r.model.name}

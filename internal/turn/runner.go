@@ -47,6 +47,8 @@ type Runner struct {
 
 	recaps recapJobs // which chats wait for their recap, or are being given one (P5-05, recap.go)
 
+	downs localDowns // when each tenant's local endpoint last did not answer (P14-04, auto.go)
+
 	once     sync.Once
 	setupErr error
 	reg      []settings.Setting
@@ -378,9 +380,11 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 
 	t.recalled = r.searchKnowledge(ctx, s, t) // before the route: what it finds decides the route (P6-05)
 	t.media = r.mediaOf(s, t)                 // P9-02: so do the turn's images (uploads.go)
-	m, provider, secrets, failure := r.open(ctx, s, t, t.input.Model)
+
+	// P14-04: on Auto the message is routed afresh; otherwise r.open (auto.go).
+	m, provider, secrets, failure := r.openTurn(ctx, s, &t, say)
 	if failure != nil {
-		return failure, false
+		return failure, ctx.Err() != nil
 	}
 	t.Model = t.media.chatModel(m.Name) // P9-02: the chat keeps its model when a fallback saw an image for it
 	err := inTx(context.Background(), s, func(tx *sql.Tx) error {
@@ -437,6 +441,16 @@ func (r *Runner) work(ctx context.Context, s *tenant.Store, t row) (failure *Tur
 			return broke("building the context", err)
 		}
 		out := r.call(ctx, s, t, step, m, provider, secrets, req, say)
+		r.noteLocalCall(s, out) // P14-04: a local endpoint that did not answer (auto.go)
+		if step == 1 && r.mayReroute(t, out) {
+			// P14-04: the local step did not answer before any of its reply
+			// was passed on, so the message is routed again without it.
+			if m, provider, secrets, failure = r.reroute(ctx, s, &t, say); failure != nil {
+				return failure, ctx.Err() != nil
+			}
+			step = 0
+			continue
+		}
 
 		blocks, stopReason := out.partial.Blocks, StatusFailed
 		var usage *seam.Usage
@@ -511,6 +525,9 @@ func (r *Runner) store(s *tenant.Store, t row, parent int64, role seam.Role, blo
 		return Message{}, err
 	}
 	x.turnID = t.ID
+	if role == seam.RoleAssistant && x.route == nil {
+		x.route = t.route.shown() // P14-04: the footnote of a reply on Auto (auto.go)
+	}
 	if err := noteMessage(s, msg.ID, x); err != nil {
 		return Message{}, err
 	}

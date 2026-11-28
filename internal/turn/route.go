@@ -192,6 +192,7 @@ func (r *Runner) moved(s *tenant.Store, t row, kind routing.Kind, secrets *[]str
 			return fmt.Errorf("recording the failed call to %s: %w", failed.Model.Name, err)
 		}
 		r.record(s, t, kind, failed.Model, end, false)
+		r.noteLocalDown(s, failed.Model, failed.Error.Kind) // P14-04: a local endpoint that did not answer (auto.go)
 		r.logf("turns: %s turn %s: model %s did not answer (%s), trying %s", t.requestID, t.ID, failed.Model.Name, failed.Error.Kind, next.Name)
 
 		sent, err := seam.EncodeRequest(req)

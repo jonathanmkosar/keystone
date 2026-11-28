@@ -137,6 +137,10 @@ type Message struct {
 	// with, and the line its model calls carry (P10-06). Absent on every
 	// other message.
 	Location *SentLocation `json:"location,omitempty"`
+	// Route is how an assistant message's turn on Auto was routed: the
+	// step, the effort, the reason and any notice, for the reply's
+	// footnote (P14-04). Absent on every other message.
+	Route *TurnRoute `json:"route,omitempty"`
 }
 
 // ModelInfo is a model as a person sees it. It never holds an address or
@@ -167,6 +171,26 @@ type ModelChoice struct {
 	Reason string `json:"reason,omitempty"`
 	// Models are the models a turn in this chat may name.
 	Models []ModelInfo `json:"models"`
+
+	// Auto says the chat's next turn is routed by the router (P14-04): the
+	// chat is on Auto and the person has a ladder. Model is then the model
+	// a named pick would fall back to, not the one that will answer.
+	Auto bool `json:"auto"`
+	// LastStep is the registry name of the step the chat's last turn on
+	// Auto used. Absent before one.
+	LastStep string `json:"last_step,omitempty"`
+	// Ladder is the person's ladder, smallest first: the steps Auto may
+	// use. Empty means Auto is not offered.
+	Ladder []LadderStep `json:"ladder"`
+	// MaySwitchOff says the person may take the chat off Auto by picking a
+	// model. Always true until the admin's policy (P14-05).
+	MaySwitchOff bool `json:"may_switch_off"`
+	// Allowed are the registry names the person may pick by hand. Every
+	// model in Models until the admin's policy (P14-05).
+	Allowed []string `json:"allowed"`
+	// Held says the chat holds content from a sensitive space, so only a
+	// local or trusted model may answer it (decision 0211).
+	Held bool `json:"held"`
 }
 
 // TurnError says why a turn failed.
@@ -209,6 +233,9 @@ type Turn struct {
 	Ended      *time.Time `json:"ended,omitempty"`
 	// LastEventID is the id of the newest event the turn has streamed.
 	LastEventID int64 `json:"last_event_id"`
+	// Route is how a turn on Auto was routed (P14-04). Absent on a turn
+	// that was not on Auto, and on one still waiting.
+	Route *TurnRoute `json:"route,omitempty"`
 }
 
 // ListReply answers GET chats.
@@ -268,8 +295,13 @@ type SendBody struct {
 	// message is written: the new reply becomes a branch beside the old.
 	RetryOf int64 `json:"retry_of,omitempty"`
 	// Model is the registry name of the model to answer. Absent means the
-	// chat's own, as GET chats/{id}/model gives it.
+	// chat's own, as GET chats/{id}/model gives it. Naming one takes a chat
+	// that is on Auto off it (P14-04).
 	Model string `json:"model,omitempty"`
+	// Auto puts the chat on Auto for this message and the ones after it:
+	// the router chooses the model and the effort for each (P14-04). Give
+	// auto or model, not both.
+	Auto bool `json:"auto,omitempty"`
 	// Location is the person's approximate position, sent with this
 	// message only and only when they tapped "Use my location" (P10-06,
 	// location.go). Absent on every other message, which is then sent and
@@ -331,6 +363,7 @@ type TitleEvent struct {
 // streamEvents is what a turn's stream sends, for the OpenAPI document.
 var streamEvents = []api.EventDoc{
 	{Name: EventTurn, Description: "The turn's state. It is the first event, and is sent again when the turn leaves the queue and starts.", Data: Turn{}},
+	{Name: EventRoute, Description: "How a turn on Auto was routed: the model, the step, the effort, the reason and any notice. It is sent when the turn leaves the queue, before the turn event that names its model, and again with the notice when the local machine did not answer the first step and the message was routed again. A turn on the model picked sends none (P14-04).", Data: TurnRoute{}},
 	{Name: EventMessage, Description: "A message was written to the chat record: the person's own at the start, each assistant message when it is whole, each set of tool results. It replaces whatever the screen built from the deltas.", Data: Message{}},
 	{Name: EventStart, Description: "A model call opens.", Data: StartEvent{}},
 	{Name: EventThinking, Description: "More of a thinking block.", Data: DeltaEvent{}},

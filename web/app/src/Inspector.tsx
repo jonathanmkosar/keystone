@@ -29,6 +29,7 @@ import {
 import { UploadsSection, type UploadCall } from "./Attachments";
 import { Icon } from "./Icon";
 import { LocationSection } from "./LocationControl";
+import { VerdictSection } from "./AutoParts"; // how Auto chose the model (P14-04)
 import { pinMessage, putPins, usePins } from "./pins";
 import { onEnd } from "./turns";
 import "./inspector.css";
@@ -254,6 +255,7 @@ function Inspected({ chatId, data, skips, change }: { chatId: string; data: Insp
     <>
       {line && <p className="inspector-line">{line}</p>}
       <TotalsTiles totals={data.totals} />
+      <VerdictSection verdict={data.verdict} />
       <NextTurn skips={skips} change={change} />
       {chats.length === 0 && <p className="quiet">This turn made no model call.</p>}
       {chats.map((c, i) => (

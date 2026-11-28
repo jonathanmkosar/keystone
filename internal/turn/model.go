@@ -75,7 +75,7 @@ func (r *Runner) choice(ctx context.Context, s *tenant.Store, chatID string) (Mo
 	}
 	if test {
 		m := info(r.testModel())
-		return ModelChoice{Model: &m, Source: SourceTest, Models: []ModelInfo{m}}, nil
+		return r.withAuto(ctx, s, chatID, ModelChoice{Model: &m, Source: SourceTest, Models: []ModelInfo{m}}) // P14-04 (auto.go)
 	}
 	can, err := r.candidates(ctx, s)
 	if err != nil {
@@ -89,7 +89,7 @@ func (r *Runner) choice(ctx context.Context, s *tenant.Store, chatID string) (Mo
 	}
 	if len(can) == 0 {
 		out.Reason = "This person's model registry has no model that this build of Keystone can call."
-		return out, nil
+		return r.withAuto(ctx, s, chatID, out) // P14-04 (auto.go)
 	}
 	last, err := lastModel(ctx, s, chatID)
 	if err != nil {
@@ -105,7 +105,7 @@ func (r *Runner) choice(ctx context.Context, s *tenant.Store, chatID string) (Mo
 	if !pick(last, SourceChat) && !pick(r.setting(ctx, s, KeyDefaultModel), SourceDefault) {
 		pick(can[0].Name, SourceFirst)
 	}
-	return out, nil
+	return r.withAuto(ctx, s, chatID, out) // P14-04 (auto.go)
 }
 
 // open returns the model a turn runs on and a provider for it, behind the
