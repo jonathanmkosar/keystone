@@ -1,6 +1,6 @@
 # P14-06. Auto for unattended work
 
-Status: doing (agents)
+Status: done
 Lane: agents
 Depends on: P14-04, P8-01, P8-03
 Owner gate: None.
@@ -29,3 +29,7 @@ The shape: unattended work already works through ordinary turns of a chat of its
 7. **Write-up**: `docs/architecture/unattended-auto.md` with its `componentDocs` line and overview row, decisions from 0730, journal `docs/journal/2026-11-28-agents-016.md`, and lines added to `router.md`, `sub-agents.md`, `jobs.md` and `schedules.md` where they said Auto for unattended work was not here yet.
 
 Left to others: the admin's refusals of a named model (P14-05), Auto in usage (P14-07), the live check (P14-08).
+
+## Result
+
+Done on November 28, 2026 (journal `docs/journal/2026-11-28-agents-016.md`). Sub-agents, background tasks, scheduled runs and research tasks with their parts start on Auto when the call that started them names no model, `router.auto_default` is on and the person has a ladder (`turn.Runner.StartOnAuto`); their turns then name no model, so the turn routes each afresh, with its verdict under the work's own request id. A named model, the switch off, or no ladder leaves the work as it was before Auto. No migration, setting or route. Held parents and the cap hold through the router's rule 1 and the gated route, unchanged. Proven by `auto_test.go` in `internal/schedules` (a scheduled run on Auto uses the router and records its verdict), `internal/jobs` (a background task routed each round, with verdicts; the cap on Auto falls back or stops), `internal/subagents` (a held parent's sub-agent reaches no hosted model) and `internal/research`, and `internal/turn/unattendedauto_test.go`. Decisions 0730 to 0733; doc `docs/architecture/unattended-auto.md`. Owner questions in the journal: whether Auto should skip hosted steps at the cap, and whether unattended work should keep following `router.auto_default`.
