@@ -49,6 +49,16 @@ type Setting struct {
 	Options     []string `json:"options,omitempty"`
 	Scope       Scope    `json:"scope"`
 	Description string   `json:"description"`
+	// Restart says the setting takes effect only after Keystone restarts:
+	// the server reads it once, at start (P15-03). Optional; false when
+	// left out.
+	Restart bool `json:"restart,omitempty"`
+
+	// shipped and installed are set by Registry when the install has a
+	// value of its own for the setting (installed.go): shipped is the
+	// default as the lane file has it.
+	shipped   string
+	installed bool
 }
 
 type laneFile struct {
@@ -63,8 +73,14 @@ var (
 )
 
 // Registry returns every setting compiled into the binary, sorted by key.
+// Where the install has a value of its own (UseInstalled), that value is
+// the setting's Default; Shipped still gives the lane file's.
 func Registry() ([]Setting, error) {
-	return Read(files)
+	reg, err := Read(files)
+	if err != nil {
+		return nil, err
+	}
+	return withInstalled(reg), nil
 }
 
 // Read merges every lane file in fsys into one registry, sorted by key.
@@ -136,6 +152,9 @@ func Validate(s Setting) error {
 	}
 	if !slices.Contains(scopes, s.Scope) {
 		return fmt.Errorf("%s: scope %q is not install, tenant-admin or tenant", s.Key, s.Scope)
+	}
+	if s.Restart && s.Scope != ScopeInstall {
+		return fmt.Errorf("%s: only an install setting is marked restart: a person's is read when it is used", s.Key)
 	}
 	d := strings.TrimSpace(s.Description)
 	if d == "" || !strings.HasSuffix(d, ".") {

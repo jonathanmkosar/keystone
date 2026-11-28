@@ -143,7 +143,7 @@ func Get(ctx context.Context, s *tenant.Store, reg []settings.Setting, key strin
 	err = s.DB().QueryRowContext(ctx, "SELECT value, set_by, updated_at FROM tenant_settings WHERE key = ?", key).
 		Scan(&r.value, &r.setBy, &r.updatedAt)
 	if errors.Is(err, sql.ErrNoRows) {
-		return st.Default, nil
+		return settings.DefaultFor(st), nil // the install's own default, when it has one (P15-03)
 	}
 	if err != nil {
 		return "", err
@@ -187,7 +187,12 @@ type row struct {
 // and it still passes CheckValue. So when a setting's scope, type or options
 // change in the registry, a value that no longer fits falls back to the
 // default without anyone having to find and remove it.
+//
+// With no value of the tenant's own, the default is the install's, when
+// the admin set one (P15-03, settings.DefaultFor), so a registry read
+// before the change still answers what is in force now.
 func inForce(st settings.Setting, r *row) Value {
+	st.Default = settings.DefaultFor(st)
 	v := Value{Setting: st, Value: st.Default}
 	if r == nil || MayChange(st, Role(r.setBy)) != nil || settings.CheckValue(st, r.value) != nil {
 		return v

@@ -387,6 +387,267 @@
         "x-keystone-admin": true
       }
     },
+    "/api/v1/admin/install/settings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "settings": {
+                      "items": {
+                        "properties": {
+                          "default": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "in_force": {
+                            "type": "string"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "lane": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "overridden": {
+                            "type": "boolean"
+                          },
+                          "pending": {
+                            "type": "boolean"
+                          },
+                          "restart": {
+                            "type": "boolean"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "lane",
+                          "type",
+                          "options",
+                          "scope",
+                          "description",
+                          "default",
+                          "value",
+                          "overridden"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "settings"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Every install setting, and every person's own setting as the default a person starts from, each with its shipped default, the install's value, what is in force now and whether it waits for a restart. Kept in keystone.json.",
+        "x-keystone-admin": true
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "reset": {
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "change": {
+                      "properties": {
+                        "by": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "new": {
+                          "type": "string"
+                        },
+                        "old": {
+                          "type": "string"
+                        },
+                        "person": {
+                          "type": "string"
+                        },
+                        "restart": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "by",
+                        "key",
+                        "old",
+                        "new"
+                      ],
+                      "type": "object"
+                    },
+                    "setting": {
+                      "properties": {
+                        "default": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "in_force": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "lane": {
+                          "type": "string"
+                        },
+                        "options": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "overridden": {
+                          "type": "boolean"
+                        },
+                        "pending": {
+                          "type": "boolean"
+                        },
+                        "restart": {
+                          "type": "boolean"
+                        },
+                        "scope": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "lane",
+                        "type",
+                        "options",
+                        "scope",
+                        "description",
+                        "default",
+                        "value",
+                        "overridden"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "setting",
+                    "change"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Set the install's value for one setting, or with reset take it back to its shipped default: an install setting, or the default for a person's own setting. A setting marked restart takes effect at the next start. A tenant-admin setting, a fixed rule or data.dir is 403 not_allowed. The change is in the admin audit log with its old and new value.",
+        "x-keystone-admin": true
+      }
+    },
     "/api/v1/admin/passkeys": {
       "get": {
         "responses": {
@@ -1644,6 +1905,291 @@
           }
         ],
         "summary": "Enable a disabled person again: sign-in, schedules and share links return. Runs missed while disabled are not caught up.",
+        "x-keystone-admin": true
+      }
+    },
+    "/api/v1/admin/people/{id}/settings": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "person": {
+                      "type": "string"
+                    },
+                    "settings": {
+                      "items": {
+                        "properties": {
+                          "default": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "in_force": {
+                            "type": "string"
+                          },
+                          "key": {
+                            "type": "string"
+                          },
+                          "lane": {
+                            "type": "string"
+                          },
+                          "options": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "overridden": {
+                            "type": "boolean"
+                          },
+                          "pending": {
+                            "type": "boolean"
+                          },
+                          "restart": {
+                            "type": "boolean"
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          },
+                          "updated": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "lane",
+                          "type",
+                          "options",
+                          "scope",
+                          "description",
+                          "default",
+                          "value",
+                          "overridden"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "settings"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "A person's tenant-admin settings: those the admin sets for them, the router's policy among them, each with its value, its default and whether it is set for them. Never the person's own settings. The person's own audit log records the read.",
+        "x-keystone-admin": true
+      },
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "reset": {
+                    "type": "boolean"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "change": {
+                      "properties": {
+                        "by": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "new": {
+                          "type": "string"
+                        },
+                        "old": {
+                          "type": "string"
+                        },
+                        "person": {
+                          "type": "string"
+                        },
+                        "restart": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "by",
+                        "key",
+                        "old",
+                        "new"
+                      ],
+                      "type": "object"
+                    },
+                    "setting": {
+                      "properties": {
+                        "default": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "in_force": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "type": "string"
+                        },
+                        "lane": {
+                          "type": "string"
+                        },
+                        "options": {
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": "array"
+                        },
+                        "overridden": {
+                          "type": "boolean"
+                        },
+                        "pending": {
+                          "type": "boolean"
+                        },
+                        "restart": {
+                          "type": "boolean"
+                        },
+                        "scope": {
+                          "type": "string"
+                        },
+                        "summary": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "updated": {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "lane",
+                        "type",
+                        "options",
+                        "scope",
+                        "description",
+                        "default",
+                        "value",
+                        "overridden"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "setting",
+                    "change"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "The call did what was asked."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "The call was refused or failed."
+          }
+        },
+        "security": [
+          {
+            "admin": []
+          }
+        ],
+        "summary": "Set one of a person's tenant-admin settings, or with reset take it back to its default. A setting that is the person's own, or a fixed rule, is 403 not_allowed. The change is in the person's audit log and the admin audit log, with its old and new value.",
         "x-keystone-admin": true
       }
     },

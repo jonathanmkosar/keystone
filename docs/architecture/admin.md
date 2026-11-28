@@ -134,6 +134,7 @@ P15-05 adds the drill: marker words in a second person's chats, titles, files, m
 
 - Built since by P15-02, in [people.md](people.md): the people and install numbers through `internal/figures`, adding a person with a setup code, `/setup`, disabling a person, and the disk moved from a person's Operations to the admin account.
 - Settings from the browser, install settings in `keystone.json`, and a change's old and new value in both logs: P15-03.
+  Built: [admin-settings.md](admin-settings.md). A change of a person's setting is logged with `adminview`'s own change entries (`{"by", "person", "key", "old", "new"}`), not with `Touch`, so an empty old value is still written.
 - Views and view sets: P15-04.
 - The marker-word drill: P15-05.
 - The admin screens beyond sign-in: the interface halves of P15-02 to P15-04.

@@ -372,6 +372,10 @@ export function AdminPersonView({ id, onBack }: { id: string; onBack: () => void
           Back to people
         </button>
         <div className="adm-actions">
+          {/* The person's tenant-admin settings (P15-03, AdminSettings.tsx). */}
+          <a className="button" href={`/admin/people/${encodeURIComponent(id)}/settings`}>
+            Settings
+          </a>
           <button type="button" className="button" onClick={() => void makeCode()} disabled={!person || !person.enabled}>
             New setup code
           </button>

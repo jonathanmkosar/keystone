@@ -9,6 +9,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ApiError } from "./api";
 import { adminSignIn, adminSignOut, adminWho, type AdminSession } from "./adminCalls";
 import { AdminSections } from "./AdminPeople";
+// Settings from the browser (P15-03): the install's settings and a person's tenant-admin settings.
+import { AdminSettingsPage, isAdminSettingsPath } from "./AdminSettings";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
 import { ThemeSwitch } from "./ThemeSwitch";
@@ -53,7 +55,7 @@ export function AdminApp() {
     try {
       const session = await adminWho();
       setState({ kind: "signed-in", session });
-      go("/admin");
+      if (!isAdminSettingsPath(window.location.pathname)) go("/admin");
     } catch (e) {
       if (e instanceof ApiError && e.kind === "signed-out") {
         setState({ kind: "signed-out" });
@@ -101,6 +103,8 @@ export function AdminApp() {
   }
 
   const { account, session } = state.session;
+  // The settings screens (P15-03) are drawn for their own paths.
+  if (isAdminSettingsPath(window.location.pathname)) return <AdminSettingsPage path={window.location.pathname} onSignedOut={() => void check()} />;
   async function leave() {
     try {
       await adminSignOut();
@@ -127,6 +131,9 @@ export function AdminApp() {
           </button>
         </div>
       </div>
+      <p className="quiet adm-links">
+        <a href="/admin/settings">Settings for the whole install</a>, and each person's own settings from their page (P15-03).
+      </p>
       <AdminSections />
     </div>
   );

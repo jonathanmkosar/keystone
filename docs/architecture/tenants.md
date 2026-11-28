@@ -17,6 +17,8 @@ data/
 
 The data folder is the `data.dir` setting. A relative folder is read from the repo root. `keystone.json` is written to a temporary file and renamed into place, so a crash never leaves half a registry. Fields this part does not know are kept when it saves.
 
+`keystone.json` also holds the install's own setting values (P15-03): `settings`, for install settings, and `person_defaults`, for the default each person's own setting starts from, each an object of key to value as text. `Install.InstallValues(field)` reads one from disk; `Install.ChangeInstallValues(field, change)` reads the file again, changes only that object, keeps every other field another program wrote, and saves. This part reads no setting: `internal/installsettings` says what the values mean ([admin-settings.md](admin-settings.md), decision [0710](decisions/0710-install-values-are-kept-in-keystone-json.md)).
+
 `data/admin/` is the install's own folder, beside `tenants/`, for what belongs to no one person: the install's search providers in `search.db` and the install vault `secrets.bin` (P7-06, [web-search.md](web-search.md)), and the admin accounts' `admin.db` (P15-01). `Install.AdminFolder()` gives its path and makes nothing; a part makes the folder when it first writes there. `Install.InstallVault()` gives the install vault, opened with the install's keeper.
 
 ## Tenant ids

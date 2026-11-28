@@ -10,6 +10,7 @@ One folder per part. Each lane owns its own folders, listed in `docs/plan/PARALL
 | `secrets` | core | Each tenant's `secrets.bin`, and the keepers of the install master key |
 | `audit` | core | The append-only audit log and the wrapper that records every API call |
 | `tenantsettings` | core | A tenant's own values over the registry's defaults |
+| `installsettings` | core | The install's own setting values and person defaults in `keystone.json`, handed to the registry at start and on each change (P15-03) |
 | `api` | core | The API shell: what a route is, the session cookie, errors, server-sent events and the OpenAPI document |
 | `app` | core | The one list of every route Keystone serves. A lane that brings routes adds them here |
 | `seam` | models | Keystone's own format for a model call, and the `Provider` interface |

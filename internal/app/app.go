@@ -350,6 +350,8 @@ func routes(c Config, log *api.Log) []api.Route {
 	}), Log: log})...)
 	// The door a new person sets their password at, with a setup code (P15-02).
 	all = append(all, setupapi.Routes(setupapi.Options{Install: c.Install, SignIn: c.SignIn, SecureCookie: c.SecureCookie, Log: log})...)
+	// Settings from the browser (P15-03): a person's tenant-admin settings and the install's values.
+	all = append(all, adminapi.SettingsRoutes(adminapi.Options{View: adminview.New(c.Install), Log: log})...)
 	// A person's own view of what admin accounts read of theirs (P15-01).
 	all = append(all, api.AdminEntriesRoute(c.PageLimit, log))
 	return all
